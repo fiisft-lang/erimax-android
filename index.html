@@ -137,7 +137,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:12px">Cadastro de Máquinas</h3>
 <div class="form-group"><label>Setor</label><select id="cadSetor"></select></div>
 <div class="form-group"><label>Nome da máquina</label><input id="cadNome" placeholder="Ex.: Corte de gaze 01"></div>
-<div class="form-group"><label>Código da máquina (letras + número)</label><input id="cadPref" maxlength="9" placeholder="Ex.: MCA08" style="text-transform:uppercase"></div>
+<div class="form-group"><label>Código da máquina (ex.: MTC-11)</label><input id="cadPref" maxlength="9" placeholder="Ex.: MTC-11" style="text-transform:uppercase"></div>
 <button class="btn-submit" onclick="addMaquina()">➕ Cadastrar máquina</button></div>
 <div class="card"><h4>Máquinas cadastradas</h4><div id="listaMaquinas"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:12px">Manutenção Preventiva</h3>
@@ -572,7 +572,7 @@ function verHistorico(id){
 function atualizarMaquinasMetrica(){
   const s=document.getElementById('filtroSetorMetrica').value,sel=document.getElementById('filtroMaquinaMetrica'),atual=sel.value;
   const maqs=[...new Set(chamados.filter(c=>s==='Todos'||c.setor===s).map(c=>c.maquina))].sort();
-  sel.innerHTML='<option value="Todas">Todas as Máquinas</option>'+maqs.map(m=>`<option value="${m}">${m}</option>`).join('');
+  sel.innerHTML='<option value="Todas">Todas as Máquinas</option>'+maqs.map(m=>{const ref=MAQUINAS.find(x=>x.nome===m&&(s==='Todos'||x.setor===s));return `<option value="${escaparHtml(m)}">${escaparHtml(m)}${ref&&ref.prefixo?' • '+escaparHtml(ref.prefixo):''}</option>`}).join('');
   if(maqs.includes(atual))sel.value=atual;
 }
 
@@ -694,8 +694,17 @@ function atualizarMetricasReais(){
   if(dia){pIni=new Date(dia+'T00:00:00');pFim=pIni}
   else if(mes){const [y,mo]=mes.split('-').map(Number);pIni=new Date(y,mo-1,1);pFim=(hoje.getFullYear()===y&&hoje.getMonth()+1===mo)?hoje:new Date(y,mo,0)}
   else{pIni=f.length?new Date(Math.min(...f.map(c=>new Date(c.created_at)))):new Date(hoje);pIni.setHours(0,0,0,0);pFim=hoje}
-  const baseDe=sx=>{let total=0;
-    for(let x=new Date(pIni);x<=pFim;x.setDate(x.getDate()+1))for(const t of horariosDoDia(sx,x))if(tn==='Todos'||+t.numero_turno===+tn.slice(-1))total+=minutosTurno(t);
+  const baseDe=sx=>{
+    let total=0,limiteIni=new Date(pIni),limiteFim=new Date(pFim);
+    limiteIni.setHours(0,0,0,0);limiteFim.setHours(0,0,0,0);limiteFim.setDate(limiteFim.getDate()+1);
+    const x=new Date(limiteIni);x.setDate(x.getDate()-1);
+    for(;x<limiteFim;x.setDate(x.getDate()+1))for(const t of horariosDoDia(sx,x)){
+      if(tn!=='Todos'&&+t.numero_turno!==+tn.slice(-1))continue;
+      const a=new Date(x);a.setHours(0,0,0,0);a.setMinutes(minutosHora(t.hora_inicio));
+      const b=new Date(a);b.setMinutes(b.getMinutes()+minutosTurno(t));
+      const ini=Math.max(a.getTime(),limiteIni.getTime()),fim=Math.min(b.getTime(),limiteFim.getTime());
+      if(fim>ini)total+=(fim-ini)/60000;
+    }
     return total};
   const maqsBase=MAQUINAS.filter(m=>(st==='Todos'||m.setor===st)&&(mq==='Todas'||m.nome===mq));
   const base=Math.max(1,maqsBase.length?maqsBase.reduce((t,m)=>t+baseDe(m.setor),0):Object.values(maq).reduce((t,m)=>t+baseDe(m.setor),0));
@@ -941,11 +950,11 @@ async function carregarMaquinas(){
   const nomes=new Set([...SETORES,...MAQUINAS.map(m=>m.setor)]);
   SETORES=[...nomes].filter(Boolean);
   popularSetores();carregarMaquinasSetor();pvMaquinas();
-  listaMaquinas.innerHTML=MAQUINAS.length?MAQUINAS.map(m=>`<div class="maq-row"><span><b>${escaparHtml(m.nome)}</b> <small style="color:#64748b">• ${escaparHtml(m.setor)}</small></span><input value="${m.prefixo||''}" placeholder="Código" maxlength="9" style="width:95px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo(${m.id},this.value)"><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delMaquina(${m.id})">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma máquina cadastrada.</p>';
+  listaMaquinas.innerHTML=MAQUINAS.length?MAQUINAS.map(m=>`<div class="maq-row"><span><b>${escaparHtml(m.nome)}</b> <small style="color:#64748b">• ${escaparHtml(m.setor)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</small></span><input value="${m.prefixo||''}" placeholder="MTC-11" maxlength="9" style="width:105px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo(${m.id},this.value)"><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delMaquina(${m.id})">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma máquina cadastrada.</p>';
 }
 function carregarMaquinasSetor(){
   const l=MAQUINAS.filter(m=>m.setor===setor.value);
-  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option>${m.nome}</option>`).join(''):'<option value="">Nenhuma máquina neste setor</option>';
+  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join(''):'<option value="">Nenhuma máquina neste setor</option>';
 }
 async function salvarPrefixo(id,v){
   v=v.trim().toUpperCase();
@@ -1041,7 +1050,7 @@ function renderCfg(){
   listaCfg.innerHTML=SETORES.map((s,i)=>{
     const edit=SETOR_EM_EDICAO===s;
     const qtd=turnosDoSetor(s).length||1;
-    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button><button class="btn-action btn-excluir" title="Excluir setor" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button></div></div>';
+    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button>'+(edit?'<button class="btn-action btn-excluir" title="Excluir setor" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button>':'')+'</div></div>';
     if(edit)h+=renderEditorSetor(s,i);
     else h+='<p style="font-size:.75rem;color:#64748b;margin-top:8px">🔒 Configuração protegida • '+qtd+' turno(s). Para alterar dias ou horários, toque na ferramenta.</p>';
     if(edit)h+='<button class="btn-action" style="margin-top:8px;width:auto" onclick="cancelarEdicaoHorario()">Fechar edição</button>';
@@ -1147,7 +1156,7 @@ async function salvarUsuario(id,campos){
 }
 
 /* ===== PREVENTIVAS ===== */
-function pvMaquinas(){pvMaq.innerHTML=MAQUINAS.filter(m=>m.setor===pvSetor.value).map(m=>`<option>${m.nome}</option>`).join('')||'<option value="">Sem máquinas no setor</option>'}
+function pvMaquinas(){pvMaq.innerHTML=MAQUINAS.filter(m=>m.setor===pvSetor.value).map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join('')||'<option value="">Sem máquinas no setor</option>'}
 async function addPrev(){
   if(!pvMaq.value||!pvDesc.value.trim())return alert('Escolha a máquina e descreva a preventiva.');
   const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:pvMaq.value,descricao:pvDesc.value.trim(),intervalo_dias:+pvDias.value||30}]);
