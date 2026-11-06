@@ -1,0 +1,13 @@
+{
+  "appId": "com.webapp.erimaxmanuteno",
+  "appName": "EriMax Manutenção",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}
