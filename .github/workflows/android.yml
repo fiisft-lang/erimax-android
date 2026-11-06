@@ -87,8 +87,8 @@ jobs:
           root_text = root.read_text()
           if "com.google.gms:google-services" not in root_text:
               root_text, count = re.subn(
-                  r"(dependencies\\s*\\{)",
-                  r"\\1\\n        classpath 'com.google.gms:google-services:4.4.2'",
+                  r"(dependencies\s*\{)",
+                  r"\1\n        classpath 'com.google.gms:google-services:4.4.2'",
                   root_text,
                   count=1
               )
@@ -101,15 +101,15 @@ jobs:
           dependency = "implementation 'com.google.firebase:firebase-messaging:24.1.0'"
           if dependency not in app_text:
               app_text, count = re.subn(
-                  r"(dependencies\\s*\\{)",
-                  r"\\1\\n    " + dependency,
+                  r"(dependencies\s*\{)",
+                  r"\1\n    " + dependency,
                   app_text,
                   count=1
               )
               if count != 1:
                   raise SystemExit("Bloco dependencies não encontrado em android/app/build.gradle")
           if "com.google.gms.google-services" not in app_text:
-              app_text += "\\napply plugin: 'com.google.gms.google-services'\\n"
+              app_text += "\napply plugin: 'com.google.gms.google-services'\n"
           app.write_text(app_text)
           PY
           echo "Dependência Firebase Messaging configurada:"
