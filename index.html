@@ -428,6 +428,7 @@ async function alternarTurno(){
     const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'ONLINE',turno_ativo:true,turno_inicio:agora,turno_fim:null,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
     if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
   }
+  await recalcularStatusTecnico(MEU_ID);
   await carregarDadosSupabase();
 }
 async function recalcularStatusTecnico(userId){
