@@ -38,6 +38,7 @@ public class IncomingCallMessagingService extends MessagingService {
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
       Uri alertSound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
       Notification n = new NotificationCompat.Builder(this, CHANNEL)
+        .setSound(alertSound)
         .setSmallIcon(getApplicationInfo().icon)
         .setContentTitle("Nova ordem de serviço")
         .setContentText(machine + " • " + sector)
