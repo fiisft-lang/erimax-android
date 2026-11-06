@@ -63,7 +63,7 @@ jobs:
         run: |
           python3 -m pip install --quiet pillow
           curl --fail --location --retry 3 --retry-delay 2 \
-            "https://lh3.googleusercontent.com/rd-d/ALs6j_HFO547u55iRum5BZdeZozHE3Puak3YikfEPQkNsVd1OrWQjmhq9krMFIMiikycRmyY0ylldXq62nDOW6-22RQ3qAIVqyLs5pQVhDSR9tcKCDguJO_wTRycWaFdinLXmxNy1LNtsWnzY1IHmfzwACFLvh2LS_ffoWn41QyC7aCqtNasdks3c5aTsj4IClPtczKpkCvyE3e0Lq73eK_wppqS3nYlJj_9Gn9x9PF2ArLJ-k1u9WJYJl61UpaVoX7OqbSxk6xpLTakk0_PY2OmnEMi13yiv7g0G6pGpcOyG77Mb_3x81QQ3XkTdwL2_lvzPnvoT1TD9HHigAFNc7G2LCLCKOZzPkYbh5v4E728ChfivjOBio_UlbCAnmzzAldmzaLYIJBk031CiqYVpBCX_TUXXbw7w7WSJJQNdPA0HGTm28A-PFOY6HWK_J5DCB9E3YxjVEuz25UuJYHAOy_tI-RvsPb8cPJW9HGFNQcVywNcOCQHxsYblyzf6PXxL1LItlNAsg8HkaLnEaPvT5uKVp2n1Idy3-0W-BPtD_JNEI-VTRHgTZIflsWeI603TiRmf73jr4lg65X6wGo4iUcrZP_Q3Kn3Ot3kjgXViSqcREYBWexic-beIq7JSutxtIuTqV__k0OXZ8kuVvi0go8ocwPX6EnZuwoB5r6hUCoiCG-PO6IYmPkIPuwgt6zoxpKtnVnjYJB9-tUgv2zmGUeoPWd2FU0mW4JWm1jy7w716pcQji806VFZ34wPfrcrr5dqkmhw43G1pSfbDt7LBaOW1RZalRt5BWtXuKFhC8zy1YQU0lqwfGNqTDIOzsTD_MLWVFZT98wGEVvY8_MC6csIrLcsKOiT9OX000S4IMXk_mNyA92VJ2ISgKJD6EgWpIJRktEr64UlvCQFellLxc8dY9JVPARiU2SY5F_mvaucKP_rhBl6M9KOmrQ48YsC_rzp9MghFP1Ubjtf70xfmkY92uX7g-Dfe3a-Jcq7TrEvMw2f803h9fKhiKOIyXnxKcTshKppkh8p4bY_xfHLskcqTegmZAe98EFu2PZgtqAW_fCeSsmaalIZHpACyp65Sgv90imopR1ogGC6_Qg8tOzgOjH7aRDMVGjGHLgzfCvpn8y76ttPCvA_Zz3FOTiVfDQ9av-oj9kR=s16383-w1600?authuser=0" \
+            "https://drive.usercontent.google.com/download?id=17TL21IgDU2hnjdl1wUQ9AogMM0y7ZG9Q&export=download&confirm=t" \
             --output /tmp/erimax-logo-original.jpg
           python3 - <<'PY'
           from pathlib import Path
