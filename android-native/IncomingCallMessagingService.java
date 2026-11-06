@@ -6,18 +6,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
 import androidx.core.app.NotificationCompat;
 import com.capacitorjs.plugins.pushnotifications.MessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 public class IncomingCallMessagingService extends MessagingService {
-  private static final String CHANNEL = "erimax_incoming_calls";
+  private static final String CHANNEL = "erimax_incoming_calls_v2";
 
   @Override public void onMessageReceived(RemoteMessage message) {
     Map<String,String> data = message.getData();
@@ -46,7 +42,7 @@ public class IncomingCallMessagingService extends MessagingService {
         .setAutoCancel(false)
         .setFullScreenIntent(full, true)
         .setContentIntent(full)
-        .setStyle(new NotificationCompat.BigTextStyle().bigText(number + " • " + machine + "\\n" + sector))
+        .setStyle(new NotificationCompat.BigTextStyle().bigText(number + " • " + machine + "\n" + sector))
         .build();
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       nm.notify(id.hashCode(), n);
@@ -59,14 +55,10 @@ public class IncomingCallMessagingService extends MessagingService {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       NotificationManager nm = getSystemService(NotificationManager.class);
       if (nm.getNotificationChannel(CHANNEL) != null) return;
-      Uri sound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
-      AudioAttributes attrs = new AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
-      NotificationChannel ch = new NotificationChannel(CHANNEL, "Chamadas de O.S.", NotificationManager.IMPORTANCE_HIGH);
-      ch.setDescription("Alerta sonoro de novas ordens de serviço");
-      ch.enableVibration(true);
-      ch.setSound(sound, attrs);
+      NotificationChannel ch = new NotificationChannel(CHANNEL, "Alertas de O.S. (controle no aplicativo)", NotificationManager.IMPORTANCE_HIGH);
+      ch.setDescription("A tela do alerta controla o toque; a notificação da barra é silenciosa");
+      ch.setSound(null, null);
+      ch.enableVibration(false);
       ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
       nm.createNotificationChannel(ch);
     }
