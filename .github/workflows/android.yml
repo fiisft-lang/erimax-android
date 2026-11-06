@@ -78,6 +78,7 @@ jobs:
           ET.SubElement(deep, "data", {A+"scheme":"erimax", A+"host":"os"})
           ET.ElementTree(root).write(p, encoding="utf-8", xml_declaration=True)
           PY
+          npx cap sync android
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -102,7 +103,6 @@ jobs:
           if "com.google.gms.google-services" not in app_text:
               app.write_text(app_text.rstrip() + "\n\napply plugin: 'com.google.gms.google-services'\n")
           PY
-          npx cap sync android
 
       - name: Gerar APK
         run: |
