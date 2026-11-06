@@ -127,6 +127,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroStatus" onchange="renderizarChamados()"><option value="Todas">Todas as Ordens</option><option value="Aberta">Abertas</option><option value="Em Atendimento">Em Atendimento</option><option value="Concluída">Concluídas</option></select></div>
 </div>
 <div id="boxTec"></div>
+<div id="boxStatusTurno"></div>
 <div id="boxPrev"></div>
 <div id="listaOS"></div>
 </div>
@@ -271,7 +272,7 @@ const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
 const {createClient}=supabase;
 const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
-let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[];
+let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[],STATUS_TECNICOS=[];
 let canalOSTempoReal=null;
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
@@ -307,6 +308,7 @@ function iniciarTempoReal(){
   canalOSTempoReal = _supabase.channel('tabela-os-realtime')
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>{if(PERFIL&&PERFIL.perfil!=='operador'&&!estaNoAppAndroid())exibirBannerAlerta(p.new);carregarDadosSupabase()})
    .on('postgres_changes',{event:'*',schema:'public',table:'os'},()=>carregarDadosSupabase())
+   .on('postgres_changes',{event:'*',schema:'public',table:'status_tecnicos'},()=>carregarDadosSupabase())
    .subscribe(status=>{
      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
        console.error('Erro no canal Realtime:',status);
@@ -348,7 +350,11 @@ async function carregarDadosSupabase(){
   const {data,error}=await _supabase.from('os').select('*').order('id',{ascending:false});
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
-  const {data:pf}=await _supabase.from('perfis').select('nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');renderTecnicos();
+  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');
+  const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
+  if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
+  STATUS_TECNICOS=st||[];
+  renderTecnicos();renderStatusTurno();
   if(document.getElementById('tab-painel').classList.contains('active'))renderizarChamados();
   if(document.getElementById('tab-metricas').classList.contains('active')){atualizarMaquinasMetrica();atualizarMetricasReais()}
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
@@ -382,10 +388,61 @@ async function salvarOS(e){
 
 function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento'),ag=chamados.filter(c=>c.status==='Aberta').length;
-  boxTec.innerHTML='<div class="card"><h4 style="color:var(--primary)">👷 Técnicos agora</h4>'+(TECNICOS.length?TECNICOS.map(t=>{const o=em.filter(c=>c.tecnico===t.nome);return `<div class="maq-row"><b>${t.nome}</b><span style="font-size:.75rem;font-weight:700;text-align:right;color:${o.length?'#dc3545':'#28a745'}">${o.length?'🔴 Em atendimento: '+o.map(c=>nOS(c)+' ('+c.maquina+')').join(', '):'🟢 Disponível'}</span></div>`}).join(''):'<p style="color:#64748b;text-align:center;font-size:.8rem">Nenhum técnico cadastrado.</p>')+`<p style="font-size:.72rem;color:#64748b;margin-top:8px">${ag} OS aguardando atendimento</p></div>`;
+  boxTec.innerHTML='<div class="card"><h4 style="color:var(--primary)">👷 Técnicos agora</h4>'+(TECNICOS.length?TECNICOS.map(t=>{
+    const osAtivas=em.filter(c=>c.tecnico===t.nome);
+    const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);
+    const status=osAtivas.length?'EM SERVIÇO':st&&st.turno_ativo?'ONLINE':'OFFLINE';
+    const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
+    const detalhe=osAtivas.length?' • '+osAtivas.map(c=>nOS(c)+' ('+c.maquina+')').join(', '):'';
+    return `<div class="maq-row"><b>TEC ${t.nome}</b><span style="font-size:.75rem;font-weight:800;text-align:right;color:${cor}">● ${status}${detalhe}</span></div>`;
+  }).join(''):'<p style="color:#64748b;text-align:center;font-size:.8rem">Nenhum técnico cadastrado.</p>')+`<p style="font-size:.72rem;color:#64748b;margin-top:8px">${ag} OS aguardando atendimento</p></div>`;
   boxTec2.innerHTML=boxTec.innerHTML;
 }
-function renderizarChamados(){renderTecnicos();
+function renderStatusTurno(){
+  const box=document.getElementById('boxStatusTurno');
+  if(!box)return;
+  if(!PERFIL||PERFIL.perfil!=='tecnico'){box.innerHTML='';return}
+  const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
+  const ativa=!!(st&&st.turno_ativo);
+  const emServico=chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
+  const status=emServico?'EM SERVIÇO':ativa?'ONLINE':'OFFLINE';
+  const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
+  box.innerHTML=`<div class="card" style="border-left:5px solid ${cor}">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div><h4 style="margin:0">Meu expediente</h4><p style="margin:5px 0 0;font-weight:800;color:${cor}">● ${status}</p></div>
+      <button class="btn-submit" style="width:auto;margin:0;background:${ativa?'#dc3545':'#168a45'}" onclick="alternarTurno()">${ativa?'Encerrar turno':'Iniciar expediente'}</button>
+    </div>
+    <p style="font-size:.72rem;color:#64748b;margin:8px 0 0">${ativa?'Você recebe novas O.S. quando estiver ONLINE. Ao assumir uma, seu status muda para EM SERVIÇO.':'Você está OFFLINE e não receberá notificações de novas O.S.'}</p>
+  </div>`;
+}
+async function alternarTurno(){
+  if(!PERFIL||PERFIL.perfil!=='tecnico')return;
+  const atual=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
+  const agora=new Date().toISOString();
+  if(atual&&atual.turno_ativo){
+    const em=chamados.filter(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
+    if(em.length)return alert('Você ainda tem uma O.S. em serviço. Conclua ou transfira antes de encerrar o turno.');
+    const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'OFFLINE',turno_ativo:false,turno_fim:agora,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
+    if(error)return alert('Não foi possível encerrar o turno: '+error.message);
+  }else{
+    const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'ONLINE',turno_ativo:true,turno_inicio:agora,turno_fim:null,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
+    if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
+  }
+  await carregarDadosSupabase();
+}
+async function recalcularStatusTecnico(userId){
+  const tecnico=TECNICOS.find(t=>t.id===userId);
+  if(!tecnico)return;
+  const {data:atual,error:statusError}=await _supabase.from('status_tecnicos').select('turno_ativo').eq('user_id',userId).maybeSingle();
+  if(statusError||!atual)return;
+  const {data:ativas,error:osError}=await _supabase.from('os').select('id').eq('tecnico',tecnico.nome).eq('status','Em Atendimento').order('id',{ascending:false}).limit(1);
+  if(osError)return console.error('Erro ao conferir O.S. do técnico:',osError.message);
+  const ocupada=!!(ativas&&ativas.length);
+  const status=ocupada?'EM SERVIÇO':atual.turno_ativo?'ONLINE':'OFFLINE';
+  const {error}=await _supabase.from('status_tecnicos').update({status,os_atual_id:ocupada?ativas[0].id:null,atualizado_em:new Date().toISOString()}).eq('user_id',userId);
+  if(error)console.error('Erro ao atualizar status do técnico:',error.message);
+}
+function renderizarChamados(){renderTecnicos();renderStatusTurno();
   const box=document.getElementById('listaOS'),filtro=document.getElementById('filtroStatus').value;
   const nome=localStorage.getItem('erimax_tecnico')||'';
   document.getElementById('nomeTecnico').value=nome;
@@ -422,19 +479,31 @@ function salvarNomeTecnico(){localStorage.setItem('erimax_tecnico',document.getE
 async function assumirOS(id){
   const t=localStorage.getItem('erimax_tecnico');
   if(!t)return alert('Digite seu nome de técnico no topo do painel!');
+  if(PERFIL&&PERFIL.perfil==='tecnico'){
+    const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
+    if(!st||!st.turno_ativo)return alert('Antes de assumir uma O.S., toque em “Iniciar expediente” para ficar ONLINE.');
+  }
   const {error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id);
   if(error)return alert('Erro ao assumir OS: '+error.message);
-  carregarDadosSupabase();
+  if(PERFIL&&PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
+  await carregarDadosSupabase();
 }
 
 async function transferirOS(id){
   const os=chamados.find(c=>c.id===id);if(!os)return;
   const novo=prompt(`${nOS(os)} atualmente com: ${os.tecnico}\n\nDigite o nome do novo técnico responsável:`);
   if(!novo||!novo.trim())return;
-  const {error}=await _supabase.from('os').update({tecnico:novo.trim()}).eq('id',id);
+  const novoTec=TECNICOS.find(x=>x.nome.toLowerCase()===novo.trim().toLowerCase());
+  if(!novoTec)return alert('Não encontrei esse técnico cadastrado.');
+  const novoStatus=STATUS_TECNICOS.find(x=>x.user_id===novoTec.id);
+  if(!novoStatus||!novoStatus.turno_ativo)return alert('Esse técnico está OFFLINE. Ele precisa iniciar o expediente antes de receber a O.S.');
+  const {error}=await _supabase.from('os').update({tecnico:novoTec.nome}).eq('id',id);
   if(error)return alert('Erro ao transferir: '+error.message);
-  alert(`OS transferida para ${novo.trim()}!`);
-  carregarDadosSupabase();
+  const antigo=TECNICOS.find(x=>x.nome===os.tecnico);
+  if(antigo)await recalcularStatusTecnico(antigo.id);
+  await recalcularStatusTecnico(novoTec.id);
+  alert(`OS transferida para ${novoTec.nome}!`);
+  await carregarDadosSupabase();
 }
 
 let osHor=null;
@@ -467,7 +536,8 @@ async function confirmarConclusao(){
   const aj=Math.abs(agora-fim)>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
   const {error}=await _supabase.from('os').update({status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),data_conclusao:fim.toISOString(),...aj}).eq('id',osConcluir);
   if(error)return alert('Erro ao concluir OS: '+error.message);
-  fecharModal();carregarDadosSupabase();
+  if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
+  fecharModal();await carregarDadosSupabase();
 }
 
 async function excluirOS(id){
