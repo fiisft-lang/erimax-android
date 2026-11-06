@@ -4,83 +4,137 @@ import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
-const json = (b: unknown, s = 200) =>
-  new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } })
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
 
-async function tokenGoogle(sa: any) {
+async function googleAccessToken(sa: { private_key: string; client_email: string }) {
   const key = await importPKCS8(sa.private_key, 'RS256')
-  const jwt = await new SignJWT({ scope: 'https://www.googleapis.com/auth/firebase.messaging' })
+  const assertion = await new SignJWT({ scope: 'https://www.googleapis.com/auth/firebase.messaging' })
     .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
     .setIssuer(sa.client_email)
     .setAudience('https://oauth2.googleapis.com/token')
     .setIssuedAt()
     .setExpirationTime('55m')
     .sign(key)
-  const r = await fetch('https://oauth2.googleapis.com/token', {
+  const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }),
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion }),
   })
-  const j = await r.json()
-  if (!j.access_token) throw new Error('Falha ao autenticar no Google: ' + JSON.stringify(j))
-  return j.access_token as string
+  const result = await response.json()
+  if (!response.ok || !result.access_token) throw new Error('Falha na autenticação do Firebase.')
+  return result.access_token as string
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
-  try {
-    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-    const token = (req.headers.get('Authorization') || '').replace('Bearer ', '')
-    const { data: { user } } = await admin.auth.getUser(token)
-    if (!user) return json({ erro: 'Não autenticado.' }, 401)
+  if (req.method !== 'POST') return json({ erro: 'Método não permitido.' }, 405)
 
-    const { os_id } = await req.json()
-    const { data: os } = await admin.from('os')
-      .select('id,numero,setor,maquina,prioridade,descricao,created_at,notificado_em').eq('id', os_id).maybeSingle()
+  let osId: number | null = null
+  let claimTime: string | null = null
+  const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+
+  try {
+    const auth = req.headers.get('Authorization') || ''
+    const jwt = auth.startsWith('Bearer ') ? auth.slice(7) : ''
+    if (!jwt) return json({ erro: 'Não autenticado.' }, 401)
+    const { data: authData, error: authError } = await admin.auth.getUser(jwt)
+    const user = authData?.user
+    if (authError || !user) return json({ erro: 'Sessão inválida.' }, 401)
+
+    const { data: profile, error: profileError } = await admin.from('perfis')
+      .select('perfil').eq('id', user.id).maybeSingle()
+    if (profileError) throw profileError
+    if (!profile || !['gestor', 'operador'].includes(profile.perfil)) {
+      return json({ erro: 'Seu perfil não pode disparar notificações de novas OS.' }, 403)
+    }
+
+    const body = await req.json().catch(() => ({}))
+    osId = Number(body.os_id)
+    if (!Number.isSafeInteger(osId) || osId <= 0) return json({ erro: 'Informe uma OS válida.' }, 400)
+
+    const { data: os, error: osError } = await admin.from('os')
+      .select('id,numero_mes,setor,maquina,prioridade,descricao,status,created_at,notificado_em')
+      .eq('id', osId).maybeSingle()
+    if (osError) throw osError
     if (!os) return json({ erro: 'OS não encontrada.' }, 404)
     if (os.notificado_em) return json({ ok: true, ja_enviado: true })
-    if (Date.now() - new Date(os.created_at).getTime() > 5 * 60 * 1000)
-      return json({ erro: 'OS antiga demais para notificar.' }, 400)
-    await admin.from('os').update({ notificado_em: new Date().toISOString() }).eq('id', os.id)
+    if (os.status !== 'Aberta') return json({ erro: 'Somente OS aberta pode gerar chamado.' }, 400)
+    if (!os.created_at || Date.now() - new Date(os.created_at).getTime() > 5 * 60 * 1000) {
+      return json({ erro: 'OS fora da janela de envio de 5 minutos.' }, 400)
+    }
 
-    // quem recebe: técnicos e gestores
-    const { data: alvo } = await admin.from('perfis').select('id').in('perfil', ['tecnico', 'gestor'])
-    const { data: devs } = await admin.from('dispositivos').select('token').in('user_id', (alvo || []).map((x) => x.id))
-    const tokens = (devs || []).map((d) => d.token)
-    if (!tokens.length) return json({ ok: true, enviados: 0 })
+    const { data: recipients, error: recipientsError } = await admin.from('perfis')
+      .select('id').in('perfil', ['tecnico', 'gestor'])
+    if (recipientsError) throw recipientsError
+    const recipientIds = (recipients || []).map((p: { id: string }) => p.id)
+    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum técnico ou gestor cadastrado.' })
 
-    const sa = JSON.parse(Deno.env.get('FCM_SERVICE_ACCOUNT')!)
-    const access = await tokenGoogle(sa)
-    const titulo = `🚨 ${os.numero || 'Nova OS'} — ${os.maquina}`
-    const corpo = `${os.setor} • Prioridade ${os.prioridade}\n${String(os.descricao || '').slice(0, 120)}`
+    const { data: devices, error: devicesError } = await admin.from('dispositivos')
+      .select('token').in('user_id', recipientIds)
+    if (devicesError) throw devicesError
+    const tokens = [...new Set((devices || []).map((d: { token: string }) => d.token).filter(Boolean))]
+    if (!tokens.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum celular registrado para receber notificações.' })
 
+    const raw = Deno.env.get('FCM_SERVICE_ACCOUNT')
+    if (!raw) throw new Error('Segredo FCM_SERVICE_ACCOUNT não configurado.')
+    const sa = JSON.parse(raw)
+    if (!sa.project_id || !sa.client_email || !sa.private_key) throw new Error('Segredo FCM_SERVICE_ACCOUNT inválido.')
+    const access = await googleAccessToken(sa)
+
+    claimTime = new Date().toISOString()
+    const { data: claim, error: claimError } = await admin.from('os').update({ notificado_em: claimTime })
+      .eq('id', osId).is('notificado_em', null).select('id').maybeSingle()
+    if (claimError) throw claimError
+    if (!claim) return json({ ok: true, ja_enviado: true })
+
+    const numero = os.numero_mes ? String(os.numero_mes) : String(os.id)
+    const data = {
+      os_id: String(os.id),
+      maquina: String(os.maquina || 'Manutenção'),
+      setor: String(os.setor || 'Setor não informado'),
+      numero: numero,
+    }
     let enviados = 0
-    const mortos: string[] = []
-    await Promise.all(tokens.map(async (t) => {
-      const r = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
+    const invalid: string[] = []
+    const errors: string[] = []
+
+    await Promise.all(tokens.map(async (deviceToken: string) => {
+      const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: {
-            token: t,
-            android: {
-              priority: 'HIGH', ttl: '120s',
-              notification: { channel_id: 'chamados', sound: 'alarme', notification_priority: 'PRIORITY_MAX', visibility: 'PUBLIC' },
-            },
-            data: { os_id: String(os.id), maquina: String(os.maquina || ''), setor: String(os.setor || ''), numero: String(os.numero || 'Nova O.S.') },
+            token: deviceToken,
+            android: { priority: 'HIGH', ttl: '120s' },
+            data,
           },
         }),
       })
-      if (r.ok) enviados++
+      if (response.ok) enviados++
       else {
-        const e = JSON.stringify(await r.json().catch(() => ({})))
-        if (/UNREGISTERED|NOT_FOUND/.test(e)) mortos.push(t)
+        const details = await response.text()
+        errors.push(details.slice(0, 350))
+        if (/UNREGISTERED|NOT_FOUND/.test(details)) invalid.push(deviceToken)
       }
     }))
-    if (mortos.length) await admin.from('dispositivos').delete().in('token', mortos)
-    return json({ ok: true, enviados })
-  } catch (e) {
-    return json({ erro: String(e) }, 500)
+
+    if (invalid.length) await admin.from('dispositivos').delete().in('token', invalid)
+    if (enviados === 0) {
+      await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
+      claimTime = null
+      return json({ erro: 'O Firebase não aceitou nenhum envio.', detalhes: errors.slice(0, 2) }, 502)
+    }
+    return json({ ok: true, enviados, total_dispositivos: tokens.length })
+  } catch (error) {
+    if (claimTime !== null && osId !== null) {
+      await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
+    }
+    console.error('Erro em notificar-os:', error)
+    return json({ erro: 'Falha ao processar a notificação. Consulte os logs da função.' }, 500)
   }
 })
