@@ -222,7 +222,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
     <div class="form-group"><label>MÊS</label><input type="month" id="consultaMes"></div>
     <div class="form-group"><label>TIPO DE CONSULTA</label>
       <select id="consultaTipo">
-        <option value="motores">Motores mencionados / queimados</option>
+        <option value="motores">Relatos de motor queimado</option>
         <option value="maquina">Máquinas com mais falhas</option>
         <option value="causas">Causas mais frequentes</option>
         <option value="termo">Buscar palavra no histórico</option>
@@ -1014,9 +1014,9 @@ function executarConsultaHistorico(){
   const escapeHTML=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
   const periodo=mes?mes.split('-').reverse().join('/'):'todo o histórico';
   if(tipo==='motores'){
-    const motores=registros.filter(c=>/motor(es)?/i.test([c.tipo,c.descricao,c.causa,c.peca,c.servico_executado].filter(Boolean).join(' ')));
-    box.innerHTML='<h4>Resultado: '+motores.length+' O.S. com menção a motor em '+escapeHTML(periodo)+'</h4>'+
-      (motores.length?motores.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.data_conclusao?hm(c.data_conclusao):hm(c.created_at))+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div><div style="font-size:.76rem;color:#137333">'+escapeHTML(c.causa||'')+' '+escapeHTML(c.peca||'')+' '+escapeHTML(c.servico_executado||'')+'</div></div>').join(''):'<p>Nenhuma O.S. com a palavra “motor” foi encontrada nesse período.</p>');
+    const motores=registros.filter(c=>/motor(?:es)?.{0,50}queim|queim.{0,50}motor(?:es)?/i.test([c.tipo,c.descricao,c.causa,c.peca,c.servico_executado].filter(Boolean).join(' ')));
+    box.innerHTML='<h4>Resultado: '+motores.length+' O.S. com relato de motor queimado em '+escapeHTML(periodo)+'</h4>'+
+      (motores.length?motores.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.data_conclusao?hm(c.data_conclusao):hm(c.created_at))+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div><div style="font-size:.76rem;color:#137333">'+escapeHTML(c.causa||'')+' '+escapeHTML(c.peca||'')+' '+escapeHTML(c.servico_executado||'')+'</div></div>').join(''):'<p>Nenhum relato de motor queimado foi encontrado nesse período. A busca considera o texto registrado na O.S.</p>');
     return;
   }
   if(tipo==='maquina'){
