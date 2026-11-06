@@ -28,10 +28,34 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Preparar aplicativo
+      - name: Preparar aplicativo com Firebase
         run: |
           npm run build
           npx cap add android
+          mkdir -p android/app
+          cp google-services.json android/app/google-services.json
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path("android/build.gradle")
+          text = root.read_text()
+          if "com.google.gms:google-services" not in text:
+              text, count = re.subn(
+                  r"(dependencies\\s*\\{)",
+                  r"\\1\\n        classpath 'com.google.gms:google-services:4.4.2'",
+                  text,
+                  count=1
+              )
+              if count != 1:
+                  raise SystemExit("Não foi possível configurar o plugin Google Services no android/build.gradle")
+              root.write_text(text)
+
+          app = Path("android/app/build.gradle")
+          app_text = app.read_text()
+          if "com.google.gms.google-services" not in app_text:
+              app.write_text(app_text.rstrip() + "\\n\\napply plugin: 'com.google.gms.google-services'\\n")
+          PY
           npx cap sync android
 
       - name: Gerar APK
@@ -43,13 +67,10 @@ jobs:
       - name: Verificar APK
         run: |
           APK="android/app/build/outputs/apk/debug/app-debug.apk"
-
           test -s "$APK"
           unzip -t "$APK"
-
           echo "Tamanho do APK:"
           ls -lh "$APK"
-
           echo "Verificando assinatura:"
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
           "$APKSIGNER" verify --verbose --print-certs "$APK"
