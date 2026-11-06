@@ -34,6 +34,49 @@ jobs:
           npx cap add android
           mkdir -p android/app
           cp google-services.json android/app/google-services.json
+          mkdir -p android/app/src/main/java/com/webapp/erimaxmanuteno
+          cp android-native/IncomingCallMessagingService.java android/app/src/main/java/com/webapp/erimaxmanuteno/
+          cp android-native/IncomingCallActivity.java android/app/src/main/java/com/webapp/erimaxmanuteno/
+          mkdir -p android/app/src/main/res/raw
+          cp alarme.wav android/app/src/main/res/raw/alarme.wav
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          ET.register_namespace("", "http://schemas.android.com/apk/res/android")
+          ET.register_namespace("tools", "http://schemas.android.com/tools")
+          A = "{http://schemas.android.com/apk/res/android}"
+          root = ET.parse(p).getroot()
+          def ensure(tag, attrs):
+              for el in root.findall(tag):
+                  if all(el.get(k) == v for k,v in attrs.items()): return el
+              el = ET.SubElement(root, tag)
+              for k,v in attrs.items(): el.set(k,v)
+              return el
+          ensure("uses-permission", {A+"name":"android.permission.USE_FULL_SCREEN_INTENT"})
+          app = root.find("application")
+          if app is None: raise SystemExit("AndroidManifest sem application")
+          for service in list(app.findall("service")):
+              if service.get(A+"name") == "com.capacitorjs.plugins.pushnotifications.MessagingService":
+                  app.remove(service)
+          service = ET.SubElement(app, "service", {A+"name":"com.webapp.erimaxmanuteno.IncomingCallMessagingService", A+"exported":"false"})
+          filt = ET.SubElement(service, "intent-filter")
+          ET.SubElement(filt, "action", {A+"name":"com.google.firebase.MESSAGING_EVENT"})
+          activity = ET.SubElement(app, "activity", {
+              A+"name":"com.webapp.erimaxmanuteno.IncomingCallActivity",
+              A+"exported":"false", A+"showWhenLocked":"true", A+"turnScreenOn":"true",
+              A+"excludeFromRecents":"true", A+"launchMode":"singleTop",
+              A+"theme":"@android:style/Theme.Material.Light.NoActionBar"
+          })
+          main = next((x for x in app.findall("activity") if x.get(A+"name") in (".MainActivity","com.webapp.erimaxmanuteno.MainActivity")), None)
+          if main is None: raise SystemExit("MainActivity não encontrada")
+          deep = ET.SubElement(main, "intent-filter")
+          ET.SubElement(deep, "action", {A+"name":"android.intent.action.VIEW"})
+          ET.SubElement(deep, "category", {A+"name":"android.intent.category.DEFAULT"})
+          ET.SubElement(deep, "category", {A+"name":"android.intent.category.BROWSABLE"})
+          ET.SubElement(deep, "data", {A+"scheme":"erimax", A+"host":"os"})
+          ET.ElementTree(root).write(p, encoding="utf-8", xml_declaration=True)
+          PY
           python3 - <<'PY'
           from pathlib import Path
           import re
