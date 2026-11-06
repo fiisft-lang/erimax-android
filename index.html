@@ -1189,27 +1189,62 @@ async function salvarUsuario(id,campos){
 }
 
 /* ===== PREVENTIVAS ===== */
-function pvMaquinas(){pvMaq.innerHTML=MAQUINAS.filter(m=>m.setor===pvSetor.value).map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join('')||'<option value="">Sem máquinas no setor</option>'}
-async function addPrev(){
-  if(!pvMaq.value||!pvDesc.value.trim())return alert('Escolha a máquina e descreva a preventiva.');
-  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:pvMaq.value,descricao:pvDesc.value.trim(),intervalo_dias:+pvDias.value||30}]);
-  if(error)return alert('Erro: '+error.message);
-  pvDesc.value='';carregarPreventivas();
+function pvMaquinas(){
+  const itens=MAQUINAS.filter(m=>m.setor===pvSetor.value);
+  pvMaq.innerHTML=itens.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join('')||'<option value="">Sem máquinas no setor</option>';
 }
-async function delPrev(id){if(!confirm('Remover esta preventiva?'))return;await _supabase.from('preventivas').delete().eq('id',id);carregarPreventivas()}
+async function addPrev(){
+  const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value);
+  if(!pvSetor.value)return alert('Escolha um setor.');
+  if(!pvMaq.value)return alert('Cadastre uma máquina nesse setor antes de criar a preventiva.');
+  if(descricao.length<3)return alert('Descreva a atividade com pelo menos 3 caracteres.');
+  if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:pvMaq.value,descricao,intervalo_dias:intervalo}]);
+  if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
+  pvDesc.value='';
+  await carregarPreventivas();
+  alert('Preventiva cadastrada com sucesso.');
+}
+async function delPrev(id){
+  if(!confirm('Remover esta preventiva? O histórico de ordens de serviço já abertas será preservado.'))return;
+  const {error}=await _supabase.from('preventivas').delete().eq('id',id);
+  if(error)return alert('Não foi possível remover a preventiva: '+error.message);
+  await carregarPreventivas();
+}
 async function carregarPreventivas(){
-  const {data}=await _supabase.from('preventivas').select('*').order('id');PREV=data||[];
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>`<div class="maq-row"><span><b>${p.maquina}</b> <small style="color:#64748b">• ${p.descricao} • a cada ${p.intervalo_dias}d</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev(${p.id})">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
+  const {data,error}=await _supabase.from('preventivas').select('*').order('id');
+  if(error){
+    listaPrev.innerHTML='<p class="alerta">Erro ao carregar preventivas: '+escaparHtml(error.message)+'</p>';
+    boxPrev.innerHTML='';
+    return;
+  }
+  PREV=data||[];
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small style="color:#64748b">• ${escaparHtml(p.descricao)} • a cada ${Number(p.intervalo_dias)||0} dia(s)</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev(${Number(p.id)})" aria-label="Remover preventiva de ${escaparHtml(p.maquina)}">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
-  const v=PREV.map(p=>({...p,dias:Math.ceil((new Date(p.ultima+'T00:00:00').getTime()+p.intervalo_dias*864e5-hoje)/864e5)})).filter(p=>p.dias<=3).sort((a,b)=>a.dias-b.dias);
-  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>`<div class="maq-row"><span><b>${p.maquina}</b> <small>• ${p.descricao}<br><span class="${p.dias<0?'alerta':''}">${p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)'}</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev(${p.id})">Gerar OS</button></div>`).join('')+'</div>':'';
+  const v=PREV.map(p=>{
+    const base=new Date(String(p.ultima||dataISOlocal(hoje)).slice(0,10)+'T00:00:00');
+    const dias=Math.ceil((base.getTime()+(Number(p.intervalo_dias)||30)*864e5-hoje.getTime())/864e5);
+    return {...p,dias};
+  }).filter(p=>Number.isFinite(p.dias)&&p.dias<=3).sort((a,b)=>a.dias-b.dias);
+  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small>• ${escaparHtml(p.descricao)}<br><span class="${p.dias<0?'alerta':''}">${p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)'}</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev(${Number(p.id)})">Gerar OS</button></div>`).join('')+'</div>':'';
 }
 async function gerarOSPrev(id){
-  const p=PREV.find(x=>x.id===id);if(!p)return;const h=new Date().getHours();
-  const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:p.maquina,tipo:'Preventiva',prioridade:'Média',descricao:'Preventiva: '+p.descricao,status:'Aberta',tecnico:null}]);
-  if(error)return alert('Erro: '+error.message);
-  await _supabase.from('preventivas').update({ultima:new Date().toLocaleDateString('sv-SE')}).eq('id',id);
-  carregarPreventivas();carregarDadosSupabase();
+  const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
+  window.__erimaxPrevGerando=window.__erimaxPrevGerando||new Set();
+  if(window.__erimaxPrevGerando.has(String(id)))return;
+  if(!confirm('Gerar uma nova ordem de serviço para esta preventiva?'))return;
+  window.__erimaxPrevGerando.add(String(id));
+  try{
+    const h=new Date().getHours();
+    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:p.maquina,tipo:'Preventiva',prioridade:'Média',descricao:'Preventiva: '+p.descricao,status:'Aberta',tecnico:null}]);
+    if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
+    const {error:atualizaError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(new Date())}).eq('id',id);
+    await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
+    if(atualizaError)alert('A O.S. foi criada, mas a data da última execução não foi atualizada. Verifique a preventiva: '+atualizaError.message);
+    else alert('O.S. preventiva criada com sucesso.');
+  }finally{
+    window.__erimaxPrevGerando.delete(String(id));
+  }
 }
 
 
