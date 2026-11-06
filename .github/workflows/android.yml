@@ -200,11 +200,21 @@ jobs:
 
           values = res / "values"
           values.mkdir(parents=True, exist_ok=True)
-          colors = values / "ic_launcher_colors.xml"
-          colors.write_text("""<resources>
-              <color name="ic_launcher_background">#FFFFFF</color>
-          </resources>
-          """)
+          colors = values / "ic_launcher_background.xml"
+          if colors.exists():
+              tree = ET.parse(colors)
+              root = tree.getroot()
+              background = next((item for item in root.findall("color")
+                                 if item.get("name") == "ic_launcher_background"), None)
+              if background is None:
+                  background = ET.SubElement(root, "color", {"name": "ic_launcher_background"})
+              background.text = "#FFFFFF"
+              tree.write(colors, encoding="utf-8", xml_declaration=True)
+          else:
+              colors.write_text("""<resources>
+                  <color name="ic_launcher_background">#FFFFFF</color>
+              </resources>
+              """)
 
           print(f"Logo original validado: {source.width}x{source.height}")
           print("Ícones Android gerados em todas as densidades.")
