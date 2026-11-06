@@ -400,7 +400,7 @@ function renderTecnicos(){
   boxTec.innerHTML='<div class="card"><h4 style="color:var(--primary)">👷 Técnicos agora</h4>'+(TECNICOS.length?TECNICOS.map(t=>{
     const osAtivas=em.filter(c=>c.tecnico===t.nome);
     const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);
-    const status=osAtivas.length?'EM SERVIÇO':st&&st.turno_ativo?'ONLINE':'OFFLINE';
+    const status=osAtivas.length?'EM SERVIÇO':(st?.status||(st&&st.turno_ativo?'ONLINE':'OFFLINE'));
     const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
     const detalhe=osAtivas.length?' • '+osAtivas.map(c=>nOS(c)+' ('+c.maquina+')').join(', '):'';
     return `<div class="maq-row"><b>TEC ${t.nome}</b><span style="font-size:.75rem;font-weight:800;text-align:right;color:${cor}">● ${status}${detalhe}</span></div>`;
@@ -414,7 +414,7 @@ function renderStatusTurno(){
   const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const ativa=!!(st&&st.turno_ativo);
   const emServico=PERFIL.perfil==='tecnico'&&(st?.status==='EM SERVIÇO'||chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome));
-  const status=emServico?'EM SERVIÇO':ativa?'ONLINE':'OFFLINE';
+  const status=emServico?'EM SERVIÇO':(st?.status||(ativa?'ONLINE':'OFFLINE'));
   const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
   box.innerHTML=`<div class="card" style="border-left:5px solid ${cor}">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
@@ -1040,6 +1040,8 @@ function executarConsultaHistorico(){
     (registros.length?registros.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.tecnico||'Sem técnico')+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div></div>').join(''):'<p>Nenhum registro corresponde à pesquisa.</p>');
 }
 window.onload=async function(){
+  const mesConsulta=document.getElementById('consultaMes');
+  if(mesConsulta){const agora=new Date();mesConsulta.value=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0')}
   const {data:{session}}=await _supabase.auth.getSession();
   if(session)iniciarApp(session.user);
 };
