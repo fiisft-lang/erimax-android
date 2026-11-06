@@ -122,18 +122,10 @@ Não responda à pergunta; apenas extraia os filtros.`
     if (plan.machine) query = query.ilike('maquina', `%${plan.machine.replace(/[%_]/g, '')}%`)
     if (plan.sector) query = query.ilike('setor', `%${plan.sector.replace(/[%_]/g, '')}%`)
 
-    const rows: any[] = []
-    const pageSize = 500
-    let offset = 0
-    let truncated = false
-    while (offset < 5000) {
-      const { data, error } = await query.range(offset, offset + pageSize - 1)
-      if (error) throw error
-      rows.push(...(data || []))
-      if (!data || data.length < pageSize) break
-      offset += pageSize
-    }
-    if (rows.length >= 5000) truncated = true
+    const { data: fetchedRows, error: rowsError } = await query.limit(5000)
+    if (rowsError) throw rowsError
+    const rows: any[] = fetchedRows || []
+    const truncated = rows.length >= 5000
 
     const matching = rows.filter(row => {
       if (!plan.terms.length) return true
