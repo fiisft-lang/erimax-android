@@ -93,6 +93,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="container">
 <!-- ABRIR OS -->
 <div id="tab-abrir" class="tab-content active">
+<div id="boxStatusTurno"></div>
 <div id="boxTec2"></div>
 <div class="card">
 <h2 style="margin-bottom:4px;font-size:1.1rem;color:var(--primary)">Abrir Ordem de Serviço</h2>
@@ -127,7 +128,6 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroStatus" onchange="renderizarChamados()"><option value="Todas">Todas as Ordens</option><option value="Aberta">Abertas</option><option value="Em Atendimento">Em Atendimento</option><option value="Concluída">Concluídas</option></select></div>
 </div>
 <div id="boxTec"></div>
-<div id="boxStatusTurno"></div>
 <div id="boxPrev"></div>
 <div id="listaOS"></div>
 </div>
@@ -414,7 +414,7 @@ function renderTecnicos(){
 function renderStatusTurno(){
   const box=document.getElementById('boxStatusTurno');
   if(!box)return;
-  if(!PERFIL||PERFIL.perfil!=='tecnico'){box.innerHTML='';return}
+  if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil)){box.innerHTML='';return}
   const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const ativa=!!(st&&st.turno_ativo);
   const emServico=chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
@@ -429,7 +429,7 @@ function renderStatusTurno(){
   </div>`;
 }
 async function alternarTurno(){
-  if(!PERFIL||PERFIL.perfil!=='tecnico')return;
+  if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil))return;
   const atual=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const agora=new Date().toISOString();
   if(atual&&atual.turno_ativo){
@@ -441,7 +441,7 @@ async function alternarTurno(){
     const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'ONLINE',turno_ativo:true,turno_inicio:agora,turno_fim:null,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
     if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
   }
-  await recalcularStatusTecnico(MEU_ID);
+  if(PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
   await carregarDadosSupabase();
 }
 async function recalcularStatusTecnico(userId){
