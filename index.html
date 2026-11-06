@@ -350,7 +350,7 @@ async function salvarOS(e){
   }
   document.getElementById('formOS').reset();
   await carregarDadosSupabase();
-  if(PERFIL.perfil==='operador')alert('✅ OS aberta! A manutenção foi avisada.');else mudarAba('painel',{currentTarget:tbPainel});
+  if(PERFIL.perfil==='operador')alert(pushOk?'✅ OS aberta! A manutenção foi avisada.':'✅ OS aberta, mas o aviso no celular não foi confirmado.');else mudarAba('painel',{currentTarget:tbPainel});
 }
 
 function renderTecnicos(){
