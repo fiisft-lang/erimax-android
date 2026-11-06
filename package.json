@@ -10,7 +10,7 @@
   "dependencies": {
     "@capacitor/android": "^7.4.3",
     "@capacitor/core": "^7.4.3",
-    "@capacitor/push-notifications": "^7.4.3"
+    "@capacitor/push-notifications": "^7.0.7"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3"
