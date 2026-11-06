@@ -410,9 +410,9 @@ function renderStatusTurno(){
   box.innerHTML=`<div class="card" style="border-left:5px solid ${cor}">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
       <div><h4 style="margin:0">Meu expediente</h4><p style="margin:5px 0 0;font-weight:800;color:${cor}">● ${status}</p></div>
-      <button class="btn-submit" style="width:auto;margin:0;background:${ativa?'#dc3545':'#168a45'}" onclick="alternarTurno()">${ativa?'Encerrar turno':'Iniciar expediente'}</button>
+      <button class="btn-submit" style="width:auto;margin:0;background:${ativa?'#dc3545':'#168a45'};opacity:${emServico?'.55':'1'}" onclick="alternarTurno()" ${emServico?'disabled':''}>${emServico?'O.S. em serviço':ativa?'Encerrar turno':'Iniciar expediente'}</button>
     </div>
-    <p style="font-size:.72rem;color:#64748b;margin:8px 0 0">${ativa?'Você recebe novas O.S. quando estiver ONLINE. Ao assumir uma, seu status muda para EM SERVIÇO.':'Você está OFFLINE e não receberá notificações de novas O.S.'}</p>
+    <p style="font-size:.72rem;color:#64748b;margin:8px 0 0">${emServico?'Conclua ou transfira a O.S. atual para voltar a ficar ONLINE e depois encerrar o turno.':ativa?'Você recebe novas O.S. quando estiver ONLINE. Ao assumir uma, seu status muda para EM SERVIÇO.':'Você está OFFLINE e não receberá notificações de novas O.S.'}</p>
   </div>`;
 }
 async function alternarTurno(){
@@ -971,7 +971,7 @@ async function enviarPerguntaIA(event){
   historicoIA.push({role:'user',content:pergunta});
   botao.disabled=true;botao.textContent='Consultando...';
   try{
-    const {data,error}=await _supabase.functions.invoke('erimax-ai',{body:{question:pergunta,history:historicoIA.slice(-8)}});
+    const {data,error}=await _supabase.functions.invoke('erimax-ai',{body:{question:pergunta,history:historicoIA.slice(0,-1).slice(-8)}});
     let erro=data&&data.erro;
     if(error&&!erro){try{erro=(await error.context.json()).erro}catch(e){erro=error.message}}
     if(erro)throw new Error(erro);
