@@ -484,7 +484,8 @@ function renderizarChamados(){renderTecnicos();renderStatusTurno();
     if(status==='Aberta'&&(gestor||(PERFIL&&PERFIL.perfil==='tecnico')))b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir OS</button>';
     else if(status==='Em Atendimento'){
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
-      if(gestor)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
+      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
+      if(PERFIL&&PERFIL.perfil==='tecnico'&&os.transferencia_para===PERFIL.nome)b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
     }
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
     if(status==='Concluída'&&PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Horários</button>';
@@ -496,7 +497,8 @@ function renderizarChamados(){renderTecnicos();renderStatusTurno();
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
     html+='<p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "'+escaparHtml(os.descricao)+'"</p>';
     if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
-    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Técnico Atual: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Técnico responsável: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
     if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
     html+='<div class="os-actions">'+b+'</div>';
     card.innerHTML=html;
@@ -522,12 +524,23 @@ async function assumirOS(id){
 }
 
 async function transferirOS(id){
-  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode transferir uma O.S.');
   const os=chamados.find(c=>c.id===id);if(!os)return;
-  const novo=prompt(`${nOS(os)} atualmente com: ${os.tecnico}\n\nDigite o nome do novo técnico responsável:`);
+  const gestor=PERFIL&&PERFIL.perfil==='gestor';
+  const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
+  if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode iniciar uma transferência.');
+  if(os.transferencia_para)return alert('Esta O.S. já tem uma transferência aguardando aceite.');
+  const novo=prompt(`${nOS(os)} atualmente com: ${os.tecnico}\n\nDigite o nome do técnico que receberá a O.S.:`);
   if(!novo||!novo.trim())return;
   const novoTec=TECNICOS.find(x=>x.nome.toLowerCase()===novo.trim().toLowerCase());
   if(!novoTec)return alert('Não encontrei esse técnico cadastrado.');
+  if(novoTec.nome===os.tecnico)return alert('Escolha um técnico diferente do responsável atual.');
+  if(tecnicoAtual){
+    const {error}=await _supabase.rpc('erimax_solicitar_transferencia_os',{p_os_id:id,p_tecnico_destino:novoTec.nome});
+    if(error)return alert('Não foi possível solicitar a transferência: '+error.message);
+    alert('Pedido enviado para '+novoTec.nome+'. A responsabilidade continuará com você até ele aceitar.');
+    await carregarDadosSupabase();
+    return;
+  }
   const {data:novoStatus,error:statusError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',novoTec.id).maybeSingle();
   if(statusError)return alert('Não foi possível verificar o status do técnico: '+statusError.message);
   if(!novoStatus||!novoStatus.turno_ativo||novoStatus.status!=='ONLINE')return alert('Esse técnico não está ONLINE ou já está em serviço. Escolha alguém disponível.');
@@ -536,7 +549,17 @@ async function transferirOS(id){
   const antigo=TECNICOS.find(x=>x.nome===os.tecnico);
   if(antigo)await recalcularStatusTecnico(antigo.id);
   await recalcularStatusTecnico(novoTec.id);
-  alert(`OS transferida para ${novoTec.nome}!`);
+  alert('O.S. transferida pelo gestor para '+novoTec.nome+'.');
+  await carregarDadosSupabase();
+}
+async function aceitarTransferenciaOS(id){
+  if(!PERFIL||PERFIL.perfil!=='tecnico')return alert('Somente o técnico destinatário pode aceitar esta transferência.');
+  const os=chamados.find(c=>c.id===id);
+  if(!os||os.transferencia_para!==PERFIL.nome)return alert('Esta transferência não está destinada a você.');
+  const {error}=await _supabase.rpc('erimax_aceitar_transferencia_os',{p_os_id:id});
+  if(error)return alert('Não foi possível aceitar a responsabilidade: '+error.message);
+  await recalcularStatusTecnico(MEU_ID);
+  alert('Transferência aceita. A O.S. agora está sob sua responsabilidade.');
   await carregarDadosSupabase();
 }
 
