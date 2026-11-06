@@ -281,7 +281,7 @@ let chamados=[],vibrationInterval=null;
 function popularSetores(){
   const op=(v,t)=>`<option value="${v}">${t}</option>`,l=SETORES.map(x=>op(x,x)).join('');
   const sel=(id,h)=>{const e=document.getElementById(id);if(!e)return;const v=e.value;e.innerHTML=h;if(v&&SETORES.includes(v))e.value=v};
-  sel('setor',op('','Selecione o setor...')+l);sel('filtroSetorMetrica',op('Todos','Todos os Setores')+l);sel('cadSetor',l);sel('pvSetor',l);
+  sel('setor',op('','Selecione o setor...')+l);sel('filtroSetorMetrica',op('Todos','Todos os Setores')+l);sel('pvSetor',l);
   if(MAQUINAS.length){carregarMaquinasSetor();pvMaquinas()}
 }
 popularSetores();
