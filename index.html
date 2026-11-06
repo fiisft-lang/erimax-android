@@ -134,6 +134,10 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 
 <!-- CADASTRO -->
 <div id="tab-cadastro" class="tab-content">
+<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Setores cadastrados da empresa</h3>
+<p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Adicione, visualize, configure horários ou exclua setores. Os setores também organizam as máquinas logo abaixo.</p>
+<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap"><input id="novoSetor" placeholder="Nome do novo setor" maxlength="60" style="flex:1;min-width:180px"><button class="btn-submit" style="width:auto;padding:0 14px;white-space:nowrap" onclick="adicionarSetor()">➕ Adicionar setor</button></div>
+<div id="listaCfg"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Máquinas por setor</h3>
 <p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Cada setor fica recolhido. Toque na ferramenta para abrir a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
@@ -144,10 +148,6 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Repetir a cada (dias)</label><input id="pvDias" type="number" min="1" value="30"></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Horário de produção por setor</h3>
-<p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Horários diferentes para cada dia da semana e datas especiais para sábados, feriados e horas extras. As métricas usam o calendário cadastrado.</p>
-<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap"><input id="novoSetor" placeholder="Nome do novo setor" maxlength="60" style="flex:1;min-width:180px"><button class="btn-submit" style="width:auto;padding:0 14px;white-space:nowrap" onclick="adicionarSetor()">➕ Adicionar setor</button></div>
-<div id="listaCfg"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
 <div class="form-group"><label>Novo usuário — e-mail</label><input id="nuEmail" type="email" autocomplete="off"></div>
 <div class="form-group"><label>Nome</label><input id="nuNome" autocomplete="off"></div>
@@ -1031,8 +1031,8 @@ async function carregarCfg(){
   HORARIOS_SEMANAIS={};(c.data||[]).forEach(r=>(HORARIOS_SEMANAIS[r.setor]||(HORARIOS_SEMANAIS[r.setor]=[])).push(r));
   EXCECOES_HORARIO={};(d.data||[]).forEach(r=>EXCECOES_HORARIO[r.setor+'|'+r.data_excecao]=r);
   (b.data||[]).forEach(r=>{if(!CFG[r.setor])CFG[r.setor]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:String(r.hora_inicio).slice(0,5)};});
-  const nomes=new Set([...(a.data||[]).map(r=>r.setor),...(b.data||[]).map(r=>r.setor),...(c.data||[]).map(r=>r.setor),...(d.data||[]).map(r=>r.setor),...MAQUINAS.map(m=>m.setor)]);
-  SETORES=a.error?[...SETORES_PADRAO]:[...nomes].filter(Boolean);
+  const nomes=new Set([...(a.error?SETORES:(a.data||[]).map(r=>r.setor)),...(b.data||[]).map(r=>r.setor),...(c.data||[]).map(r=>r.setor),...(d.data||[]).map(r=>r.setor),...MAQUINAS.map(m=>m.setor)]);
+  SETORES=[...nomes].filter(Boolean).sort((x,y)=>x.localeCompare(y,'pt-BR'));
   popularSetores();if(document.getElementById('listaCfg'))renderCfg();if(document.getElementById('listaMaquinas'))renderMaquinasAgrupadas();
 }
 function editarHorarioSetor(i){SETOR_EM_EDICAO=SETORES[i];renderCfg()}
