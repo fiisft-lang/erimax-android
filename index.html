@@ -87,11 +87,13 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)">🛠️ Painel <span id="badgePendentes" class="badge-count">0</span></button>
 <button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)">📊 Métricas</button>
 <button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)">⚙️ Cadastro</button>
+<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🔎 Consultas</button>
 </nav>
 
 <div class="container">
 <!-- ABRIR OS -->
 <div id="tab-abrir" class="tab-content active">
+<div id="boxStatusTurno"></div>
 <div id="boxTec2"></div>
 <div class="card">
 <h2 style="margin-bottom:4px;font-size:1.1rem;color:var(--primary)">Abrir Ordem de Serviço</h2>
@@ -176,6 +178,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
+<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de O.S. concluídas por técnico</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Classificação dos técnicos pela quantidade de O.S. que concluíram no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn-submit" onclick="exportarCSV()">📥 Excel (CSV)</button><button class="btn-submit" style="background:var(--secondary)" onclick="window.print()">🖨️ PDF</button></div>
 <div class="metrics-grid">
 <div class="metric-card"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
@@ -210,6 +213,25 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div id="listaRelatorioProblemas" style="max-height:350px;overflow-y:auto"></div>
 </div>
 </div>
+</div>
+
+<div id="tab-ia" class="tab-content">
+  <div class="card">
+    <h2 style="font-size:1.12rem;color:var(--primary);margin-bottom:5px">Consultas do histórico de manutenção</h2>
+    <p style="font-size:.78rem;color:#64748b;margin:0 0 14px">Pesquise diretamente nas ordens de serviço registradas. Esta ferramenta não usa IA externa nem serviços pagos.</p>
+    <div class="form-group"><label>MÊS</label><input type="month" id="consultaMes"></div>
+    <div class="form-group"><label>TIPO DE CONSULTA</label>
+      <select id="consultaTipo">
+        <option value="motores">Relatos de motor queimado</option>
+        <option value="maquina">Máquinas com mais falhas</option>
+        <option value="causas">Causas mais frequentes</option>
+        <option value="termo">Buscar palavra no histórico</option>
+      </select>
+    </div>
+    <div class="form-group"><label>MÁQUINA OU PALAVRA (opcional)</label><input id="consultaFiltro" placeholder="Ex.: Envasadora 02, motor, rolamento"></div>
+    <button class="btn-submit" type="button" onclick="executarConsultaHistorico()">🔎 Consultar registros</button>
+    <div id="resultadoConsulta" aria-live="polite" style="margin-top:14px"></div>
+  </div>
 </div>
 
 <div id="login"><div class="box"><img class="logo" alt="Erimax" style="display:block;max-width:230px;width:80%;margin:0 auto 12px"><h2 style="text-align:center">Entrar</h2>
@@ -247,7 +269,7 @@ const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
 const {createClient}=supabase;
 const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
-let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[];
+let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[],STATUS_TECNICOS=[];
 let canalOSTempoReal=null;
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
@@ -274,12 +296,16 @@ function ativarAudioManual(){
   a.play().then(()=>{a.pause();a.currentTime=0;b.style.backgroundColor='#28a745';b.innerHTML='✅ ALARME E VIBRAÇÃO ATIVADOS COM SUCESSO!';setTimeout(()=>b.style.display='none',3000)}).catch(()=>alert('Toque novamente na tela para permitir o áudio.'));
 }
 
+function estaNoAppAndroid(){
+  return !!(window.Capacitor && typeof window.Capacitor.getPlatform==='function' && window.Capacitor.getPlatform()==='android');
+}
 function iniciarTempoReal(){
   // Evita registrar eventos em um canal que já foi inscrito.
   if(canalOSTempoReal)return;
   canalOSTempoReal = _supabase.channel('tabela-os-realtime')
-   .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>{if(PERFIL&&PERFIL.perfil!=='operador')exibirBannerAlerta(p.new);carregarDadosSupabase()})
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>{if(PERFIL&&PERFIL.perfil!=='operador'&&!estaNoAppAndroid())exibirBannerAlerta(p.new);carregarDadosSupabase()})
    .on('postgres_changes',{event:'*',schema:'public',table:'os'},()=>carregarDadosSupabase())
+   .on('postgres_changes',{event:'*',schema:'public',table:'status_tecnicos'},()=>carregarDadosSupabase())
    .subscribe(status=>{
      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
        console.error('Erro no canal Realtime:',status);
@@ -321,7 +347,11 @@ async function carregarDadosSupabase(){
   const {data,error}=await _supabase.from('os').select('*').order('id',{ascending:false});
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
-  const {data:pf}=await _supabase.from('perfis').select('nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');renderTecnicos();
+  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');
+  const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
+  if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
+  STATUS_TECNICOS=st||[];
+  renderTecnicos();renderStatusTurno();renderRankingOperadores();
   if(document.getElementById('tab-painel').classList.contains('active'))renderizarChamados();
   if(document.getElementById('tab-metricas').classList.contains('active')){atualizarMaquinasMetrica();atualizarMetricasReais()}
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
@@ -341,7 +371,7 @@ async function salvarOS(e){
   if(criada&&criada[0]){
     try{
       const resultado=await avisarNovaOS(criada[0].id);
-      pushOk=!!resultado?.ok;
+      pushOk=!!resultado?.ok&&(!!resultado?.ja_enviado||Number(resultado?.enviados||0)>0);
       if(!pushOk)throw new Error(resultado?.erro||'O serviço não confirmou o envio.');
     }catch(err){
       console.error('Falha ao notificar nova OS:',err);
@@ -353,12 +383,76 @@ async function salvarOS(e){
   if(PERFIL.perfil==='operador')alert(pushOk?'✅ OS aberta! A manutenção foi avisada.':'✅ OS aberta, mas o aviso no celular não foi confirmado.');else mudarAba('painel',{currentTarget:tbPainel});
 }
 
+function renderRankingOperadores(){
+  const box=document.getElementById("boxRankingOperadores"),campo=document.getElementById("rankingMes");
+  if(!box||!campo)return;
+  if(!campo.value){const agora=new Date();campo.value=agora.getFullYear()+"-"+String(agora.getMonth()+1).padStart(2,"0")}
+  const mes=campo.value,contagem={};
+  (TECNICOS||[]).forEach(t=>{contagem[t.nome]=0});
+  chamados.filter(c=>c.status==="Concluída"&&c.data_conclusao&&c.tecnico&&diaLocal(c.data_conclusao).slice(0,7)===mes)
+    .forEach(c=>{contagem[c.tecnico]=(contagem[c.tecnico]||0)+1});
+  const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
+  if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
+  box.innerHTML=lista.map(([nome,total],i)=>{const seguro=String(nome).replace(/[&<>\"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]));return `<div class="maq-row" style="display:flex;align-items:center;gap:10px"><b style="min-width:30px;font-size:1.05rem">${medalhas[i]||(i+1)+"º"}</b><span style="flex:1"><b>${seguro}</b></span><strong style="color:var(--primary);font-size:1.05rem">${total} <small style="font-size:.68rem;color:#64748b;font-weight:500">O.S.</small></strong></div>`}).join("");
+}
 function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento'),ag=chamados.filter(c=>c.status==='Aberta').length;
-  boxTec.innerHTML='<div class="card"><h4 style="color:var(--primary)">👷 Técnicos agora</h4>'+(TECNICOS.length?TECNICOS.map(t=>{const o=em.filter(c=>c.tecnico===t.nome);return `<div class="maq-row"><b>${t.nome}</b><span style="font-size:.75rem;font-weight:700;text-align:right;color:${o.length?'#dc3545':'#28a745'}">${o.length?'🔴 Em atendimento: '+o.map(c=>nOS(c)+' ('+c.maquina+')').join(', '):'🟢 Disponível'}</span></div>`}).join(''):'<p style="color:#64748b;text-align:center;font-size:.8rem">Nenhum técnico cadastrado.</p>')+`<p style="font-size:.72rem;color:#64748b;margin-top:8px">${ag} OS aguardando atendimento</p></div>`;
+  boxTec.innerHTML='<div class="card"><h4 style="color:var(--primary)">👷 Técnicos agora</h4>'+(TECNICOS.length?TECNICOS.map(t=>{
+    const osAtivas=em.filter(c=>c.tecnico===t.nome);
+    const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);
+    const status=osAtivas.length?'EM SERVIÇO':(st?.status||(st&&st.turno_ativo?'ONLINE':'OFFLINE'));
+    const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
+    const detalhe=osAtivas.length?' • '+osAtivas.map(c=>nOS(c)+' ('+c.maquina+')').join(', '):'';
+    return `<div class="maq-row"><b>TEC ${t.nome}</b><span style="font-size:.75rem;font-weight:800;text-align:right;color:${cor}">● ${status}${detalhe}</span></div>`;
+  }).join(''):'<p style="color:#64748b;text-align:center;font-size:.8rem">Nenhum técnico cadastrado.</p>')+`<p style="font-size:.72rem;color:#64748b;margin-top:8px">${ag} OS aguardando atendimento</p></div>`;
   boxTec2.innerHTML=boxTec.innerHTML;
 }
-function renderizarChamados(){renderTecnicos();
+function renderStatusTurno(){
+  const box=document.getElementById('boxStatusTurno');
+  if(!box)return;
+  if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil)){box.innerHTML='';return}
+  const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
+  const ativa=!!(st&&st.turno_ativo);
+  const emServico=PERFIL.perfil==='tecnico'&&(st?.status==='EM SERVIÇO'||chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome));
+  const status=emServico?'EM SERVIÇO':(st?.status||(ativa?'ONLINE':'OFFLINE'));
+  const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
+  box.innerHTML=`<div class="card" style="border-left:5px solid ${cor}">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div><h4 style="margin:0">Meu expediente</h4><p style="margin:5px 0 0;font-weight:800;color:${cor}">● ${status}</p></div>
+      <button class="btn-submit" style="width:auto;margin:0;background:${ativa?'#dc3545':'#168a45'};opacity:${emServico?'.55':'1'}" onclick="alternarTurno()" ${emServico?'disabled':''}>${emServico?'O.S. em serviço':ativa?'Encerrar turno':'Iniciar expediente'}</button>
+    </div>
+    <p style="font-size:.72rem;color:#64748b;margin:8px 0 0">${emServico?'Conclua ou transfira a O.S. atual para voltar a ficar ONLINE e depois encerrar o turno.':ativa?'Você recebe novas O.S. quando estiver ONLINE. Ao assumir uma, seu status muda para EM SERVIÇO.':'Você está OFFLINE e não receberá notificações de novas O.S.'}</p>
+  </div>`;
+}
+async function alternarTurno(){
+  if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil))return;
+  const atual=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
+  const agora=new Date().toISOString();
+  if(atual&&atual.turno_ativo){
+    const em=PERFIL.perfil==='tecnico'?chamados.filter(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome):[];
+    if(em.length)return alert('Você ainda tem uma O.S. em serviço. Conclua ou transfira antes de encerrar o turno.');
+    const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'OFFLINE',turno_ativo:false,turno_fim:agora,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
+    if(error)return alert('Não foi possível encerrar o turno: '+error.message);
+  }else{
+    const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'ONLINE',turno_ativo:true,turno_inicio:agora,turno_fim:null,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
+    if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
+  }
+  if(PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
+  await carregarDadosSupabase();
+}
+async function recalcularStatusTecnico(userId){
+  const tecnico=TECNICOS.find(t=>t.id===userId);
+  if(!tecnico)return;
+  const {data:atual,error:statusError}=await _supabase.from('status_tecnicos').select('turno_ativo').eq('user_id',userId).maybeSingle();
+  if(statusError||!atual)return;
+  const {data:ativas,error:osError}=await _supabase.from('os').select('id').eq('tecnico',tecnico.nome).eq('status','Em Atendimento').order('id',{ascending:false}).limit(1);
+  if(osError)return console.error('Erro ao conferir O.S. do técnico:',osError.message);
+  const ocupada=!!(ativas&&ativas.length);
+  const status=ocupada?'EM SERVIÇO':atual.turno_ativo?'ONLINE':'OFFLINE';
+  const {error}=await _supabase.from('status_tecnicos').update({status,os_atual_id:ocupada?ativas[0].id:null,atualizado_em:new Date().toISOString()}).eq('user_id',userId);
+  if(error)console.error('Erro ao atualizar status do técnico:',error.message);
+}
+function renderizarChamados(){renderTecnicos();renderStatusTurno();
   const box=document.getElementById('listaOS'),filtro=document.getElementById('filtroStatus').value;
   const nome=localStorage.getItem('erimax_tecnico')||'';
   document.getElementById('nomeTecnico').value=nome;
@@ -395,19 +489,33 @@ function salvarNomeTecnico(){localStorage.setItem('erimax_tecnico',document.getE
 async function assumirOS(id){
   const t=localStorage.getItem('erimax_tecnico');
   if(!t)return alert('Digite seu nome de técnico no topo do painel!');
+  if(PERFIL&&PERFIL.perfil==='tecnico'){
+    const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',MEU_ID).maybeSingle();
+    if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
+    if(!st||!st.turno_ativo||st.status!=='ONLINE')return alert('Você precisa estar ONLINE e sem outra O.S. em serviço para assumir uma nova ordem.');
+  }
   const {error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id);
   if(error)return alert('Erro ao assumir OS: '+error.message);
-  carregarDadosSupabase();
+  if(PERFIL&&PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
+  await carregarDadosSupabase();
 }
 
 async function transferirOS(id){
   const os=chamados.find(c=>c.id===id);if(!os)return;
   const novo=prompt(`${nOS(os)} atualmente com: ${os.tecnico}\n\nDigite o nome do novo técnico responsável:`);
   if(!novo||!novo.trim())return;
-  const {error}=await _supabase.from('os').update({tecnico:novo.trim()}).eq('id',id);
+  const novoTec=TECNICOS.find(x=>x.nome.toLowerCase()===novo.trim().toLowerCase());
+  if(!novoTec)return alert('Não encontrei esse técnico cadastrado.');
+  const {data:novoStatus,error:statusError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',novoTec.id).maybeSingle();
+  if(statusError)return alert('Não foi possível verificar o status do técnico: '+statusError.message);
+  if(!novoStatus||!novoStatus.turno_ativo||novoStatus.status!=='ONLINE')return alert('Esse técnico não está ONLINE ou já está em serviço. Escolha alguém disponível.');
+  const {error}=await _supabase.from('os').update({tecnico:novoTec.nome}).eq('id',id);
   if(error)return alert('Erro ao transferir: '+error.message);
-  alert(`OS transferida para ${novo.trim()}!`);
-  carregarDadosSupabase();
+  const antigo=TECNICOS.find(x=>x.nome===os.tecnico);
+  if(antigo)await recalcularStatusTecnico(antigo.id);
+  await recalcularStatusTecnico(novoTec.id);
+  alert(`OS transferida para ${novoTec.nome}!`);
+  await carregarDadosSupabase();
 }
 
 let osHor=null;
@@ -440,7 +548,8 @@ async function confirmarConclusao(){
   const aj=Math.abs(agora-fim)>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
   const {error}=await _supabase.from('os').update({status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),data_conclusao:fim.toISOString(),...aj}).eq('id',osConcluir);
   if(error)return alert('Erro ao concluir OS: '+error.message);
-  fecharModal();carregarDadosSupabase();
+  if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
+  fecharModal();await carregarDadosSupabase();
 }
 
 async function excluirOS(id){
@@ -504,11 +613,6 @@ function mostrarOSParada(lista){
   modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
-function abrirOSNoPainel(id){
-  fecharModalEfOS();filtroStatus.value='Todas';mudarAba('painel',null);
-  setTimeout(()=>{const el=document.getElementById('os-'+id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='3px solid #dc3545';setTimeout(()=>el.style.outline='',2500)}},700);
-}
-
 function atualizarMetricasReais(){
   const dia=filtroDia.value,mes=filtroMes.value,tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
   const agora=new Date().toISOString();
@@ -667,6 +771,45 @@ async function avisarNovaOS(id){
   return data;
 }
 
+/* ===== ABERTURA DE O.S. POR ALERTA NATIVO ===== */
+async function abrirOSNoPainel(id){
+  const modalEf=document.getElementById('modalEfOS');
+  if(modalEf)modalEf.style.display='none';
+  const filtro=document.getElementById('filtroStatus');
+  if(filtro)filtro.value='Todas';
+  mudarAba('painel',null);
+  await carregarDadosSupabase();
+  setTimeout(()=>{
+    const el=document.getElementById('os-'+id);
+    if(el){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      el.style.outline='3px solid #dc3545';
+      setTimeout(()=>el.style.outline='',2500);
+    }else{
+      console.warn('O.S. do alerta não apareceu no painel:',id);
+    }
+  },250);
+}
+function tratarLinkOS(url){
+  try{
+    const u=new URL(url);
+    const m=(u.hostname==='os'?u.pathname.match(/^\/([^/]+)$/):u.pathname.match(/^\/os\/([^/]+)$/));
+    if(u.protocol!=='erimax:'||!m)return;
+    const id=decodeURIComponent(m[1]);
+    if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);return}
+    setTimeout(()=>abrirOSNoPainel(id),900);
+  }catch(e){console.error('Link de O.S. inválido:',e)}
+}
+async function iniciarLinksOS(){
+  try{
+    const App=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;
+    if(!App)return;
+    await App.addListener('appUrlOpen',e=>tratarLinkOS(e.url));
+    const launch=await App.getLaunchUrl();
+    if(launch&&launch.url)tratarLinkOS(launch.url);
+  }catch(e){console.error('Erro ao preparar abertura da O.S.:',e)}
+}
+
 /* ===== LOGIN, PERFIS E CADASTRO ===== */
 async function entrar(){
   lgErro.innerText='';
@@ -682,6 +825,7 @@ async function sair(){
 async function iniciarApp(user){
   const {data}=await _supabase.from('perfis').select('*').eq('id',user.id).maybeSingle();
   PERFIL=data||{nome:user.email,perfil:'operador'};MEU_ID=user.id;
+  renderRankingOperadores();
   localStorage.setItem('erimax_tecnico',PERFIL.nome);
   login.style.display='none';
   ubNome.innerText='👤 '+PERFIL.nome+' • '+PERFIL.perfil;
@@ -691,7 +835,9 @@ async function iniciarApp(user){
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   cadSetor.innerHTML=pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
   await carregarMaquinas();await carregarCfg();await carregarPreventivas();if(p==='gestor')carregarUsuarios();
-  carregarDadosSupabase();iniciarTempoReal();iniciarPush();
+  carregarDadosSupabase();iniciarTempoReal();iniciarPush();iniciarLinksOS();
+  const osPendente=localStorage.getItem('erimax_os_pendente');
+  if(osPendente){localStorage.removeItem('erimax_os_pendente');setTimeout(()=>abrirOSNoPainel(osPendente),1400)}
 }
 
 async function carregarMaquinas(){
@@ -845,7 +991,52 @@ async function gerarOSPrev(id){
   carregarPreventivas();carregarDadosSupabase();
 }
 
+
+/* ===== CONSULTAS LOCAIS DO HISTÓRICO (SEM IA EXTERNA) ===== */
+function executarConsultaHistorico(){
+  const mes=document.getElementById('consultaMes')?.value||'';
+  const tipo=document.getElementById('consultaTipo')?.value||'motores';
+  const filtro=(document.getElementById('consultaFiltro')?.value||'').trim().toLocaleLowerCase('pt-BR');
+  const box=document.getElementById('resultadoConsulta');
+  if(!box)return;
+  const registros=chamados.filter(c=>{
+    const data=c.created_at?diaLocal(c.created_at):'';
+    const noMes=!mes||data.startsWith(mes);
+    const texto=[c.maquina,c.setor,c.tipo,c.descricao,c.causa,c.peca,c.servico_executado,c.tecnico].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');
+    const bateFiltro=!filtro||texto.includes(filtro);
+    return noMes&&bateFiltro&&c.tipo!=='Preventiva';
+  });
+  const escapeHTML=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const periodo=mes?mes.split('-').reverse().join('/'):'todo o histórico';
+  if(tipo==='motores'){
+    const motores=registros.filter(c=>/motor(?:es)?.{0,50}queim|queim.{0,50}motor(?:es)?/i.test([c.tipo,c.descricao,c.causa,c.peca,c.servico_executado].filter(Boolean).join(' ')));
+    box.innerHTML='<h4>Resultado: '+motores.length+' O.S. com relato de motor queimado em '+escapeHTML(periodo)+'</h4>'+
+      (motores.length?motores.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.data_conclusao?hm(c.data_conclusao):hm(c.created_at))+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div><div style="font-size:.76rem;color:#137333">'+escapeHTML(c.causa||'')+' '+escapeHTML(c.peca||'')+' '+escapeHTML(c.servico_executado||'')+'</div></div>').join(''):'<p>Nenhum relato de motor queimado foi encontrado nesse período. A busca considera o texto registrado na O.S.</p>');
+    return;
+  }
+  if(tipo==='maquina'){
+    const grupos={};
+    registros.forEach(c=>{const k=c.maquina||'Máquina não informada';grupos[k]=(grupos[k]||0)+1});
+    const lista=Object.entries(grupos).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML='<h4>Máquinas com mais O.S. em '+escapeHTML(periodo)+'</h4>'+
+      (lista.length?lista.map(([nome,total],i)=>'<div class="maq-row"><b>'+(i+1)+'º • '+escapeHTML(nome)+'</b><strong>'+total+' O.S.</strong></div>').join(''):'<p>Nenhuma O.S. encontrada nesse período.</p>');
+    return;
+  }
+  if(tipo==='causas'){
+    const grupos={};
+    registros.forEach(c=>{const k=c.causa||'Causa não informada';grupos[k]=(grupos[k]||0)+1});
+    const lista=Object.entries(grupos).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML='<h4>Causas registradas em '+escapeHTML(periodo)+'</h4>'+
+      (lista.length?lista.map(([nome,total])=>'<div class="maq-row"><b>'+escapeHTML(nome)+'</b><strong>'+total+'</strong></div>').join(''):'<p>Nenhuma causa registrada nesse período.</p>');
+    return;
+  }
+  if(!filtro){box.innerHTML='<p>Digite uma palavra ou nome de máquina para pesquisar.</p>';return}
+  box.innerHTML='<h4>'+registros.length+' O.S. encontradas para “'+escapeHTML(filtro)+'” em '+escapeHTML(periodo)+'</h4>'+
+    (registros.length?registros.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.tecnico||'Sem técnico')+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div></div>').join(''):'<p>Nenhum registro corresponde à pesquisa.</p>');
+}
 window.onload=async function(){
+  const mesConsulta=document.getElementById('consultaMes');
+  if(mesConsulta){const agora=new Date();mesConsulta.value=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0')}
   const {data:{session}}=await _supabase.auth.getSession();
   if(session)iniciarApp(session.user);
 };
