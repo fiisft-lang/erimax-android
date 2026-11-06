@@ -28,7 +28,7 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Criar aplicativo Android
+      - name: Preparar aplicativo
         run: |
           npm run build
           npx cap add android
@@ -40,8 +40,23 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Verificar APK
+        run: |
+          APK="android/app/build/outputs/apk/debug/app-debug.apk"
+
+          test -s "$APK"
+          unzip -t "$APK"
+
+          echo "Tamanho do APK:"
+          ls -lh "$APK"
+
+          echo "Verificando assinatura:"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
           name: erimax-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
