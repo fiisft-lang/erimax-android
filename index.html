@@ -652,6 +652,27 @@ async function iniciarPush(){
 }
 async function avisarNovaOS(id){try{await _supabase.functions.invoke('notificar-os',{body:{os_id:id}})}catch(e){console.error(e)}}
 
+/* ===== ABERTURA DE O.S. POR ALERTA NATIVO ===== */
+function tratarLinkOS(url){
+  try{
+    const u=new URL(url);
+    const m=u.pathname.match(/^\\/os\\/([^/]+)$/);
+    if(u.protocol!=='erimax:'||!m)return;
+    const id=decodeURIComponent(m[1]);
+    if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);return}
+    setTimeout(()=>abrirOSNoPainel(id),900);
+  }catch(e){console.error('Link de O.S. inválido:',e)}
+}
+async function iniciarLinksOS(){
+  try{
+    const App=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;
+    if(!App)return;
+    await App.addListener('appUrlOpen',e=>tratarLinkOS(e.url));
+    const launch=await App.getLaunchUrl();
+    if(launch&&launch.url)tratarLinkOS(launch.url);
+  }catch(e){console.error('Erro ao preparar abertura da O.S.:',e)}
+}
+
 /* ===== LOGIN, PERFIS E CADASTRO ===== */
 async function entrar(){
   lgErro.innerText='';
@@ -676,7 +697,8 @@ async function iniciarApp(user){
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   cadSetor.innerHTML=pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
   await carregarMaquinas();await carregarCfg();await carregarPreventivas();if(p==='gestor')carregarUsuarios();
-  carregarDadosSupabase();iniciarTempoReal();iniciarPush();
+  carregarDadosSupabase();iniciarTempoReal();iniciarPush();iniciarLinksOS();
+  const osPendente=localStorage.getItem('erimax_os_pendente');if(osPendente){localStorage.removeItem('erimax_os_pendente');setTimeout(()=>abrirOSNoPainel(osPendente),1400)}
 }
 
 async function carregarMaquinas(){
