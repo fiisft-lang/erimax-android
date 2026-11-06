@@ -1,0 +1,18 @@
+{
+  "name": "EriMax - Sistema Supervisório",
+  "short_name": "EriMax",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f7f9",
+  "theme_color": "#0056b3",
+  "description": "Gestão de manutenção EriMax",
+  "icons": [
+    {
+      "src": "/erimax-pwa.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
