@@ -1,5 +1,5 @@
 -- Permite nomes repetidos de máquinas; o código identifica cada equipamento.
-drop index if exists public.maquinas_setor_nome_key;
+alter table public.maquinas drop constraint if exists maquinas_setor_nome_key;
 create index if not exists maquinas_setor_nome_idx on public.maquinas (setor, nome);
 drop index if exists public.maquinas_prefixo_unico_idx;
 create unique index maquinas_prefixo_unico_idx
