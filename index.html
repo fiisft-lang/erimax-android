@@ -480,7 +480,8 @@ async function assumirOS(id){
   const t=localStorage.getItem('erimax_tecnico');
   if(!t)return alert('Digite seu nome de técnico no topo do painel!');
   if(PERFIL&&PERFIL.perfil==='tecnico'){
-    const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
+    const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('turno_ativo').eq('user_id',MEU_ID).maybeSingle();
+    if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
     if(!st||!st.turno_ativo)return alert('Antes de assumir uma O.S., toque em “Iniciar expediente” para ficar ONLINE.');
   }
   const {error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id);
@@ -495,7 +496,8 @@ async function transferirOS(id){
   if(!novo||!novo.trim())return;
   const novoTec=TECNICOS.find(x=>x.nome.toLowerCase()===novo.trim().toLowerCase());
   if(!novoTec)return alert('Não encontrei esse técnico cadastrado.');
-  const novoStatus=STATUS_TECNICOS.find(x=>x.user_id===novoTec.id);
+  const {data:novoStatus,error:statusError}=await _supabase.from('status_tecnicos').select('turno_ativo').eq('user_id',novoTec.id).maybeSingle();
+  if(statusError)return alert('Não foi possível verificar o status do técnico: '+statusError.message);
   if(!novoStatus||!novoStatus.turno_ativo)return alert('Esse técnico está OFFLINE. Ele precisa iniciar o expediente antes de receber a O.S.');
   const {error}=await _supabase.from('os').update({tecnico:novoTec.nome}).eq('id',id);
   if(error)return alert('Erro ao transferir: '+error.message);
