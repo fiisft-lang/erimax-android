@@ -1,4 +1,5 @@
 name: Gerar APK EriMax
+# Build de staging após correção da sintaxe do login
 
 on:
   workflow_dispatch:
