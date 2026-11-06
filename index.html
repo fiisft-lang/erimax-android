@@ -148,7 +148,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Horário de produção por setor</h3>
-<p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Usado para calcular a disponibilidade das máquinas. Salva ao alterar.</p>
+<p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Configure entrada, saída e dias de cada turno. As métricas usam estes horários exatos.</p>
 <div style="display:flex;gap:8px;margin-bottom:12px"><input id="novoSetor" placeholder="Nome do novo setor"><button class="btn-submit" style="width:auto;padding:0 18px" onclick="adicionarSetor()">➕</button></div>
 <div id="listaCfg"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
@@ -274,7 +274,7 @@ let canalOSTempoReal=null;
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
-let CFG={};const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
+let CFG={};let TURNOS_CFG={};const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
 let SETORES=['Costura','Corte de ataduras','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 
 let chamados=[],vibrationInterval=null;
@@ -578,19 +578,30 @@ function atualizarMaquinasMetrica(){
 
 /* ===== MÉTRICAS ===== */
 // minutos de parada que caem dentro do horário de produção do setor (tn = número do turno, ou null para todos)
+function minutosHora(h){const [a,b]=String(h||'00:00').slice(0,5).split(':').map(Number);return a*60+b}
+function minutosTurno(t){let fim=minutosHora(t.hora_fim),ini=minutosHora(t.hora_inicio);if(fim<=ini)fim+=1440;return fim-ini}
+function turnosDoSetor(s){
+  const cadastrados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false).sort((a,b)=>a.numero_turno-b.numero_turno);
+  if(cadastrados.length)return cadastrados.map(t=>({...t}));
+  const c=CFG[s]||CFG_PADRAO, dur=Math.max(60,Math.round((+c.horas||9)*60)),inicio=minutosHora(c.inicio||'06:00');
+  return Array.from({length:Math.max(1,Math.min(3,+c.turnos||1))},(_,i)=>{
+    const a=(inicio+i*dur)%1440,b=(a+dur)%1440;
+    return {setor:s,numero_turno:i+1,hora_inicio:String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0'),hora_fim:String(Math.floor(b/60)).padStart(2,'0')+':'+String(b%60).padStart(2,'0'),dias:c.dias||'12345',ativo:true};
+  });
+}
 function paradaProd(c,tn){
-  const cfg=CFG[c.setor]||CFG_PADRAO;
-  if(tn&&tn>cfg.turnos)return 0;
   const ini=new Date(c.created_at),fim=new Date(c.data_conclusao||Date.now());
   if(!(fim>ini))return 0;
-  const [hh,mm]=(cfg.inicio||'06:00').split(':').map(Number),t1=tn||1,t2=tn||cfg.turnos;
-  const d=new Date(ini);d.setHours(0,0,0,0);d.setDate(d.getDate()-1);
-  let total=0;
+  const turnos=turnosDoSetor(c.setor).filter(t=>!tn||+t.numero_turno===+tn);
+  let total=0,d=new Date(ini);d.setHours(0,0,0,0);d.setDate(d.getDate()-1);
   for(;d<=fim;d.setDate(d.getDate()+1)){
-    if(!cfg.dias.includes(d.getDay()))continue;
-    const b=new Date(d);b.setHours(hh,mm,0,0);
-    const a=Math.max(b.getTime()+(t1-1)*cfg.horas*36e5,ini),e=Math.min(b.getTime()+t2*cfg.horas*36e5,fim);
-    if(e>a)total+=(e-a)/60000;
+    for(const t of turnos){
+      if(!(t.dias||'').includes(String(d.getDay())))continue;
+      const a=new Date(d);a.setHours(0,0,0,0);a.setMinutes(minutosHora(t.hora_inicio));
+      const b=new Date(a);b.setMinutes(b.getMinutes()+minutosTurno(t));
+      const iniMs=Math.max(a.getTime(),ini.getTime()),fimMs=Math.min(b.getTime(),fim.getTime());
+      if(fimMs>iniMs)total+=(fimMs-iniMs)/60000;
+    }
   }
   return total;
 }
@@ -671,9 +682,9 @@ function atualizarMetricasReais(){
   if(dia){pIni=new Date(dia+'T00:00:00');pFim=pIni}
   else if(mes){const [y,mo]=mes.split('-').map(Number);pIni=new Date(y,mo-1,1);pFim=(hoje.getFullYear()===y&&hoje.getMonth()+1===mo)?hoje:new Date(y,mo,0)}
   else{pIni=f.length?new Date(Math.min(...f.map(c=>new Date(c.created_at)))):new Date(hoje);pIni.setHours(0,0,0,0);pFim=hoje}
-  const baseDe=sx=>{const cfg=CFG[sx]||CFG_PADRAO,nT=tn==='Todos'?cfg.turnos:(+tn.slice(-1)<=cfg.turnos?1:0);let d=0;
-    for(let x=new Date(pIni);x<=pFim;x.setDate(x.getDate()+1))if(cfg.dias.includes(x.getDay()))d++;
-    return cfg.horas*60*nT*d};
+  const baseDe=sx=>{let total=0;const turnos=turnosDoSetor(sx).filter(t=>tn==='Todos'||+t.numero_turno===+tn.slice(-1));
+    for(let x=new Date(pIni);x<=pFim;x.setDate(x.getDate()+1))for(const t of turnos)if((t.dias||'').includes(String(x.getDay())))total+=minutosTurno(t);
+    return total};
   const maqsBase=MAQUINAS.filter(m=>(st==='Todos'||m.setor===st)&&(mq==='Todas'||m.nome===mq));
   const base=Math.max(1,maqsBase.length?maqsBase.reduce((t,m)=>t+baseDe(m.setor),0):Object.values(maq).reduce((t,m)=>t+baseDe(m.setor),0));
   const disp=Math.max(0,Math.min(100,Math.round((1-parada/base)*100)));
@@ -913,10 +924,12 @@ async function iniciarApp(user){
 
 async function carregarMaquinas(){
   const {data,error}=await _supabase.from('maquinas').select('*').order('setor').order('nome');
-  if(error){console.error(error);return}
+  if(error){console.error('Erro ao carregar máquinas:',error.message);listaMaquinas.innerHTML='<p class="alerta">Erro ao carregar máquinas: '+escaparHtml(error.message)+'</p>';return}
   MAQUINAS=data||[];
-  carregarMaquinasSetor();pvMaquinas();
-  listaMaquinas.innerHTML=MAQUINAS.length?MAQUINAS.map(m=>`<div class="maq-row"><span><b>${m.nome}</b> <small style="color:#64748b">• ${m.setor}</small></span><input value="${m.prefixo||''}" placeholder="Código" maxlength="9" style="width:95px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo(${m.id},this.value)"><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delMaquina(${m.id})">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma máquina cadastrada.</p>';
+  const nomes=new Set([...SETORES,...MAQUINAS.map(m=>m.setor)]);
+  SETORES=[...nomes].filter(Boolean);
+  popularSetores();carregarMaquinasSetor();pvMaquinas();
+  listaMaquinas.innerHTML=MAQUINAS.length?MAQUINAS.map(m=>`<div class="maq-row"><span><b>${escaparHtml(m.nome)}</b> <small style="color:#64748b">• ${escaparHtml(m.setor)}</small></span><input value="${m.prefixo||''}" placeholder="Código" maxlength="9" style="width:95px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo(${m.id},this.value)"><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delMaquina(${m.id})">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma máquina cadastrada.</p>';
 }
 function carregarMaquinasSetor(){
   const l=MAQUINAS.filter(m=>m.setor===setor.value);
@@ -930,12 +943,16 @@ async function salvarPrefixo(id,v){
   if(error)alert('Erro: '+error.message);
 }
 async function addMaquina(){
-  const nome=cadNome.value.trim(),prefixo=cadPref.value.trim().toUpperCase();if(!nome)return alert('Digite o nome da máquina.');
+  const nome=cadNome.value.trim(),prefixo=cadPref.value.trim().toUpperCase(),setorEscolhido=cadSetor.value;
+  if(!setorEscolhido)return alert('Selecione o setor da máquina.');
+  if(!nome)return alert('Digite o nome da máquina.');
   if(!/^[A-Z]{2,6}[0-9]{1,3}$/.test(prefixo))return alert('O código precisa ter de 2 a 6 letras seguidas do número da máquina (ex.: MCA08).');
-  if(MAQUINAS.some(m=>m.prefixo===prefixo))return alert('Esse código já está em uso por outra máquina.');
-  const {error}=await _supabase.from('maquinas').insert([{setor:cadSetor.value,nome,prefixo}]);
+  if(MAQUINAS.some(m=>m.prefixo&&m.prefixo.toUpperCase()===prefixo))return alert('Esse código já está em uso por outra máquina.');
+  const {error}=await _supabase.from('maquinas').insert([{setor:setorEscolhido,nome,prefixo}]);
   if(error)return alert('Erro ao cadastrar: '+error.message);
-  cadNome.value=cadPref.value='';carregarMaquinas();
+  cadNome.value=cadPref.value='';
+  await carregarMaquinas();
+  alert('Máquina cadastrada com sucesso.');
 }
 async function delMaquina(id){
   if(!confirm('Remover esta máquina do cadastro? (as OS antigas continuam no histórico)'))return;
@@ -956,18 +973,54 @@ function exportarCSV(){
 
 /* ===== HORÁRIO DE PRODUÇÃO ===== */
 async function carregarCfg(){
-  const {data}=await _supabase.from('setores_config').select('*');
-  CFG={};(data||[]).forEach(r=>CFG[r.setor]={horas:+r.horas,turnos:r.turnos,dias:r.dias,inicio:(r.inicio||'06:00').slice(0,5)});
-  const nomes=(data||[]).map(r=>r.setor).sort((x,y)=>x.localeCompare(y,'pt-BR'));if(nomes.length)SETORES=nomes;
+  const [{data:cfgData,error:cfgError},{data:turnosData,error:turnosError}]=await Promise.all([
+    _supabase.from('setores_config').select('*'),
+    _supabase.from('setores_turnos').select('*').order('setor').order('numero_turno')
+  ]);
+  if(cfgError)console.error('Erro ao carregar configurações de setor:',cfgError.message);
+  if(turnosError)console.error('Erro ao carregar horários dos turnos:',turnosError.message);
+  CFG={};(cfgData||[]).forEach(r=>CFG[r.setor]={horas:+r.horas,turnos:r.turnos,dias:r.dias,inicio:(r.inicio||'06:00').slice(0,5)});
+  TURNOS_CFG={};(turnosData||[]).forEach(r=>(TURNOS_CFG[r.setor]||(TURNOS_CFG[r.setor]=[])).push(r));
+  (turnosData||[]).forEach(r=>{if(!CFG[r.setor])CFG[r.setor]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:r.hora_inicio.slice(0,5)};});
+  const nomes=new Set([...SETORES,...(cfgData||[]).map(r=>r.setor),...(turnosData||[]).map(r=>r.setor),...MAQUINAS.map(m=>m.setor)]);
+  SETORES=[...nomes].filter(Boolean);
   popularSetores();if(document.getElementById('listaCfg'))renderCfg();
 }
+function alterarQtdTurnos(i,n){const s=SETORES[i],atuais=turnosDoSetor(s);while(atuais.length<+n){const anterior=atuais[atuais.length-1]||{hora_inicio:'06:00',hora_fim:'14:00',dias:'12345'};const a=minutosHora(anterior.hora_fim),b=(a+480)%1440;atuais.push({numero_turno:atuais.length+1,hora_inicio:anterior.hora_fim,hora_fim:String(Math.floor(b/60)).padStart(2,'0')+':'+String(b%60).padStart(2,'0'),dias:anterior.dias||'12345',ativo:true});}atuais.length=+n;TURNOS_CFG[s]=atuais.map((t,j)=>({...t,numero_turno:j+1,ativo:true}));renderCfg();}
 function renderCfg(){
   const D=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  listaCfg.innerHTML=SETORES.map((s,i)=>{const c=CFG[s]||CFG_PADRAO;return `<div class="maq-row" style="flex-wrap:wrap;gap:6px" id="cfg${i}"><div style="flex:1 1 100%;display:flex;justify-content:space-between;align-items:center"><b>${s}</b><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarSetor(${i})">🗑️</button></div>
-<label style="margin:0;font-size:.7rem">Horas/turno <input type="number" min="1" max="24" step="0.5" value="${c.horas}" style="width:70px;padding:6px" onchange="salvarCfg(${i})"></label>
-<label style="margin:0;font-size:.7rem">Turnos <select style="width:64px;padding:6px" onchange="salvarCfg(${i})">${[1,2,3].map(n=>`<option ${n===c.turnos?'selected':''}>${n}</option>`).join('')}</select></label>
-<label style="margin:0;font-size:.7rem">Início do 1º turno <input type="time" value="${c.inicio||'06:00'}" style="width:105px;padding:6px" onchange="salvarCfg(${i})"></label>
-<span style="font-size:.7rem">${D.map((l,d)=>`<label style="display:inline-block;margin:0 4px 0 0;text-transform:none"><input type="checkbox" style="width:auto;padding:0" ${c.dias.includes(d)?'checked':''} onchange="salvarCfg(${i})"> ${l}</label>`).join('')}</span></div>`}).join('');
+  listaCfg.innerHTML=SETORES.map((s,i)=>{const turnos=turnosDoSetor(s);return `<div class="maq-row" style="flex-wrap:wrap;gap:8px" id="cfg${i}">
+<div style="flex:1 1 100%;display:flex;justify-content:space-between;align-items:center"><b>${escaparHtml(s)}</b><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarSetor(${i})">🗑️</button></div>
+<label style="font-size:.75rem">Quantidade de turnos <select class="cfg-qtd" style="width:75px;padding:6px" onchange="alterarQtdTurnos(${i},this.value)">${[1,2,3].map(n=>`<option value="${n}" ${n===turnos.length?'selected':''}>${n}</option>`).join('')}</select></label>
+<div style="flex:1 1 100%;display:grid;gap:8px">${turnos.map((t,j)=>`<div class="cfg-turno" data-numero="${j+1}" style="border:1px solid #dbe3ec;border-radius:8px;padding:9px">
+<b>Turno ${j+1}</b>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin:7px 0">
+<label style="font-size:.72rem">Entrada <input class="cfg-ini" type="time" value="${String(t.hora_inicio||'06:00').slice(0,5)}" style="width:110px;padding:6px"></label>
+<label style="font-size:.72rem">Saída <input class="cfg-fim" type="time" value="${String(t.hora_fim||'14:00').slice(0,5)}" style="width:110px;padding:6px"></label>
+</div>
+<div style="font-size:.72rem">${D.map((l,d)=>`<label style="display:inline-block;margin:0 5px 0 0;text-transform:none"><input class="cfg-dia" type="checkbox" value="${d}" style="width:auto;padding:0" ${(t.dias||'12345').includes(d)?'checked':''}> ${l}</label>`).join('')}</div>
+</div>`).join('')}</div>
+<button class="btn-submit" style="max-width:230px" onclick="salvarTurnosCfg(${i})">💾 Salvar horários do setor</button>
+</div>`}).join('');
+}
+async function salvarTurnosCfg(i){
+  const s=SETORES[i],row=document.getElementById('cfg'+i),blocos=[...row.querySelectorAll('.cfg-turno')],turnos=[];
+  for(const b of blocos){
+    const n=+b.dataset.numero,ini=b.querySelector('.cfg-ini').value,fim=b.querySelector('.cfg-fim').value;
+    const dias=[...b.querySelectorAll('.cfg-dia')].filter(x=>x.checked).map(x=>x.value).join('');
+    if(!ini||!fim||ini===fim)return alert('No Turno '+n+', informe entrada e saída diferentes.');
+    if(!dias)return alert('Marque pelo menos um dia no Turno '+n+'.');
+    turnos.push({setor:s,numero_turno:n,hora_inicio:ini,hora_fim:fim,dias,ativo:true});
+  }
+  const {error}=await _supabase.from('setores_turnos').upsert(turnos,{onConflict:'setor,numero_turno'});
+  if(error)return alert('Erro ao salvar horários: '+error.message);
+  const {error:desativarError}=await _supabase.from('setores_turnos').update({ativo:false}).eq('setor',s).gt('numero_turno',turnos.length);
+  if(desativarError)return alert('Os horários foram salvos, mas não foi possível desativar os turnos removidos: '+desativarError.message);
+  const primeira=turnos[0],horas=minutosTurno(primeira)/60;
+  const {error:cfgError}=await _supabase.from('setores_config').upsert({setor:s,horas,turnos:turnos.length,dias:primeira.dias,inicio:primeira.hora_inicio});
+  if(cfgError)return alert('Horários salvos, mas houve erro ao atualizar o resumo do setor: '+cfgError.message);
+  await carregarCfg();
+  alert('Horários dos '+turnos.length+' turno(s) de '+s+' salvos com sucesso. As métricas já usarão esses horários.');
 }
 async function adicionarSetor(){
   const nome=novoSetor.value.trim().replace(/\s+/g,' ');
@@ -985,19 +1038,6 @@ async function apagarSetor(i){
   if(error)return alert('Erro: '+error.message);
   await carregarCfg();
 }
-async function salvarCfg(i){
-  const row=document.getElementById('cfg'+i),s=SETORES[i];
-  const horas=+row.querySelector('input[type=number]').value,turnos=+row.querySelector('select').value,inicio=row.querySelector('input[type=time]').value;
-  const dias=[...row.querySelectorAll('input[type=checkbox]')].map((c,d)=>c.checked?d:'').join('');
-  if(!(horas>0&&horas<=24))return alert('Informe de 1 a 24 horas por turno.');
-  if(!dias)return alert('Marque pelo menos um dia de trabalho.');
-  if(!inicio)return alert('Informe a hora em que o 1º turno começa.');
-  if(horas*turnos>24)return alert('Horas por turno × turnos não pode passar de 24 horas por dia.');
-  const {error}=await _supabase.from('setores_config').upsert({setor:s,horas,turnos,dias,inicio});
-  if(error)return alert('Erro ao salvar: '+error.message);
-  CFG[s]={horas,turnos,dias,inicio};
-}
-
 /* ===== USUÁRIOS ===== */
 async function carregarUsuarios(){
   const {data,error}=await _supabase.from('perfis').select('*').order('nome');
