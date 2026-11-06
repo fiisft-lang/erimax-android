@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class IncomingCallMessagingService extends MessagingService {
   // Canal novo: canais antigos mantêm as configurações silenciosas já gravadas pelo Android.
-  private static final String CHANNEL = "erimax_incoming_calls_v3";
+  private static final String CHANNEL = "erimax_incoming_calls_v4";
 
   @Override public void onMessageReceived(RemoteMessage message) {
     Map<String,String> data = message.getData();
@@ -36,6 +36,7 @@ public class IncomingCallMessagingService extends MessagingService {
       screen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
       PendingIntent full = PendingIntent.getActivity(this, id.hashCode(), screen,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+      Uri alertSound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
       Notification n = new NotificationCompat.Builder(this, CHANNEL)
         .setSmallIcon(getApplicationInfo().icon)
         .setContentTitle("Nova ordem de serviço")
