@@ -44,7 +44,7 @@ jobs:
           from pathlib import Path
           import xml.etree.ElementTree as ET
           p = Path("android/app/src/main/AndroidManifest.xml")
-          ET.register_namespace("", "http://schemas.android.com/apk/res/android")
+          ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
           ET.register_namespace("tools", "http://schemas.android.com/tools")
           A = "{http://schemas.android.com/apk/res/android}"
           root = ET.parse(p).getroot()
@@ -106,7 +106,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
       - name: Verificar APK
         run: |
