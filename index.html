@@ -1069,7 +1069,7 @@ function renderCfg(){
   listaCfg.innerHTML=SETORES.map((s,i)=>{
     const edit=SETOR_EM_EDICAO===s;
     const qtd=turnosDoSetor(s).length||1;
-    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button><button class="btn-action btn-excluir" title="Excluir setor" aria-label="Excluir setor '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button></div></div>;
+    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button><button class="btn-action btn-excluir" title="Excluir setor" aria-label="Excluir setor '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button></div></div>';
     if(edit)h+=renderEditorSetor(s,i);
     else h+='<p style="font-size:.75rem;color:#64748b;margin-top:8px">🔒 Configuração protegida • '+qtd+' turno(s). Para alterar dias ou horários, toque na ferramenta.</p>';
     if(edit)h+='<button class="btn-action" style="margin-top:8px;width:auto" onclick="cancelarEdicaoHorario()">Fechar edição</button>';
