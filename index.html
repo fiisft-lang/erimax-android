@@ -397,7 +397,6 @@ function renderRankingOperadores(){
     .forEach(c=>{contagem[c.tecnico]=(contagem[c.tecnico]||0)+1});
   const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
   if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
-  if(!lista.some(x=>x[1]>0)){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhuma O.S. concluída por técnico neste mês.</p>";return}
   box.innerHTML=lista.map(([nome,total],i)=>{const seguro=String(nome).replace(/[&<>\"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]));return `<div class="maq-row" style="display:flex;align-items:center;gap:10px"><b style="min-width:30px;font-size:1.05rem">${medalhas[i]||(i+1)+"º"}</b><span style="flex:1"><b>${seguro}</b></span><strong style="color:var(--primary);font-size:1.05rem">${total} <small style="font-size:.68rem;color:#64748b;font-weight:500">O.S.</small></strong></div>`}).join("");
 }
 function renderTecnicos(){
