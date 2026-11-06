@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
 import androidx.core.app.NotificationCompat;
 import com.capacitorjs.plugins.pushnotifications.MessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -49,9 +51,24 @@ public class IncomingCallMessagingService extends MessagingService {
         .build();
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       nm.notify(id.hashCode(), n);
+      vibrateForIncomingOS();
     } else {
       super.onMessageReceived(message);
     }
+  }
+
+  // Vibração direta como reforço: alguns aparelhos/ROMs ignoram a vibração do canal.
+  private void vibrateForIncomingOS() {
+    try {
+      Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+      if (vibrator == null || !vibrator.hasVibrator()) return;
+      long[] pattern = new long[]{0, 700, 350, 700, 350, 1000};
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
+      } else {
+        vibrator.vibrate(pattern, -1);
+      }
+    } catch (Exception ignored) { }
   }
 
   private void createChannel() {
