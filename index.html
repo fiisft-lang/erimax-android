@@ -87,6 +87,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)">🛠️ Painel <span id="badgePendentes" class="badge-count">0</span></button>
 <button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)">📊 Métricas</button>
 <button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)">⚙️ Cadastro</button>
+<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🤖 IA EriMax</button>
 </nav>
 
 <div class="container">
@@ -210,6 +211,29 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div id="listaRelatorioProblemas" style="max-height:350px;overflow-y:auto"></div>
 </div>
 </div>
+</div>
+
+<div id="tab-ia" class="tab-content">
+  <div class="card" style="background:#101827;color:#fff;border-radius:18px;padding:16px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="width:42px;height:42px;border-radius:14px;background:#168a45;display:grid;place-items:center;font-size:23px">🤖</div>
+      <div><h2 style="font-size:1.12rem;margin:0;color:#fff">IA EriMax</h2><p style="font-size:.76rem;color:#cbd5e1;margin:2px 0 0">Assistente inteligente do histórico de manutenção</p></div>
+    </div>
+    <p style="font-size:.78rem;color:#cbd5e1;margin:10px 0 14px">Pergunte sobre falhas, máquinas, motores, peças, setores e técnicos. As respostas são baseadas nas O.S. registradas.</p>
+    <div id="iaMensagens" style="display:flex;flex-direction:column;gap:10px;min-height:190px;max-height:52vh;overflow:auto;padding:10px;background:#172235;border:1px solid #334155;border-radius:14px">
+      <div style="align-self:flex-start;max-width:92%;background:#263449;color:#fff;padding:11px 13px;border-radius:14px 14px 14px 4px;font-size:.88rem;white-space:pre-wrap">Olá! Sou a IA EriMax. Pode perguntar, por exemplo: “Quantos motores queimaram na máquina X neste mês?”</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin:12px 0">
+      <button type="button" onclick="perguntarIA('Quantos motores queimaram neste mês?')" style="border:1px solid #64748b;background:#263449;color:#fff;border-radius:20px;padding:8px 11px;font-size:.72rem">Motores queimados</button>
+      <button type="button" onclick="perguntarIA('Qual máquina teve mais falhas neste mês?')" style="border:1px solid #64748b;background:#263449;color:#fff;border-radius:20px;padding:8px 11px;font-size:.72rem">Máquina com mais falhas</button>
+      <button type="button" onclick="perguntarIA('Quais foram as principais causas de manutenção neste mês?')" style="border:1px solid #64748b;background:#263449;color:#fff;border-radius:20px;padding:8px 11px;font-size:.72rem">Causas mais comuns</button>
+    </div>
+    <form id="iaForm" onsubmit="enviarPerguntaIA(event)" style="display:flex;gap:8px;align-items:flex-end">
+      <textarea id="iaPergunta" rows="2" maxlength="800" placeholder="Digite sua pergunta..." style="flex:1;min-width:0;background:#fff;color:#0f172a;border:0;border-radius:12px;padding:12px;font-size:.9rem;resize:vertical"></textarea>
+      <button id="iaEnviar" type="submit" style="background:#168a45;color:#fff;border:0;border-radius:12px;padding:13px 15px;font-weight:800;min-height:46px">Enviar</button>
+    </form>
+    <p style="font-size:.68rem;color:#94a3b8;margin:9px 0 0">A IA só confirma informações que estejam registradas nas ordens de serviço. Não informa custos se não houver valores cadastrados.</p>
+  </div>
 </div>
 
 <div id="login"><div class="box"><img class="logo" alt="Erimax" style="display:block;max-width:230px;width:80%;margin:0 auto 12px"><h2 style="text-align:center">Entrar</h2>
@@ -843,6 +867,47 @@ async function gerarOSPrev(id){
   if(error)return alert('Erro: '+error.message);
   await _supabase.from('preventivas').update({ultima:new Date().toLocaleDateString('sv-SE')}).eq('id',id);
   carregarPreventivas();carregarDadosSupabase();
+}
+
+
+/* ===== IA ERIMAX ===== */
+const historicoIA=[];
+function mensagemIA(tipo,texto){
+  const box=document.getElementById('iaMensagens');
+  const el=document.createElement('div');
+  el.style.cssText='align-self:'+(tipo==='user'?'flex-end':'flex-start')+';max-width:94%;padding:11px 13px;border-radius:'+(tipo==='user'?'14px 14px 4px 14px':'14px 14px 14px 4px')+';font-size:.88rem;white-space:pre-wrap;overflow-wrap:anywhere;background:'+(tipo==='user'?'#168a45':'#263449')+';color:#fff';
+  el.textContent=texto;
+  box.appendChild(el);
+  box.scrollTop=box.scrollHeight;
+}
+async function perguntarIA(texto){
+  const campo=document.getElementById('iaPergunta');
+  if(texto)campo.value=texto;
+  await enviarPerguntaIA(null);
+}
+async function enviarPerguntaIA(event){
+  if(event)event.preventDefault();
+  const campo=document.getElementById('iaPergunta'),botao=document.getElementById('iaEnviar');
+  const pergunta=campo.value.trim();
+  if(!pergunta)return;
+  campo.value='';
+  mensagemIA('user',pergunta);
+  historicoIA.push({role:'user',content:pergunta});
+  botao.disabled=true;botao.textContent='Consultando...';
+  try{
+    const {data,error}=await _supabase.functions.invoke('erimax-ai',{body:{question:pergunta,history:historicoIA.slice(-8)}});
+    let erro=data&&data.erro;
+    if(error&&!erro){try{erro=(await error.context.json()).erro}catch(e){erro=error.message}}
+    if(erro)throw new Error(erro);
+    const resposta=data&&data.answer?data.answer:'Não consegui montar uma resposta com os registros encontrados.';
+    mensagemIA('assistant',resposta);
+    historicoIA.push({role:'assistant',content:resposta});
+    if(historicoIA.length>12)historicoIA.splice(0,historicoIA.length-12);
+  }catch(e){
+    mensagemIA('assistant','Não consegui consultar agora: '+(e.message||'verifique a conexão e tente novamente.'));
+  }finally{
+    botao.disabled=false;botao.textContent='Enviar';
+  }
 }
 
 window.onload=async function(){
