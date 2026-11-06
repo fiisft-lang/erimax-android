@@ -1,12 +1,10 @@
 package com.webapp.erimaxmanuteno;
+
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,7 +16,7 @@ import android.widget.TextView;
 
 public class IncomingCallActivity extends Activity {
   private String osId = "";
-  private Ringtone alarm;
+
   @Override protected void onCreate(Bundle state) {
     super.onCreate(state);
     if (Build.VERSION.SDK_INT >= 27) setShowWhenLocked(true);
@@ -30,8 +28,8 @@ public class IncomingCallActivity extends Activity {
     String machine = getIntent().getStringExtra("maquina");
     String sector = getIntent().getStringExtra("setor");
     String number = getIntent().getStringExtra("numero");
-    IncomingCallMessagingService.stopUnlockedAlarm();
-    startAlarm();
+    IncomingCallMessagingService.startAlertAlarm(this);
+
     LinearLayout root = new LinearLayout(this);
     root.setOrientation(1); root.setGravity(Gravity.CENTER); root.setPadding(30,50,30,40);
     root.setBackgroundColor(Color.rgb(9,37,65));
@@ -44,36 +42,34 @@ public class IncomingCallActivity extends Activity {
     LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1,-2); bp.setMargins(0,26,0,0);
     root.addView(answer,bp); root.addView(silence,bp); setContentView(root);
   }
-  private void startAlarm() {
-    try {
-      Uri sound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
-      alarm = RingtoneManager.getRingtone(this,sound);
-      if (alarm != null) {
-        if (Build.VERSION.SDK_INT >= 21) {
-          alarm.setAudioAttributes(new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ALARM)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build());
-        }
-        if (Build.VERSION.SDK_INT >= 28) alarm.setLooping(true);
-        alarm.play();
-      }
-    } catch (Exception ignored) { stopAlarm(); }
-  }
+
   private void stopAlarm() {
-    IncomingCallMessagingService.stopUnlockedAlarm();
-    if (alarm != null) { alarm.stop(); alarm = null; }
+    IncomingCallMessagingService.stopAlert();
   }
+
   private TextView label(String text,int size,int color) {
     TextView v = new TextView(this); v.setText(text); v.setTextSize(size); v.setTextColor(color); v.setGravity(Gravity.CENTER); v.setPadding(0,16,0,16); return v;
   }
+
   private void answerCall() {
     stopAlarm(); dismissNotification();
     Intent open = new Intent(Intent.ACTION_VIEW,Uri.parse("erimax://os/" + Uri.encode(osId)),this,MainActivity.class);
     open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     startActivity(open); finish();
   }
-  private void dismissCall() { stopAlarm(); dismissNotification(); finish(); }
-  private void dismissNotification() { ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(osId.hashCode()); }
-  @Override protected void onDestroy() { stopAlarm(); super.onDestroy(); }
+
+  private void dismissCall() {
+    stopAlarm();
+    dismissNotification();
+    finish();
+  }
+
+  private void dismissNotification() {
+    ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(osId.hashCode());
+  }
+
+  @Override protected void onDestroy() {
+    stopAlarm();
+    super.onDestroy();
+  }
 }
