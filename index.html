@@ -244,6 +244,7 @@ const {createClient}=supabase;
 const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[];
+let canalOSTempoReal=null;
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
@@ -270,10 +271,17 @@ function ativarAudioManual(){
 }
 
 function iniciarTempoReal(){
-  _supabase.channel('tabela-os-realtime')
+  // Evita registrar eventos em um canal que já foi inscrito.
+  if(canalOSTempoReal)return;
+  canalOSTempoReal = _supabase.channel('tabela-os-realtime')
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>{if(PERFIL&&PERFIL.perfil!=='operador')exibirBannerAlerta(p.new);carregarDadosSupabase()})
    .on('postgres_changes',{event:'*',schema:'public',table:'os'},()=>carregarDadosSupabase())
-   .subscribe();
+   .subscribe(status=>{
+     if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+       console.error('Erro no canal Realtime:',status);
+       canalOSTempoReal=null;
+     }
+   });
 }
 
 function dispararSireneEVibracao(){
