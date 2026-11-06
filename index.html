@@ -87,7 +87,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)">🛠️ Painel <span id="badgePendentes" class="badge-count">0</span></button>
 <button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)">📊 Métricas</button>
 <button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)">⚙️ Cadastro</button>
-<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🤖 IA EriMax</button>
+<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🔎 Consultas</button>
 </nav>
 
 <div class="container">
@@ -178,7 +178,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
-<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de operadores</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Quantidade de O.S. concluídas por técnico responsável no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
+<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de técnicos</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Quantidade de O.S. concluídas por técnico responsável no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn-submit" onclick="exportarCSV()">📥 Excel (CSV)</button><button class="btn-submit" style="background:var(--secondary)" onclick="window.print()">🖨️ PDF</button></div>
 <div class="metrics-grid">
 <div class="metric-card"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
@@ -216,25 +216,21 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 </div>
 
 <div id="tab-ia" class="tab-content">
-  <div class="card" style="background:#101827;color:#fff;border-radius:18px;padding:16px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <div style="width:42px;height:42px;border-radius:14px;background:#168a45;display:grid;place-items:center;font-size:23px">🤖</div>
-      <div><h2 style="font-size:1.12rem;margin:0;color:#fff">IA EriMax</h2><p style="font-size:.76rem;color:#cbd5e1;margin:2px 0 0">Assistente inteligente do histórico de manutenção</p></div>
+  <div class="card">
+    <h2 style="font-size:1.12rem;color:var(--primary);margin-bottom:5px">Consultas do histórico de manutenção</h2>
+    <p style="font-size:.78rem;color:#64748b;margin:0 0 14px">Pesquise diretamente nas ordens de serviço registradas. Esta ferramenta não usa IA externa nem serviços pagos.</p>
+    <div class="form-group"><label>MÊS</label><input type="month" id="consultaMes"></div>
+    <div class="form-group"><label>TIPO DE CONSULTA</label>
+      <select id="consultaTipo">
+        <option value="motores">Motores mencionados / queimados</option>
+        <option value="maquina">Máquinas com mais falhas</option>
+        <option value="causas">Causas mais frequentes</option>
+        <option value="termo">Buscar palavra no histórico</option>
+      </select>
     </div>
-    <p style="font-size:.78rem;color:#cbd5e1;margin:10px 0 14px">Pergunte sobre falhas, máquinas, motores, peças, setores e técnicos. As respostas são baseadas nas O.S. registradas.</p>
-    <div id="iaMensagens" style="display:flex;flex-direction:column;gap:10px;min-height:190px;max-height:52vh;overflow:auto;padding:10px;background:#172235;border:1px solid #334155;border-radius:14px">
-      <div style="align-self:flex-start;max-width:92%;background:#263449;color:#fff;padding:11px 13px;border-radius:14px 14px 14px 4px;font-size:.88rem;white-space:pre-wrap">Olá! Sou a IA EriMax. Pode perguntar, por exemplo: “Quantos motores queimaram na máquina X neste mês?”</div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:7px;margin:12px 0">
-      <button type="button" onclick="perguntarIA('Quantos motores queimaram neste mês?')" style="border:1px solid #64748b;background:#263449;color:#fff;border-radius:20px;padding:8px 11px;font-size:.72rem">Motores queimados</button>
-      <button type="button" onclick="perguntarIA('Qual máquina teve mais falhas neste mês?')" style="border:1px solid #64748b;background:#263449;color:#fff;border-radius:20px;padding:8px 11px;font-size:.72rem">Máquina com mais falhas</button>
-      <button type="button" onclick="perguntarIA('Quais foram as principais causas de manutenção neste mês?')" style="border:1px solid #64748b;background:#263449;color:#fff;border-radius:20px;padding:8px 11px;font-size:.72rem">Causas mais comuns</button>
-    </div>
-    <form id="iaForm" onsubmit="enviarPerguntaIA(event)" style="display:flex;gap:8px;align-items:flex-end">
-      <textarea id="iaPergunta" rows="2" maxlength="800" placeholder="Digite sua pergunta..." style="flex:1;min-width:0;background:#fff;color:#0f172a;border:0;border-radius:12px;padding:12px;font-size:.9rem;resize:vertical"></textarea>
-      <button id="iaEnviar" type="submit" style="background:#168a45;color:#fff;border:0;border-radius:12px;padding:13px 15px;font-weight:800;min-height:46px">Enviar</button>
-    </form>
-    <p style="font-size:.68rem;color:#94a3b8;margin:9px 0 0">A IA só confirma informações que estejam registradas nas ordens de serviço. Não informa custos se não houver valores cadastrados.</p>
+    <div class="form-group"><label>MÁQUINA OU PALAVRA (opcional)</label><input id="consultaFiltro" placeholder="Ex.: Envasadora 02, motor, rolamento"></div>
+    <button class="btn-submit" type="button" onclick="executarConsultaHistorico()">🔎 Consultar registros</button>
+    <div id="resultadoConsulta" aria-live="polite" style="margin-top:14px"></div>
   </div>
 </div>
 
@@ -417,7 +413,7 @@ function renderStatusTurno(){
   if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil)){box.innerHTML='';return}
   const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const ativa=!!(st&&st.turno_ativo);
-  const emServico=chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
+  const emServico=PERFIL.perfil==='tecnico'&&(st?.status==='EM SERVIÇO'||chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome));
   const status=emServico?'EM SERVIÇO':ativa?'ONLINE':'OFFLINE';
   const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
   box.innerHTML=`<div class="card" style="border-left:5px solid ${cor}">
@@ -433,7 +429,7 @@ async function alternarTurno(){
   const atual=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const agora=new Date().toISOString();
   if(atual&&atual.turno_ativo){
-    const em=chamados.filter(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
+    const em=PERFIL.perfil==='tecnico'?chamados.filter(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome):[];
     if(em.length)return alert('Você ainda tem uma O.S. em serviço. Conclua ou transfira antes de encerrar o turno.');
     const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'OFFLINE',turno_ativo:false,turno_fim:agora,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
     if(error)return alert('Não foi possível encerrar o turno: '+error.message);
@@ -494,9 +490,9 @@ async function assumirOS(id){
   const t=localStorage.getItem('erimax_tecnico');
   if(!t)return alert('Digite seu nome de técnico no topo do painel!');
   if(PERFIL&&PERFIL.perfil==='tecnico'){
-    const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('turno_ativo').eq('user_id',MEU_ID).maybeSingle();
+    const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',MEU_ID).maybeSingle();
     if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
-    if(!st||!st.turno_ativo)return alert('Antes de assumir uma O.S., toque em “Iniciar expediente” para ficar ONLINE.');
+    if(!st||!st.turno_ativo||st.status!=='ONLINE')return alert('Você precisa estar ONLINE e sem outra O.S. em serviço para assumir uma nova ordem.');
   }
   const {error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id);
   if(error)return alert('Erro ao assumir OS: '+error.message);
@@ -510,9 +506,9 @@ async function transferirOS(id){
   if(!novo||!novo.trim())return;
   const novoTec=TECNICOS.find(x=>x.nome.toLowerCase()===novo.trim().toLowerCase());
   if(!novoTec)return alert('Não encontrei esse técnico cadastrado.');
-  const {data:novoStatus,error:statusError}=await _supabase.from('status_tecnicos').select('turno_ativo').eq('user_id',novoTec.id).maybeSingle();
+  const {data:novoStatus,error:statusError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',novoTec.id).maybeSingle();
   if(statusError)return alert('Não foi possível verificar o status do técnico: '+statusError.message);
-  if(!novoStatus||!novoStatus.turno_ativo)return alert('Esse técnico está OFFLINE. Ele precisa iniciar o expediente antes de receber a O.S.');
+  if(!novoStatus||!novoStatus.turno_ativo||novoStatus.status!=='ONLINE')return alert('Esse técnico não está ONLINE ou já está em serviço. Escolha alguém disponível.');
   const {error}=await _supabase.from('os').update({tecnico:novoTec.nome}).eq('id',id);
   if(error)return alert('Erro ao transferir: '+error.message);
   const antigo=TECNICOS.find(x=>x.nome===os.tecnico);
@@ -1001,46 +997,48 @@ async function gerarOSPrev(id){
 }
 
 
-/* ===== IA ERIMAX ===== */
-const historicoIA=[];
-function mensagemIA(tipo,texto){
-  const box=document.getElementById('iaMensagens');
-  const el=document.createElement('div');
-  el.style.cssText='align-self:'+(tipo==='user'?'flex-end':'flex-start')+';max-width:94%;padding:11px 13px;border-radius:'+(tipo==='user'?'14px 14px 4px 14px':'14px 14px 14px 4px')+';font-size:.88rem;white-space:pre-wrap;overflow-wrap:anywhere;background:'+(tipo==='user'?'#168a45':'#263449')+';color:#fff';
-  el.textContent=texto;
-  box.appendChild(el);
-  box.scrollTop=box.scrollHeight;
-}
-async function perguntarIA(texto){
-  const campo=document.getElementById('iaPergunta');
-  if(texto)campo.value=texto;
-  await enviarPerguntaIA(null);
-}
-async function enviarPerguntaIA(event){
-  if(event)event.preventDefault();
-  const campo=document.getElementById('iaPergunta'),botao=document.getElementById('iaEnviar');
-  const pergunta=campo.value.trim();
-  if(!pergunta)return;
-  campo.value='';
-  mensagemIA('user',pergunta);
-  historicoIA.push({role:'user',content:pergunta});
-  botao.disabled=true;botao.textContent='Consultando...';
-  try{
-    const {data,error}=await _supabase.functions.invoke('erimax-ai',{body:{question:pergunta,history:historicoIA.slice(0,-1).slice(-8)}});
-    let erro=data&&data.erro;
-    if(error&&!erro){try{erro=(await error.context.json()).erro}catch(e){erro=error.message}}
-    if(erro)throw new Error(erro);
-    const resposta=data&&data.answer?data.answer:'Não consegui montar uma resposta com os registros encontrados.';
-    mensagemIA('assistant',resposta);
-    historicoIA.push({role:'assistant',content:resposta});
-    if(historicoIA.length>12)historicoIA.splice(0,historicoIA.length-12);
-  }catch(e){
-    mensagemIA('assistant','Não consegui consultar agora: '+(e.message||'verifique a conexão e tente novamente.'));
-  }finally{
-    botao.disabled=false;botao.textContent='Enviar';
+/* ===== CONSULTAS LOCAIS DO HISTÓRICO (SEM IA EXTERNA) ===== */
+function executarConsultaHistorico(){
+  const mes=document.getElementById('consultaMes')?.value||'';
+  const tipo=document.getElementById('consultaTipo')?.value||'motores';
+  const filtro=(document.getElementById('consultaFiltro')?.value||'').trim().toLocaleLowerCase('pt-BR');
+  const box=document.getElementById('resultadoConsulta');
+  if(!box)return;
+  const registros=chamados.filter(c=>{
+    const data=c.created_at?diaLocal(c.created_at):'';
+    const noMes=!mes||data.startsWith(mes);
+    const texto=[c.maquina,c.setor,c.tipo,c.descricao,c.causa,c.peca,c.servico_executado,c.tecnico].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');
+    const bateFiltro=!filtro||texto.includes(filtro);
+    return noMes&&bateFiltro&&c.tipo!=='Preventiva';
+  });
+  const escapeHTML=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const periodo=mes?mes.split('-').reverse().join('/'):'todo o histórico';
+  if(tipo==='motores'){
+    const motores=registros.filter(c=>/motor(es)?/i.test([c.tipo,c.descricao,c.causa,c.peca,c.servico_executado].filter(Boolean).join(' ')));
+    box.innerHTML='<h4>Resultado: '+motores.length+' O.S. com menção a motor em '+escapeHTML(periodo)+'</h4>'+
+      (motores.length?motores.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.data_conclusao?hm(c.data_conclusao):hm(c.created_at))+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div><div style="font-size:.76rem;color:#137333">'+escapeHTML(c.causa||'')+' '+escapeHTML(c.peca||'')+' '+escapeHTML(c.servico_executado||'')+'</div></div>').join(''):'<p>Nenhuma O.S. com a palavra “motor” foi encontrada nesse período.</p>');
+    return;
   }
+  if(tipo==='maquina'){
+    const grupos={};
+    registros.forEach(c=>{const k=c.maquina||'Máquina não informada';grupos[k]=(grupos[k]||0)+1});
+    const lista=Object.entries(grupos).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML='<h4>Máquinas com mais O.S. em '+escapeHTML(periodo)+'</h4>'+
+      (lista.length?lista.map(([nome,total],i)=>'<div class="maq-row"><b>'+(i+1)+'º • '+escapeHTML(nome)+'</b><strong>'+total+' O.S.</strong></div>').join(''):'<p>Nenhuma O.S. encontrada nesse período.</p>');
+    return;
+  }
+  if(tipo==='causas'){
+    const grupos={};
+    registros.forEach(c=>{const k=c.causa||'Causa não informada';grupos[k]=(grupos[k]||0)+1});
+    const lista=Object.entries(grupos).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML='<h4>Causas registradas em '+escapeHTML(periodo)+'</h4>'+
+      (lista.length?lista.map(([nome,total])=>'<div class="maq-row"><b>'+escapeHTML(nome)+'</b><strong>'+total+'</strong></div>').join(''):'<p>Nenhuma causa registrada nesse período.</p>');
+    return;
+  }
+  if(!filtro){box.innerHTML='<p>Digite uma palavra ou nome de máquina para pesquisar.</p>';return}
+  box.innerHTML='<h4>'+registros.length+' O.S. encontradas para “'+escapeHTML(filtro)+'” em '+escapeHTML(periodo)+'</h4>'+
+    (registros.length?registros.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.tecnico||'Sem técnico')+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div></div>').join(''):'<p>Nenhum registro corresponde à pesquisa.</p>');
 }
-
 window.onload=async function(){
   const {data:{session}}=await _supabase.auth.getSession();
   if(session)iniciarApp(session.user);
