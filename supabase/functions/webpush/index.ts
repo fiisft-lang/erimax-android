@@ -122,7 +122,7 @@ Deno.serve(async (req: Request) => {
     const invalid: string[] = [];
     await Promise.all(subscriptions.map(async (item: { endpoint: string; subscription: unknown }) => {
       try {
-        await webpush.sendNotification(item.subscription as webpush.PushSubscription, payload, { TTL: 120, urgency: "high" });
+        await webpush.sendNotification(item.subscription as any, payload, { TTL: 120, urgency: "high" });
         enviados++;
       } catch (error) {
         const statusCode = Number((error as { statusCode?: number })?.statusCode || 0);
