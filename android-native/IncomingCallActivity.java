@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,7 +47,16 @@ public class IncomingCallActivity extends Activity {
     try {
       Uri sound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
       alarm = RingtoneManager.getRingtone(this,sound);
-      if (alarm != null) { if (Build.VERSION.SDK_INT >= 28) alarm.setLooping(true); alarm.play(); }
+      if (alarm != null) {
+        if (Build.VERSION.SDK_INT >= 21) {
+          alarm.setAudioAttributes(new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build());
+        }
+        if (Build.VERSION.SDK_INT >= 28) alarm.setLooping(true);
+        alarm.play();
+      }
     } catch (Exception ignored) { stopAlarm(); }
   }
   private void stopAlarm() { if (alarm != null) { alarm.stop(); alarm = null; } }
