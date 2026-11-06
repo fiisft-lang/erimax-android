@@ -178,7 +178,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
-<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de técnicos</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Quantidade de O.S. concluídas por técnico responsável no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
+<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de O.S. concluídas por técnico</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Classificação dos técnicos pela quantidade de O.S. que concluíram no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn-submit" onclick="exportarCSV()">📥 Excel (CSV)</button><button class="btn-submit" style="background:var(--secondary)" onclick="window.print()">🖨️ PDF</button></div>
 <div class="metrics-grid">
 <div class="metric-card"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
