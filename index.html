@@ -404,9 +404,9 @@ function renderTecnicos(){
     const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);
     const status=osAtivas.length?'EM SERVIÇO':(st?.status||(st&&st.turno_ativo?'ONLINE':'OFFLINE'));
     const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
-    const detalhe=osAtivas.length?' • '+osAtivas.map(c=>nOS(c)+' ('+c.maquina+')').join(', '):'';
-    return `<div class="maq-row"><b>TEC ${t.nome}</b><span style="font-size:.75rem;font-weight:800;text-align:right;color:${cor}">● ${status}${detalhe}</span></div>`;
-  }).join(''):'<p style="color:#64748b;text-align:center;font-size:.8rem">Nenhum técnico cadastrado.</p>')+`<p style="font-size:.72rem;color:#64748b;margin-top:8px">${ag} OS aguardando atendimento</p></div>`;
+    const detalhe=osAtivas.length?' • '+osAtivas.map(c=>escaparHtml(nOS(c))+' ('+escaparHtml(c.maquina)+')').join(', '):'';
+    return '<div class="maq-row"><b>TEC '+escaparHtml(t.nome)+'</b><span style="font-size:.75rem;font-weight:800;text-align:right;color:'+cor+'">● '+escaparHtml(status)+detalhe+'</span></div>';
+  }).join(''):'<p style="color:#64748b;text-align:center;font-size:.8rem">Nenhum técnico cadastrado.</p>')+'<p style="font-size:.72rem;color:#64748b;margin-top:8px">'+ag+' OS aguardando atendimento</p></div>';
   boxTec2.innerHTML=boxTec.innerHTML;
 }
 function renderStatusTurno(){
@@ -463,25 +463,36 @@ function renderizarChamados(){renderTecnicos();renderStatusTurno();
   box.innerHTML='';
   if(!lista.length){box.innerHTML='<div class="card" style="text-align:center;color:#64748b">Nenhum chamado encontrado.</div>';return}
   lista.forEach(os=>{
+    const id=Number(os.id);
+    if(!Number.isSafeInteger(id)||id<=0)return;
+    const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Baixa';
+    const status=String(os.status||'');
+    const statusClasse=status.replace(/\s+/g,'');
     const card=document.createElement('div');
-    card.className=`os-card prioridade-${os.prioridade}`;
-    card.id="os-"+os.id;
+    card.className='os-card prioridade-'+prioridade;
+    card.id='os-'+id;
+    let foto='';
+    try{
+      const u=new URL(os.foto_url);
+      if(u.protocol==='https:'&&u.hostname==='qzjbpvgedfpmfnxsvqhu.supabase.co'&&u.pathname.startsWith('/storage/v1/object/public/fotos-os/'))foto=u.href;
+    }catch(e){}
     let b='';
-    if(os.status==='Aberta')b=`<button class="btn-action btn-assumir" onclick="assumirOS(${os.id})">Assumir OS</button>`;
-    else if(os.status==='Em Atendimento')b=`<button class="btn-action btn-concluir" onclick="concluirOS(${os.id})">Concluir</button><button class="btn-action btn-transferir" onclick="transferirOS(${os.id})">🔄 Transferir</button>`;
-    b+=`<button class="btn-action btn-historico" onclick="verHistorico(${os.id})">Histórico</button>`;
-    if(os.status==='Concluída'&&PERFIL&&PERFIL.perfil==='gestor')b+=`<button class="btn-action btn-transferir" onclick="editarHorarios(${os.id})">✏️ Horários</button>`;
-    if(PERFIL&&PERFIL.perfil==='gestor')b+=`<button class="btn-action btn-excluir" onclick="excluirOS(${os.id})">🗑️ Apagar</button>`;
-    card.innerHTML=`
-      <div class="os-header"><span class="os-id">${nOS(os)} — ${os.maquina}</span><span class="os-badge status-${os.status.replace(/\s+/g,'')}">${os.status}</span></div>
-      <p style="font-size:.75rem;color:#64748b"><b>${os.turno}</b> • ${os.setor} • ${new Date(os.created_at).toLocaleString('pt-BR')}</p>
-      ${os.data_atendimento?`<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: ${hm(os.data_atendimento)}${os.data_conclusao?' • Fechada: '+hm(os.data_conclusao):''}</p>`:''}
-      <p style="margin:4px 0;font-size:.85rem">Tipo: <b>${os.tipo}</b></p>
-      <p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "${os.descricao}"</p>
-      ${os.foto_url?`<a href="${os.foto_url}" target="_blank"><img src="${os.foto_url}" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>`:''}
-      ${os.tecnico?`<p style="font-size:.8rem;color:var(--primary-dark)">Técnico Atual: <b>${os.tecnico}</b></p>`:''}
-      ${os.servico_executado?`<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico (${os.tecnico}):</b> "${os.servico_executado}"</p>`:''}
-      <div class="os-actions">${b}</div>`;
+    if(status==='Aberta')b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir OS</button>';
+    else if(status==='Em Atendimento')b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button><button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
+    b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
+    if(status==='Concluída'&&PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Horários</button>';
+    if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Apagar</button>';
+    const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
+    let html='<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
+    html+='<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';
+    if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
+    html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
+    html+='<p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "'+escaparHtml(os.descricao)+'"</p>';
+    if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
+    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Técnico Atual: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
+    html+='<div class="os-actions">'+b+'</div>';
+    card.innerHTML=html;
     box.appendChild(card);
   });
 }
