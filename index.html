@@ -371,7 +371,7 @@ async function salvarOS(e){
   if(criada&&criada[0]){
     try{
       const resultado=await avisarNovaOS(criada[0].id);
-      pushOk=!!resultado?.ok;
+      pushOk=!!resultado?.ok&&Number(resultado?.enviados||0)>0;
       if(!pushOk)throw new Error(resultado?.erro||'O serviço não confirmou o envio.');
     }catch(err){
       console.error('Falha ao notificar nova OS:',err);
