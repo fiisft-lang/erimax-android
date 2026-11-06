@@ -97,6 +97,8 @@ jobs:
 
           app = Path("android/app/build.gradle")
           app_text = app.read_text()
+          if "firebase-messaging" not in app_text:
+              app_text = app_text.rstrip() + "\n\ndependencies {\n    implementation 'com.google.firebase:firebase-messaging:24.1.0'\n}\n"
           if "com.google.gms.google-services" not in app_text:
               app.write_text(app_text.rstrip() + "\n\napply plugin: 'com.google.gms.google-services'\n")
           PY
