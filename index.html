@@ -178,6 +178,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
+<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de operadores</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Quantidade de O.S. concluídas por técnico responsável no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn-submit" onclick="exportarCSV()">📥 Excel (CSV)</button><button class="btn-submit" style="background:var(--secondary)" onclick="window.print()">🖨️ PDF</button></div>
 <div class="metrics-grid">
 <div class="metric-card"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
@@ -354,7 +355,7 @@ async function carregarDadosSupabase(){
   const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
-  renderTecnicos();renderStatusTurno();
+  renderTecnicos();renderStatusTurno();renderRankingOperadores();
   if(document.getElementById('tab-painel').classList.contains('active'))renderizarChamados();
   if(document.getElementById('tab-metricas').classList.contains('active')){atualizarMaquinasMetrica();atualizarMetricasReais()}
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
@@ -386,6 +387,19 @@ async function salvarOS(e){
   if(PERFIL.perfil==='operador')alert(pushOk?'✅ OS aberta! A manutenção foi avisada.':'✅ OS aberta, mas o aviso no celular não foi confirmado.');else mudarAba('painel',{currentTarget:tbPainel});
 }
 
+function renderRankingOperadores(){
+  const box=document.getElementById("boxRankingOperadores"),campo=document.getElementById("rankingMes");
+  if(!box||!campo)return;
+  if(!campo.value){const agora=new Date();campo.value=agora.getFullYear()+"-"+String(agora.getMonth()+1).padStart(2,"0")}
+  const mes=campo.value,contagem={};
+  (TECNICOS||[]).forEach(t=>{contagem[t.nome]=0});
+  chamados.filter(c=>c.status==="Concluída"&&c.data_conclusao&&c.tecnico&&new Date(c.data_conclusao).toLocaleDateString("sv-SE").slice(0,7)===mes)
+    .forEach(c=>{contagem[c.tecnico]=(contagem[c.tecnico]||0)+1});
+  const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
+  if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
+  if(!lista.some(x=>x[1]>0)){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhuma O.S. concluída por técnico neste mês.</p>";return}
+  box.innerHTML=lista.map(([nome,total],i)=>{const seguro=String(nome).replace(/[&<>\"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]));return `<div class="maq-row" style="display:flex;align-items:center;gap:10px"><b style="min-width:30px;font-size:1.05rem">${medalhas[i]||(i+1)+"º"}</b><span style="flex:1"><b>${seguro}</b></span><strong style="color:var(--primary);font-size:1.05rem">${total} <small style="font-size:.68rem;color:#64748b;font-weight:500">O.S.</small></strong></div>`}).join("");
+}
 function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento'),ag=chamados.filter(c=>c.status==='Aberta').length;
   boxTec.innerHTML='<div class="card"><h4 style="color:var(--primary)">👷 Técnicos agora</h4>'+(TECNICOS.length?TECNICOS.map(t=>{
@@ -821,6 +835,7 @@ async function sair(){
 async function iniciarApp(user){
   const {data}=await _supabase.from('perfis').select('*').eq('id',user.id).maybeSingle();
   PERFIL=data||{nome:user.email,perfil:'operador'};MEU_ID=user.id;
+  renderRankingOperadores();
   localStorage.setItem('erimax_tecnico',PERFIL.nome);
   login.style.display='none';
   ubNome.innerText='👤 '+PERFIL.nome+' • '+PERFIL.perfil;
