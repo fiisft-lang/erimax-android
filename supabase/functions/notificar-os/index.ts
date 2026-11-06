@@ -68,11 +68,18 @@ Deno.serve(async (req: Request) => {
       return json({ erro: 'OS fora da janela de envio de 5 minutos.' }, 400)
     }
 
-    const { data: recipients, error: recipientsError } = await admin.from('perfis')
-      .select('id').in('perfil', ['tecnico', 'gestor'])
-    if (recipientsError) throw recipientsError
-    const recipientIds = (recipients || []).map((p: { id: string }) => p.id)
-    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum técnico ou gestor cadastrado.' })
+    const { data: profiles, error: profilesError } = await admin.from('perfis')
+      .select('id,perfil').in('perfil', ['tecnico', 'gestor'])
+    if (profilesError) throw profilesError
+
+    const { data: onlineStatuses, error: statusError } = await admin.from('status_tecnicos')
+      .select('user_id').eq('status', 'ONLINE').eq('turno_ativo', true)
+    if (statusError) throw statusError
+    const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
+    const recipientIds = (profiles || [])
+      .filter((p: { id: string; perfil: string }) => p.perfil === 'gestor' || (p.perfil === 'tecnico' && onlineIds.has(p.id)))
+      .map((p: { id: string }) => p.id)
+    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum técnico ONLINE para receber a nova O.S.' })
 
     const { data: devices, error: devicesError } = await admin.from('dispositivos')
       .select('token').in('user_id', recipientIds)
