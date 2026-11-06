@@ -120,16 +120,32 @@ jobs:
       - name: Baixar e aplicar logotipo original ERIMAX
         run: |
           python3 -m pip install --quiet pillow
-          curl --fail --location --retry 3 --retry-delay 2 \
-            "https://drive.google.com/uc?export=download&id=1GdV-masHmMERIoBgoMJKYzwP1FIO-bYt&confirm=t" \
-            --output /tmp/erimax-logo-original.jpg
+          FILE_ID="1GdV-masHmMERIoBgoMJKYzwP1FIO-bYt"
+          DOWNLOADED=0
+          for URL in \
+            "https://drive.usercontent.google.com/download?id=${FILE_ID}&export=download&confirm=t" \
+            "https://drive.google.com/uc?export=download&id=${FILE_ID}&confirm=t"; do
+            if curl --fail --location --retry 2 --retry-delay 2 --user-agent "Mozilla/5.0" "$URL" --output /tmp/erimax-logo-original; then
+              if python3 -c "from PIL import Image; Image.open('/tmp/erimax-logo-original').verify()" 2>/dev/null; then
+                DOWNLOADED=1
+                break
+              fi
+            fi
+            echo "Resposta do Google Drive não era uma imagem válida; tentando outro endereço."
+          done
+          if [ "$DOWNLOADED" -ne 1 ]; then
+            echo "Não foi possível baixar o logotipo original como imagem."
+            head -c 240 /tmp/erimax-logo-original || true
+            exit 1
+          fi
           python3 - <<'PY'
           from pathlib import Path
           from PIL import Image, ImageChops
 
-          source = Image.open("/tmp/erimax-logo-original.jpg").convert("RGB")
-          source.verify()
-          source = Image.open("/tmp/erimax-logo-original.jpg").convert("RGB")
+          logo_path = "/tmp/erimax-logo-original"
+          check = Image.open(logo_path)
+          check.verify()
+          source = Image.open(logo_path).convert("RGB")
 
           # Remove only the outer white margin, preserving the complete original mark and lettering.
           white = Image.new("RGB", source.size, "white")
