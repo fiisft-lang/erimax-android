@@ -43,8 +43,8 @@ public class IncomingCallActivity extends Activity {
     TextView title = label("NOVA ORDEM DE SERVIÇO", 23, Color.WHITE);
     title.setTypeface(null, Typeface.BOLD);
     TextView detail = label((number == null ? "Nova O.S." : number)
-      + "\\nSetor: " + (sector == null ? "Não informado" : sector)
-      + "\\nMáquina: " + (machine == null ? "Não informada" : machine), 20, Color.WHITE);
+      + "\nSetor: " + (sector == null ? "Não informado" : sector)
+      + "\nMáquina: " + (machine == null ? "Não informada" : machine), 20, Color.WHITE);
     detail.setTypeface(null, Typeface.BOLD);
     root.addView(brand);
     root.addView(title);
