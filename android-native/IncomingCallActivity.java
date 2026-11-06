@@ -61,7 +61,7 @@ public class IncomingCallActivity extends Activity {
 
   private void addSwipeAction(LinearLayout root, String hint, String arrow, int color, boolean leftToRight, Runnable action) {
     FrameLayout track = new FrameLayout(this);
-    track.setBackgroundColor(Color.rgb(38, 45, 55));
+    track.setBackgroundColor(leftToRight ? Color.rgb(15, 76, 42) : Color.rgb(112, 28, 34));
     LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(-1, dp(68));
     trackParams.setMargins(0, dp(18), 0, 0);
     TextView hintView = label(hint, 13, Color.WHITE);
