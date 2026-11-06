@@ -3,7 +3,7 @@ alter table public.maquinas drop constraint if exists maquinas_setor_nome_key;
 create index if not exists maquinas_setor_nome_idx on public.maquinas (setor, nome);
 drop index if exists public.maquinas_prefixo_unico_idx;
 create unique index maquinas_prefixo_unico_idx
-  on public.maquinas (upper(regexp_replace(btrim(prefixo), '[^A-Z0-9]', '', 'g')))
+  on public.maquinas (regexp_replace(upper(btrim(prefixo)), '[^A-Z0-9]', '', 'g'))
   where prefixo is not null and btrim(prefixo) <> '';
 
 -- Horário recorrente: cada turno pode ter um horário diferente em cada dia da semana.
