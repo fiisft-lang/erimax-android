@@ -789,7 +789,7 @@ async function abrirOSNoPainel(id){
 function tratarLinkOS(url){
   try{
     const u=new URL(url);
-    const m=(u.hostname==='os'?u.pathname.match(/^\\/([^/]+)$/):u.pathname.match(/^\\/os\\/([^/]+)$/));
+    const m=(u.hostname==='os'?u.pathname.match(/^\/([^/]+)$/):u.pathname.match(/^\/os\/([^/]+)$/));
     if(u.protocol!=='erimax:'||!m)return;
     const id=decodeURIComponent(m[1]);
     if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);return}
