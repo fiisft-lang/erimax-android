@@ -4,9 +4,12 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
@@ -17,8 +20,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 public class IncomingCallMessagingService extends MessagingService {
-  // Canal novo: canais antigos mantêm as configurações silenciosas já gravadas pelo Android.
   private static final String CHANNEL = "erimax_incoming_calls_v4";
+  private static Ringtone unlockedAlarm;
 
   @Override public void onMessageReceived(RemoteMessage message) {
     Map<String,String> data = message.getData();
@@ -54,12 +57,39 @@ public class IncomingCallMessagingService extends MessagingService {
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       nm.notify(id.hashCode(), n);
       vibrateForIncomingOS();
+      // Com a tela desbloqueada, o Android mostra apenas o aviso; toque diretamente aqui.
+      // Com a tela bloqueada, a IncomingCallActivity continua responsável pelo alarme.
+      KeyguardManager keyguard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+      if (keyguard != null && !keyguard.isKeyguardLocked()) startUnlockedAlarm(alertSound);
     } else {
       super.onMessageReceived(message);
     }
   }
 
-  // Vibração direta como reforço: alguns aparelhos/ROMs ignoram a vibração do canal.
+  private synchronized void startUnlockedAlarm(Uri sound) {
+    try {
+      stopUnlockedAlarm();
+      unlockedAlarm = RingtoneManager.getRingtone(this, sound);
+      if (unlockedAlarm != null) {
+        if (Build.VERSION.SDK_INT >= 21) {
+          unlockedAlarm.setAudioAttributes(new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build());
+        }
+        if (Build.VERSION.SDK_INT >= 28) unlockedAlarm.setLooping(true);
+        unlockedAlarm.play();
+      }
+    } catch (Exception ignored) { stopUnlockedAlarm(); }
+  }
+
+  public static synchronized void stopUnlockedAlarm() {
+    if (unlockedAlarm != null) {
+      try { unlockedAlarm.stop(); } catch (Exception ignored) { }
+      unlockedAlarm = null;
+    }
+  }
+
   private void vibrateForIncomingOS() {
     try {
       Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
