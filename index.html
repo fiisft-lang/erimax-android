@@ -148,7 +148,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Horário de produção por setor</h3>
-<p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Usado para calcular a disponibilidade das máquinas. Salva ao alterar.</p>
+<p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Configure entrada, saída e dias de cada turno. As métricas usam estes horários exatos.</p>
 <div style="display:flex;gap:8px;margin-bottom:12px"><input id="novoSetor" placeholder="Nome do novo setor"><button class="btn-submit" style="width:auto;padding:0 18px" onclick="adicionarSetor()">➕</button></div>
 <div id="listaCfg"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
@@ -1038,19 +1038,6 @@ async function apagarSetor(i){
   if(error)return alert('Erro: '+error.message);
   await carregarCfg();
 }
-async function salvarCfg(i){
-  const row=document.getElementById('cfg'+i),s=SETORES[i];
-  const horas=+row.querySelector('input[type=number]').value,turnos=+row.querySelector('select').value,inicio=row.querySelector('input[type=time]').value;
-  const dias=[...row.querySelectorAll('input[type=checkbox]')].map((c,d)=>c.checked?d:'').join('');
-  if(!(horas>0&&horas<=24))return alert('Informe de 1 a 24 horas por turno.');
-  if(!dias)return alert('Marque pelo menos um dia de trabalho.');
-  if(!inicio)return alert('Informe a hora em que o 1º turno começa.');
-  if(horas*turnos>24)return alert('Horas por turno × turnos não pode passar de 24 horas por dia.');
-  const {error}=await _supabase.from('setores_config').upsert({setor:s,horas,turnos,dias,inicio});
-  if(error)return alert('Erro ao salvar: '+error.message);
-  CFG[s]={horas,turnos,dias,inicio};
-}
-
 /* ===== USUÁRIOS ===== */
 async function carregarUsuarios(){
   const {data,error}=await _supabase.from('perfis').select('*').order('nome');
