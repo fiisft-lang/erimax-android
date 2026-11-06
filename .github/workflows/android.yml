@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - logo-erimax-staging
 
 jobs:
   build:
