@@ -30,6 +30,7 @@ public class IncomingCallActivity extends Activity {
     String machine = getIntent().getStringExtra("maquina");
     String sector = getIntent().getStringExtra("setor");
     String number = getIntent().getStringExtra("numero");
+    IncomingCallMessagingService.stopUnlockedAlarm();
     startAlarm();
     LinearLayout root = new LinearLayout(this);
     root.setOrientation(1); root.setGravity(Gravity.CENTER); root.setPadding(30,50,30,40);
@@ -59,7 +60,10 @@ public class IncomingCallActivity extends Activity {
       }
     } catch (Exception ignored) { stopAlarm(); }
   }
-  private void stopAlarm() { if (alarm != null) { alarm.stop(); alarm = null; } }
+  private void stopAlarm() {
+    IncomingCallMessagingService.stopUnlockedAlarm();
+    if (alarm != null) { alarm.stop(); alarm = null; }
+  }
   private TextView label(String text,int size,int color) {
     TextView v = new TextView(this); v.setText(text); v.setTextSize(size); v.setTextColor(color); v.setGravity(Gravity.CENTER); v.setPadding(0,16,0,16); return v;
   }
