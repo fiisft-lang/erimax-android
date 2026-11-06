@@ -565,7 +565,9 @@ async function confirmarConclusao(){
   const os0=chamados.find(c=>c.id===osConcluir),agora=new Date(),fim=mdHora.value?new Date(mdHora.value):agora;
   if(fim>new Date(agora.getTime()+60000))return alert('O horário de conclusão não pode ser no futuro.');
   if(os0&&os0.data_atendimento&&fim<new Date(os0.data_atendimento))return alert('O horário de conclusão não pode ser antes do início do atendimento ('+hm(os0.data_atendimento)+').');
-  const aj=Math.abs(agora-fim)>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
+  const diferenca=Math.abs(agora-fim);
+  if(PERFIL&&PERFIL.perfil==='tecnico'&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
+  const aj=PERFIL&&PERFIL.perfil==='gestor'&&diferenca>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
   const {error}=await _supabase.from('os').update({status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),data_conclusao:fim.toISOString(),...aj}).eq('id',osConcluir);
   if(error)return alert('Erro ao concluir OS: '+error.message);
   if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
