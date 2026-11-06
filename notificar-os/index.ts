@@ -69,7 +69,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const { data: profiles, error: profilesError } = await admin.from('perfis')
-      .select('id,perfil').in('perfil', ['tecnico', 'gestor'])
+      .select('id,perfil').in('perfil', ['tecnico', 'gestor', 'operador'])
     if (profilesError) throw profilesError
 
     const { data: onlineStatuses, error: statusError } = await admin.from('status_tecnicos')
@@ -77,9 +77,9 @@ Deno.serve(async (req: Request) => {
     if (statusError) throw statusError
     const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
     const recipientIds = (profiles || [])
-      .filter((p: { id: string; perfil: string }) => p.perfil === 'gestor' || (p.perfil === 'tecnico' && onlineIds.has(p.id)))
+      .filter((p: { id: string; perfil: string }) => onlineIds.has(p.id))
       .map((p: { id: string }) => p.id)
-    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum técnico ONLINE para receber a nova O.S.' })
+    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE para receber a nova O.S.' })
 
     const { data: devices, error: devicesError } = await admin.from('dispositivos')
       .select('token').in('user_id', recipientIds)
