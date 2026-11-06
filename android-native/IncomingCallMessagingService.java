@@ -6,6 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import com.capacitorjs.plugins.pushnotifications.MessagingService;
@@ -13,7 +15,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 public class IncomingCallMessagingService extends MessagingService {
-  private static final String CHANNEL = "erimax_incoming_calls_v2";
+  // Canal novo: canais antigos mantêm as configurações silenciosas já gravadas pelo Android.
+  private static final String CHANNEL = "erimax_incoming_calls_v3";
 
   @Override public void onMessageReceived(RemoteMessage message) {
     Map<String,String> data = message.getData();
@@ -55,10 +58,16 @@ public class IncomingCallMessagingService extends MessagingService {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       NotificationManager nm = getSystemService(NotificationManager.class);
       if (nm.getNotificationChannel(CHANNEL) != null) return;
-      NotificationChannel ch = new NotificationChannel(CHANNEL, "Alertas de O.S. (controle no aplicativo)", NotificationManager.IMPORTANCE_HIGH);
-      ch.setDescription("A tela do alerta controla o toque; a notificação da barra é silenciosa");
-      ch.setSound(null, null);
-      ch.enableVibration(false);
+      NotificationChannel ch = new NotificationChannel(CHANNEL, "Alertas de O.S. EriMax", NotificationManager.IMPORTANCE_HIGH);
+      ch.setDescription("Alerta sonoro de nova ordem de serviço");
+      Uri sound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
+      AudioAttributes audio = new AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_ALARM)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build();
+      ch.setSound(sound, audio);
+      ch.enableVibration(true);
+      ch.setVibrationPattern(new long[]{0, 700, 350, 700, 350, 1000});
       ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
       nm.createNotificationChannel(ch);
     }
