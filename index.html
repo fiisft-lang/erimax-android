@@ -188,6 +188,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="metric-card"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesma máquina + mesmo tipo</div></div>
 </div>
 
+<div class="card"><h4>Eficiência geral da produção</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Parte verde: tempo rodando • parte vermelha: tempo parado. Clique na parte vermelha para ver as OS.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div></div>
+
 <div class="card"><h4>Máquinas críticas (ranking)</h4>
 <div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></div>
 
@@ -222,6 +224,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
+
+<div id="modalEfOS" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box" style="max-width:760px;max-height:90vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2>OS que geraram parada</h2><button class="btn-action btn-transferir" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" style="font-size:.8rem;color:#64748b;margin:8px 0 12px"></p><div id="listaEfOS"></div></div></div>
 
 <div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
@@ -355,6 +359,7 @@ function renderizarChamados(){renderTecnicos();
   lista.forEach(os=>{
     const card=document.createElement('div');
     card.className=`os-card prioridade-${os.prioridade}`;
+    card.id="os-"+os.id;
     let b='';
     if(os.status==='Aberta')b=`<button class="btn-action btn-assumir" onclick="assumirOS(${os.id})">Assumir OS</button>`;
     else if(os.status==='Em Atendimento')b=`<button class="btn-action btn-concluir" onclick="concluirOS(${os.id})">Concluir</button><button class="btn-action btn-transferir" onclick="transferirOS(${os.id})">🔄 Transferir</button>`;
@@ -468,6 +473,7 @@ function paradaProd(c,tn){
   return total;
 }
 const charts={};
+let OS_PARADA_ATUAL=[];
 const COR=['#0056b3','#ff6b00','#ffc107','#28a745','#6f42c1','#17a2b8','#dc3545','#6c757d'];
 const diaLocal=d=>new Date(d).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
 const min=(a,b)=>(new Date(b)-new Date(a))/60000;
@@ -478,6 +484,19 @@ function mk(id,cfg){
   if(charts[id])charts[id].destroy();
   cfg.options=Object.assign({responsive:true,maintainAspectRatio:false},cfg.options||{});
   charts[id]=new Chart(document.getElementById(id),cfg);
+}
+
+function escaparHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function mostrarOSParada(lista){
+  const itens=(lista||[]).slice().sort((a,b)=>b.parada-a.parada);
+  resumoEfOS.textContent=itens.length?itens.length+' OS com tempo de parada no período e filtros selecionados.':'Nenhuma OS com parada foi encontrada neste filtro.';
+  listaEfOS.innerHTML=itens.length?itens.map(({os,parada})=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(os.status).replace(/\s+/g,'')+'">'+escaparHtml(os.status)+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor)+' • '+escaparHtml(os.turno)+' • '+hm(os.created_at)+'</p><p style="font-size:.8rem;margin:6px 0"><b>Parada considerada:</b> '+fmt(parada)+'</p><p style="font-size:.82rem"><b>Defeito:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+(os.data_conclusao?' • Concluída em '+hm(os.data_conclusao):' • Ainda não concluída')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta OS no painel</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma OS com parada neste filtro.</p>';
+  modalEfOS.style.display='flex';
+}
+function fecharModalEfOS(){modalEfOS.style.display='none'}
+function abrirOSNoPainel(id){
+  fecharModalEfOS();filtroStatus.value='Todas';mudarAba('painel',null);
+  setTimeout(()=>{const el=document.getElementById('os-'+id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='3px solid #dc3545';setTimeout(()=>el.style.outline='',2500)}},700);
 }
 
 function atualizarMetricasReais(){
@@ -520,7 +539,9 @@ function atualizarMetricasReais(){
   // parada só dentro do horário de produção; com filtro de turno, conta só a parte que cai naquele turno
   const tnum=tn==='Todos'?null:+tn.slice(-1);
   const fp=tn==='Todos'?f:chamados.filter(c=>{const d=c.created_at?diaLocal(c.created_at):'';return(!dia||d===dia)&&(!mes||d.startsWith(mes))&&(st==='Todos'||c.setor===st)&&(mq==='Todas'||c.maquina===mq)&&c.tipo!=='Preventiva'&&(tp==='Todos'||c.tipo===tp)});
-  fp.forEach(c=>{const p=paradaProd(c,tnum);if(!p)return;const m=maq[c.maquina]||(maq[c.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});parada+=p;m.parada+=p;setor[c.setor]=(setor[c.setor]||0)+p});
+  const osParada=[];
+  fp.forEach(c=>{const p=paradaProd(c,tnum);if(!p)return;osParada.push({os:c,parada:p});const m=maq[c.maquina]||(maq[c.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});parada+=p;m.parada+=p;setor[c.setor]=(setor[c.setor]||0)+p});
+  OS_PARADA_ATUAL=osParada;
 
   // reincidência: OS cuja máquina+tipo aparece 2+ vezes
   let reincOS=0;
@@ -540,6 +561,9 @@ function atualizarMetricasReais(){
   const base=Math.max(1,maqsBase.length?maqsBase.reduce((t,m)=>t+baseDe(m.setor),0):Object.values(maq).reduce((t,m)=>t+baseDe(m.setor),0));
   const disp=Math.max(0,Math.min(100,Math.round((1-parada/base)*100)));
   const mtbf=f.length?Math.max(0,(base-parada)/f.length):0;
+
+  // Gráfico de pizza: disponibilidade (verde) x parada (vermelho).
+  mk('chEfGeral',{type:'doughnut',data:{labels:['Rodando','Parada'],datasets:[{data:[Math.max(0,base-parada),parada],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label(ctx){return ctx.label+': '+fmt(ctx.raw)}}}},onClick(_evt,items){if(items.length&&items[0].index===1)mostrarOSParada(OS_PARADA_ATUAL)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('eficiência',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
 
   // cards
   cDisp.innerText=disp+'%';cDispSub.innerText='Previsto '+fmt(base)+' • rodou '+fmt(Math.max(0,base-parada));cDisp.style.color=disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
