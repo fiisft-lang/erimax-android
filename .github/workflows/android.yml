@@ -42,8 +42,8 @@ jobs:
           text = root.read_text()
           if "com.google.gms:google-services" not in text:
               text, count = re.subn(
-                  r"(dependencies\\s*\\{)",
-                  r"\\1\\n        classpath 'com.google.gms:google-services:4.4.2'",
+                  r"(dependencies\s*\{)",
+                  r"\1\n        classpath 'com.google.gms:google-services:4.4.2'",
                   text,
                   count=1
               )
@@ -54,7 +54,7 @@ jobs:
           app = Path("android/app/build.gradle")
           app_text = app.read_text()
           if "com.google.gms.google-services" not in app_text:
-              app.write_text(app_text.rstrip() + "\\n\\napply plugin: 'com.google.gms.google-services'\\n")
+              app.write_text(app_text.rstrip() + "\n\napply plugin: 'com.google.gms.google-services'\n")
           PY
           npx cap sync android
 
