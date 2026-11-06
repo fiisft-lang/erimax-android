@@ -179,7 +179,7 @@ jobs:
               # Adaptive-icon foreground uses transparent space around the complete logo.
               foreground = Image.new("RGBA", (size * 2, size * 2), (255, 255, 255, 0))
               fitted_rgba = source.convert("RGBA")
-              fitted_rgba.thumbnail((int(size * 1.70), int(size * 1.30)), Image.Resampling.LANCZOS)
+              fitted_rgba.thumbnail((int(size * 1.20), int(size * 0.90)), Image.Resampling.LANCZOS)
               foreground.alpha_composite(
                   fitted_rgba,
                   ((foreground.width - fitted_rgba.width) // 2,
