@@ -498,9 +498,22 @@ function mostrarOSParada(lista){
   modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
-function abrirOSNoPainel(id){
-  fecharModalEfOS();filtroStatus.value='Todas';mudarAba('painel',null);
-  setTimeout(()=>{const el=document.getElementById('os-'+id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='3px solid #dc3545';setTimeout(()=>el.style.outline='',2500)}},700);
+async function abrirOSNoPainel(id){
+  fecharModalEfOS();
+  filtroStatus.value='Todas';
+  mudarAba('painel',null);
+  // Aguarda a consulta e a renderização antes de procurar a O.S. na tela.
+  await carregarDadosSupabase();
+  setTimeout(()=>{
+    const el=document.getElementById('os-'+id);
+    if(el){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      el.style.outline='3px solid #dc3545';
+      setTimeout(()=>el.style.outline='',2500);
+    }else{
+      console.warn('O.S. do alerta não apareceu no painel:',id);
+    }
+  },250);
 }
 
 function atualizarMetricasReais(){
