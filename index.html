@@ -146,7 +146,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Horário de produção por setor</h3>
 <p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Horários diferentes para cada dia da semana e datas especiais para sábados, feriados e horas extras. As métricas usam o calendário cadastrado.</p>
-<div style="display:flex;gap:8px;margin-bottom:12px"><input id="novoSetor" placeholder="Nome do novo setor"><button class="btn-submit" style="width:auto;padding:0 18px" onclick="adicionarSetor()">➕</button></div>
+<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap"><input id="novoSetor" placeholder="Nome do novo setor" maxlength="60" style="flex:1;min-width:180px"><button class="btn-submit" style="width:auto;padding:0 14px;white-space:nowrap" onclick="adicionarSetor()">➕ Adicionar setor</button></div>
 <div id="listaCfg"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
 <div class="form-group"><label>Novo usuário — e-mail</label><input id="nuEmail" type="email" autocomplete="off"></div>
@@ -273,7 +273,8 @@ const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
 let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};let SETOR_EM_EDICAO=null;const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
-let SETORES=['Costura','Corte de ataduras','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
+const SETORES_PADRAO=['Costura','Corte de ataduras','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
+let SETORES=[...SETORES_PADRAO];
 
 let chamados=[],vibrationInterval=null;
 
@@ -1030,8 +1031,8 @@ async function carregarCfg(){
   HORARIOS_SEMANAIS={};(c.data||[]).forEach(r=>(HORARIOS_SEMANAIS[r.setor]||(HORARIOS_SEMANAIS[r.setor]=[])).push(r));
   EXCECOES_HORARIO={};(d.data||[]).forEach(r=>EXCECOES_HORARIO[r.setor+'|'+r.data_excecao]=r);
   (b.data||[]).forEach(r=>{if(!CFG[r.setor])CFG[r.setor]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:String(r.hora_inicio).slice(0,5)};});
-  const nomes=new Set([...SETORES,...(a.data||[]).map(r=>r.setor),...(b.data||[]).map(r=>r.setor),...(c.data||[]).map(r=>r.setor),...MAQUINAS.map(m=>m.setor)]);
-  SETORES=[...nomes].filter(Boolean);
+  const nomes=new Set([...(a.data||[]).map(r=>r.setor),...(b.data||[]).map(r=>r.setor),...(c.data||[]).map(r=>r.setor),...(d.data||[]).map(r=>r.setor),...MAQUINAS.map(m=>m.setor)]);
+  SETORES=a.error?[...SETORES_PADRAO]:[...nomes].filter(Boolean);
   popularSetores();if(document.getElementById('listaCfg'))renderCfg();if(document.getElementById('listaMaquinas'))renderMaquinasAgrupadas();
 }
 function editarHorarioSetor(i){SETOR_EM_EDICAO=SETORES[i];renderCfg()}
@@ -1068,7 +1069,7 @@ function renderCfg(){
   listaCfg.innerHTML=SETORES.map((s,i)=>{
     const edit=SETOR_EM_EDICAO===s;
     const qtd=turnosDoSetor(s).length||1;
-    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button>'+(edit?'<button class="btn-action btn-excluir" title="Excluir setor" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button>':'')+'</div></div>';
+    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button><button class="btn-action btn-excluir" title="Excluir setor" aria-label="Excluir setor '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button></div></div>;
     if(edit)h+=renderEditorSetor(s,i);
     else h+='<p style="font-size:.75rem;color:#64748b;margin-top:8px">🔒 Configuração protegida • '+qtd+' turno(s). Para alterar dias ou horários, toque na ferramenta.</p>';
     if(edit)h+='<button class="btn-action" style="margin-top:8px;width:auto" onclick="cancelarEdicaoHorario()">Fechar edição</button>';
@@ -1115,16 +1116,19 @@ async function excluirExcecaoHorario(i,data){
 }
 async function adicionarSetor(){
   const nome=novoSetor.value.trim().replace(/\s+/g,' ');
-  if(nome.length<2)return alert('Digite o nome do setor.');
+  if(nome.length<2)return alert('Digite um nome de setor com pelo menos 2 caracteres.');
+  if(nome.length>60)return alert('O nome do setor deve ter no máximo 60 caracteres.');
   if(SETORES.some(x=>x.toLowerCase()===nome.toLowerCase()))return alert('Esse setor já existe.');
   const {error}=await _supabase.from('setores_config').insert([{setor:nome}]);
-  if(error)return alert('Erro: '+error.message);
+  if(error)return alert(error.code==='23505'?'Esse setor já existe.':'Erro ao adicionar setor: '+error.message);
   novoSetor.value='';SETOR_EM_EDICAO=null;await carregarCfg();
+  alert('Setor "'+nome+'" adicionado com sucesso.');
 }
 async function apagarSetor(i){
   const nome=SETORES[i];
-  if(MAQUINAS.some(m=>m.setor===nome))return alert('Remova as máquinas deste setor antes de apagá-lo.');
-  if(!confirm('Apagar o setor "'+nome+'"? As OS antigas dele continuam no histórico.'))return;
+  const vinculadas=MAQUINAS.filter(m=>m.setor===nome);
+  if(vinculadas.length)return alert('Não é possível excluir "'+nome+'" porque existem '+vinculadas.length+' máquina(s) cadastrada(s) nele. Para preservar os cadastros, primeiro remova ou transfira essas máquinas na tela Máquinas por setor.');
+  if(!confirm('Apagar o setor "'+nome+'"? Os horários serão removidos, mas as ordens de serviço antigas continuarão no histórico.'))return;
   for(const tabela of ['setores_horarios_excecoes','setores_horarios_semanais','setores_turnos']){
     const {error}=await _supabase.from(tabela).delete().eq('setor',nome);
     if(error)return alert('Erro ao limpar horários do setor: '+error.message);
