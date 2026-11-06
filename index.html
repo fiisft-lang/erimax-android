@@ -337,7 +337,17 @@ async function salvarOS(e){
     nova.foto_url=_supabase.storage.from('fotos-os').getPublicUrl(pt).data.publicUrl}
   const {data:criada,error}=await _supabase.from('os').insert([nova]).select();
   if(error){alert('Erro ao abrir OS no Supabase: '+error.message);return}
-  if(criada&&criada[0])avisarNovaOS(criada[0].id);
+  let pushOk=false;
+  if(criada&&criada[0]){
+    try{
+      const resultado=await avisarNovaOS(criada[0].id);
+      pushOk=!!resultado?.ok;
+      if(!pushOk)throw new Error(resultado?.erro||'O serviço não confirmou o envio.');
+    }catch(err){
+      console.error('Falha ao notificar nova OS:',err);
+      alert('⚠️ A OS foi salva, mas o aviso no celular não foi enviado. Confira a conexão e tente novamente ou avise a manutenção.');
+    }
+  }
   document.getElementById('formOS').reset();
   await carregarDadosSupabase();
   if(PERFIL.perfil==='operador')alert('✅ OS aberta! A manutenção foi avisada.');else mudarAba('painel',{currentTarget:tbPainel});
@@ -650,7 +660,12 @@ async function iniciarPush(){
     await PN.register();
   }catch(e){console.error('Erro ao ativar notificações:',e)}
 }
-async function avisarNovaOS(id){try{await _supabase.functions.invoke('notificar-os',{body:{os_id:id}})}catch(e){console.error(e)}}
+async function avisarNovaOS(id){
+  const {data,error}=await _supabase.functions.invoke('notificar-os',{body:{os_id:id}});
+  if(error)throw error;
+  if(data?.erro)throw new Error(data.erro);
+  return data;
+}
 
 /* ===== LOGIN, PERFIS E CADASTRO ===== */
 async function entrar(){
