@@ -95,6 +95,7 @@ Deno.serve(async (req: Request) => {
 
     const body = await req.json().catch(() => ({}))
     const question = typeof body.question === 'string' ? body.question.trim().slice(0, 800) : ''
+    const history = Array.isArray(body.history) ? body.history.slice(-8).filter((item: any) => item && ['user', 'assistant'].includes(item.role) && typeof item.content === 'string').map((item: any) => ({ role: item.role, content: item.content.slice(0, 800) })) : []
     if (question.length < 3) return json({ erro: 'Digite uma pergunta para a IA.' }, 400)
 
     const now = new Date()
@@ -107,7 +108,8 @@ terms serve para localizar o defeito/peça/serviço nos campos de texto. Para "m
 Use group_by=machine para ranking de máquinas, sector para setores, technician para técnicos, type para tipo de falha, cause para causas, part para peças. Use metric=ranking quando pedir maior/menor/mais frequente; summary para análise geral; count para quantidade.
 Não responda à pergunta; apenas extraia os filtros.`
 
-    const planRaw = await askOpenAI(apiKey, planPrompt, question, 250)
+    const conversation = history.map((item: any) => `${item.role === 'user' ? 'USUÁRIO' : 'ASSISTENTE'}: ${item.content}`).join('\\n')
+    const planRaw = await askOpenAI(apiKey, planPrompt, `${conversation ? 'CONTEXTO DA CONVERSA:\\n' + conversation + '\\n' : ''}PERGUNTA ATUAL: ${question}`, 250)
     const plan = parsePlan(planRaw)
 
     let query = admin.from('os').select(columns).order('created_at', { ascending: false })
