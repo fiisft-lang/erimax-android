@@ -99,7 +99,7 @@ Deno.serve(async (req: Request) => {
     if (question.length < 3) return json({ erro: 'Digite uma pergunta para a IA.' }, 400)
 
     const now = new Date()
-    const planPrompt = `Você transforma perguntas em filtros de consulta para um histórico de ordens de serviço industrial. Hoje é ${now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })} no fuso America/Sao_Paulo.
+    const planPrompt = `Você transforma perguntas em filtros de consulta para um histórico de ordens de serviço industrial. Hoje é ${now.toLocaleDateString('sv-SE', { timeZone: 'America/Sao_Paulo' })} no fuso America/Sao_Paulo.
 Responda SOMENTE JSON válido, sem markdown, com exatamente estas chaves:
 {"date_from":"YYYY-MM-DD ou null","date_to":"YYYY-MM-DD ou null","machine":"texto ou vazio","sector":"texto ou vazio","terms":["palavras-chave"],"group_by":"none|machine|sector|technician|type|cause|part","metric":"count|ranking|summary"}
 Interprete expressões como este mês, mês passado, este ano e datas específicas usando a data de hoje. date_to é inclusiva.
@@ -108,8 +108,8 @@ terms serve para localizar o defeito/peça/serviço nos campos de texto. Para "m
 Use group_by=machine para ranking de máquinas, sector para setores, technician para técnicos, type para tipo de falha, cause para causas, part para peças. Use metric=ranking quando pedir maior/menor/mais frequente; summary para análise geral; count para quantidade.
 Não responda à pergunta; apenas extraia os filtros.`
 
-    const conversation = history.map((item: any) => `${item.role === 'user' ? 'USUÁRIO' : 'ASSISTENTE'}: ${item.content}`).join('\\n')
-    const planRaw = await askOpenAI(apiKey, planPrompt, `${conversation ? 'CONTEXTO DA CONVERSA:\\n' + conversation + '\\n' : ''}PERGUNTA ATUAL: ${question}`, 250)
+    const conversation = history.map((item: any) => `${item.role === 'user' ? 'USUÁRIO' : 'ASSISTENTE'}: ${item.content}`).join('\n')
+    const planRaw = await askOpenAI(apiKey, planPrompt, `${conversation ? 'CONTEXTO DA CONVERSA:\n' + conversation + '\n' : ''}PERGUNTA ATUAL: ${question}`, 250)
     const plan = parsePlan(planRaw)
 
     let query = admin.from('os').select(columns).order('created_at', { ascending: false })
