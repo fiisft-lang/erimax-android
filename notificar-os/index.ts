@@ -64,12 +64,11 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           message: {
             token: t,
-            notification: { title: titulo, body: corpo },
             android: {
               priority: 'HIGH', ttl: '120s',
               notification: { channel_id: 'chamados', sound: 'alarme', notification_priority: 'PRIORITY_MAX', visibility: 'PUBLIC' },
             },
-            data: { os_id: String(os.id) },
+            data: { os_id: String(os.id), maquina: String(os.maquina || ''), setor: String(os.setor || ''), numero: String(os.numero || 'Nova O.S.') },
           },
         }),
       })
