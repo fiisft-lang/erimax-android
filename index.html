@@ -389,7 +389,7 @@ function renderRankingOperadores(){
   if(!campo.value){const agora=new Date();campo.value=agora.getFullYear()+"-"+String(agora.getMonth()+1).padStart(2,"0")}
   const mes=campo.value,contagem={};
   (TECNICOS||[]).forEach(t=>{contagem[t.nome]=0});
-  chamados.filter(c=>c.status==="Concluída"&&c.data_conclusao&&c.tecnico&&new Date(c.data_conclusao).toLocaleDateString("sv-SE").slice(0,7)===mes)
+  chamados.filter(c=>c.status==="Concluída"&&c.data_conclusao&&c.tecnico&&diaLocal(c.data_conclusao).slice(0,7)===mes)
     .forEach(c=>{contagem[c.tecnico]=(contagem[c.tecnico]||0)+1});
   const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
   if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
@@ -613,11 +613,6 @@ function mostrarOSParada(lista){
   modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
-function abrirOSNoPainel(id){
-  fecharModalEfOS();filtroStatus.value='Todas';mudarAba('painel',null);
-  setTimeout(()=>{const el=document.getElementById('os-'+id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='3px solid #dc3545';setTimeout(()=>el.style.outline='',2500)}},700);
-}
-
 function atualizarMetricasReais(){
   const dia=filtroDia.value,mes=filtroMes.value,tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
   const agora=new Date().toISOString();
