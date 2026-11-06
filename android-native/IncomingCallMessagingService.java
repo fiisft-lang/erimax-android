@@ -20,8 +20,11 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 public class IncomingCallMessagingService extends MessagingService {
-  private static final String CHANNEL = "erimax_incoming_calls_v4";
-  private static Ringtone unlockedAlarm;
+  // Canal novo e silencioso: o toque é controlado por um único Ringtone,
+  // para que SILENCIAR consiga interrompê-lo em todos os aparelhos.
+  private static final String CHANNEL = "erimax_incoming_calls_v5";
+  private static Ringtone activeAlarm;
+  private static Vibrator activeVibrator;
 
   @Override public void onMessageReceived(RemoteMessage message) {
     Map<String,String> data = message.getData();
@@ -39,9 +42,9 @@ public class IncomingCallMessagingService extends MessagingService {
       screen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
       PendingIntent full = PendingIntent.getActivity(this, id.hashCode(), screen,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-      Uri alertSound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
       Notification n = new NotificationCompat.Builder(this, CHANNEL)
-        .setSound(alertSound)
+        .setSound(null)
+        .setVibrate(null)
         .setSmallIcon(getApplicationInfo().icon)
         .setContentTitle("Nova ordem de serviço")
         .setContentText(machine + " • " + sector)
@@ -57,36 +60,39 @@ public class IncomingCallMessagingService extends MessagingService {
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       nm.notify(id.hashCode(), n);
       vibrateForIncomingOS();
-      // Com a tela desbloqueada, o Android mostra apenas o aviso; toque diretamente aqui.
-      // Com a tela bloqueada, a IncomingCallActivity continua responsável pelo alarme.
       KeyguardManager keyguard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
-      if (keyguard != null && !keyguard.isKeyguardLocked()) startUnlockedAlarm(alertSound);
+      if (keyguard != null && !keyguard.isKeyguardLocked()) startAlertAlarm(this);
     } else {
       super.onMessageReceived(message);
     }
   }
 
-  private synchronized void startUnlockedAlarm(Uri sound) {
+  public static synchronized void startAlertAlarm(Context context) {
+    stopAlert();
     try {
-      stopUnlockedAlarm();
-      unlockedAlarm = RingtoneManager.getRingtone(this, sound);
-      if (unlockedAlarm != null) {
+      Uri sound = Uri.parse("android.resource://" + context.getPackageName() + "/raw/alarme");
+      activeAlarm = RingtoneManager.getRingtone(context.getApplicationContext(), sound);
+      if (activeAlarm != null) {
         if (Build.VERSION.SDK_INT >= 21) {
-          unlockedAlarm.setAudioAttributes(new AudioAttributes.Builder()
+          activeAlarm.setAudioAttributes(new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ALARM)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build());
         }
-        if (Build.VERSION.SDK_INT >= 28) unlockedAlarm.setLooping(true);
-        unlockedAlarm.play();
+        if (Build.VERSION.SDK_INT >= 28) activeAlarm.setLooping(true);
+        activeAlarm.play();
       }
-    } catch (Exception ignored) { stopUnlockedAlarm(); }
+    } catch (Exception ignored) { stopAlert(); }
   }
 
-  public static synchronized void stopUnlockedAlarm() {
-    if (unlockedAlarm != null) {
-      try { unlockedAlarm.stop(); } catch (Exception ignored) { }
-      unlockedAlarm = null;
+  public static synchronized void stopAlert() {
+    if (activeAlarm != null) {
+      try { activeAlarm.stop(); } catch (Exception ignored) { }
+      activeAlarm = null;
+    }
+    if (activeVibrator != null) {
+      try { activeVibrator.cancel(); } catch (Exception ignored) { }
+      activeVibrator = null;
     }
   }
 
@@ -94,6 +100,7 @@ public class IncomingCallMessagingService extends MessagingService {
     try {
       Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
       if (vibrator == null || !vibrator.hasVibrator()) return;
+      activeVibrator = vibrator;
       long[] pattern = new long[]{0, 700, 350, 700, 350, 1000};
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
@@ -108,15 +115,9 @@ public class IncomingCallMessagingService extends MessagingService {
       NotificationManager nm = getSystemService(NotificationManager.class);
       if (nm.getNotificationChannel(CHANNEL) != null) return;
       NotificationChannel ch = new NotificationChannel(CHANNEL, "Alertas de O.S. EriMax", NotificationManager.IMPORTANCE_HIGH);
-      ch.setDescription("Alerta sonoro de nova ordem de serviço");
-      Uri sound = Uri.parse("android.resource://" + getPackageName() + "/raw/alarme");
-      AudioAttributes audio = new AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_ALARM)
-        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-        .build();
-      ch.setSound(sound, audio);
-      ch.enableVibration(true);
-      ch.setVibrationPattern(new long[]{0, 700, 350, 700, 350, 1000});
+      ch.setDescription("Aviso visual; o toque é controlado pelo aplicativo");
+      ch.setSound(null, null);
+      ch.enableVibration(false);
       ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
       nm.createNotificationChannel(ch);
     }
