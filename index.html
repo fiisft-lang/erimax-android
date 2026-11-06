@@ -146,6 +146,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Máquina</label><select id="pvMaq"></select></div>
 <div class="form-group"><label>Descrição</label><input id="pvDesc" placeholder="Ex.: Lubrificar correntes"></div>
 <div class="form-group"><label>Repetir a cada (dias)</label><input id="pvDias" type="number" min="1" value="30"></div>
+<div class="form-group"><label>Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
+<div class="form-group"><label>Técnico responsável</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
@@ -346,7 +348,7 @@ async function carregarDadosSupabase(){
   const {data,error}=await _supabase.from('os').select('*').order('id',{ascending:false});
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
-  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');
+  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');popularTecnicosPreventiva();
   const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
@@ -1198,17 +1200,26 @@ async function salvarUsuario(id,campos){
 }
 
 /* ===== PREVENTIVAS ===== */
+function popularTecnicosPreventiva(){
+  const sel=document.getElementById('pvTecnico');if(!sel)return;
+  const atual=sel.value;
+  sel.innerHTML='<option value="">Selecione o técnico...</option>'+TECNICOS.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
+  if(TECNICOS.some(t=>t.nome===atual))sel.value=atual;
+  if(!pvDataPrevista.value)pvDataPrevista.value=dataISOlocal(new Date());
+}
 function pvMaquinas(){
   const itens=MAQUINAS.filter(m=>m.setor===pvSetor.value);
   pvMaq.innerHTML=itens.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join('')||'<option value="">Sem máquinas no setor</option>';
 }
 async function addPrev(){
-  const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value);
+  const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value);
   if(!pvSetor.value)return alert('Escolha um setor.');
   if(!pvMaq.value)return alert('Cadastre uma máquina nesse setor antes de criar a preventiva.');
   if(descricao.length<3)return alert('Descreva a atividade com pelo menos 3 caracteres.');
   if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
-  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:pvMaq.value,descricao,intervalo_dias:intervalo}]);
+  if(!dataPrevista)return alert('Escolha a próxima data prevista.');
+  if(!tecnico)return alert('Selecione o técnico responsável.');
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:pvMaq.value,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome}]);
   if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
   pvDesc.value='';
   await carregarPreventivas();
@@ -1228,14 +1239,16 @@ async function carregarPreventivas(){
     return;
   }
   PREV=data||[];
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small style="color:#64748b">• ${escaparHtml(p.descricao)} • a cada ${Number(p.intervalo_dias)||0} dia(s)</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev(${Number(p.id)})" aria-label="Remover preventiva de ${escaparHtml(p.maquina)}">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small style="color:#64748b">• ${escaparHtml(p.descricao)} • a cada ${Number(p.intervalo_dias)||0} dia(s)<br>📅 ${p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo'} • 👨‍🔧 ${escaparHtml(p.tecnico_responsavel||'Técnico não definido')}</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev(${Number(p.id)})" aria-label="Remover preventiva de ${escaparHtml(p.maquina)}">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
-    const base=new Date(String(p.ultima||dataISOlocal(hoje)).slice(0,10)+'T00:00:00');
-    const dias=Math.ceil((base.getTime()+(Number(p.intervalo_dias)||30)*864e5-hoje.getTime())/864e5);
+    let base;
+    if(p.data_prevista)base=new Date(String(p.data_prevista).slice(0,10)+'T00:00:00');
+    else {base=new Date(String(p.ultima||dataISOlocal(hoje)).slice(0,10)+'T00:00:00');base.setDate(base.getDate()+ (Number(p.intervalo_dias)||30));}
+    const dias=Math.ceil((base.getTime()-hoje.getTime())/864e5);
     return {...p,dias};
   }).filter(p=>Number.isFinite(p.dias)&&p.dias<=3).sort((a,b)=>a.dias-b.dias);
-  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small>• ${escaparHtml(p.descricao)}<br><span class="${p.dias<0?'alerta':''}">${p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)'}</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev(${Number(p.id)})">Gerar OS</button></div>`).join('')+'</div>':'';
+  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small>• ${escaparHtml(p.descricao)}<br><span class="${p.dias<0?'alerta':''}">${p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)'} • Responsável: ${escaparHtml(p.tecnico_responsavel||'Não definido')}</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev(${Number(p.id)})">Gerar OS</button></div>`).join('')+'</div>':'';
 }
 async function gerarOSPrev(id){
   const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
@@ -1245,17 +1258,21 @@ async function gerarOSPrev(id){
   window.__erimaxPrevGerando.add(String(id));
   try{
     const h=new Date().getHours();
-    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:p.maquina,tipo:'Preventiva',prioridade:'Média',descricao:'Preventiva: '+p.descricao,status:'Aberta',tecnico:null}]);
+    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:p.maquina,tipo:'Preventiva',prioridade:'Média',descricao:'Preventiva: '+p.descricao,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
     if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
-    const {error:atualizaError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(new Date())}).eq('id',id);
+    const intervalo=Number(p.intervalo_dias)||30;
+    let base=new Date(String(p.data_prevista||p.ultima||dataISOlocal(new Date())).slice(0,10)+'T00:00:00');
+    if(!p.data_prevista)base.setDate(base.getDate()+intervalo);
+    base.setDate(base.getDate()+intervalo);
+    const proxima=dataISOlocal(base);
+    const {error:atualizaError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(new Date()),data_prevista:proxima}).eq('id',id);
     await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
-    if(atualizaError)alert('A O.S. foi criada, mas a data da última execução não foi atualizada. Verifique a preventiva: '+atualizaError.message);
-    else alert('O.S. preventiva criada com sucesso.');
+    if(atualizaError)alert('A O.S. foi criada, mas a próxima data da preventiva não foi atualizada. Verifique a preventiva: '+atualizaError.message);
+    else alert('O.S. preventiva criada e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'.');
   }finally{
     window.__erimaxPrevGerando.delete(String(id));
   }
 }
-
 
 /* ===== CONSULTAS LOCAIS DO HISTÓRICO (SEM IA EXTERNA) ===== */
 function executarConsultaHistorico(){
