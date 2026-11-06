@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "734422647665",
+    "project_id": "erimax-104de",
+    "storage_bucket": "erimax-104de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734422647665:android:8a9f621670c5d377452cd0",
+        "android_client_info": {
+          "package_name": "com.webapp.erimaxmanuteno"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxoseEGl0M4ovnW37kj3S8fYzy_wPgqTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
