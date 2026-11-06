@@ -142,6 +142,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           from PIL import Image, ImageChops
+          import xml.etree.ElementTree as ET
 
           logo_path = "/tmp/erimax-logo-original"
           check = Image.open(logo_path)
