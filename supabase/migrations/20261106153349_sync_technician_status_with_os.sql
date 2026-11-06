@@ -1,7 +1,6 @@
 create or replace function public.validar_tecnico_online_ao_assumir_os()
 returns trigger
 language plpgsql
-security definer
 set search_path = ''
 as $$
 declare
