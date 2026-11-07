@@ -563,9 +563,9 @@ async function aceitarTransferenciaOS(id){
   await carregarDadosSupabase();
 }
 
-let osHor=null;
+let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
-function concluirOS(id){osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';mdHora.value=loc(new Date());mdHora.max=loc(new Date());modal.style.display='flex'}
+function concluirOS(id){osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());modal.style.display='flex'}
 function editarHorarios(id){
   const o=chamados.find(c=>c.id===id);if(!o)return;osHor=o;
   hrInfo.innerText=nOS(o)+' — aberta em '+hm(o.created_at);
@@ -587,7 +587,11 @@ async function salvarHorarios(){
 function fecharModal(){modal.style.display='none'}
 async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
-  const os0=chamados.find(c=>c.id===osConcluir),agora=new Date(),fim=mdHora.value?new Date(mdHora.value):agora;
+  const os0=chamados.find(c=>c.id===osConcluir),agora=new Date();
+  let fim=mdHora.value?new Date(mdHora.value):agora;
+  // Se o usuário manteve o horário sugerido ao abrir o modal, usar o instante real do clique em Concluir.
+  // Isso evita que o horário padrão fique defasado e pareça anterior ao início do atendimento.
+  if(mdHora.value===mdHoraInicial){fim=agora;mdHora.value=loc(agora)}
   if(fim>new Date(agora.getTime()+60000))return alert('O horário de conclusão não pode ser no futuro.');
   if(os0&&os0.data_atendimento&&fim<new Date(os0.data_atendimento))return alert('O horário de conclusão não pode ser antes do início do atendimento ('+hm(os0.data_atendimento)+').');
   const diferenca=Math.abs(agora-fim);
