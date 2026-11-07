@@ -368,23 +368,23 @@ async function salvarOS(e){
     nova.foto_url=_supabase.storage.from('fotos-os').getPublicUrl(pt).data.publicUrl}
   const {data:criada,error}=await _supabase.from('os').insert([nova]).select();
   if(error){alert('Erro ao abrir OS no Supabase: '+error.message);return}
-  let pushOk=false;
   if(criada&&criada[0]){
-    let pushNativoOk=false,pushWebOk=false;
-    try{
-      const resultado=await avisarNovaOS(criada[0].id);
-      pushNativoOk=!!resultado?.ok&&(!!resultado?.ja_enviado||Number(resultado?.enviados||0)>0);
-    }catch(err){console.error('Falha no push nativo:',err)}
-    try{
-      const resultadoWeb=await avisarNovaOSWeb(criada[0].id);
-      pushWebOk=!!resultadoWeb?.ok&&(!!resultadoWeb?.ja_enviado||Number(resultadoWeb?.enviados||0)>0);
-    }catch(err){console.error('Falha no Web Push:',err)}
-    pushOk=pushNativoOk||pushWebOk;
-    if(!pushOk)alert('⚠️ A OS foi salva, mas nenhum aviso foi confirmado. Verifique se os destinatários estão ONLINE e se as notificações estão ativadas.');
+    const idOS=criada[0].id;
+    Promise.allSettled([avisarNovaOS(idOS),avisarNovaOSWeb(idOS)]).then(resultados=>{
+      const nativo=resultados[0].status==='fulfilled'?resultados[0].value:null;
+      const web=resultados[1].status==='fulfilled'?resultados[1].value:null;
+      const nativoOk=!!nativo?.ok&&(!!nativo?.ja_enviado||Number(nativo?.enviados||0)>0);
+      const webOk=!!web?.ok&&(!!web?.ja_enviado||Number(web?.enviados||0)>0);
+      if(!nativoOk&&!webOk)console.warn('A O.S. foi aberta, mas nenhum aviso foi confirmado.',resultados);
+    });
   }
   document.getElementById('formOS').reset();
-  await carregarDadosSupabase();
-  if(PERFIL.perfil==='operador')alert(pushOk?'✅ OS aberta! A manutenção foi avisada.':'✅ OS aberta, mas o aviso no celular não foi confirmado.');else mudarAba('painel',{currentTarget:tbPainel});
+  if(PERFIL.perfil==='operador'){
+    carregarDadosSupabase();
+    alert('✅ O.S. aberta! Os avisos estão sendo enviados.');
+  }else{
+    mudarAba('painel',{currentTarget:tbPainel});
+  }
 }
 
 function renderRankingOperadores(){
