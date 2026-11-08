@@ -22,6 +22,8 @@ header p{font-size:.75rem;opacity:.9;text-transform:uppercase}
 #bannerAlerta{display:none;background:var(--danger);color:#fff;padding:12px 16px;text-align:center;animation:pulseBanner 1s infinite alternate;box-shadow:0 4px 12px rgba(220,53,69,.5)}
 @keyframes pulseBanner{from{background:#dc3545}to{background:#922b21}}
 #bannerAlerta button{background:#fff;color:var(--danger);border:none;padding:8px 16px;font-weight:bold;border-radius:20px;margin-top:8px;cursor:pointer}
+#toastOS{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:1000;width:calc(100% - 32px);max-width:420px;padding:14px 18px;background:#166534;color:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22);font-weight:700;text-align:center;opacity:0;visibility:hidden;transition:opacity .2s ease,transform .2s ease,visibility .2s}
+#toastOS.visivel{opacity:1;visibility:visible;transform:translate(-50%,0)}
 .nav-tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);position:sticky;top:101px;z-index:97}
 .tab-btn{flex:1;padding:12px 4px;border:none;background:none;font-weight:600;font-size:.8rem;color:#64748b;cursor:pointer;border-bottom:3px solid transparent}
 .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);background:#f8fafc}
@@ -75,6 +77,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
 
 <div id="barraAtivacaoAudio" onclick="ativarAudioManual()">🔊 CLIQUE AQUI PARA ATIVAR O ALARME E VIBRAÇÃO DO CELULAR</div>
+<div id="toastOS" role="status" aria-live="polite"></div>
 
 <div id="bannerAlerta">
 <h3 id="txtBannerAlerta">🚨 NOVO CHAMADO DE EMERGÊNCIA!</h3>
@@ -358,6 +361,15 @@ async function carregarDadosSupabase(){
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
 }
 
+function mostrarToastOS(mensagem){
+  const toast=document.getElementById('toastOS');
+  if(!toast)return;
+  toast.textContent=mensagem;
+  toast.classList.add('visivel');
+  clearTimeout(toast._timer);
+  toast._timer=setTimeout(()=>toast.classList.remove('visivel'),4000);
+}
+
 async function salvarOS(e){
   e.preventDefault();
   const nova={turno:turno.value,setor:setor.value,maquina:maquina.value.trim(),tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
@@ -368,6 +380,7 @@ async function salvarOS(e){
     nova.foto_url=_supabase.storage.from('fotos-os').getPublicUrl(pt).data.publicUrl}
   const {data:criada,error}=await _supabase.from('os').insert([nova]).select();
   if(error){alert('Erro ao abrir OS no Supabase: '+error.message);return}
+  if(criada&&criada[0])mostrarToastOS('✅ O.S. aberta com sucesso!');
   if(criada&&criada[0]){
     const idOS=criada[0].id;
     Promise.allSettled([avisarNovaOS(idOS),avisarNovaOSWeb(idOS)]).then(resultados=>{
@@ -381,7 +394,6 @@ async function salvarOS(e){
   document.getElementById('formOS').reset();
   if(PERFIL.perfil==='operador'){
     carregarDadosSupabase();
-    alert('✅ O.S. aberta! Os avisos estão sendo enviados.');
   }else{
     mudarAba('painel',{currentTarget:tbPainel});
   }
