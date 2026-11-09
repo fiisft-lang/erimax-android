@@ -675,55 +675,53 @@ function turnosDoSetor(s){
   }
   const cadastrados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false).sort((a,b)=>a.numero_turno-b.numero_turno);
   if(cadastrados.length)return cadastrados.map(t=>({...t}));
-  // Só usa a configuração legada quando ela existe no banco; nunca presume 9 horas.
-  const c=CFG[s];
-  if(!c||!Number.isFinite(+c.horas)||+c.horas<=0||!c.dias)return [];
-  const dur=Math.round(+c.horas*60),inicio=minutosHora(c.inicio||'06:00');
-  return Array.from({length:Math.max(1,Math.min(3,+c.turnos||1))},(_,i)=>{
-    const a=(inicio+i*dur)%1440,b=(a+dur)%1440;
-    return {setor:s,numero_turno:i+1,hora_inicio:String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0'),hora_fim:String(Math.floor(b/60)).padStart(2,'0')+':'+String(b%60).padStart(2,'0'),dias:c.dias,ativo:true};
-  });
+  // setores_config guarda apenas duração/dias; não confirma entrada e saída.
+  // Sem grade semanal ou turno legado com horários reais, não inventa um turno.
+  return [];
+}
+function horarioTurnoValido(t){
+  const ini=String(t&&t.hora_inicio||'').slice(0,5),fim=String(t&&t.hora_fim||'').slice(0,5);
+  const regex=/^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+  return !!(t&&regex.test(ini)&&regex.test(fim)&&ini!==fim);
 }
 function horariosDoDia(s,d){
   const chave=s+'|'+dataISOlocal(d);
-  if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))return (EXCECOES_HORARIO[chave].horarios||[]).map(h=>({...h}));
+  if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))
+    return (EXCECOES_HORARIO[chave].horarios||[]).filter(horarioTurnoValido).map(h=>({...h}));
   const rows=HORARIOS_SEMANAIS[s]||[];
-  const temGradeSemanal=rows.some(r=>r.ativo&&r.hora_inicio&&r.hora_fim&&r.hora_inicio!==r.hora_fim);
-  if(temGradeSemanal)return rows.filter(r=>r.ativo&&+r.dia_semana===d.getDay()).map(r=>({...r}));
-  return turnosDoSetor(s).filter(t=>(t.dias||'').includes(String(d.getDay()))).map(t=>({...t}));
+  // Uma grade semanal ativa é a fonte oficial; linhas inativas não viram horários.
+  const temGradeSemanal=rows.some(r=>r.ativo===true);
+  if(temGradeSemanal)
+    return rows.filter(r=>r.ativo===true&&+r.dia_semana===d.getDay()&&horarioTurnoValido(r)).map(r=>({...r}));
+  // Compatibilidade com o cadastro antigo: só horários explícitos e ativos.
+  return (TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(d.getDay()))&&horarioTurnoValido(t)).map(t=>({...t}));
 }
 
-// Confirma que o escopo filtrado possui grade real de horários para calcular métricas de produção.
+// Confirma horários reais para todo o escopo: turno inativo, dia sem expediente ou
+// duração genérica em setores_config nunca contam como entrada/saída cadastradas.
 function setorTemHorarioConfirmado(s,n,dia){
-  const valido=t=>{const ini=String(t&&t.hora_inicio||'').slice(0,5),fim=String(t&&t.hora_fim||'').slice(0,5),regex=/^([01][0-9]|2[0-3]):[0-5][0-9]$/;return !!(t&&regex.test(ini)&&regex.test(fim)&&ini!==fim)};
   const semana=HORARIOS_SEMANAIS[s]||[];
-  const temGradeSemanal=semana.some(t=>t.ativo&&valido(t));
+  const temGradeSemanal=semana.some(t=>t.ativo===true);
   if(dia){
     const chave=s+'|'+dia;
-    // Uma exceção cadastrada, inclusive dia sem produção, é uma definição explícita para a data.
-    if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))return true;
+    if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave)){
+      const especiais=EXCECOES_HORARIO[chave].horarios||[];
+      if(!especiais.length)return true; // exceção explícita de dia sem produção
+      const selecionados=especiais.filter(t=>!n||+t.numero_turno===n);
+      return selecionados.length>0&&selecionados.every(horarioTurnoValido);
+    }
     const dow=new Date(dia+'T12:00:00').getDay();
     if(temGradeSemanal){
-      const turnos=n?[n]:[...new Set(semana.map(t=>+t.numero_turno))];
-      return turnos.length>0&&turnos.every(num=>{
-        const row=semana.find(t=>+t.numero_turno===num&&+t.dia_semana===dow);
-        return !!row&&(!row.ativo||valido(row));
-      });
+      const aplicaveis=semana.filter(t=>t.ativo===true&&+t.dia_semana===dow&&(!n||+t.numero_turno===n));
+      return aplicaveis.length>0&&aplicaveis.every(horarioTurnoValido);
     }
-    const legados=(TURNOS_CFG[s]||[]);
-    if(!legados.length)return false;
-    const turnos=n?[n]:[...new Set(legados.map(t=>+t.numero_turno))];
-    return turnos.length>0&&turnos.every(num=>{
-      const row=legados.find(t=>+t.numero_turno===num);
-      return !!row&&(row.ativo===false||!String(row.dias||'').includes(String(dow))||valido(row));
-    });
+    const legados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(dow))&&(!n||+t.numero_turno===n));
+    return legados.length>0&&legados.every(horarioTurnoValido);
   }
-  if(temGradeSemanal){
-    const ativos=semana.filter(t=>t.ativo&&valido(t));
-    return n?ativos.some(t=>+t.numero_turno===n):ativos.length>0;
-  }
-  const legados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&valido(t));
-  return n?legados.some(t=>+t.numero_turno===n):legados.length>0;
+  const fonte=temGradeSemanal
+    ?semana.filter(t=>t.ativo===true&&(!n||+t.numero_turno===n))
+    :(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(!n||+t.numero_turno===n));
+  return fonte.length>0&&fonte.every(horarioTurnoValido);
 }
 
 function paradaProd(c,tn){
@@ -788,8 +786,7 @@ function atualizarMetricasReais(){
   let setoresEscopo;
   if(st!=='Todos')setoresEscopo=[st];
   else if(mq!=='Todas')setoresEscopo=[...new Set(MAQUINAS.filter(m=>m&&m.nome===mq).map(m=>m.setor).filter(Boolean))];
-  else setoresEscopo=[...new Set(MAQUINAS.map(m=>m&&m.setor).filter(Boolean))];
-  if(!setoresEscopo.length&&st==='Todos')setoresEscopo=SETORES.slice();
+  else setoresEscopo=[...new Set([...SETORES,...MAQUINAS.map(m=>m&&m.setor).filter(Boolean)])];
   const setoresSemHorarioFiltro=setoresEscopo.filter(s=>!setorTemHorarioConfirmado(s,turnoNum,dia||null));
   const horarioOKFiltro=setoresEscopo.length>0&&setoresSemHorarioFiltro.length===0;
   document.querySelectorAll('.metricas-com-horario').forEach(el=>el.style.display=horarioOKFiltro?'':'none');
