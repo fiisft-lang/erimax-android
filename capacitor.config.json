@@ -7,7 +7,18 @@
   },
   "plugins": {
     "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    },
+    "LiveUpdate": {
+      "autoUpdateStrategy": "none",
+      "autoBlockRolledBackBundles": true,
+      "autoDeleteBundles": true,
+      "readyTimeout": 30000,
+      "defaultChannel": "production"
     }
   }
 }
