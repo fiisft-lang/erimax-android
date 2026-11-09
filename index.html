@@ -180,30 +180,33 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
+<div id="metricsHorarioAviso" class="card" style="display:none;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;text-align:center;padding:18px"><b>⚠️ Horário do turno não cadastrado</b><p id="metricsHorarioAvisoTexto" style="margin:8px 0 0;font-size:.85rem">Cadastre a entrada e a saída desse turno no setor para visualizar os gráficos com dados reais.</p></div>
+<div id="metricsDataContent">
 <div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de O.S. concluídas por técnico</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Classificação dos técnicos pela quantidade de O.S. que concluíram no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn-submit" onclick="exportarCSV()">📥 Excel (CSV)</button><button class="btn-submit" style="background:var(--secondary)" onclick="window.print()">🖨️ PDF</button></div>
 <div class="metrics-grid">
-<div class="metric-card"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
-<div class="metric-card"><div class="title">Tempo total parado</div><div class="value" id="cParada" style="color:#ff6b00">0 min</div><div class="sub">Só em horário de produção</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioDisp"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioParada"><div class="title">Tempo total parado</div><div class="value" id="cParada" style="color:#ff6b00">0 min</div><div class="sub">Só em horário de produção</div></div>
 <div class="metric-card"><div class="title">Tempo de resposta</div><div class="value" id="cResp">0 min</div><div class="sub">Abertura → aceite (média)</div></div>
 <div class="metric-card"><div class="title">MTTR</div><div class="value" id="cMTTR" style="color:#28a745">0 min</div><div class="sub">Aceite → conclusão (média)</div></div>
-<div class="metric-card"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioMTBF"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
 <div class="metric-card"><div class="title">Total de OS</div><div class="value" id="cTotal">0</div><div class="sub" id="cTotalSub">0 abertas</div></div>
 <div class="metric-card"><div class="title">Taxa de conclusão</div><div class="value" id="cTaxa" style="color:#28a745">0%</div><div class="sub">Concluídas ÷ total</div></div>
 <div class="metric-card"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesma máquina + mesmo tipo</div></div>
 </div>
 
-<div class="card"><h4>Eficiência geral da produção</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Parte verde: tempo rodando • parte vermelha: tempo parado. Clique na parte vermelha para ver as OS.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div></div>
+<div class="card" style="border:1px solid #2563eb;background:#eff6ff;padding:12px 14px;margin-bottom:12px"><p style="margin:0;color:#1e40af;font-size:.84rem;line-height:1.5;text-align:center"><b>👆 DICA: os gráficos são interativos!</b><br>Toque em uma barra, fatia colorida ou ponto do gráfico para abrir as O.S. e os detalhes relacionados ao item selecionado. Os resultados respeitam o período e os filtros aplicados.</p></div>
+<div class="card metricas-com-horario" id="cardHorarioEfGeral"><h4>Eficiência geral da produção</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Parte verde: tempo rodando • parte vermelha: tempo parado. Clique na parte vermelha para ver as OS.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div></div>
 
-<div class="card"><h4>Máquinas críticas (ranking)</h4>
+<div class="card metricas-com-horario" id="cardHorarioRanking"><h4>Máquinas críticas (ranking)</h4>
 <div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></div>
 
-<div class="card"><h4>Eficiência real por setor<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
-<div class="card"><h4>Eficiência real por máquina<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Eficiência real por setor<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfMaq"><h4>Eficiência real por máquina<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
 <div class="card"><h4>Causas das falhas (Pareto)</h4><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
 <div class="card"><h4>Tendência diária: abertas × concluídas</h4><div class="chart-wrapper"><canvas id="chTendencia"></canvas></div></div>
-<div class="card"><h4>Parada por setor (Pareto)</h4><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
-<div class="card"><h4>Tempo de parada por máquina (min)</h4><div class="chart-wrapper" style="height:300px"><canvas id="chDowntime"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Parada por setor (Pareto)</h4><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioDowntime"><h4>Tempo de parada por máquina (min)</h4><div class="chart-wrapper" style="height:300px"><canvas id="chDowntime"></canvas></div></div>
 <div class="card"><h4>Tipo de problema (% das OS)</h4><div class="chart-wrapper"><canvas id="chTipos"></canvas></div></div>
 <div class="card"><h4>Resposta e reparo por técnico (min)</h4><div class="chart-wrapper"><canvas id="chTecnico"></canvas></div></div>
 <div class="card"><h4>Chamados por turno</h4><div class="chart-wrapper"><canvas id="chTurno"></canvas></div></div>
@@ -213,6 +216,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <h4 style="color:var(--primary)">📋 Relatório de Diagnósticos e Fechamentos</h4>
 <p style="font-size:.75rem;color:#64748b;margin:6px 0 12px;text-align:center">O que foi feito nas máquinas:</p>
 <div id="listaRelatorioProblemas" style="max-height:350px;overflow-y:auto"></div>
+</div>
 </div>
 </div>
 </div>
@@ -249,7 +253,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
-<div id="modalEfOS" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box" style="max-width:760px;max-height:90vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2>OS que geraram parada</h2><button class="btn-action btn-transferir" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" style="font-size:.8rem;color:#64748b;margin:8px 0 12px"></p><div id="listaEfOS"></div></div></div>
+<div id="modalEfOS" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box" style="max-width:760px;max-height:90vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 id="modalEfOSTitulo">Ordens de serviço relacionadas</h2><button class="btn-action btn-transferir" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" style="font-size:.8rem;color:#64748b;margin:8px 0 12px"></p><div id="listaEfOS"></div></div></div>
 
 <div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
@@ -263,6 +267,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
 </audio>
 
+<script src="ota-update.js"></script>
 <script>
 const LOGO='data:image/png;base64,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';
 document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO);
@@ -278,7 +283,7 @@ const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
 let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};let SETOR_EM_EDICAO=null;const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
-const SETORES_PADRAO=['Costura','Corte de ataduras','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
+const SETORES_PADRAO=['Costura','Corte de atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 let SETORES=[...SETORES_PADRAO];
 
 let chamados=[],vibrationInterval=null;
@@ -296,7 +301,7 @@ function popularSetores(){
 popularSetores();
 
 // OS antigas gravadas como "Gaze" passam a aparecer como "Gaze algodonada"
-const normSetor=s=>s==='Gaze'?'Gaze algodonada':s;
+const normSetor=s=>{const v=String(s||'').trim().replace(/\s+/g,' '),k=v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(['corte de ataduras','corte de atadura','corte ataduras'].includes(k))return 'Corte de atadura';return v==='Gaze'?'Gaze algodonada':v};
 
 function ativarAudioManual(){
   const a=document.getElementById('audioSirene'),b=document.getElementById('barraAtivacaoAudio');
@@ -359,7 +364,7 @@ async function carregarDadosSupabase(){
   const {data,error}=await _supabase.from('os').select('*').order('id',{ascending:false});
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
-  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');popularTecnicosPreventiva();
+  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||(x.id===MEU_ID&&x.perfil==='gestor'));popularTecnicosPreventiva();
   const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
@@ -660,28 +665,65 @@ function minutosTurno(t){let fim=minutosHora(t.hora_fim),ini=minutosHora(t.hora_
 function dataISOlocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function turnosDoSetor(s){
   const rows=HORARIOS_SEMANAIS[s];
-  if(rows){
-    const nums=new Set(rows.filter(r=>r.ativo).map(r=>+r.numero_turno));
+  // Só prioriza a grade semanal quando existe ao menos um horário realmente ativo.
+  // Linhas semanais inativas antigas não podem bloquear turnos cadastrados no formato anterior.
+  const temGradeSemanal=!!(rows&&rows.some(r=>r.ativo&&r.hora_inicio&&r.hora_fim&&r.hora_inicio!==r.hora_fim));
+  if(temGradeSemanal){
+    const nums=new Set(rows.filter(r=>r.ativo&&r.hora_inicio&&r.hora_fim&&r.hora_inicio!==r.hora_fim).map(r=>+r.numero_turno));
     Object.keys(EXCECOES_HORARIO).filter(k=>k.startsWith(s+'|')).forEach(k=>(EXCECOES_HORARIO[k].horarios||[]).forEach(h=>nums.add(+h.numero_turno)));
     return [...nums].sort((a,b)=>a-b).map(n=>({setor:s,numero_turno:n}));
   }
   const cadastrados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false).sort((a,b)=>a.numero_turno-b.numero_turno);
   if(cadastrados.length)return cadastrados.map(t=>({...t}));
-  // Só usa a configuração legada quando ela existe no banco; nunca presume 9 horas.
-  const c=CFG[s];
-  if(!c||!Number.isFinite(+c.horas)||+c.horas<=0||!c.dias)return [];
-  const dur=Math.round(+c.horas*60),inicio=minutosHora(c.inicio||'06:00');
-  return Array.from({length:Math.max(1,Math.min(3,+c.turnos||1))},(_,i)=>{
-    const a=(inicio+i*dur)%1440,b=(a+dur)%1440;
-    return {setor:s,numero_turno:i+1,hora_inicio:String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0'),hora_fim:String(Math.floor(b/60)).padStart(2,'0')+':'+String(b%60).padStart(2,'0'),dias:c.dias,ativo:true};
-  });
+  // setores_config guarda apenas duração/dias; não confirma entrada e saída.
+  // Sem grade semanal ou turno legado com horários reais, não inventa um turno.
+  return [];
+}
+function horarioTurnoValido(t){
+  const ini=String(t&&t.hora_inicio||'').slice(0,5),fim=String(t&&t.hora_fim||'').slice(0,5);
+  const regex=/^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+  return !!(t&&regex.test(ini)&&regex.test(fim)&&ini!==fim);
 }
 function horariosDoDia(s,d){
   const chave=s+'|'+dataISOlocal(d);
-  if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))return (EXCECOES_HORARIO[chave].horarios||[]).map(h=>({...h}));
-  if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].filter(r=>r.ativo&&+r.dia_semana===d.getDay()).map(r=>({...r}));
-  return turnosDoSetor(s).filter(t=>(t.dias||'').includes(String(d.getDay()))).map(t=>({...t}));
+  if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))
+    return (EXCECOES_HORARIO[chave].horarios||[]).filter(horarioTurnoValido).map(h=>({...h}));
+  const rows=HORARIOS_SEMANAIS[s]||[];
+  // Uma grade semanal ativa é a fonte oficial; linhas inativas não viram horários.
+  const temGradeSemanal=rows.some(r=>r.ativo===true);
+  if(temGradeSemanal)
+    return rows.filter(r=>r.ativo===true&&+r.dia_semana===d.getDay()&&horarioTurnoValido(r)).map(r=>({...r}));
+  // Compatibilidade com o cadastro antigo: só horários explícitos e ativos.
+  return (TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(d.getDay()))&&horarioTurnoValido(t)).map(t=>({...t}));
 }
+
+// Confirma horários reais para todo o escopo: turno inativo, dia sem expediente ou
+// duração genérica em setores_config nunca contam como entrada/saída cadastradas.
+function setorTemHorarioConfirmado(s,n,dia){
+  const semana=HORARIOS_SEMANAIS[s]||[];
+  const temGradeSemanal=semana.some(t=>t.ativo===true);
+  if(dia){
+    const chave=s+'|'+dia;
+    if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave)){
+      const especiais=EXCECOES_HORARIO[chave].horarios||[];
+      if(!especiais.length)return true; // exceção explícita de dia sem produção
+      const selecionados=especiais.filter(t=>!n||+t.numero_turno===n);
+      return selecionados.length>0&&selecionados.every(horarioTurnoValido);
+    }
+    const dow=new Date(dia+'T12:00:00').getDay();
+    if(temGradeSemanal){
+      const aplicaveis=semana.filter(t=>t.ativo===true&&+t.dia_semana===dow&&(!n||+t.numero_turno===n));
+      return aplicaveis.length>0&&aplicaveis.every(horarioTurnoValido);
+    }
+    const legados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(dow))&&(!n||+t.numero_turno===n));
+    return legados.length>0&&legados.every(horarioTurnoValido);
+  }
+  const fonte=temGradeSemanal
+    ?semana.filter(t=>t.ativo===true&&(!n||+t.numero_turno===n))
+    :(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(!n||+t.numero_turno===n));
+  return fonte.length>0&&fonte.every(horarioTurnoValido);
+}
+
 function paradaProd(c,tn){
   const ini=new Date(c.created_at),fim=new Date(c.data_conclusao||Date.now());
   if(!(fim>ini))return 0;
@@ -698,6 +740,7 @@ function paradaProd(c,tn){
   return total;
 }
 const charts={};
+const DETALHES_GRAFICOS={};
 let OS_PARADA_ATUAL=[];
 const COR=['#0056b3','#ff6b00','#ffc107','#28a745','#6f42c1','#17a2b8','#dc3545','#6c757d'];
 const diaLocal=d=>new Date(d).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
@@ -706,6 +749,8 @@ const fmt=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+'h'+String(m
 const media=(s,n)=>n?s/n:0;
 
 function mk(id,cfg){
+  cfg.options=cfg.options||{};
+  if(!cfg.options.onClick)cfg.options.onClick=(_evt,items)=>{const item=items&&items[0],resolver=DETALHES_GRAFICOS[id];if(item&&resolver){const r=resolver(item.datasetIndex,item.index);mostrarOSDetalhe(r.titulo,r.lista)}};
   if(charts[id])charts[id].destroy();
   cfg.options=Object.assign({responsive:true,maintainAspectRatio:false},cfg.options||{});
   charts[id]=new Chart(document.getElementById(id),cfg);
@@ -713,14 +758,42 @@ function mk(id,cfg){
 
 function escaparHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function mostrarOSParada(lista){
+  modalEfOSTitulo.textContent='O.S. com tempo de parada';
   const itens=(lista||[]).slice().sort((a,b)=>b.parada-a.parada);
   resumoEfOS.textContent=itens.length?itens.length+' OS com tempo de parada no período e filtros selecionados.':'Nenhuma OS com parada foi encontrada neste filtro.';
   listaEfOS.innerHTML=itens.length?itens.map(({os,parada})=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(os.status).replace(/\s+/g,'')+'">'+escaparHtml(os.status)+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor)+' • '+escaparHtml(os.turno)+' • '+hm(os.created_at)+'</p><p style="font-size:.8rem;margin:6px 0"><b>Parada considerada:</b> '+fmt(parada)+'</p><p style="font-size:.82rem"><b>Defeito:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+(os.data_conclusao?' • Concluída em '+hm(os.data_conclusao):' • Ainda não concluída')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta OS no painel</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma OS com parada neste filtro.</p>';
   modalEfOS.style.display='flex';
 }
+function mostrarMaquinasRodando(lista){
+  const itens=(lista||[]).filter(x=>x&&x.rodou>0).sort((a,b)=>b.rodou-a.rodou);
+  modalEfOSTitulo.textContent='Máquinas com tempo rodando';
+  resumoEfOS.textContent=itens.length?itens.length+' máquinas com tempo de funcionamento no período e filtros selecionados.':'Nenhuma máquina com tempo rodando foi encontrada neste filtro.';
+  listaEfOS.innerHTML=itens.length?itens.map(m=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(m.nome)+'</span><span class="os-badge" style="background:#dcfce7;color:#166534">Rodando</span></div><p style="font-size:.82rem;margin:6px 0"><b>Tempo rodando:</b> '+fmt(m.rodou)+'</p><p style="font-size:.78rem;color:#64748b">Setor: '+escaparHtml(m.setor||'Não informado')+' • Eficiência: '+m.pct+'%</p></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma máquina com tempo rodando neste filtro.</p>';
+  modalEfOS.style.display='flex';
+}
+function mostrarOSDetalhe(titulo,lista){
+  const itens=(lista||[]).filter(Boolean);
+  modalEfOSTitulo.textContent=titulo||'Ordens de serviço relacionadas';
+  resumoEfOS.textContent=itens.length?itens.length+' O.S. encontradas com os filtros selecionados.':'Nenhuma O.S. encontrada para este item.';
+  listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • '+(os.created_at?hm(os.created_at):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
+  modalEfOS.style.display='flex';
+}
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 function atualizarMetricasReais(){
   const dia=filtroDia.value,mes=filtroMes.value,tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
+  const avisoHorario=document.getElementById('metricsHorarioAviso');
+  const turnoNum=tn==='Todos'?null:+tn.slice(-1);
+  let setoresEscopo;
+  if(st!=='Todos')setoresEscopo=[st];
+  else if(mq!=='Todas')setoresEscopo=[...new Set(MAQUINAS.filter(m=>m&&m.nome===mq).map(m=>m.setor).filter(Boolean))];
+  else setoresEscopo=[...new Set([...SETORES,...MAQUINAS.map(m=>m&&m.setor).filter(Boolean)])];
+  const setoresSemHorarioFiltro=setoresEscopo.filter(s=>!setorTemHorarioConfirmado(s,turnoNum,dia||null));
+  const horarioOKFiltro=setoresEscopo.length>0&&setoresSemHorarioFiltro.length===0;
+  document.querySelectorAll('.metricas-com-horario').forEach(el=>el.style.display=horarioOKFiltro?'':'none');
+  avisoHorario.style.display=horarioOKFiltro?'none':'block';
+  if(!horarioOKFiltro){
+    document.getElementById('metricsHorarioAvisoTexto').textContent='Não há horários de entrada e saída confirmados para '+(setoresSemHorarioFiltro.length?setoresSemHorarioFiltro.join(', '):'o setor ou a máquina selecionada')+' no escopo dos filtros'+(tn!=='Todos'?' ('+tn+')':' (todos os turnos)')+'. Os indicadores e gráficos que dependem do horário de produção ficarão ocultos. Os demais gráficos continuam disponíveis normalmente. Cadastre e salve a grade de horários para liberar esses cálculos.';
+  }
   const agora=new Date().toISOString();
   const f=chamados.filter(c=>{
     const d=c.created_at?diaLocal(c.created_at):'';
@@ -792,14 +865,14 @@ function atualizarMetricasReais(){
   const mtbf=f.length?Math.max(0,(base-parada)/f.length):0;
 
   // Gráfico de pizza: disponibilidade (verde) x parada (vermelho).
-  mk('chEfGeral',{type:'doughnut',data:{labels:['Rodando','Parada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label(ctx){return ctx.label+': '+fmt(ctx.raw)}}}},onClick(_evt,items){if(items.length&&items[0].index===1)mostrarOSParada(OS_PARADA_ATUAL)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('eficiência',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
+  mk('chEfGeral',{type:'doughnut',data:{labels:['Rodando','Parada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label(ctx){return ctx.label+': '+fmt(ctx.raw)}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('eficiência',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
 
   // cards
-  cDisp.innerText=disp===null?'—':disp+'%';cDispSub.innerText=base>0?'Previsto '+fmt(base)+' • rodou '+fmt(Math.max(0,base-parada)):'Horário de produção não configurado para o período';cDisp.style.color=disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
-  cParada.innerText=fmt(parada);
+  cDisp.innerText=horarioOKFiltro?(disp===null?'—':disp+'%'):'—';cDispSub.innerText=horarioOKFiltro?(base>0?'Previsto '+fmt(base)+' • rodou '+fmt(Math.max(0,base-parada)):'Sem horas produtivas no período'):'Aguardando horários confirmados';cDisp.style.color=!horarioOKFiltro||disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
+  cParada.innerText=horarioOKFiltro?fmt(parada):'—';
   cResp.innerText=fmt(media(sResp,nResp));
   cMTTR.innerText=fmt(media(sRep,nRep));
-  cMTBF.innerText=f.length&&base>0?fmt(mtbf):'-';
+  cMTBF.innerText=horarioOKFiltro&&f.length&&base>0?fmt(mtbf):'-';
   cTotal.innerText=f.length;cTotalSub.innerText=abertas+' em aberto';
   cTaxa.innerText=(f.length?Math.round(concl/f.length*100):0)+'%';
   cReinc.innerText=(f.length?Math.round(reincOS/f.length*100):0)+'%';
@@ -819,6 +892,7 @@ function atualizarMetricasReais(){
 
   // gráficos
   const dias_=[...new Set([...Object.keys(aberDia),...Object.keys(conclDia)])].sort();
+  DETALHES_GRAFICOS.chTendencia=(ds,i)=>{const d=dias_[i];const lista=f.filter(c=>ds===0?diaLocal(c.created_at)===d:diaLocal(c.data_conclusao||'')===d&&c.status==='Concluída');return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+d.split('-').reverse().join('/'),lista}};
   mk('chTendencia',{type:'line',data:{labels:dias_.map(d=>d.slice(8)+'/'+d.slice(5,7)),datasets:[
     {label:'Abertas',data:dias_.map(d=>aberDia[d]||0),borderColor:'#dc3545',backgroundColor:'#dc354533',tension:.3,fill:true},
     {label:'Concluídas',data:dias_.map(d=>conclDia[d]||0),borderColor:'#28a745',backgroundColor:'#28a74533',tension:.3,fill:true}]},
@@ -826,37 +900,70 @@ function atualizarMetricasReais(){
 
   const sets=Object.entries(setor).sort((a,b)=>b[1]-a[1]),tot=sets.reduce((s,x)=>s+x[1],0)||1;
   let acum=0;
+  DETALHES_GRAFICOS.chPareto=(_ds,i)=>{const nome=sets[i]?.[0];return{titulo:'O.S. com parada no setor '+nome,lista:OS_PARADA_ATUAL.filter(x=>x.os.setor===nome).map(x=>x.os)}};
   mk('chPareto',{data:{labels:sets.map(s=>s[0]),datasets:[
     {type:'bar',label:'Min parados',data:sets.map(s=>Math.round(s[1])),backgroundColor:'#ff6b00',yAxisID:'y'},
     {type:'line',label:'% acumulado',data:sets.map(s=>Math.round((acum+=s[1])/tot*100)),borderColor:'#0056b3',yAxisID:'y1'}]},
     options:{scales:{y:{beginAtZero:true},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false}}}}});
 
   const top=rank.slice(0,10);
+  DETALHES_GRAFICOS.chDowntime=(_ds,i)=>{const nome=top[i]?.[0];return{titulo:'O.S. da máquina '+nome,lista:f.filter(c=>c.maquina===nome)}};
   mk('chDowntime',{type:'bar',data:{labels:top.map(r=>r[0]),datasets:[{label:'Minutos parados',data:top.map(r=>Math.round(r[1].parada)),backgroundColor:'#ff6b00'}]},options:{indexAxis:'y'}});
 
   // eficiência real = (horas previstas − parada) ÷ horas previstas, por máquina cadastrada e por setor
-  const efM=[],efS={};
+  const efM=[],efS={},semHorarioMaq=maqsBase.filter(m=>!baseDe(m.setor));
   maqsBase.forEach(m=>{const bd=baseDe(m.setor);if(!bd)return;const pa=Math.min(bd,(maq[m.nome]&&maq[m.nome].parada)||0);
     efM.push({n:m.nome,prev:bd,par:pa,run:bd-pa,pct:Math.round((bd-pa)/bd*100)});
     const e=efS[m.setor]||(efS[m.setor]={prev:0,par:0});e.prev+=bd;e.par+=pa});
-  const efChart=(id,arr)=>{
-    arr.sort((x,y)=>x.pct-y.pct);document.getElementById(id).parentElement.style.height=Math.max(220,arr.length*30+70)+'px';
+  const efChart=(id,arr,avisos=[])=>{
+    arr.sort((x,y)=>x.pct-y.pct);
+    const wrapper=document.getElementById(id).parentElement;
+    wrapper.querySelectorAll('.aviso-horario-eficiencia').forEach(el=>el.remove());
+    if(avisos.length){
+      const aviso=document.createElement('div');aviso.className='aviso-horario-eficiencia';
+      aviso.style.cssText='margin:0 0 10px;padding:10px 12px;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;font-size:.78rem;line-height:1.45';
+      aviso.innerHTML='<b>⚠️ Horário de produção não configurado</b><br>'+avisos.map(x=>escaparHtml(x)).join('<br>')+'<br><small>Cadastre o setor e os horários de entrada e saída dos turnos para calcular a eficiência.</small>';
+      wrapper.insertBefore(aviso,wrapper.firstChild);
+    }
+    wrapper.style.height=Math.max(220,arr.length*30+70+(avisos.length?100:0))+'px';
+    DETALHES_GRAFICOS[id]=(_ds,i)=>{const nome=arr[i]?.n;return{titulo:'O.S. da máquina/setor '+nome,lista:f.filter(c=>id==='chEfMaq'?c.maquina===nome:c.setor===nome)}};
     mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Rodou (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
   };
-  efChart('chEfMaq',efM);
-  efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})));
+  const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
+  const setoresSemHorario=[...new Set(semHorarioMaq.map(m=>m.setor||'Setor não definido'))];
+  // O gráfico geral também precisa avisar quando não há horas previstas para calcular a eficiência.
+  const geralCanvas=document.getElementById('chEfGeral');
+  const geralCard=geralCanvas?.parentElement?.parentElement;
+  if(geralCard){
+    geralCard.querySelectorAll('.aviso-horario-eficiencia-geral').forEach(el=>el.remove());
+    if(avisosMaq.length){
+      const avisoGeral=document.createElement('div');
+      avisoGeral.className='aviso-horario-eficiencia-geral';
+      avisoGeral.style.cssText='margin:0 0 10px;padding:10px 12px;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;font-size:.78rem;line-height:1.45';
+      avisoGeral.innerHTML='<b>⚠️ Horário de produção não configurado</b><br>'+avisosMaq.map(x=>escaparHtml(x)).join('<br>')+'<br><small>Cadastre o setor e os horários de entrada e saída dos turnos para calcular a eficiência.</small>';
+      geralCard.insertBefore(avisoGeral,geralCanvas.parentElement);
+    }
+  }
+  efChart('chEfMaq',efM,avisosMaq);
+  efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})),setoresSemHorario);
   const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]),ct=cs.reduce((x,y)=>x+y[1],0)||1;let ac=0;
+  DETALHES_GRAFICOS.chCausas=(_ds,i)=>{const nome=cs[i]?.[0];return{titulo:'O.S. com causa: '+nome,lista:f.filter(c=>(c.causa||'Não informada')===nome)}};
   mk('chCausas',{data:{labels:cs.map(x=>x[0]),datasets:[{type:'bar',label:'Ocorrências',data:cs.map(x=>x[1]),backgroundColor:'#0056b3',yAxisID:'y'},{type:'line',label:'% acumulado',data:cs.map(x=>Math.round((ac+=x[1])/ct*100)),borderColor:'#ff6b00',yAxisID:'y1'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false}}}}});
   const tt=Object.values(tipo).reduce((x,y)=>x+y,0)||1;
+  const tiposGrafico=Object.keys(tipo);
+  DETALHES_GRAFICOS.chTipos=(_ds,i)=>{const nome=tiposGrafico[i];return{titulo:'O.S. do tipo '+nome,lista:f.filter(c=>c.tipo===nome)}};
   mk('chTipos',{type:'doughnut',data:{labels:Object.entries(tipo).map(([k,v])=>`${k}: ${v} OS (${Math.round(v/tt*100)}%)`),datasets:[{data:Object.values(tipo),backgroundColor:COR}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:12}}}}},plugins:[{id:'pct',afterDatasetsDraw(ch){const c=ch.ctx,d=ch.data.datasets[0].data;c.save();c.fillStyle='#fff';c.font='bold 13px sans-serif';c.textAlign='center';c.textBaseline='middle';c.shadowColor='rgba(0,0,0,.7)';c.shadowBlur=3;ch.getDatasetMeta(0).data.forEach((arc,i)=>{const p=Math.round(d[i]/tt*100);if(!d[i]||p<5)return;const pos=arc.tooltipPosition();c.fillText(p+'%',pos.x,pos.y)});c.restore()}}]});
 
   const tn_=Object.keys(tec);
+  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const lista=f.filter(c=>c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao));return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
   mk('chTecnico',{type:'bar',data:{labels:tn_,datasets:[
     {label:'Resposta (min)',data:tn_.map(t=>Math.round(media(tec[t].sR,tec[t].nR))),backgroundColor:'#0056b3'},
     {label:'Reparo (min)',data:tn_.map(t=>Math.round(media(tec[t].sP,tec[t].nP))),backgroundColor:'#28a745'}]}});
 
+  DETALHES_GRAFICOS.chTurno=(_ds,i)=>{const nome=Object.keys(turno)[i];return{titulo:'O.S. do '+nome,lista:f.filter(c=>c.turno===nome)}};
   mk('chTurno',{type:'bar',data:{labels:Object.keys(turno),datasets:[{label:'OS abertas',data:Object.values(turno),backgroundColor:['#0056b3','#ff6b00','#6f42c1']}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
 
+  DETALHES_GRAFICOS.chHora=(_ds,i)=>{const horaTxt=i+'h';return{titulo:'O.S. abertas às '+horaTxt,lista:f.filter(c=>new Date(c.created_at).getHours()===i)}};
   mk('chHora',{type:'bar',data:{labels:hora.map((_,i)=>i+'h'),datasets:[{label:'OS abertas',data:hora,backgroundColor:'#0056b3'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
 }
 
@@ -1026,7 +1133,7 @@ async function iniciarApp(user){
 async function carregarMaquinas(){
   const {data,error}=await _supabase.from('maquinas').select('*').order('setor').order('nome');
   if(error){console.error('Erro ao carregar máquinas:',error.message);listaMaquinas.innerHTML='<p class="alerta">Erro ao carregar máquinas: '+escaparHtml(error.message)+'</p>';return}
-  MAQUINAS=data||[];
+  MAQUINAS=(data||[]).map(m=>({...m,setor:normSetor(m.setor)}));
   const nomes=new Set([...SETORES,...MAQUINAS.map(m=>m.setor)]);
   SETORES=[...nomes].filter(Boolean);
   popularSetores();carregarMaquinasSetor();pvMaquinas();
@@ -1107,12 +1214,12 @@ async function carregarCfg(){
   if(b.error)console.error('Erro ao carregar turnos antigos:',b.error.message);
   if(c.error)console.error('Erro ao carregar horários semanais:',c.error.message);
   if(d.error)console.error('Erro ao carregar exceções de horário:',d.error.message);
-  CFG={};(a.data||[]).forEach(r=>CFG[r.setor]={horas:+r.horas,turnos:r.turnos,dias:r.dias,inicio:String(r.inicio||'06:00').slice(0,5)});
-  TURNOS_CFG={};(b.data||[]).forEach(r=>(TURNOS_CFG[r.setor]||(TURNOS_CFG[r.setor]=[])).push(r));
-  HORARIOS_SEMANAIS={};(c.data||[]).forEach(r=>(HORARIOS_SEMANAIS[r.setor]||(HORARIOS_SEMANAIS[r.setor]=[])).push(r));
-  EXCECOES_HORARIO={};(d.data||[]).forEach(r=>EXCECOES_HORARIO[r.setor+'|'+r.data_excecao]=r);
-  (b.data||[]).forEach(r=>{if(!CFG[r.setor])CFG[r.setor]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:String(r.hora_inicio).slice(0,5)};});
-  const nomes=new Set([...(a.error?SETORES:(a.data||[]).map(r=>r.setor)),...(b.data||[]).map(r=>r.setor),...(c.data||[]).map(r=>r.setor),...(d.data||[]).map(r=>r.setor),...MAQUINAS.map(m=>m.setor)]);
+  CFG={};(a.data||[]).forEach(r=>CFG[normSetor(r.setor)]={horas:+r.horas,turnos:r.turnos,dias:r.dias,inicio:String(r.inicio||'06:00').slice(0,5)});
+  TURNOS_CFG={};(b.data||[]).forEach(r=>(TURNOS_CFG[normSetor(r.setor)]||(TURNOS_CFG[normSetor(r.setor)]=[])).push({...r,setor:normSetor(r.setor)}));
+  HORARIOS_SEMANAIS={};(c.data||[]).forEach(r=>(HORARIOS_SEMANAIS[normSetor(r.setor)]||(HORARIOS_SEMANAIS[normSetor(r.setor)]=[])).push({...r,setor:normSetor(r.setor)}));
+  EXCECOES_HORARIO={};(d.data||[]).forEach(r=>EXCECOES_HORARIO[normSetor(r.setor)+'|'+r.data_excecao]={...r,setor:normSetor(r.setor)});
+  (b.data||[]).forEach(r=>{const s=normSetor(r.setor);if(!CFG[s])CFG[s]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:String(r.hora_inicio).slice(0,5)};});
+  const nomes=new Set([...(a.error?SETORES:(a.data||[]).map(r=>normSetor(r.setor))),...(b.data||[]).map(r=>normSetor(r.setor)),...(c.data||[]).map(r=>normSetor(r.setor)),...(d.data||[]).map(r=>normSetor(r.setor)),...MAQUINAS.map(m=>m.setor)]);
   SETORES=[...nomes].filter(Boolean).sort((x,y)=>x.localeCompare(y,'pt-BR'));
   popularSetores();if(document.getElementById('listaCfg'))renderCfg();if(document.getElementById('listaMaquinas'))renderMaquinasAgrupadas();
 }
@@ -1382,10 +1489,12 @@ navigator.serviceWorker?.addEventListener('message',event=>{
   }
 });
 window.onload=async function(){
+  if(window.erimaxOTA)await window.erimaxOTA.ready();
   const mesConsulta=document.getElementById('consultaMes');
   if(mesConsulta){const agora=new Date();mesConsulta.value=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0')}
   const {data:{session}}=await _supabase.auth.getSession();
   if(session)iniciarApp(session.user);
+  if(window.erimaxOTA)setTimeout(()=>window.erimaxOTA.checkForUpdate(),1800);
 };
 </script>
 </body>

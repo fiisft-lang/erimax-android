@@ -8,6 +8,9 @@ on:
       - main
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
+      - ota-atualizacao-android-staging-20261109
+    paths-ignore:
+      - "ota/**"
 
 jobs:
   build:
@@ -32,8 +35,13 @@ jobs:
         run: npm install
 
       - name: Preparar aplicativo com Firebase
+        env:
+          ERIMAX_BUILD_ID: ${{ github.sha }}
         run: |
           npm run build
+          if [ "$GITHUB_REF_NAME" = "ota-atualizacao-android-staging-20261109" ]; then
+            node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.plugins.LiveUpdate.defaultChannel='staging';fs.writeFileSync(p,JSON.stringify(c,null,2)+'\\n');"
+          fi
           npx cap add android
           mkdir -p android/app
           cp google-services.json android/app/google-services.json

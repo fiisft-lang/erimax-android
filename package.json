@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav",
+    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav && cp ota-update.js www/ota-update.js && cp manifest.json www/manifest.json && cp erimax-pwa.svg www/erimax-pwa.svg && node -e \"require('fs').writeFileSync('www/ota-build.json', JSON.stringify({bundleId:process.env.ERIMAX_BUILD_ID || 'development'}))\"",
     "cap:add": "cap add android",
     "cap:sync": "cap sync android"
   },
@@ -11,7 +11,8 @@
     "@capacitor/android": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@capacitor/push-notifications": "^7.0.7",
-    "@capacitor/app": "^7.0.1"
+    "@capacitor/app": "^7.0.1",
+    "@capawesome/capacitor-live-update": "v7-lts"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3"
