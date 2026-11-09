@@ -48,17 +48,16 @@ jobs:
           zip -j -q ota/latest.zip www/*
           CHECKSUM="$(sha256sum ota/latest.zip | awk '{print $1}')"
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
-            ORIGIN="https://erimax.pages.dev"
             CHANNEL="production"
           else
-            ORIGIN="https://ota-atualizacao-android-staging-20261109.erimax.pages.dev"
             CHANNEL="staging"
           fi
+          ORIGIN="https://raw.githubusercontent.com/fiisft-lang/erimax-android/${GITHUB_REF_NAME}"
           cat > ota/manifest.json <<EOF
           {
             "bundleId": "${BUNDLE_ID}",
             "channel": "${CHANNEL}",
-            "url": "${ORIGIN}/ota/latest.zip",
+            "url": "${ORIGIN}/ota/latest.zip?v=${BUNDLE_ID}",
             "checksum": "${CHECKSUM}",
             "minimumNativeVersionCode": 1,
             "message": "Há melhorias e correções disponíveis no EriMax."
