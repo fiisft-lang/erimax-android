@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: erimax-ota-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   publicar:
     runs-on: ubuntu-latest
