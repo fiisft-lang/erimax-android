@@ -1,0 +1,8 @@
+{
+  "bundleId": "20aeaee0a4f4564bf30b2103f002a472d8370f89",
+  "channel": "staging",
+  "url": "https://ota-atualizacao-android-staging-20261109.erimax.pages.dev/ota/latest.zip",
+  "checksum": "5df1404acaea21a37e3bdf1a2dcba414952d37bb0cd29cd37c95ece13f4a583f",
+  "minimumNativeVersionCode": 1,
+  "message": "Há melhorias e correções disponíveis no EriMax."
+}
