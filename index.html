@@ -1595,8 +1595,12 @@ function executarConsultaHistorico(){
 }
 navigator.serviceWorker?.addEventListener('message',event=>{
   if(event.origin!==location.origin)return;
+  if(event.data?.type==='ERIMAX_SILENCE_ALERT'){desligarAlarme();return}
   if(event.data?.type==='ERIMAX_OPEN_OS'&&event.data.os_id&&PERFIL){
-    setTimeout(()=>abrirOSNoPainel(event.data.os_id),300);
+    setTimeout(async()=>{
+      await abrirOSNoPainel(event.data.os_id);
+      if(event.data.action==='assumir')await assumirOS(Number(event.data.os_id));
+    },300);
   }
 });
 window.onload=async function(){
