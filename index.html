@@ -383,7 +383,7 @@ async function carregarDadosSupabase(){
   const {data,error}=await _supabase.from('os').select('*').order('id',{ascending:false});
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
-  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.perfil==='gestor');popularTecnicosPreventiva();
+  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');popularTecnicosPreventiva();
   const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
