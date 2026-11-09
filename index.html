@@ -290,6 +290,8 @@ function popularSetores(){
   sel('setor',op('','Selecione o setor...')+l);sel('filtroSetorMetrica',op('Todos','Todos os Setores')+l);sel('pvSetor',l);
   if(MAQUINAS.length){carregarMaquinasSetor();pvMaquinas()}
   atualizarMaquinasMetrica();
+  const abaMetricas=document.getElementById('tab-metricas');
+  if(abaMetricas&&abaMetricas.classList.contains('active'))atualizarMetricasReais();
 }
 popularSetores();
 
