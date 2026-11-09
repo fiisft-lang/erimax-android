@@ -1,7 +1,6 @@
 // Atualização remota limitada ao canal nativo compatível do EriMax.
 (function(){
-  const PRODUCTION_ORIGIN = 'https://erimax.pages.dev';
-  const STAGING_ORIGIN = 'https://ota-atualizacao-android-staging-20261109.erimax.pages.dev';
+  const RAW_BASE = 'https://raw.githubusercontent.com/fiisft-lang/erimax-android/';
   const PLUGIN = () => window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LiveUpdate;
   const isAndroid = () => !!(window.Capacitor && typeof window.Capacitor.getPlatform === 'function' && window.Capacitor.getPlatform() === 'android');
   let readyPromise = null;
@@ -26,14 +25,16 @@
       await ready();
       const channelInfo = typeof live.getChannel === 'function' ? await live.getChannel().catch(()=>null) : null;
       const channel = channelInfo && channelInfo.channel === 'staging' ? 'staging' : 'production';
-      const origin = channel === 'staging' ? STAGING_ORIGIN : PRODUCTION_ORIGIN;
-      const response = await fetch(origin + '/ota/manifest.json?ts=' + Date.now(), {cache:'no-store'});
+      const branch = channel === 'staging' ? 'ota-atualizacao-android-staging-20261109' : 'main';
+      const manifestUrl = RAW_BASE + branch + '/ota/manifest.json?ts=' + Date.now();
+      const response = await fetch(manifestUrl, {cache:'no-store'});
       if(!response.ok) throw new Error('Manifesto de atualização indisponível (' + response.status + ').');
       const manifest = await response.json();
       if(!manifest || typeof manifest.bundleId !== 'string' || !/^[a-zA-Z0-9._-]{1,80}$/.test(manifest.bundleId)) return;
       if(typeof manifest.checksum !== 'string' || !/^[a-f0-9]{64}$/i.test(manifest.checksum)) return;
-      const bundleUrl = new URL(manifest.url, origin);
-      if(bundleUrl.origin !== origin || !bundleUrl.pathname.startsWith('/ota/')) return;
+      const bundleUrl = new URL(manifest.url);
+      const allowedPath = '/fiisft-lang/erimax-android/' + branch + '/ota/';
+      if(bundleUrl.origin !== 'https://raw.githubusercontent.com' || !bundleUrl.pathname.startsWith(allowedPath)) return;
       const localBuildResponse = await fetch('ota-build.json?ts=' + Date.now(), {cache:'no-store'});
       if(localBuildResponse.ok){
         const localBuild = await localBuildResponse.json();
