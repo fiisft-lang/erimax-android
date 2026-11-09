@@ -665,8 +665,11 @@ function minutosTurno(t){let fim=minutosHora(t.hora_fim),ini=minutosHora(t.hora_
 function dataISOlocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function turnosDoSetor(s){
   const rows=HORARIOS_SEMANAIS[s];
-  if(rows){
-    const nums=new Set(rows.filter(r=>r.ativo).map(r=>+r.numero_turno));
+  // Só prioriza a grade semanal quando existe ao menos um horário realmente ativo.
+  // Linhas semanais inativas antigas não podem bloquear turnos cadastrados no formato anterior.
+  const temGradeSemanal=!!(rows&&rows.some(r=>r.ativo&&r.hora_inicio&&r.hora_fim&&r.hora_inicio!==r.hora_fim));
+  if(temGradeSemanal){
+    const nums=new Set(rows.filter(r=>r.ativo&&r.hora_inicio&&r.hora_fim&&r.hora_inicio!==r.hora_fim).map(r=>+r.numero_turno));
     Object.keys(EXCECOES_HORARIO).filter(k=>k.startsWith(s+'|')).forEach(k=>(EXCECOES_HORARIO[k].horarios||[]).forEach(h=>nums.add(+h.numero_turno)));
     return [...nums].sort((a,b)=>a-b).map(n=>({setor:s,numero_turno:n}));
   }
@@ -684,20 +687,23 @@ function turnosDoSetor(s){
 function horariosDoDia(s,d){
   const chave=s+'|'+dataISOlocal(d);
   if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))return (EXCECOES_HORARIO[chave].horarios||[]).map(h=>({...h}));
-  if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].filter(r=>r.ativo&&+r.dia_semana===d.getDay()).map(r=>({...r}));
+  const rows=HORARIOS_SEMANAIS[s]||[];
+  const temGradeSemanal=rows.some(r=>r.ativo&&r.hora_inicio&&r.hora_fim&&r.hora_inicio!==r.hora_fim);
+  if(temGradeSemanal)return rows.filter(r=>r.ativo&&+r.dia_semana===d.getDay()).map(r=>({...r}));
   return turnosDoSetor(s).filter(t=>(t.dias||'').includes(String(d.getDay()))).map(t=>({...t}));
 }
 
 // Confirma que o escopo filtrado possui grade real de horários para calcular métricas de produção.
 function setorTemHorarioConfirmado(s,n,dia){
   const valido=t=>!!(t&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(t.hora_inicio||''))&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(t.hora_fim||''))&&t.hora_inicio!==t.hora_fim);
-  const semana=HORARIOS_SEMANAIS[s];
+  const semana=HORARIOS_SEMANAIS[s]||[];
+  const temGradeSemanal=semana.some(t=>t.ativo&&valido(t));
   if(dia){
     const chave=s+'|'+dia;
     // Uma exceção cadastrada, inclusive dia sem produção, é uma definição explícita para a data.
     if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))return true;
     const dow=new Date(dia+'T12:00:00').getDay();
-    if(semana){
+    if(temGradeSemanal){
       const turnos=n?[n]:[...new Set(semana.map(t=>+t.numero_turno))];
       return turnos.length>0&&turnos.every(num=>{
         const row=semana.find(t=>+t.numero_turno===num&&+t.dia_semana===dow);
@@ -712,7 +718,7 @@ function setorTemHorarioConfirmado(s,n,dia){
       return !!row&&(row.ativo===false||!String(row.dias||'').includes(String(dow))||valido(row));
     });
   }
-  if(semana){
+  if(temGradeSemanal){
     const ativos=semana.filter(t=>t.ativo&&valido(t));
     return n?ativos.some(t=>+t.numero_turno===n):ativos.length>0;
   }
