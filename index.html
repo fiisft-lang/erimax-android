@@ -180,6 +180,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
+<div id="metricsHorarioAviso" class="card" style="display:none;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;text-align:center;padding:18px"><b>⚠️ Horário do turno não cadastrado</b><p id="metricsHorarioAvisoTexto" style="margin:8px 0 0;font-size:.85rem">Cadastre a entrada e a saída desse turno no setor para visualizar os gráficos com dados reais.</p></div>
+<div id="metricsDataContent">
 <div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de O.S. concluídas por técnico</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Classificação dos técnicos pela quantidade de O.S. que concluíram no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn-submit" onclick="exportarCSV()">📥 Excel (CSV)</button><button class="btn-submit" style="background:var(--secondary)" onclick="window.print()">🖨️ PDF</button></div>
 <div class="metrics-grid">
@@ -214,6 +216,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <h4 style="color:var(--primary)">📋 Relatório de Diagnósticos e Fechamentos</h4>
 <p style="font-size:.75rem;color:#64748b;margin:6px 0 12px;text-align:center">O que foi feito nas máquinas:</p>
 <div id="listaRelatorioProblemas" style="max-height:350px;overflow-y:auto"></div>
+</div>
 </div>
 </div>
 </div>
@@ -684,6 +687,22 @@ function horariosDoDia(s,d){
   if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].filter(r=>r.ativo&&+r.dia_semana===d.getDay()).map(r=>({...r}));
   return turnosDoSetor(s).filter(t=>(t.dias||'').includes(String(d.getDay()))).map(t=>({...t}));
 }
+
+// Exige horário real de entrada e saída cadastrado para liberar métricas de um turno específico.
+function turnoTemHorarioConfirmado(s,n,dia){
+  const valido=t=>!!(t&&String(t.hora_inicio||'').match(/^([01]\\d|2[0-3]):[0-5]\\d$/)&&String(t.hora_fim||'').match(/^([01]\\d|2[0-3]):[0-5]\\d$/)&&t.hora_inicio!==t.hora_fim);
+  if(dia){
+    const chave=s+'|'+dia;
+    if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))
+      return (EXCECOES_HORARIO[chave].horarios||[]).some(t=>+t.numero_turno===n&&valido(t));
+    const data=new Date(dia+'T12:00:00');
+    if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].some(t=>t.ativo&&+t.numero_turno===n&&+t.dia_semana===data.getDay()&&valido(t));
+    return (TURNOS_CFG[s]||[]).some(t=>t.ativo!==false&&+t.numero_turno===n&&String(t.dias||'').includes(String(data.getDay()))&&valido(t));
+  }
+  if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].some(t=>t.ativo&&+t.numero_turno===n&&valido(t));
+  return (TURNOS_CFG[s]||[]).some(t=>t.ativo!==false&&+t.numero_turno===n&&valido(t));
+}
+
 function paradaProd(c,tn){
   const ini=new Date(c.created_at),fim=new Date(c.data_conclusao||Date.now());
   if(!(fim>ini))return 0;
@@ -741,6 +760,16 @@ function mostrarOSDetalhe(titulo,lista){
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 function atualizarMetricasReais(){
   const dia=filtroDia.value,mes=filtroMes.value,tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
+  const avisoHorario=document.getElementById('metricsHorarioAviso'),conteudoMetricas=document.getElementById('metricsDataContent');
+  const turnoSemHorario=tn!=='Todos'&&st!=='Todos'&&!turnoTemHorarioConfirmado(st,+tn.slice(-1),dia||null);
+  if(turnoSemHorario){
+    avisoHorario.style.display='block';conteudoMetricas.style.display='none';
+    document.getElementById('metricsHorarioAvisoTexto').textContent='O '+tn+' do setor '+st+' não tem entrada e saída cadastradas'+(dia?' para '+dia:'')+'. Cadastre e salve o horário do turno para liberar os gráficos. Nenhum dado estimado será exibido.';
+    FILTRADAS=[];OS_PARADA_ATUAL=[];
+    Object.keys(charts).forEach(id=>{charts[id].destroy();delete charts[id]});
+    return;
+  }
+  avisoHorario.style.display='none';conteudoMetricas.style.display='';
   const agora=new Date().toISOString();
   const f=chamados.filter(c=>{
     const d=c.created_at?diaLocal(c.created_at):'';
