@@ -1225,7 +1225,7 @@ function dataHoraRelatorio(v){
   const d=new Date(v);
   return Number.isNaN(d.getTime())?'':d.toLocaleString('pt-BR');
 }
-async async function prepararPDF(){
+async function prepararPDF(){
   const f=obterFiltrosRelatorio();
   const filtros=[
     'Dia: '+(f.dia||'Todos'),'Mês: '+(f.mes||'Todos'),'Turno: '+f.turno,
