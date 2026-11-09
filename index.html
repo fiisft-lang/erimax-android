@@ -855,6 +855,19 @@ function atualizarMetricasReais(){
   };
   const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
   const setoresSemHorario=[...new Set(semHorarioMaq.map(m=>m.setor||'Setor não definido'))];
+  // O gráfico geral também precisa avisar quando não há horas previstas para calcular a eficiência.
+  const geralCanvas=document.getElementById('chEfGeral');
+  const geralCard=geralCanvas?.parentElement?.parentElement;
+  if(geralCard){
+    geralCard.querySelectorAll('.aviso-horario-eficiencia-geral').forEach(el=>el.remove());
+    if(avisosMaq.length){
+      const avisoGeral=document.createElement('div');
+      avisoGeral.className='aviso-horario-eficiencia-geral';
+      avisoGeral.style.cssText='margin:0 0 10px;padding:10px 12px;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;font-size:.78rem;line-height:1.45';
+      avisoGeral.innerHTML='<b>⚠️ Horário de produção não configurado</b><br>'+avisosMaq.map(x=>escaparHtml(x)).join('<br>')+'<br><small>Cadastre o setor e os horários de entrada e saída dos turnos para calcular a eficiência.</small>';
+      geralCard.insertBefore(avisoGeral,geralCanvas.parentElement);
+    }
+  }
   efChart('chEfMaq',efM,avisosMaq);
   efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})),setoresSemHorario);
   const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]),ct=cs.reduce((x,y)=>x+y[1],0)||1;let ac=0;
