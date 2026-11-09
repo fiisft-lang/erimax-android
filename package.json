@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav && cp ota-update.js www/ota-update.js && cp manifest.json www/manifest.json && cp erimax-pwa.svg www/erimax-pwa.svg && node -e \"require('fs').writeFileSync('www/ota-build.json', JSON.stringify({bundleId:process.env.ERIMAX_BUILD_ID || 'development'}))\"",
+    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav && cp ota-update.js www/ota-update.js && cp manifest.json www/manifest.json && cp erimax-pwa.svg www/erimax-pwa.svg && node -e \"require('fs').writeFileSync('www/ota-build.json', JSON.stringify({bundleId:process.env.ERIMAX_BUILD_ID || 'development'}))\" && npx esbuild export-bridge.js --bundle --format=iife --target=es2020 --outfile=www/export-bridge.js",
     "cap:add": "cap add android",
     "cap:sync": "cap sync android"
   },
@@ -12,9 +12,11 @@
     "@capacitor/core": "^7.4.3",
     "@capacitor/push-notifications": "^7.0.7",
     "@capacitor/app": "^7.0.1",
-    "@capawesome/capacitor-live-update": "v7-lts"
+    "@capawesome/capacitor-live-update": "v7-lts",
+    "@capgo/capacitor-printer": "7.0.14"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.4.3"
+    "@capacitor/cli": "^7.4.3",
+    "esbuild": "^0.25.0"
   }
 }
