@@ -1225,7 +1225,7 @@ function dataHoraRelatorio(v){
   const d=new Date(v);
   return Number.isNaN(d.getTime())?'':d.toLocaleString('pt-BR');
 }
-async function prepararPDF(){
+async async function prepararPDF(){
   const f=obterFiltrosRelatorio();
   const filtros=[
     'Dia: '+(f.dia||'Todos'),'Mês: '+(f.mes||'Todos'),'Turno: '+f.turno,
@@ -1256,7 +1256,7 @@ async function prepararPDF(){
   }
   window.print();
 }
-function exportarExcel(){
+async function exportarExcel(){
   if(typeof XLSX==='undefined'){alert('A biblioteca de Excel não carregou. Verifique a internet e tente novamente.');return}
   const f=obterFiltrosRelatorio(),os=FILTRADAS||[];
   const d=dataHoraRelatorio,m=(a,b)=>a&&b?Math.round((new Date(b)-new Date(a))/60000):'';
