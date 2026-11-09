@@ -49,6 +49,16 @@ jobs:
           mkdir -p android/app/src/main/java/com/webapp/erimaxmanuteno
           cp android-native/IncomingCallMessagingService.java android/app/src/main/java/com/webapp/erimaxmanuteno/
           cp android-native/IncomingCallActivity.java android/app/src/main/java/com/webapp/erimaxmanuteno/
+          cp android-native/EriMaxExportPlugin.java android/app/src/main/java/com/webapp/erimaxmanuteno/
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/app/src/main/java/com/webapp/erimaxmanuteno/MainActivity.java")
+          source = p.read_text()
+          if "registerPlugin(EriMaxExportPlugin.class)" not in source:
+              source = source.replace("import com.getcapacitor.BridgeActivity;", "import com.getcapacitor.BridgeActivity;\\nimport android.os.Bundle;\\nimport com.webapp.erimaxmanuteno.EriMaxExportPlugin;")
+              source = source.replace("public class MainActivity extends BridgeActivity {", "public class MainActivity extends BridgeActivity {\\n    @Override\\n    public void onCreate(Bundle savedInstanceState) {\\n        registerPlugin(EriMaxExportPlugin.class);\\n        super.onCreate(savedInstanceState);\\n    }")
+              p.write_text(source)
+          PY
           mkdir -p android/app/src/main/res/raw
           cp alarme.wav android/app/src/main/res/raw/alarme.wav
           python3 - <<'PY'
