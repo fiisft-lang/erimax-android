@@ -279,7 +279,7 @@ const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
 let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};let SETOR_EM_EDICAO=null;const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
-const SETORES_PADRAO=['Costura','Corte atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
+const SETORES_PADRAO=['Costura','Corte de atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 let SETORES=[...SETORES_PADRAO];
 
 let chamados=[],vibrationInterval=null;
@@ -297,7 +297,7 @@ function popularSetores(){
 popularSetores();
 
 // OS antigas gravadas como "Gaze" passam a aparecer como "Gaze algodonada"
-const normSetor=s=>{const v=String(s||'').trim().replace(/\s+/g,' '),k=v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(['corte de ataduras','corte de atadura','corte ataduras'].includes(k))return 'Corte atadura';return v==='Gaze'?'Gaze algodonada':v};
+const normSetor=s=>{const v=String(s||'').trim().replace(/\s+/g,' '),k=v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(['corte de ataduras','corte de atadura','corte ataduras'].includes(k))return 'Corte de atadura';return v==='Gaze'?'Gaze algodonada':v};
 
 function ativarAudioManual(){
   const a=document.getElementById('audioSirene'),b=document.getElementById('barraAtivacaoAudio');
