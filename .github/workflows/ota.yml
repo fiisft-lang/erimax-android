@@ -1,0 +1,76 @@
+name: Publicar atualização OTA do EriMax
+
+on:
+  push:
+    branches:
+      - main
+      - ota-atualizacao-android-staging-20261109
+    paths-ignore:
+      - "ota/**"
+
+permissions:
+  contents: write
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Gerar pacote web do aplicativo
+        run: |
+          npm install
+          npm run build
+          test -s www/index.html
+          test -s www/ota-update.js
+
+      - name: Montar pacote e manifesto
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ota
+          BUNDLE_ID="$(git rev-parse HEAD)"
+          zip -j -q ota/latest.zip www/*
+          CHECKSUM="$(sha256sum ota/latest.zip | awk '{print $1}')"
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            ORIGIN="https://erimax.pages.dev"
+            CHANNEL="production"
+          else
+            ORIGIN="https://ota-atualizacao-android-staging-20261109.erimax.pages.dev"
+            CHANNEL="staging"
+          fi
+          cat > ota/manifest.json <<EOF
+          {
+            "bundleId": "${BUNDLE_ID}",
+            "channel": "${CHANNEL}",
+            "url": "${ORIGIN}/ota/latest.zip",
+            "checksum": "${CHECKSUM}",
+            "minimumNativeVersionCode": 1,
+            "message": "Há melhorias e correções disponíveis no EriMax."
+          }
+          EOF
+          unzip -t ota/latest.zip
+          cat ota/manifest.json
+
+      - name: Publicar pacote no Pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ota/latest.zip ota/manifest.json
+          if git diff --cached --quiet; then
+            echo "O pacote OTA já está atualizado."
+            exit 0
+          fi
+          git commit -m "chore(ota): atualizar pacote de atualização"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
