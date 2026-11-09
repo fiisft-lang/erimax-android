@@ -1,16 +1,16 @@
-import { FileSharer } from '@capgo/capacitor-file-sharer';
+import { registerPlugin } from '@capacitor/core';
 import { Printer } from '@capgo/capacitor-printer';
 
+const EriMaxExport = registerPlugin('EriMaxExport');
 const isNative = () => Boolean(window.Capacitor?.isNativePlatform?.());
 
 window.erimaxNativeExports = {
   async saveExcel({ filename, base64 }) {
     if (!isNative()) throw new Error('A exportação nativa só está disponível no aplicativo Android.');
-    return FileSharer.save({
+    return EriMaxExport.saveFile({
       filename,
-      contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      base64Data: base64,
-      android: { saveDirectory: 'downloads', relativePath: 'Download/EriMax' },
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      base64,
     });
   },
   async printHtml({ html, name }) {
