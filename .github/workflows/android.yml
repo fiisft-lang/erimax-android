@@ -41,7 +41,7 @@ jobs:
         run: |
           npm run build
           if [ "$GITHUB_REF_NAME" = "ota-atualizacao-android-staging-20261109" ]; then
-            node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.plugins.LiveUpdate.defaultChannel='staging';fs.writeFileSync(p,JSON.stringify(c,null,2)+'\\n');"
+            node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.plugins.LiveUpdate.defaultChannel='staging';fs.writeFileSync(p,JSON.stringify(c,null,2)+'\n');"
           fi
           npx cap add android
           mkdir -p android/app
@@ -55,8 +55,8 @@ jobs:
           p = Path("android/app/src/main/java/com/webapp/erimaxmanuteno/MainActivity.java")
           source = p.read_text()
           if "registerPlugin(EriMaxExportPlugin.class)" not in source:
-              source = source.replace("import com.getcapacitor.BridgeActivity;", "import com.getcapacitor.BridgeActivity;\\nimport android.os.Bundle;\\nimport com.webapp.erimaxmanuteno.EriMaxExportPlugin;")
-              source = source.replace("public class MainActivity extends BridgeActivity {", "public class MainActivity extends BridgeActivity {\\n    @Override\\n    public void onCreate(Bundle savedInstanceState) {\\n        registerPlugin(EriMaxExportPlugin.class);\\n        super.onCreate(savedInstanceState);\\n    }")
+              source = source.replace("import com.getcapacitor.BridgeActivity;", "import com.getcapacitor.BridgeActivity;\nimport android.os.Bundle;\nimport com.webapp.erimaxmanuteno.EriMaxExportPlugin;")
+              source = source.replace("public class MainActivity extends BridgeActivity {", "public class MainActivity extends BridgeActivity {\n    @Override\n    public void onCreate(Bundle savedInstanceState) {\n        registerPlugin(EriMaxExportPlugin.class);\n        super.onCreate(savedInstanceState);\n    }")
               p.write_text(source)
           PY
           mkdir -p android/app/src/main/res/raw
