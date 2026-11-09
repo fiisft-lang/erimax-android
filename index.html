@@ -1038,35 +1038,45 @@ async function ativarWebPush(){
     alert('No iPhone, primeiro toque em Compartilhar no Safari e escolha “Adicionar à Tela de Início”. Depois abra o EriMax pelo ícone instalado e ative as notificações.');
     return;
   }
+  let etapa='verificação da permissão';
   try{
     const permission=await Notification.requestPermission();
     if(permission!=='granted'){alert('Permissão de notificações não concedida. Ative-a nas configurações do navegador.');return}
+    etapa='busca da chave pública';
     const {data:keyData,error:keyError}=await _supabase.functions.invoke('webpush',{body:{action:'public_key'}});
     if(keyError||!keyData?.public_key)throw new Error(keyData?.erro||keyError?.message||'Chave pública indisponível.');
+    etapa='registro do Service Worker';
     await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
-    // Aguarda o Service Worker estar ativo antes de pedir a inscrição Push.
-    // Sem isso, alguns navegadores retornam "Registration failed - push service error".
+    etapa='inicialização do Service Worker';
     const reg=await navigator.serviceWorker.ready;
     if(!reg.active)throw new Error('O serviço de notificações ainda está iniciando. Feche e abra o EriMax e tente novamente.');
+    etapa='leitura da inscrição existente';
     const vapidKey=base64UrlToUint8Array(keyData.public_key);
     let sub=await reg.pushManager.getSubscription();
     if(sub){
       const atual=sub.options&&sub.options.applicationServerKey;
       const mesmaChave=atual&&atual.byteLength===vapidKey.byteLength&&vapidKey.every((v,i)=>v===new Uint8Array(atual)[i]);
       if(!mesmaChave){
+        etapa='atualização da inscrição antiga';
         await _supabase.functions.invoke('webpush',{body:{action:'unsubscribe',endpoint:sub.endpoint}});
         await sub.unsubscribe();
         sub=null;
       }
     }
-    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:vapidKey});
+    if(!sub){
+      etapa='conexão do Chrome com o serviço de notificações do Google';
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:vapidKey});
+    }
+    etapa='salvamento da inscrição no EriMax';
     const {data,error}=await _supabase.functions.invoke('webpush',{body:{action:'subscribe',subscription:sub.toJSON()}});
     if(error||data?.erro)throw new Error(data?.erro||error?.message||'Não foi possível salvar a inscrição.');
     if(btn){btn.textContent='🔔 Notificações ativadas';btn.disabled=true;btn.style.opacity='.7'}
     alert('Notificações ativadas neste dispositivo!');
   }catch(e){
-    console.error('Erro ao ativar Web Push:',e);
-    alert('Não foi possível ativar as notificações: '+(e.message||e));
+    console.error('Erro ao ativar Web Push na etapa '+etapa+':',e);
+    const detalhe=(e&&e.message)||String(e);
+    const tipo=(e&&e.name)?' ('+e.name+')':'';
+    alert('Falha na etapa: '+etapa+'.\nErro: '+detalhe+tipo+'\n\nNenhuma configuração do APK foi alterada.');
   }
 }
 async function removerWebPush(){
