@@ -185,28 +185,28 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de O.S. concluídas por técnico</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Classificação dos técnicos pela quantidade de O.S. que concluíram no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn-submit" onclick="exportarCSV()">📥 Excel (CSV)</button><button class="btn-submit" style="background:var(--secondary)" onclick="window.print()">🖨️ PDF</button></div>
 <div class="metrics-grid">
-<div class="metric-card"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
-<div class="metric-card"><div class="title">Tempo total parado</div><div class="value" id="cParada" style="color:#ff6b00">0 min</div><div class="sub">Só em horário de produção</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioDisp"><div class="title">Disponibilidade</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioParada"><div class="title">Tempo total parado</div><div class="value" id="cParada" style="color:#ff6b00">0 min</div><div class="sub">Só em horário de produção</div></div>
 <div class="metric-card"><div class="title">Tempo de resposta</div><div class="value" id="cResp">0 min</div><div class="sub">Abertura → aceite (média)</div></div>
 <div class="metric-card"><div class="title">MTTR</div><div class="value" id="cMTTR" style="color:#28a745">0 min</div><div class="sub">Aceite → conclusão (média)</div></div>
-<div class="metric-card"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioMTBF"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
 <div class="metric-card"><div class="title">Total de OS</div><div class="value" id="cTotal">0</div><div class="sub" id="cTotalSub">0 abertas</div></div>
 <div class="metric-card"><div class="title">Taxa de conclusão</div><div class="value" id="cTaxa" style="color:#28a745">0%</div><div class="sub">Concluídas ÷ total</div></div>
 <div class="metric-card"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesma máquina + mesmo tipo</div></div>
 </div>
 
 <div class="card" style="border:1px solid #2563eb;background:#eff6ff;padding:12px 14px;margin-bottom:12px"><p style="margin:0;color:#1e40af;font-size:.84rem;line-height:1.5;text-align:center"><b>👆 DICA: os gráficos são interativos!</b><br>Toque em uma barra, fatia colorida ou ponto do gráfico para abrir as O.S. e os detalhes relacionados ao item selecionado. Os resultados respeitam o período e os filtros aplicados.</p></div>
-<div class="card"><h4>Eficiência geral da produção</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Parte verde: tempo rodando • parte vermelha: tempo parado. Clique na parte vermelha para ver as OS.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfGeral"><h4>Eficiência geral da produção</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Parte verde: tempo rodando • parte vermelha: tempo parado. Clique na parte vermelha para ver as OS.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div></div>
 
-<div class="card"><h4>Máquinas críticas (ranking)</h4>
+<div class="card metricas-com-horario" id="cardHorarioRanking"><h4>Máquinas críticas (ranking)</h4>
 <div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></div>
 
-<div class="card"><h4>Eficiência real por setor<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
-<div class="card"><h4>Eficiência real por máquina<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Eficiência real por setor<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfMaq"><h4>Eficiência real por máquina<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
 <div class="card"><h4>Causas das falhas (Pareto)</h4><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
 <div class="card"><h4>Tendência diária: abertas × concluídas</h4><div class="chart-wrapper"><canvas id="chTendencia"></canvas></div></div>
-<div class="card"><h4>Parada por setor (Pareto)</h4><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
-<div class="card"><h4>Tempo de parada por máquina (min)</h4><div class="chart-wrapper" style="height:300px"><canvas id="chDowntime"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Parada por setor (Pareto)</h4><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioDowntime"><h4>Tempo de parada por máquina (min)</h4><div class="chart-wrapper" style="height:300px"><canvas id="chDowntime"></canvas></div></div>
 <div class="card"><h4>Tipo de problema (% das OS)</h4><div class="chart-wrapper"><canvas id="chTipos"></canvas></div></div>
 <div class="card"><h4>Resposta e reparo por técnico (min)</h4><div class="chart-wrapper"><canvas id="chTecnico"></canvas></div></div>
 <div class="card"><h4>Chamados por turno</h4><div class="chart-wrapper"><canvas id="chTurno"></canvas></div></div>
@@ -688,19 +688,36 @@ function horariosDoDia(s,d){
   return turnosDoSetor(s).filter(t=>(t.dias||'').includes(String(d.getDay()))).map(t=>({...t}));
 }
 
-// Exige horário real de entrada e saída cadastrado para liberar métricas de um turno específico.
-function turnoTemHorarioConfirmado(s,n,dia){
-  const valido=t=>!!(t&&String(t.hora_inicio||'').match(/^([01]\\d|2[0-3]):[0-5]\\d$/)&&String(t.hora_fim||'').match(/^([01]\\d|2[0-3]):[0-5]\\d$/)&&t.hora_inicio!==t.hora_fim);
+// Confirma que o escopo filtrado possui grade real de horários para calcular métricas de produção.
+function setorTemHorarioConfirmado(s,n,dia){
+  const valido=t=>!!(t&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(t.hora_inicio||''))&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(t.hora_fim||''))&&t.hora_inicio!==t.hora_fim);
+  const semana=HORARIOS_SEMANAIS[s];
   if(dia){
     const chave=s+'|'+dia;
-    if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))
-      return (EXCECOES_HORARIO[chave].horarios||[]).some(t=>+t.numero_turno===n&&valido(t));
-    const data=new Date(dia+'T12:00:00');
-    if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].some(t=>t.ativo&&+t.numero_turno===n&&+t.dia_semana===data.getDay()&&valido(t));
-    return (TURNOS_CFG[s]||[]).some(t=>t.ativo!==false&&+t.numero_turno===n&&String(t.dias||'').includes(String(data.getDay()))&&valido(t));
+    // Uma exceção cadastrada, inclusive dia sem produção, é uma definição explícita para a data.
+    if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))return true;
+    const dow=new Date(dia+'T12:00:00').getDay();
+    if(semana){
+      const turnos=n?[n]:[...new Set(semana.map(t=>+t.numero_turno))];
+      return turnos.length>0&&turnos.every(num=>{
+        const row=semana.find(t=>+t.numero_turno===num&&+t.dia_semana===dow);
+        return !!row&&(!row.ativo||valido(row));
+      });
+    }
+    const legados=(TURNOS_CFG[s]||[]);
+    if(!legados.length)return false;
+    const turnos=n?[n]:[...new Set(legados.map(t=>+t.numero_turno))];
+    return turnos.length>0&&turnos.every(num=>{
+      const row=legados.find(t=>+t.numero_turno===num);
+      return !!row&&(row.ativo===false||!String(row.dias||'').includes(String(dow))||valido(row));
+    });
   }
-  if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].some(t=>t.ativo&&+t.numero_turno===n&&valido(t));
-  return (TURNOS_CFG[s]||[]).some(t=>t.ativo!==false&&+t.numero_turno===n&&valido(t));
+  if(semana){
+    const ativos=semana.filter(t=>t.ativo&&valido(t));
+    return n?ativos.some(t=>+t.numero_turno===n):ativos.length>0;
+  }
+  const legados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&valido(t));
+  return n?legados.some(t=>+t.numero_turno===n):legados.length>0;
 }
 
 function paradaProd(c,tn){
@@ -760,16 +777,20 @@ function mostrarOSDetalhe(titulo,lista){
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 function atualizarMetricasReais(){
   const dia=filtroDia.value,mes=filtroMes.value,tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
-  const avisoHorario=document.getElementById('metricsHorarioAviso'),conteudoMetricas=document.getElementById('metricsDataContent');
-  const turnoSemHorario=tn!=='Todos'&&st!=='Todos'&&!turnoTemHorarioConfirmado(st,+tn.slice(-1),dia||null);
-  if(turnoSemHorario){
-    avisoHorario.style.display='block';conteudoMetricas.style.display='none';
-    document.getElementById('metricsHorarioAvisoTexto').textContent='O '+tn+' do setor '+st+' não tem entrada e saída cadastradas'+(dia?' para '+dia:'')+'. Cadastre e salve o horário do turno para liberar os gráficos. Nenhum dado estimado será exibido.';
-    FILTRADAS=[];OS_PARADA_ATUAL=[];
-    Object.keys(charts).forEach(id=>{charts[id].destroy();delete charts[id]});
-    return;
+  const avisoHorario=document.getElementById('metricsHorarioAviso');
+  const turnoNum=tn==='Todos'?null:+tn.slice(-1);
+  let setoresEscopo;
+  if(st!=='Todos')setoresEscopo=[st];
+  else if(mq!=='Todas')setoresEscopo=[...new Set(MAQUINAS.filter(m=>m&&m.nome===mq).map(m=>m.setor).filter(Boolean))];
+  else setoresEscopo=[...new Set(MAQUINAS.map(m=>m&&m.setor).filter(Boolean))];
+  if(!setoresEscopo.length&&st==='Todos')setoresEscopo=SETORES.slice();
+  const setoresSemHorarioFiltro=setoresEscopo.filter(s=>!setorTemHorarioConfirmado(s,turnoNum,dia||null));
+  const horarioOKFiltro=setoresEscopo.length>0&&setoresSemHorarioFiltro.length===0;
+  document.querySelectorAll('.metricas-com-horario').forEach(el=>el.style.display=horarioOKFiltro?'':'none');
+  avisoHorario.style.display=horarioOKFiltro?'none':'block';
+  if(!horarioOKFiltro){
+    document.getElementById('metricsHorarioAvisoTexto').textContent='Não há horários de entrada e saída confirmados para '+(setoresSemHorarioFiltro.length?setoresSemHorarioFiltro.join(', '):'o setor ou a máquina selecionada')+' no escopo dos filtros'+(tn!=='Todos'?' ('+tn+')':' (todos os turnos)')+'. Os indicadores e gráficos que dependem do horário de produção ficarão ocultos. Os demais gráficos continuam disponíveis normalmente. Cadastre e salve a grade de horários para liberar esses cálculos.';
   }
-  avisoHorario.style.display='none';conteudoMetricas.style.display='';
   const agora=new Date().toISOString();
   const f=chamados.filter(c=>{
     const d=c.created_at?diaLocal(c.created_at):'';
@@ -844,11 +865,11 @@ function atualizarMetricasReais(){
   mk('chEfGeral',{type:'doughnut',data:{labels:['Rodando','Parada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label(ctx){return ctx.label+': '+fmt(ctx.raw)}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('eficiência',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
 
   // cards
-  cDisp.innerText=disp===null?'—':disp+'%';cDispSub.innerText=base>0?'Previsto '+fmt(base)+' • rodou '+fmt(Math.max(0,base-parada)):'Horário de produção não configurado para o período';cDisp.style.color=disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
-  cParada.innerText=fmt(parada);
+  cDisp.innerText=horarioOKFiltro?(disp===null?'—':disp+'%'):'—';cDispSub.innerText=horarioOKFiltro?(base>0?'Previsto '+fmt(base)+' • rodou '+fmt(Math.max(0,base-parada)):'Sem horas produtivas no período'):'Aguardando horários confirmados';cDisp.style.color=!horarioOKFiltro||disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
+  cParada.innerText=horarioOKFiltro?fmt(parada):'—';
   cResp.innerText=fmt(media(sResp,nResp));
   cMTTR.innerText=fmt(media(sRep,nRep));
-  cMTBF.innerText=f.length&&base>0?fmt(mtbf):'-';
+  cMTBF.innerText=horarioOKFiltro&&f.length&&base>0?fmt(mtbf):'-';
   cTotal.innerText=f.length;cTotalSub.innerText=abertas+' em aberto';
   cTaxa.innerText=(f.length?Math.round(concl/f.length*100):0)+'%';
   cReinc.innerText=(f.length?Math.round(reincOS/f.length*100):0)+'%';
