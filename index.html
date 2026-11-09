@@ -1225,7 +1225,7 @@ function dataHoraRelatorio(v){
   const d=new Date(v);
   return Number.isNaN(d.getTime())?'':d.toLocaleString('pt-BR');
 }
-function prepararPDF(){
+async function prepararPDF(){
   const f=obterFiltrosRelatorio();
   const filtros=[
     'Dia: '+(f.dia||'Todos'),'Mês: '+(f.mes||'Todos'),'Turno: '+f.turno,
@@ -1240,9 +1240,23 @@ function prepararPDF(){
     '<p><b>Filtros:</b> '+escaparHtml(filtros)+'</p>'+
     '<p><b>Ordens consideradas:</b> '+total+' • <b>Concluídas:</b> '+concluidas+' • <b>Abertas:</b> '+abertas+'</p>'+
     '<p><small>Relatório de métricas; O.S. preventivas não entram nos indicadores desta tela.</small></p>';
+  if(window.erimaxNativeExports?.printHtml){
+    try{
+      const css=Array.from(document.querySelectorAll('style')).map(style=>style.textContent).join(' ');
+      const metricas=document.getElementById('tab-metricas');
+      const conteudo=metricas.cloneNode(true);
+      const cabecalhoDuplicado=conteudo.querySelector('#printReportHeader');
+      if(cabecalhoDuplicado)cabecalhoDuplicado.remove();
+      const originais=metricas.querySelectorAll('canvas'),copias=conteudo.querySelectorAll('canvas');
+      Array.from(originais).forEach((canvas,i)=>{if(copias[i]){const img=document.createElement('img');img.src=canvas.toDataURL('image/png');img.style.maxWidth='100%';copias[i].replaceWith(img);}});
+      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+conteudo.innerHTML+'</main></body></html>';
+      await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
+    }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
+    return;
+  }
   window.print();
 }
-function exportarExcel(){
+async function exportarExcel(){
   if(typeof XLSX==='undefined'){alert('A biblioteca de Excel não carregou. Verifique a internet e tente novamente.');return}
   const f=obterFiltrosRelatorio(),os=FILTRADAS||[];
   const d=dataHoraRelatorio,m=(a,b)=>a&&b?Math.round((new Date(b)-new Date(a))/60000):'';
@@ -1280,6 +1294,14 @@ function exportarExcel(){
   wsOS['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
   XLSX.utils.book_append_sheet(wb,wsOS,'Ordens de serviço');
   const nome='EriMax_Relatorio_'+new Date().toISOString().slice(0,10)+'.xlsx';
+  if(window.erimaxNativeExports?.saveExcel){
+    try{
+      const base64=XLSX.write(wb,{bookType:'xlsx',type:'base64',compression:true});
+      await window.erimaxNativeExports.saveExcel({filename:nome,base64});
+      alert('Excel salvo na pasta Downloads/EriMax do celular.');
+    }catch(error){console.error('Erro ao salvar Excel:',error);alert('Não foi possível salvar o Excel no celular: '+(error?.message||error));}
+    return;
+  }
   XLSX.writeFile(wb,nome,{compression:true});
 }
 
@@ -1578,5 +1600,6 @@ window.onload=async function(){
   if(window.erimaxOTA)setTimeout(()=>window.erimaxOTA.checkForUpdate(),1800);
 };
 </script>
+<script src="export-bridge.js"></script>
 </body>
 </html>
