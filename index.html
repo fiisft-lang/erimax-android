@@ -1043,16 +1043,23 @@ async function ativarWebPush(){
     if(permission!=='granted'){alert('Permissão de notificações não concedida. Ative-a nas configurações do navegador.');return}
     const {data:keyData,error:keyError}=await _supabase.functions.invoke('webpush',{body:{action:'public_key'}});
     if(keyError||!keyData?.public_key)throw new Error(keyData?.erro||keyError?.message||'Chave pública indisponível.');
-    const reg=await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
-    // A chave VAPID pode ter sido renovada no servidor. Recria a inscrição
-    // para garantir que ela use a chave pública atualmente publicada.
+    await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
+    // Aguarda o Service Worker estar ativo antes de pedir a inscrição Push.
+    // Sem isso, alguns navegadores retornam "Registration failed - push service error".
+    const reg=await navigator.serviceWorker.ready;
+    if(!reg.active)throw new Error('O serviço de notificações ainda está iniciando. Feche e abra o EriMax e tente novamente.');
+    const vapidKey=base64UrlToUint8Array(keyData.public_key);
     let sub=await reg.pushManager.getSubscription();
     if(sub){
-      await _supabase.functions.invoke('webpush',{body:{action:'unsubscribe',endpoint:sub.endpoint}});
-      await sub.unsubscribe();
-      sub=null;
+      const atual=sub.options&&sub.options.applicationServerKey;
+      const mesmaChave=atual&&atual.byteLength===vapidKey.byteLength&&vapidKey.every((v,i)=>v===new Uint8Array(atual)[i]);
+      if(!mesmaChave){
+        await _supabase.functions.invoke('webpush',{body:{action:'unsubscribe',endpoint:sub.endpoint}});
+        await sub.unsubscribe();
+        sub=null;
+      }
     }
-    sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64UrlToUint8Array(keyData.public_key)});
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:vapidKey});
     const {data,error}=await _supabase.functions.invoke('webpush',{body:{action:'subscribe',subscription:sub.toJSON()}});
     if(error||data?.erro)throw new Error(data?.erro||error?.message||'Não foi possível salvar a inscrição.');
     if(btn){btn.textContent='🔔 Notificações ativadas';btn.disabled=true;btn.style.opacity='.7'}
