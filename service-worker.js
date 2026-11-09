@@ -11,6 +11,7 @@ self.addEventListener('push', event => {
     tag: payload.tag || ('erimax-os-' + (payload.os_id || Date.now())),
     renotify: true,
     requireInteraction: true,
+    silent: false,
     vibrate: [500, 250, 500, 250, 500],
     actions: [
       { action: 'silenciar', title: 'Silenciar' },
