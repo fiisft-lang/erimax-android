@@ -695,7 +695,7 @@ function horariosDoDia(s,d){
 
 // Confirma que o escopo filtrado possui grade real de horários para calcular métricas de produção.
 function setorTemHorarioConfirmado(s,n,dia){
-  const valido=t=>!!(t&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(t.hora_inicio||''))&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(t.hora_fim||''))&&t.hora_inicio!==t.hora_fim);
+  const valido=t=>{const ini=String(t&&t.hora_inicio||'').slice(0,5),fim=String(t&&t.hora_fim||'').slice(0,5),regex=/^([01]\\d|2[0-3]):[0-5]\\d$/;return !!(t&&regex.test(ini)&&regex.test(fim)&&ini!==fim)};
   const semana=HORARIOS_SEMANAIS[s]||[];
   const temGradeSemanal=semana.some(t=>t.ativo&&valido(t));
   if(dia){
