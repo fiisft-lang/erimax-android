@@ -276,6 +276,13 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
+          # Aumenta o tempo limite para evitar falha ao baixar a distribuição do Gradle.
+          if grep -q '^networkTimeout=' gradle/wrapper/gradle-wrapper.properties; then
+            sed -i 's/^networkTimeout=.*/networkTimeout=120000/' gradle/wrapper/gradle-wrapper.properties
+          else
+            printf '\nnetworkTimeout=120000\n' >> gradle/wrapper/gradle-wrapper.properties
+          fi
+          cat gradle/wrapper/gradle-wrapper.properties
           ./gradlew assembleDebug --stacktrace
 
       - name: Verificar APK
