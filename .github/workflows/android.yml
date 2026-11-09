@@ -101,6 +101,38 @@ jobs:
           ET.ElementTree(root).write(p, encoding="utf-8", xml_declaration=True)
           PY
           npx cap sync android
+          # Registrar o plugin customizado DEPOIS do cap sync, garantindo que a MainActivity final do APK o carregue.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("android/app/src/main/java/com/webapp/erimaxmanuteno/MainActivity.java")
+          if not p.exists():
+              raise SystemExit("MainActivity.java não foi gerada pelo Capacitor")
+          source = p.read_text()
+          if "import com.webapp.erimaxmanuteno.EriMaxExportPlugin;" not in source:
+              source = source.replace(
+                  "import com.getcapacitor.BridgeActivity;",
+                  "import com.getcapacitor.BridgeActivity;\\nimport android.os.Bundle;\\nimport com.webapp.erimaxmanuteno.EriMaxExportPlugin;"
+              )
+          if "registerPlugin(EriMaxExportPlugin.class)" not in source:
+              pattern = r"(public\\s+class\\s+MainActivity\\s+extends\\s+BridgeActivity\\s*\\{)"
+              method = """\\1
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  registerPlugin(EriMaxExportPlugin.class);
+                  super.onCreate(savedInstanceState);
+              }
+              """
+              source, count = re.subn(pattern, method, source, count=1)
+              if count != 1:
+                  raise SystemExit("Não foi possível registrar EriMaxExportPlugin na MainActivity")
+          if "registerPlugin(EriMaxExportPlugin.class)" not in source:
+              raise SystemExit("Registro do EriMaxExportPlugin ausente")
+          p.write_text(source)
+          print("Registro nativo confirmado em MainActivity.java")
+          PY
+          grep -n "EriMaxExportPlugin\\|registerPlugin" android/app/src/main/java/com/webapp/erimaxmanuteno/MainActivity.java
           python3 - <<'PY'
           from pathlib import Path
           import re
