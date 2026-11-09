@@ -1023,7 +1023,7 @@ async function configurarWebPush(){
     const reg=await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
     const sub=await reg.pushManager.getSubscription();
     btn.style.display='';
-    if(sub){btn.textContent='🔔 Notificações ativadas';btn.disabled=true;btn.style.opacity='.7'}
+    if(sub){btn.textContent='🔄 Atualizar notificações';btn.disabled=false;btn.style.opacity='1'}
   }catch(e){console.error('Não foi possível preparar notificações web:',e)}
 }
 async function ativarWebPush(){
@@ -1044,8 +1044,15 @@ async function ativarWebPush(){
     const {data:keyData,error:keyError}=await _supabase.functions.invoke('webpush',{body:{action:'public_key'}});
     if(keyError||!keyData?.public_key)throw new Error(keyData?.erro||keyError?.message||'Chave pública indisponível.');
     const reg=await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
+    // A chave VAPID pode ter sido renovada no servidor. Recria a inscrição
+    // para garantir que ela use a chave pública atualmente publicada.
     let sub=await reg.pushManager.getSubscription();
-    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64UrlToUint8Array(keyData.public_key)});
+    if(sub){
+      await _supabase.functions.invoke('webpush',{body:{action:'unsubscribe',endpoint:sub.endpoint}});
+      await sub.unsubscribe();
+      sub=null;
+    }
+    sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64UrlToUint8Array(keyData.public_key)});
     const {data,error}=await _supabase.functions.invoke('webpush',{body:{action:'subscribe',subscription:sub.toJSON()}});
     if(error||data?.erro)throw new Error(data?.erro||error?.message||'Não foi possível salvar a inscrição.');
     if(btn){btn.textContent='🔔 Notificações ativadas';btn.disabled=true;btn.style.opacity='.7'}
