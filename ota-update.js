@@ -60,4 +60,6 @@
   }
 
   window.erimaxOTA = {ready,checkForUpdate};
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',()=>{ready();},{once:true});
+  else ready();
 })();
