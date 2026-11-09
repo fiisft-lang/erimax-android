@@ -1242,9 +1242,14 @@ async function prepararPDF(){
     '<p><small>Relatório de métricas; O.S. preventivas não entram nos indicadores desta tela.</small></p>';
   if(window.erimaxNativeExports?.printHtml){
     try{
-      const css=Array.from(document.querySelectorAll('style')).map(style=>style.textContent).join('\\n');
+      const css=Array.from(document.querySelectorAll('style')).map(style=>style.textContent).join(' ');
       const metricas=document.getElementById('tab-metricas');
-      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'\\n@page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+metricas.innerHTML+'</main><script src="export-bridge.js"></script>\n</body></html>';
+      const conteudo=metricas.cloneNode(true);
+      const cabecalhoDuplicado=conteudo.querySelector('#printReportHeader');
+      if(cabecalhoDuplicado)cabecalhoDuplicado.remove();
+      const originais=metricas.querySelectorAll('canvas'),copias=conteudo.querySelectorAll('canvas');
+      Array.from(originais).forEach((canvas,i)=>{if(copias[i]){const img=document.createElement('img');img.src=canvas.toDataURL('image/png');img.style.maxWidth='100%';copias[i].replaceWith(img);}});
+      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+conteudo.innerHTML+'</main></body></html>';
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
     return;
@@ -1595,5 +1600,6 @@ window.onload=async function(){
   if(window.erimaxOTA)setTimeout(()=>window.erimaxOTA.checkForUpdate(),1800);
 };
 </script>
+<script src="export-bridge.js"></script>
 </body>
 </html>
