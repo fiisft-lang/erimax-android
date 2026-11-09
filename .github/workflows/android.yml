@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - finalizar-exportacao-android-20261109
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
       - ota-atualizacao-android-staging-20261109
