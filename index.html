@@ -1294,7 +1294,7 @@ async function exportarExcel(){
   wsOS['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
   XLSX.utils.book_append_sheet(wb,wsOS,'Ordens de serviço');
   const nome='EriMax_Relatorio_'+new Date().toISOString().slice(0,10)+'.xlsx';
-  if(window.erimaxNativeExports?.saveExcel){
+  if(window.erimaxNativeExports?.saveExcel && window.Capacitor?.isNativePlatform?.()){
     try{
       const base64=XLSX.write(wb,{bookType:'xlsx',type:'base64',compression:true});
       await window.erimaxNativeExports.saveExcel({filename:nome,base64});
