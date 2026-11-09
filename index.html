@@ -297,7 +297,7 @@ function popularSetores(){
 popularSetores();
 
 // OS antigas gravadas como "Gaze" passam a aparecer como "Gaze algodonada"
-const normSetor=s=>{const v=String(s||'').trim().replace(/\\s+/g,' '),k=v.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();if(['corte de ataduras','corte de atadura','corte ataduras'].includes(k))return 'Corte atadura';return v==='Gaze'?'Gaze algodonada':v};
+const normSetor=s=>{const v=String(s||'').trim().replace(/\s+/g,' '),k=v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(['corte de ataduras','corte de atadura','corte ataduras'].includes(k))return 'Corte atadura';return v==='Gaze'?'Gaze algodonada':v};
 
 function ativarAudioManual(){
   const a=document.getElementById('audioSirene'),b=document.getElementById('barraAtivacaoAudio');
