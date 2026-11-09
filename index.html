@@ -249,7 +249,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
-<div id="modalEfOS" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box" style="max-width:760px;max-height:90vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2>OS que geraram parada</h2><button class="btn-action btn-transferir" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" style="font-size:.8rem;color:#64748b;margin:8px 0 12px"></p><div id="listaEfOS"></div></div></div>
+<div id="modalEfOS" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box" style="max-width:760px;max-height:90vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 id="modalEfOSTitulo">Ordens de serviço relacionadas</h2><button class="btn-action btn-transferir" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" style="font-size:.8rem;color:#64748b;margin:8px 0 12px"></p><div id="listaEfOS"></div></div></div>
 
 <div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
@@ -699,6 +699,7 @@ function paradaProd(c,tn){
   return total;
 }
 const charts={};
+const DETALHES_GRAFICOS={};
 let OS_PARADA_ATUAL=[];
 const COR=['#0056b3','#ff6b00','#ffc107','#28a745','#6f42c1','#17a2b8','#dc3545','#6c757d'];
 const diaLocal=d=>new Date(d).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
@@ -707,6 +708,8 @@ const fmt=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+'h'+String(m
 const media=(s,n)=>n?s/n:0;
 
 function mk(id,cfg){
+  cfg.options=cfg.options||{};
+  if(!cfg.options.onClick)cfg.options.onClick=(_evt,items)=>{const item=items&&items[0],resolver=DETALHES_GRAFICOS[id];if(item&&resolver){const r=resolver(item.datasetIndex,item.index);mostrarOSDetalhe(r.titulo,r.lista)}};
   if(charts[id])charts[id].destroy();
   cfg.options=Object.assign({responsive:true,maintainAspectRatio:false},cfg.options||{});
   charts[id]=new Chart(document.getElementById(id),cfg);
@@ -717,6 +720,13 @@ function mostrarOSParada(lista){
   const itens=(lista||[]).slice().sort((a,b)=>b.parada-a.parada);
   resumoEfOS.textContent=itens.length?itens.length+' OS com tempo de parada no período e filtros selecionados.':'Nenhuma OS com parada foi encontrada neste filtro.';
   listaEfOS.innerHTML=itens.length?itens.map(({os,parada})=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(os.status).replace(/\s+/g,'')+'">'+escaparHtml(os.status)+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor)+' • '+escaparHtml(os.turno)+' • '+hm(os.created_at)+'</p><p style="font-size:.8rem;margin:6px 0"><b>Parada considerada:</b> '+fmt(parada)+'</p><p style="font-size:.82rem"><b>Defeito:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+(os.data_conclusao?' • Concluída em '+hm(os.data_conclusao):' • Ainda não concluída')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta OS no painel</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma OS com parada neste filtro.</p>';
+  modalEfOS.style.display='flex';
+}
+function mostrarOSDetalhe(titulo,lista){
+  const itens=(lista||[]).filter(Boolean);
+  modalEfOSTitulo.textContent=titulo||'Ordens de serviço relacionadas';
+  resumoEfOS.textContent=itens.length?itens.length+' O.S. encontradas com os filtros selecionados.':'Nenhuma O.S. encontrada para este item.';
+  listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • '+(os.created_at?hm(os.created_at):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
   modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
@@ -820,6 +830,7 @@ function atualizarMetricasReais(){
 
   // gráficos
   const dias_=[...new Set([...Object.keys(aberDia),...Object.keys(conclDia)])].sort();
+  DETALHES_GRAFICOS.chTendencia=(ds,i)=>{const d=dias_[i];const lista=f.filter(c=>ds===0?diaLocal(c.created_at)===d:diaLocal(c.data_conclusao||'')===d&&c.status==='Concluída');return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+d.split('-').reverse().join('/'),lista}};
   mk('chTendencia',{type:'line',data:{labels:dias_.map(d=>d.slice(8)+'/'+d.slice(5,7)),datasets:[
     {label:'Abertas',data:dias_.map(d=>aberDia[d]||0),borderColor:'#dc3545',backgroundColor:'#dc354533',tension:.3,fill:true},
     {label:'Concluídas',data:dias_.map(d=>conclDia[d]||0),borderColor:'#28a745',backgroundColor:'#28a74533',tension:.3,fill:true}]},
@@ -827,12 +838,14 @@ function atualizarMetricasReais(){
 
   const sets=Object.entries(setor).sort((a,b)=>b[1]-a[1]),tot=sets.reduce((s,x)=>s+x[1],0)||1;
   let acum=0;
+  DETALHES_GRAFICOS.chPareto=(_ds,i)=>{const nome=sets[i]?.[0];return{titulo:'O.S. com parada no setor '+nome,lista:OS_PARADA_ATUAL.filter(x=>x.os.setor===nome).map(x=>x.os)}};
   mk('chPareto',{data:{labels:sets.map(s=>s[0]),datasets:[
     {type:'bar',label:'Min parados',data:sets.map(s=>Math.round(s[1])),backgroundColor:'#ff6b00',yAxisID:'y'},
     {type:'line',label:'% acumulado',data:sets.map(s=>Math.round((acum+=s[1])/tot*100)),borderColor:'#0056b3',yAxisID:'y1'}]},
     options:{scales:{y:{beginAtZero:true},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false}}}}});
 
   const top=rank.slice(0,10);
+  DETALHES_GRAFICOS.chDowntime=(_ds,i)=>{const nome=top[i]?.[0];return{titulo:'O.S. da máquina '+nome,lista:f.filter(c=>c.maquina===nome)}};
   mk('chDowntime',{type:'bar',data:{labels:top.map(r=>r[0]),datasets:[{label:'Minutos parados',data:top.map(r=>Math.round(r[1].parada)),backgroundColor:'#ff6b00'}]},options:{indexAxis:'y'}});
 
   // eficiência real = (horas previstas − parada) ÷ horas previstas, por máquina cadastrada e por setor
@@ -851,6 +864,7 @@ function atualizarMetricasReais(){
       wrapper.insertBefore(aviso,wrapper.firstChild);
     }
     wrapper.style.height=Math.max(220,arr.length*30+70+(avisos.length?100:0))+'px';
+    DETALHES_GRAFICOS[id]=(_ds,i)=>{const nome=arr[i]?.n;return{titulo:'O.S. da máquina/setor '+nome,lista:f.filter(c=>id==='chEfMaq'?c.maquina===nome:c.setor===nome)}};
     mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Rodou (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
   };
   const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
@@ -871,17 +885,23 @@ function atualizarMetricasReais(){
   efChart('chEfMaq',efM,avisosMaq);
   efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})),setoresSemHorario);
   const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]),ct=cs.reduce((x,y)=>x+y[1],0)||1;let ac=0;
+  DETALHES_GRAFICOS.chCausas=(_ds,i)=>{const nome=cs[i]?.[0];return{titulo:'O.S. com causa: '+nome,lista:f.filter(c=>(c.causa||'Não informada')===nome)}};
   mk('chCausas',{data:{labels:cs.map(x=>x[0]),datasets:[{type:'bar',label:'Ocorrências',data:cs.map(x=>x[1]),backgroundColor:'#0056b3',yAxisID:'y'},{type:'line',label:'% acumulado',data:cs.map(x=>Math.round((ac+=x[1])/ct*100)),borderColor:'#ff6b00',yAxisID:'y1'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false}}}}});
   const tt=Object.values(tipo).reduce((x,y)=>x+y,0)||1;
+  const tiposGrafico=Object.keys(tipo);
+  DETALHES_GRAFICOS.chTipos=(_ds,i)=>{const nome=tiposGrafico[i];return{titulo:'O.S. do tipo '+nome,lista:f.filter(c=>c.tipo===nome)}};
   mk('chTipos',{type:'doughnut',data:{labels:Object.entries(tipo).map(([k,v])=>`${k}: ${v} OS (${Math.round(v/tt*100)}%)`),datasets:[{data:Object.values(tipo),backgroundColor:COR}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:12}}}}},plugins:[{id:'pct',afterDatasetsDraw(ch){const c=ch.ctx,d=ch.data.datasets[0].data;c.save();c.fillStyle='#fff';c.font='bold 13px sans-serif';c.textAlign='center';c.textBaseline='middle';c.shadowColor='rgba(0,0,0,.7)';c.shadowBlur=3;ch.getDatasetMeta(0).data.forEach((arc,i)=>{const p=Math.round(d[i]/tt*100);if(!d[i]||p<5)return;const pos=arc.tooltipPosition();c.fillText(p+'%',pos.x,pos.y)});c.restore()}}]});
 
   const tn_=Object.keys(tec);
+  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const lista=f.filter(c=>c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao));return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
   mk('chTecnico',{type:'bar',data:{labels:tn_,datasets:[
     {label:'Resposta (min)',data:tn_.map(t=>Math.round(media(tec[t].sR,tec[t].nR))),backgroundColor:'#0056b3'},
     {label:'Reparo (min)',data:tn_.map(t=>Math.round(media(tec[t].sP,tec[t].nP))),backgroundColor:'#28a745'}]}});
 
+  DETALHES_GRAFICOS.chTurno=(_ds,i)=>{const nome=Object.keys(turno)[i];return{titulo:'O.S. do '+nome,lista:f.filter(c=>c.turno===nome)}};
   mk('chTurno',{type:'bar',data:{labels:Object.keys(turno),datasets:[{label:'OS abertas',data:Object.values(turno),backgroundColor:['#0056b3','#ff6b00','#6f42c1']}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
 
+  DETALHES_GRAFICOS.chHora=(_ds,i)=>{const horaTxt=i+'h';return{titulo:'O.S. abertas às '+horaTxt,lista:f.filter(c=>new Date(c.created_at).getHours()===i)}};
   mk('chHora',{type:'bar',data:{labels:hora.map((_,i)=>i+'h'),datasets:[{label:'OS abertas',data:hora,backgroundColor:'#0056b3'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
 }
 
