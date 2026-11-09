@@ -9,6 +9,8 @@ on:
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
       - ota-atualizacao-android-staging-20261109
+    paths-ignore:
+      - "ota/**"
 
 jobs:
   build:
