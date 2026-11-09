@@ -836,16 +836,27 @@ function atualizarMetricasReais(){
   mk('chDowntime',{type:'bar',data:{labels:top.map(r=>r[0]),datasets:[{label:'Minutos parados',data:top.map(r=>Math.round(r[1].parada)),backgroundColor:'#ff6b00'}]},options:{indexAxis:'y'}});
 
   // eficiência real = (horas previstas − parada) ÷ horas previstas, por máquina cadastrada e por setor
-  const efM=[],efS={};
+  const efM=[],efS={},semHorarioMaq=maqsBase.filter(m=>!baseDe(m.setor));
   maqsBase.forEach(m=>{const bd=baseDe(m.setor);if(!bd)return;const pa=Math.min(bd,(maq[m.nome]&&maq[m.nome].parada)||0);
     efM.push({n:m.nome,prev:bd,par:pa,run:bd-pa,pct:Math.round((bd-pa)/bd*100)});
     const e=efS[m.setor]||(efS[m.setor]={prev:0,par:0});e.prev+=bd;e.par+=pa});
-  const efChart=(id,arr)=>{
-    arr.sort((x,y)=>x.pct-y.pct);document.getElementById(id).parentElement.style.height=Math.max(220,arr.length*30+70)+'px';
+  const efChart=(id,arr,avisos=[])=>{
+    arr.sort((x,y)=>x.pct-y.pct);
+    const wrapper=document.getElementById(id).parentElement;
+    wrapper.querySelectorAll('.aviso-horario-eficiencia').forEach(el=>el.remove());
+    if(avisos.length){
+      const aviso=document.createElement('div');aviso.className='aviso-horario-eficiencia';
+      aviso.style.cssText='margin:0 0 10px;padding:10px 12px;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;font-size:.78rem;line-height:1.45';
+      aviso.innerHTML='<b>⚠️ Horário de produção não configurado</b><br>'+avisos.map(x=>escaparHtml(x)).join('<br>')+'<br><small>Cadastre o setor e os horários de entrada e saída dos turnos para calcular a eficiência.</small>';
+      wrapper.insertBefore(aviso,wrapper.firstChild);
+    }
+    wrapper.style.height=Math.max(220,arr.length*30+70+(avisos.length?100:0))+'px';
     mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Rodou (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
   };
-  efChart('chEfMaq',efM);
-  efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})));
+  const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
+  const setoresSemHorario=[...new Set(semHorarioMaq.map(m=>m.setor||'Setor não definido'))];
+  efChart('chEfMaq',efM,avisosMaq);
+  efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})),setoresSemHorario);
   const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]),ct=cs.reduce((x,y)=>x+y[1],0)||1;let ac=0;
   mk('chCausas',{data:{labels:cs.map(x=>x[0]),datasets:[{type:'bar',label:'Ocorrências',data:cs.map(x=>x[1]),backgroundColor:'#0056b3',yAxisID:'y'},{type:'line',label:'% acumulado',data:cs.map(x=>Math.round((ac+=x[1])/ct*100)),borderColor:'#ff6b00',yAxisID:'y1'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false}}}}});
   const tt=Object.values(tipo).reduce((x,y)=>x+y,0)||1;
