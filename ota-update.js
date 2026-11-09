@@ -1,3 +1,4 @@
+// Atualização remota limitada ao canal nativo compatível do EriMax.
 (function(){
   const PRODUCTION_ORIGIN = 'https://erimax.pages.dev';
   const STAGING_ORIGIN = 'https://ota-atualizacao-android-staging-20261109.erimax.pages.dev';
