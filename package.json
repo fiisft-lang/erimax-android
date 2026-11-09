@@ -12,7 +12,7 @@
     "@capacitor/core": "^7.4.3",
     "@capacitor/push-notifications": "^7.0.7",
     "@capacitor/app": "^7.0.1",
-    "@capawesome/capacitor-live-update": "7-lts"
+    "@capawesome/capacitor-live-update": "v7-lts"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3"
