@@ -1,8 +1,8 @@
 {
-  "bundleId": "8caf662e0f3b5c7171d940c04a9aacb1078a0059",
-  "channel": "production",
-  "url": "https://raw.githubusercontent.com/fiisft-lang/erimax-android/main/ota/latest.zip?v=8caf662e0f3b5c7171d940c04a9aacb1078a0059",
-  "checksum": "a1ca54daf565a51df7518d3f6638b5031084b2ad6888519618f5ee33ac7ca31f",
+  "bundleId": "ab10c037a6b304938ee471a762aafe298ee4b54e",
+  "channel": "staging",
+  "url": "https://raw.githubusercontent.com/fiisft-lang/erimax-android/ota-atualizacao-android-staging-20261109/ota/latest.zip?v=ab10c037a6b304938ee471a762aafe298ee4b54e",
+  "checksum": "aeb74632db838747c3d6c2a3f8fae9a833526f406a201284530ec0f9899b914d",
   "minimumNativeVersionCode": 1,
   "message": "Há melhorias e correções disponíveis no EriMax."
 }
