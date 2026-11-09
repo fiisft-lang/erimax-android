@@ -289,6 +289,7 @@ function popularSetores(){
   const sel=(id,h)=>{const e=document.getElementById(id);if(!e)return;const v=e.value;e.innerHTML=h;if(v&&SETORES.includes(v))e.value=v};
   sel('setor',op('','Selecione o setor...')+l);sel('filtroSetorMetrica',op('Todos','Todos os Setores')+l);sel('pvSetor',l);
   if(MAQUINAS.length){carregarMaquinasSetor();pvMaquinas()}
+  atualizarMaquinasMetrica();
 }
 popularSetores();
 
@@ -310,6 +311,11 @@ function iniciarTempoReal(){
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>{if(PERFIL&&PERFIL.perfil!=='operador'&&!estaNoAppAndroid())exibirBannerAlerta(p.new);carregarDadosSupabase()})
    .on('postgres_changes',{event:'*',schema:'public',table:'os'},()=>carregarDadosSupabase())
    .on('postgres_changes',{event:'*',schema:'public',table:'status_tecnicos'},()=>carregarDadosSupabase())
+   .on('postgres_changes',{event:'*',schema:'public',table:'maquinas'},()=>carregarMaquinas())
+   .on('postgres_changes',{event:'*',schema:'public',table:'setores_config'},()=>carregarCfg())
+   .on('postgres_changes',{event:'*',schema:'public',table:'setores_turnos'},()=>carregarCfg())
+   .on('postgres_changes',{event:'*',schema:'public',table:'setores_horarios_semanais'},()=>carregarCfg())
+   .on('postgres_changes',{event:'*',schema:'public',table:'setores_horarios_excecoes'},()=>carregarCfg())
    .subscribe(status=>{
      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
        console.error('Erro no canal Realtime:',status);
@@ -630,9 +636,18 @@ function verHistorico(id){
 }
 
 function atualizarMaquinasMetrica(){
-  const s=document.getElementById('filtroSetorMetrica').value,sel=document.getElementById('filtroMaquinaMetrica'),atual=sel.value;
-  const maqs=[...new Set(chamados.filter(c=>s==='Todos'||c.setor===s).map(c=>c.maquina))].sort();
-  sel.innerHTML='<option value="Todas">Todas as Máquinas</option>'+maqs.map(m=>{const ref=MAQUINAS.find(x=>x.nome===m&&(s==='Todos'||x.setor===s));return `<option value="${escaparHtml(m)}">${escaparHtml(m)}${ref&&ref.prefixo?' • '+escaparHtml(ref.prefixo):''}</option>`}).join('');
+  const setorEl=document.getElementById('filtroSetorMetrica');
+  const sel=document.getElementById('filtroMaquinaMetrica');
+  if(!setorEl||!sel)return;
+  const s=setorEl.value,atual=sel.value;
+  // A lista vem do cadastro oficial de máquinas, não das OS já abertas.
+  // Assim máquinas novas aparecem mesmo antes da primeira OS.
+  const cadastro=MAQUINAS.filter(m=>m&&m.nome&&(s==='Todos'||m.setor===s));
+  const maqs=[...new Set(cadastro.map(m=>m.nome))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  sel.innerHTML='<option value="Todas">Todas as Máquinas</option>'+maqs.map(nome=>{
+    const ref=cadastro.find(m=>m.nome===nome);
+    return `<option value="${escaparHtml(nome)}">${escaparHtml(nome)}${ref&&ref.prefixo?' • '+escaparHtml(ref.prefixo):''}</option>`;
+  }).join('');
   if(maqs.includes(atual))sel.value=atual;
 }
 
