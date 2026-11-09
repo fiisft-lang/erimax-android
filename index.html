@@ -279,7 +279,7 @@ const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
 let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};let SETOR_EM_EDICAO=null;const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
-const SETORES_PADRAO=['Costura','Corte de ataduras','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
+const SETORES_PADRAO=['Costura','Corte atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 let SETORES=[...SETORES_PADRAO];
 
 let chamados=[],vibrationInterval=null;
@@ -297,7 +297,7 @@ function popularSetores(){
 popularSetores();
 
 // OS antigas gravadas como "Gaze" passam a aparecer como "Gaze algodonada"
-const normSetor=s=>s==='Gaze'?'Gaze algodonada':s;
+const normSetor=s=>{const v=String(s||'').trim().replace(/\\s+/g,' '),k=v.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();if(['corte de ataduras','corte de atadura','corte ataduras'].includes(k))return 'Corte atadura';return v==='Gaze'?'Gaze algodonada':v};
 
 function ativarAudioManual(){
   const a=document.getElementById('audioSirene'),b=document.getElementById('barraAtivacaoAudio');
@@ -1027,7 +1027,7 @@ async function iniciarApp(user){
 async function carregarMaquinas(){
   const {data,error}=await _supabase.from('maquinas').select('*').order('setor').order('nome');
   if(error){console.error('Erro ao carregar máquinas:',error.message);listaMaquinas.innerHTML='<p class="alerta">Erro ao carregar máquinas: '+escaparHtml(error.message)+'</p>';return}
-  MAQUINAS=data||[];
+  MAQUINAS=(data||[]).map(m=>({...m,setor:normSetor(m.setor)}));
   const nomes=new Set([...SETORES,...MAQUINAS.map(m=>m.setor)]);
   SETORES=[...nomes].filter(Boolean);
   popularSetores();carregarMaquinasSetor();pvMaquinas();
@@ -1108,12 +1108,12 @@ async function carregarCfg(){
   if(b.error)console.error('Erro ao carregar turnos antigos:',b.error.message);
   if(c.error)console.error('Erro ao carregar horários semanais:',c.error.message);
   if(d.error)console.error('Erro ao carregar exceções de horário:',d.error.message);
-  CFG={};(a.data||[]).forEach(r=>CFG[r.setor]={horas:+r.horas,turnos:r.turnos,dias:r.dias,inicio:String(r.inicio||'06:00').slice(0,5)});
-  TURNOS_CFG={};(b.data||[]).forEach(r=>(TURNOS_CFG[r.setor]||(TURNOS_CFG[r.setor]=[])).push(r));
-  HORARIOS_SEMANAIS={};(c.data||[]).forEach(r=>(HORARIOS_SEMANAIS[r.setor]||(HORARIOS_SEMANAIS[r.setor]=[])).push(r));
-  EXCECOES_HORARIO={};(d.data||[]).forEach(r=>EXCECOES_HORARIO[r.setor+'|'+r.data_excecao]=r);
-  (b.data||[]).forEach(r=>{if(!CFG[r.setor])CFG[r.setor]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:String(r.hora_inicio).slice(0,5)};});
-  const nomes=new Set([...(a.error?SETORES:(a.data||[]).map(r=>r.setor)),...(b.data||[]).map(r=>r.setor),...(c.data||[]).map(r=>r.setor),...(d.data||[]).map(r=>r.setor),...MAQUINAS.map(m=>m.setor)]);
+  CFG={};(a.data||[]).forEach(r=>CFG[normSetor(r.setor)]={horas:+r.horas,turnos:r.turnos,dias:r.dias,inicio:String(r.inicio||'06:00').slice(0,5)});
+  TURNOS_CFG={};(b.data||[]).forEach(r=>(TURNOS_CFG[normSetor(r.setor)]||(TURNOS_CFG[normSetor(r.setor)]=[])).push({...r,setor:normSetor(r.setor)}));
+  HORARIOS_SEMANAIS={};(c.data||[]).forEach(r=>(HORARIOS_SEMANAIS[normSetor(r.setor)]||(HORARIOS_SEMANAIS[normSetor(r.setor)]=[])).push({...r,setor:normSetor(r.setor)}));
+  EXCECOES_HORARIO={};(d.data||[]).forEach(r=>EXCECOES_HORARIO[normSetor(r.setor)+'|'+r.data_excecao]={...r,setor:normSetor(r.setor)});
+  (b.data||[]).forEach(r=>{const s=normSetor(r.setor);if(!CFG[s])CFG[s]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:String(r.hora_inicio).slice(0,5)};});
+  const nomes=new Set([...(a.error?SETORES:(a.data||[]).map(r=>normSetor(r.setor))),...(b.data||[]).map(r=>normSetor(r.setor)),...(c.data||[]).map(r=>normSetor(r.setor)),...(d.data||[]).map(r=>normSetor(r.setor)),...MAQUINAS.map(m=>m.setor)]);
   SETORES=[...nomes].filter(Boolean).sort((x,y)=>x.localeCompare(y,'pt-BR'));
   popularSetores();if(document.getElementById('listaCfg'))renderCfg();if(document.getElementById('listaMaquinas'))renderMaquinasAgrupadas();
 }
