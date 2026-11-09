@@ -27,6 +27,8 @@ jobs:
           node-version: 20
 
       - name: Gerar pacote web do aplicativo
+        env:
+          ERIMAX_BUILD_ID: ${{ github.sha }}
         run: |
           npm install
           npm run build
