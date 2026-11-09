@@ -33,6 +33,11 @@
       if(typeof manifest.checksum !== 'string' || !/^[a-f0-9]{64}$/i.test(manifest.checksum)) return;
       const bundleUrl = new URL(manifest.url, origin);
       if(bundleUrl.origin !== origin || !bundleUrl.pathname.startsWith('/ota/')) return;
+      const localBuildResponse = await fetch('ota-build.json?ts=' + Date.now(), {cache:'no-store'});
+      if(localBuildResponse.ok){
+        const localBuild = await localBuildResponse.json();
+        if(localBuild && localBuild.bundleId === manifest.bundleId) return;
+      }
       const current = await live.getCurrentBundle();
       if(current && current.bundleId === manifest.bundleId) return;
       const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;
