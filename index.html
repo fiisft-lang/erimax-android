@@ -1239,7 +1239,12 @@ async function iniciarApp(user){
   const osDaNotificacao=new URLSearchParams(location.search).get('os');
   if(osDaNotificacao)setTimeout(()=>abrirOSNoPainel(osDaNotificacao),1500);
   const osPendente=localStorage.getItem('erimax_os_pendente');
-  if(osPendente){localStorage.removeItem('erimax_os_pendente');setTimeout(()=>abrirOSNoPainel(osPendente),1400)}
+  if(osPendente){
+    const acaoPendente=localStorage.getItem('erimax_os_acao_pendente');
+    localStorage.removeItem('erimax_os_pendente');
+    localStorage.removeItem('erimax_os_acao_pendente');
+    setTimeout(async()=>{await abrirOSNoPainel(osPendente);if(acaoPendente==='assumir')await assumirOS(Number(osPendente));},1400);
+  }
 }
 
 async function carregarMaquinas(){
