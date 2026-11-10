@@ -42,7 +42,7 @@ select,input,textarea{width:100%;padding:12px;border:1px solid var(--border);bor
 .os-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .os-id{font-weight:700;color:var(--primary-dark);font-size:.95rem}
 .os-badge{font-size:.7rem;padding:3px 8px;border-radius:10px;font-weight:700}
-.status-Aberta{background:#ffe2e2;color:var(--danger)}.status-EmAtendimento{background:#fff3cd;color:#856404}.status-Concluída{background:#d4edda;color:var(--success)}
+.status-Aberta{background:#ffe2e2;color:var(--danger)}.status-EmAtendimento{background:#fff3cd;color:#856404}.status-Concluída{background:#d4edda;color:var(--success)}.status-Cancelada{background:#e2e8f0;color:#475569}
 .os-actions{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
 .btn-action{flex:1;min-width:90px;padding:8px;border:none;border-radius:6px;font-weight:600;font-size:.75rem;cursor:pointer}
 .btn-assumir{background:var(--primary);color:#fff}.btn-concluir{background:var(--secondary);color:#fff}.btn-transferir{background:var(--warning);color:#856404}.btn-historico{background:#e2e8f0;color:#334155}.btn-excluir{background:#fee2e2;color:var(--danger)}
@@ -123,7 +123,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <p style="font-size:.8rem;color:#64748b;margin-bottom:14px">Registre o defeito da máquina informando o turno atual.</p>
 <form id="formOS" onsubmit="salvarOS(event)">
 <div class="form-group"><label for="abertoPor">NOME DE QUEM ESTÁ ABRINDO A O.S. *</label><input type="text" id="abertoPor" maxlength="100" placeholder="Digite seu nome" autocomplete="name" required></div>
-<div class="form-group"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
+<div class="form-group" id="grupoSituacaoEquipamento"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
 <div class="form-group"><label for="turno">TURNO ATUAL *</label>
 <select id="turno" required><option value="Turno 1">Turno 1 (Manhã)</option><option value="Turno 2">Turno 2 (Tarde)</option><option value="Turno 3">Turno 3 (Noite)</option></select></div>
 <div class="form-group"><label for="setor">SETOR *</label>
@@ -132,7 +132,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="maquina" required onchange="alternarOutroEquipamento()"><option value="">Escolha o setor primeiro</option></select></div>
 <div class="form-group" id="grupoOutroEquipamento" style="display:none"><label for="outroEquipamento">DESCREVA O EQUIPAMENTO OU LOCAL *</label><input type="text" id="outroEquipamento" maxlength="150" placeholder="Ex.: lâmpada do corredor, porta do banheiro, vazamento no telhado"></div>
 <div class="form-group"><label for="tipo">TIPO DE PROBLEMA *</label>
-<select id="tipo" required><option>Mecânico</option><option>Elétrico</option><option>Pneumático</option><option>Operacional</option></select></div>
+<select id="tipo" required onchange="atualizarSituacaoEquipamento()"><option>Mecânico</option><option>Elétrico</option><option>Pneumático</option><option>Operacional</option><option>Manutenção Predial</option></select></div>
 <div class="form-group"><label for="prioridade">PRIORIDADE *</label>
 <select id="prioridade" required><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta (Emergência)</option></select></div>
 <div class="form-group"><label for="descricao">DESCRIÇÃO DO DEFEITO (OPERADOR) *</label>
@@ -151,7 +151,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label for="nomeTecnico">SEU NOME (TÉCNICO)</label>
 <input type="text" id="nomeTecnico" placeholder="Ex.: Fii" readonly></div>
 <div class="form-group" style="margin-bottom:0"><label for="filtroStatus">FILTRAR POR STATUS</label>
-<select id="filtroStatus" onchange="renderizarChamados()"><option value="Todas">Todas as Ordens</option><option value="Aberta">Abertas</option><option value="Em Atendimento">Em Atendimento</option><option value="Concluída">Concluídas</option></select></div>
+<select id="filtroStatus" onchange="renderizarChamados()"><option value="Todas">Todas as Ordens</option><option value="Aberta">Abertas</option><option value="Em Atendimento">Em Atendimento</option><option value="Concluída">Concluídas</option><option value="Cancelada">Canceladas</option></select></div>
 </div>
 <div id="boxTec"></div>
 <div id="boxPrev"></div>
@@ -179,11 +179,15 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div id="listaMaquinas"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:12px">Manutenção Preventiva</h3>
 <div class="form-group"><label>Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
-<div class="form-group"><label>Máquina</label><select id="pvMaq"></select></div>
+<div class="form-group"><label>Máquinas</label>
+<label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
+<div id="pvListaMaquinas"></div>
+<p style="font-size:.72rem;color:#64748b;margin-top:6px">Você pode selecionar uma ou várias máquinas. Todas serão reunidas em uma única O.S.</p></div>
 <div class="form-group"><label>Descrição</label><input id="pvDesc" placeholder="Ex.: Lubrificar correntes"></div>
 <div class="form-group"><label>Repetir a cada (dias)</label><input id="pvDias" type="number" min="1" value="30"></div>
 <div class="form-group"><label>Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
-<div class="form-group"><label>Técnico responsável</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
+<div class="form-group"><label>Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
+<div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
@@ -284,6 +288,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Causa da falha *</label><select id="mdCausa"></select></div>
 <div class="form-group"><label>Peça trocada (opcional)</label><input id="mdPeca" placeholder="Ex.: Rolamento 6204"></div>
 <div class="form-group"><label>Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
+<div class="form-group" id="mdMaquinasWrap" style="display:none"><label>Execução por máquina</label><p style="font-size:.75rem;color:#64748b;margin:4px 0 8px">Marque cada máquina somente depois de executar o serviço nela. A O.S. só poderá ser concluída quando todas estiverem marcadas.</p><div id="mdListaMaquinas"></div><button type="button" class="btn-submit" style="background:#0f766e;margin-top:8px" onclick="salvarProgressoMaquinas()">💾 Salvar andamento sem fechar a O.S.</button></div>
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
@@ -478,12 +483,24 @@ function mostrarToastOS(mensagem){
   toast._timer=setTimeout(()=>toast.classList.remove('visivel'),4000);
 }
 
+function atualizarSituacaoEquipamento(){
+  const predial=tipo.value==='Manutenção Predial';
+  const grupo=document.getElementById('grupoSituacaoEquipamento');
+  const campo=document.getElementById('situacaoEquipamento');
+  if(!grupo||!campo)return;
+  grupo.style.display=predial?'none':'';
+  campo.required=!predial;
+  if(predial)campo.value='';
+}
+
 async function salvarOS(e){
   e.preventDefault();
   const abertoPor=document.getElementById('abertoPor').value.trim();
-  const situacaoEquipamento=document.getElementById('situacaoEquipamento').value;
+  const situacaoSelecionada=document.getElementById('situacaoEquipamento').value;
+  const manutencaoPredial=tipo.value==='Manutenção Predial';
+  const situacaoEquipamento=manutencaoPredial?null:situacaoSelecionada;
   if(!abertoPor)return alert('Informe o nome de quem está abrindo a O.S.');
-  if(!['Parado','Rodando'].includes(situacaoEquipamento))return alert('Selecione se o equipamento está parado ou rodando.');
+  if(!manutencaoPredial&&!['Parado','Rodando'].includes(situacaoEquipamento))return alert('Selecione se o equipamento está parado ou rodando.');
   const outroEquipamento=document.getElementById('outroEquipamento').value.trim();
   if(maquina.value==='__outros__'&&outroEquipamento.length<2)return alert('Descreva qual é o equipamento ou local.');
   if(!maquina.value)return alert('Selecione uma máquina/equipamento ou a opção Outros.');
@@ -632,18 +649,20 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     let b='';
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
+    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&tecnicoAtual):(gestor||tecnicoAtual);
     if(status==='Aberta'&&(gestor||(PERFIL&&PERFIL.perfil==='tecnico')))b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir OS</button>';
     else if(status==='Em Atendimento'){
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
-      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
+      if(podeConcluir)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
       if(PERFIL&&PERFIL.perfil==='tecnico'&&os.transferencia_para===PERFIL.nome)b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
     }else if(status==='Pausada'){
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-assumir" onclick="retomarOS('+id+')">▶️ Retomar</button>';
     }
+    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
     if(status==='Concluída'&&PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Horários</button>';
-    if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Apagar</button>';
+    if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     let html='<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
     html+='<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';
@@ -651,8 +670,15 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
     html+='<p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "'+escaparHtml(os.descricao)+'"</p>';
+    const execucao=Array.isArray(os.maquinas_execucao)?os.maquinas_execucao:[];
+    if(execucao.length){
+      const feitas=execucao.filter(m=>m.concluida).length;
+      html+='<div style="margin:7px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem"><b>Execução por máquina: '+feitas+'/'+execucao.length+'</b>'+execucao.map(m=>'<div style="margin-top:3px;color:'+(m.concluida?'#166534':'#92400e')+'">'+(m.concluida?'✓':'○')+' '+escaparHtml(m.nome)+(m.concluida?' — concluída':' — pendente')+'</div>').join('')+'</div>';
+    }
     if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
-    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Técnico responsável: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Manutentor responsável pela finalização: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    const equipeOS=Array.isArray(os.tecnicos_participantes)?os.tecnicos_participantes:[];
+    if(equipeOS.length)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Equipe participante: <b>'+escaparHtml(equipeOS.join(', '))+'</b></p>';
     if(os.situacao_equipamento==='Parado')html+='<p style="margin:6px 0;padding:7px 9px;background:#fff1f0;border:1px solid #fecaca;border-radius:5px;font-size:.8rem;color:#991b1b">⏱️ <b>Tempo de máquina parada:</b> <span data-tempo-parada-os="'+id+'">'+escaparHtml(fmt(Math.round(paradaProd(os,Number((String(os.turno||'').match(/\d+/)||[])[0])||null))))+'</span><small data-tempo-pausa-os="'+id+'" style="display:none;margin-top:3px;color:#805b00"></small></p>';
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
@@ -773,7 +799,37 @@ async function aceitarTransferenciaOS(id){
 
 let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
-function concluirOS(id){osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());modal.style.display='flex'}
+function concluirOS(id){
+  const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
+  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||osResponsavel.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
+  osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';
+  mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
+  const osAtual=chamados.find(c=>Number(c.id)===Number(id));
+  const maquinas=Array.isArray(osAtual&&osAtual.maquinas_execucao)?osAtual.maquinas_execucao:[];
+  const wrap=document.getElementById('mdMaquinasWrap'),lista=document.getElementById('mdListaMaquinas');
+  if(wrap&&lista){
+    wrap.style.display=maquinas.length?'':'none';
+    lista.innerHTML=maquinas.map((m,i)=>'<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.85rem"><input class="md-maquina-execucao" type="checkbox" data-index="'+i+'" '+(m.concluida?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+' '+(m.concluida?'<span style="color:#166534;font-size:.75rem">— concluída</span>':'')+'</label>').join('');
+  }
+  modal.style.display='flex';
+}
+function obterMaquinasExecucaoModal(){
+  const osAtual=chamados.find(c=>Number(c.id)===Number(osConcluir));
+  const anteriores=Array.isArray(osAtual&&osAtual.maquinas_execucao)?osAtual.maquinas_execucao:[];
+  return [...document.querySelectorAll('#mdListaMaquinas .md-maquina-execucao')].map(el=>{
+    const i=Number(el.dataset.index),anterior=anteriores[i]||{};
+    const concluida=el.checked;
+    return {nome:anterior.nome||'',concluida,concluida_em:concluida?(anterior.concluida_em||new Date().toISOString()):null};
+  });
+}
+async function salvarProgressoMaquinas(){
+  const lista=obterMaquinasExecucaoModal();
+  if(!lista.length)return;
+  const {error}=await _supabase.from('os').update({maquinas_execucao:lista}).eq('id',osConcluir);
+  if(error)return alert('Não foi possível salvar o andamento das máquinas: '+error.message);
+  fecharModal();await carregarDadosSupabase();
+  alert('Andamento das máquinas salvo. A O.S. continua em atendimento.');
+}
 function editarHorarios(id){
   const o=chamados.find(c=>c.id===id);if(!o)return;osHor=o;
   hrInfo.innerText=nOS(o)+' — aberta em '+hm(o.created_at);
@@ -796,6 +852,9 @@ function fecharModal(){modal.style.display='none'}
 async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
   const os0=chamados.find(c=>c.id===osConcluir),agora=new Date();
+  if(os0&&os0.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
+  const maquinasExecucao=obterMaquinasExecucaoModal();
+  if(maquinasExecucao.length&&maquinasExecucao.some(m=>!m.concluida))return alert('Marque todas as máquinas como concluídas. Se alguma ainda estiver pendente, use “Salvar andamento” e finalize a O.S. depois.');
   let fim=mdHora.value?new Date(mdHora.value):agora;
   // Se o usuário manteve o horário sugerido ao abrir o modal, usar o instante real do clique em Concluir.
   // Isso evita que o horário padrão fique defasado e pareça anterior ao início do atendimento.
@@ -805,19 +864,30 @@ async function confirmarConclusao(){
   const diferenca=Math.abs(agora-fim);
   if(PERFIL&&PERFIL.perfil==='tecnico'&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
   const aj=PERFIL&&PERFIL.perfil==='gestor'&&diferenca>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
-  const {error}=await _supabase.from('os').update({status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),data_conclusao:fim.toISOString(),...aj}).eq('id',osConcluir);
+  const atualizacao={status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),data_conclusao:fim.toISOString(),...aj};
+  if(maquinasExecucao.length)atualizacao.maquinas_execucao=maquinasExecucao;
+  const {error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir);
   if(error)return alert('Erro ao concluir OS: '+error.message);
   if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
   fecharModal();await carregarDadosSupabase();
 }
 
+async function cancelarOS(id){
+  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Acesso negado! Apenas o administrador pode cancelar ordens de serviço.');
+  const os=chamados.find(c=>Number(c.id)===Number(id));if(!os)return;
+  if(!['Aberta','Em Atendimento','Pausada'].includes(os.status))return alert('Esta O.S. não pode mais ser cancelada.');
+  if(!confirm('Cancelar a O.S. #'+String(id).padStart(4,'0')+'? Ela continuará no histórico e não será apagada do banco de dados.'))return;
+  const {error}=await _supabase.from('os').update({status:'Cancelada'}).eq('id',id);
+  if(error)return alert('Erro ao cancelar O.S.: '+error.message);
+  await carregarDadosSupabase();
+}
+
 async function excluirOS(id){
-  const n=localStorage.getItem('erimax_tecnico')||'';
-  if(PERFIL.perfil!=='gestor')return alert('Acesso negado! Apenas o administrador autorizado pode apagar ordens de serviço.');
-  if(!confirm(`Tem certeza que deseja apagar permanentemente a OS #${String(id).padStart(4,'0')}?`))return;
+  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Acesso negado! Apenas o administrador autorizado pode apagar ordens de serviço.');
+  if(!confirm('ATENÇÃO: excluir definitivamente a O.S. #'+String(id).padStart(4,'0')+'? O registro será removido do banco de dados e não aparecerá mais no histórico. Prefira Cancelar quando quiser apenas encerrar sem apagar.'))return;
   const {error}=await _supabase.from('os').delete().eq('id',id);
-  if(error)return alert('Erro ao apagar OS: '+error.message);
-  carregarDadosSupabase();
+  if(error)return alert('Erro ao apagar O.S.: '+error.message);
+  await carregarDadosSupabase();
 }
 
 function verHistorico(id){
@@ -1718,27 +1788,60 @@ async function salvarUsuario(id,campos){
 function popularTecnicosPreventiva(){
   const sel=document.getElementById('pvTecnico');if(!sel)return;
   const atual=sel.value;
-  sel.innerHTML='<option value="">Selecione o técnico...</option>'+TECNICOS.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
-  if(TECNICOS.some(t=>t.nome===atual))sel.value=atual;
+  const equipe=document.getElementById('pvEquipeTecnicos');
+  const selecionados=new Set(equipe?[...equipe.querySelectorAll('.pv-tecnico-equipe:checked')].map(e=>e.value):[]);
+  const tecnicos=TECNICOS.filter(t=>t.perfil==='tecnico');
+  sel.innerHTML='<option value="">Selecione o técnico...</option>'+tecnicos.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
+  if(tecnicos.some(t=>t.nome===atual))sel.value=atual;
+  if(equipe)equipe.innerHTML=tecnicos.length?tecnicos.map(t=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-tecnico-equipe" type="checkbox" value="'+escaparHtml(t.nome)+'" '+(selecionados.has(t.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(t.nome)+'</label>').join(''):'<small style="color:#64748b">Nenhum manutentor cadastrado.</small>';
   if(!pvDataPrevista.value)pvDataPrevista.value=dataISOlocal(new Date());
 }
+let PV_SETOR_RENDERIZADO='';
 function pvMaquinas(){
-  const itens=MAQUINAS.filter(m=>m.setor===pvSetor.value);
-  pvMaq.innerHTML=itens.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join('')||'<option value="">Sem máquinas no setor</option>';
+  const itens=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome);
+  const lista=document.getElementById('pvListaMaquinas');
+  const todas=document.getElementById('pvTodasMaquinas');
+  if(!lista||!todas)return;
+  if(!itens.length){lista.innerHTML='<p style="color:#b91c1c;font-size:.8rem">Sem máquinas cadastradas neste setor.</p>';todas.checked=false;PV_SETOR_RENDERIZADO=pvSetor.value;return}
+  if(todas.checked){
+    lista.innerHTML='<p style="font-size:.8rem;color:#166534;background:#ecfdf5;padding:8px;border-radius:6px">Todas as '+itens.length+' máquinas deste setor serão incluídas na mesma O.S.</p>';
+    PV_SETOR_RENDERIZADO=pvSetor.value;return;
+  }
+  const mesmoSetor=PV_SETOR_RENDERIZADO===pvSetor.value;
+  const selecionadas=mesmoSetor?[...lista.querySelectorAll('.pv-maquina:checked')].map(e=>e.value):[];
+  const ativos=new Set(selecionadas.filter(nome=>itens.some(m=>m.nome===nome)));
+  if(!ativos.size)ativos.add(itens[0].nome);
+  lista.innerHTML=itens.map(m=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-maquina" type="checkbox" value="'+escaparHtml(m.nome)+'" '+(ativos.has(m.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+'</label>').join('');
+  PV_SETOR_RENDERIZADO=pvSetor.value;
+}
+function maquinasDaPreventiva(p){
+  const lista=Array.isArray(p&&p.maquinas)?p.maquinas.filter(x=>typeof x==='string'&&x.trim()):[];
+  return lista.length?lista:(p&&p.maquina?[p.maquina]:[]);
+}
+function resumoMaquinasPreventiva(p){
+  const lista=maquinasDaPreventiva(p);
+  return lista.length>1?lista.length+' máquinas do setor':(lista[0]||'Máquina não informada');
 }
 async function addPrev(){
   const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value);
   if(!pvSetor.value)return alert('Escolha um setor.');
-  if(!pvMaq.value)return alert('Cadastre uma máquina nesse setor antes de criar a preventiva.');
+  const todas=document.getElementById('pvTodasMaquinas').checked;
+  const maquinasSetor=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome).map(m=>m.nome);
+  const maquinasSelecionadas=todas?maquinasSetor:[...document.querySelectorAll('#pvListaMaquinas .pv-maquina:checked')].map(e=>e.value);
+  if(!maquinasSelecionadas.length)return alert('Selecione pelo menos uma máquina do setor.');
   if(descricao.length<3)return alert('Descreva a atividade com pelo menos 3 caracteres.');
   if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
   if(!dataPrevista)return alert('Escolha a próxima data prevista.');
   if(!tecnico)return alert('Selecione o técnico responsável.');
-  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:pvMaq.value,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome}]);
+  const equipeSelecionada=[...new Set([...document.querySelectorAll('#pvEquipeTecnicos .pv-tecnico-equipe:checked')].map(e=>e.value).concat(tecnico.nome))];
+  const maquinasUnicas=[...new Set(maquinasSelecionadas)];
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:maquinasUnicas.length===1?maquinasUnicas[0]:maquinasUnicas.length+' máquinas do setor',maquinas:maquinasUnicas,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
   if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
   pvDesc.value='';
+  document.getElementById('pvTodasMaquinas').checked=false;
+  pvMaquinas();
   await carregarPreventivas();
-  alert('Preventiva cadastrada com sucesso.');
+  alert('Preventiva cadastrada com sucesso para '+maquinasUnicas.length+' máquina(s).');
 }
 async function delPrev(id){
   if(!confirm('Remover esta preventiva? O histórico de ordens de serviço já abertas será preservado.'))return;
@@ -1754,7 +1857,7 @@ async function carregarPreventivas(){
     return;
   }
   PREV=data||[];
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small style="color:#64748b">• ${escaparHtml(p.descricao)} • a cada ${Number(p.intervalo_dias)||0} dia(s)<br>📅 ${p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo'} • 👨‍🔧 ${escaparHtml(p.tecnico_responsavel||'Técnico não definido')}</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev(${Number(p.id)})" aria-label="Remover preventiva de ${escaparHtml(p.maquina)}">🗑️</button></div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
     let base;
@@ -1763,7 +1866,7 @@ async function carregarPreventivas(){
     const dias=Math.ceil((base.getTime()-hoje.getTime())/864e5);
     return {...p,dias};
   }).filter(p=>Number.isFinite(p.dias)&&p.dias<=3).sort((a,b)=>a.dias-b.dias);
-  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>`<div class="maq-row"><span><b>${escaparHtml(p.maquina)}</b> <small>• ${escaparHtml(p.descricao)}<br><span class="${p.dias<0?'alerta':''}">${p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)'} • Responsável: ${escaparHtml(p.tecnico_responsavel||'Não definido')}</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev(${Number(p.id)})">Gerar OS</button></div>`).join('')+'</div>':'';
+  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
 }
 async function gerarOSPrev(id){
   const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
@@ -1772,8 +1875,12 @@ async function gerarOSPrev(id){
   if(!confirm('Gerar uma nova ordem de serviço para esta preventiva?'))return;
   window.__erimaxPrevGerando.add(String(id));
   try{
-    const h=new Date().getHours();
-    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:p.maquina,tipo:'Preventiva',prioridade:'Média',descricao:'Preventiva: '+p.descricao,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
+    const h=new Date().getHours(),maquinas=maquinasDaPreventiva(p);
+    const maquinaLabel=maquinas.length>1?maquinas.length+' máquinas do setor':(maquinas[0]||p.maquina);
+    const maquinasExecucao=maquinas.length>1?maquinas.map(nome=>({nome,concluida:false,concluida_em:null})):[];
+    const descricaoOS='Preventiva: '+p.descricao+(maquinas.length>1?'\nMáquinas: '+maquinas.join(', '):'');
+    const equipeOS=[...new Set((Array.isArray(p.tecnicos_participantes)?p.tecnicos_participantes:[]).filter(x=>typeof x==='string'&&x.trim()).concat(p.tecnico_responsavel||[]))];
+    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
     if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
     const intervalo=Number(p.intervalo_dias)||30;
     let base=new Date(String(p.data_prevista||p.ultima||dataISOlocal(new Date())).slice(0,10)+'T00:00:00');
@@ -1783,7 +1890,7 @@ async function gerarOSPrev(id){
     const {error:atualizaError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(new Date()),data_prevista:proxima}).eq('id',id);
     await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
     if(atualizaError)alert('A O.S. foi criada, mas a próxima data da preventiva não foi atualizada. Verifique a preventiva: '+atualizaError.message);
-    else alert('O.S. preventiva criada e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'.');
+    else alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'.');
   }finally{
     window.__erimaxPrevGerando.delete(String(id));
   }
