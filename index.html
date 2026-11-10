@@ -331,7 +331,10 @@ function estaNoAppAndroid(){
   return !!(window.Capacitor && typeof window.Capacitor.getPlatform==='function' && window.Capacitor.getPlatform()==='android');
 }
 function alertarNovaOSRealtime(os){
-  if(!os||idsOSAlertadas.has(String(os.id)))return;
+  if(!os)return;
+  const idAtual=Number(os.id);
+  if(Number.isFinite(idAtual)&&(ultimoIdOSRealtime===null||idAtual>ultimoIdOSRealtime))ultimoIdOSRealtime=idAtual;
+  if(idsOSAlertadas.has(String(os.id)))return;
   idsOSAlertadas.add(String(os.id));
   if(idsOSAlertadas.size>100)idsOSAlertadas.delete(idsOSAlertadas.values().next().value);
   if(PERFIL&&PERFIL.perfil!=='operador'&&!estaNoAppAndroid())exibirBannerAlerta(os);
