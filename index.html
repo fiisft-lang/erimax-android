@@ -106,6 +106,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <nav class="nav-tabs">
 <button class="tab-btn active" type="button" onclick="mudarAba('abrir',event)">📝 Abrir OS</button>
 <button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)">🛠️ Painel <span id="badgePendentes" class="badge-count">0</span></button>
+<button id="tbOrdensAbertas" class="tab-btn" type="button" onclick="mudarAba('ordens-abertas',event)" style="display:none">📂 Ordens Abertas</button>
 <button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)">📊 Métricas</button>
 <button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)">⚙️ Cadastro</button>
 <button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🔎 Consultas</button>
@@ -153,6 +154,12 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div id="boxTec"></div>
 <div id="boxPrev"></div>
 <div id="listaOS"></div>
+</div>
+
+<!-- ORDENS ABERTAS -->
+<div id="tab-ordens-abertas" class="tab-content">
+<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">📂 Ordens Abertas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Todas as O.S. ainda não concluídas, incluindo ordens antigas que continuam pendentes.</p></div>
+<div id="listaOSAbertas"></div>
 </div>
 
 <!-- CADASTRO -->
@@ -424,7 +431,7 @@ function mudarAba(id,evt){
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
   if(evt&&evt.currentTarget)evt.currentTarget.classList.add('active');
-  if(id==='painel'||id==='metricas')carregarDadosSupabase();
+  if(id==='painel'||id==='ordens-abertas'||id==='metricas')carregarDadosSupabase();
 }
 
 async function carregarDadosSupabase(){
@@ -437,6 +444,7 @@ async function carregarDadosSupabase(){
   STATUS_TECNICOS=st||[];
   renderTecnicos();renderStatusTurno();renderRankingOperadores();
   if(document.getElementById('tab-painel').classList.contains('active'))renderizarChamados();
+  if(document.getElementById('tab-ordens-abertas').classList.contains('active'))renderizarChamados('listaOSAbertas',true);
   if(document.getElementById('tab-metricas').classList.contains('active')){atualizarMaquinasMetrica();atualizarMetricasReais()}
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
 }
@@ -552,12 +560,12 @@ async function recalcularStatusTecnico(userId){
   const {error}=await _supabase.from('status_tecnicos').update({status,os_atual_id:ocupada?ativas[0].id:null,atualizado_em:new Date().toISOString()}).eq('user_id',userId);
   if(error)console.error('Erro ao atualizar status do técnico:',error.message);
 }
-function renderizarChamados(){renderTecnicos();renderStatusTurno();
-  const box=document.getElementById('listaOS'),filtro=document.getElementById('filtroStatus').value;
+function renderizarChamados(destino='listaOS',apenasAbertas=false){renderTecnicos();renderStatusTurno();
+  const box=document.getElementById(destino),filtro=apenasAbertas?'Abertas':document.getElementById('filtroStatus').value;
   const nome=localStorage.getItem('erimax_tecnico')||'';
   document.getElementById('nomeTecnico').value=nome;
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
-  const lista=chamados.filter(c=>filtro==='Todas'||c.status===filtro);
+  const lista=chamados.filter(c=>apenasAbertas?(c.status==='Aberta'||c.status==='Em Atendimento'):(filtro==='Todas'||c.status===filtro));
   box.innerHTML='';
   if(!lista.length){box.innerHTML='<div class="card" style="text-align:center;color:#64748b">Nenhum chamado encontrado.</div>';return}
   lista.forEach(os=>{
@@ -568,7 +576,7 @@ function renderizarChamados(){renderTecnicos();renderStatusTurno();
     const statusClasse=status.replace(/\s+/g,'');
     const card=document.createElement('div');
     card.className='os-card prioridade-'+prioridade;
-    card.id='os-'+id;
+    card.id=destino==='listaOS'?'os-'+id:'os-abertas-'+id;
     let foto='';
     try{
       const u=new URL(os.foto_url);
@@ -1190,7 +1198,8 @@ async function iniciarApp(user){
   login.style.display='none';
   ubNome.innerText='👤 '+PERFIL.nome+' • '+PERFIL.perfil;
   const p=PERFIL.perfil;
-  tbPainel.style.display=p==='operador'?'none':'';
+  tbPainel.style.display='';
+  tbOrdensAbertas.style.display=p==='tecnico'?'':'none';
   tbMetricas.style.display=tbCad.style.display=p==='gestor'?'':'none';
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
