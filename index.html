@@ -649,10 +649,11 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     let b='';
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
+    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&tecnicoAtual):(gestor||tecnicoAtual);
     if(status==='Aberta'&&(gestor||(PERFIL&&PERFIL.perfil==='tecnico')))b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir OS</button>';
     else if(status==='Em Atendimento'){
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
-      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
+      if(podeConcluir)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
       if(PERFIL&&PERFIL.perfil==='tecnico'&&os.transferencia_para===PERFIL.nome)b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
     }else if(status==='Pausada'){
@@ -800,7 +801,7 @@ let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
 function concluirOS(id){
   const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
-  if(PERFIL&&PERFIL.perfil==='tecnico'&&(!osResponsavel||osResponsavel.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
+  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||osResponsavel.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
   osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
@@ -851,7 +852,7 @@ function fecharModal(){modal.style.display='none'}
 async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
   const os0=chamados.find(c=>c.id===osConcluir),agora=new Date();
-  if(PERFIL&&PERFIL.perfil==='tecnico'&&(!os0||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
+  if(os0&&os0.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
   const maquinasExecucao=obterMaquinasExecucaoModal();
   if(maquinasExecucao.length&&maquinasExecucao.some(m=>!m.concluida))return alert('Marque todas as máquinas como concluídas. Se alguma ainda estiver pendente, use “Salvar andamento” e finalize a O.S. depois.');
   let fim=mdHora.value?new Date(mdHora.value):agora;
