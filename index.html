@@ -120,6 +120,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <h2 style="margin-bottom:4px;font-size:1.1rem;color:var(--primary)">Abrir Ordem de Serviço</h2>
 <p style="font-size:.8rem;color:#64748b;margin-bottom:14px">Registre o defeito da máquina informando o turno atual.</p>
 <form id="formOS" onsubmit="salvarOS(event)">
+<div class="form-group"><label for="abertoPor">NOME DE QUEM ESTÁ ABRINDO A O.S. *</label><input type="text" id="abertoPor" maxlength="100" placeholder="Digite seu nome" autocomplete="name" required></div>
+<div class="form-group"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
 <div class="form-group"><label for="turno">TURNO ATUAL *</label>
 <select id="turno" required><option value="Turno 1">Turno 1 (Manhã)</option><option value="Turno 2">Turno 2 (Tarde)</option><option value="Turno 3">Turno 3 (Noite)</option></select></div>
 <div class="form-group"><label for="setor">SETOR *</label>
@@ -449,7 +451,11 @@ function mostrarToastOS(mensagem){
 
 async function salvarOS(e){
   e.preventDefault();
-  const nova={turno:turno.value,setor:setor.value,maquina:maquina.value.trim(),tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
+  const abertoPor=document.getElementById('abertoPor').value.trim();
+  const situacaoEquipamento=document.getElementById('situacaoEquipamento').value;
+  if(!abertoPor)return alert('Informe o nome de quem está abrindo a O.S.');
+  if(!['Parado','Rodando'].includes(situacaoEquipamento))return alert('Selecione se o equipamento está parado ou rodando.');
+  const nova={aberto_por:abertoPor,situacao_equipamento:situacaoEquipamento,turno:turno.value,setor:setor.value,maquina:maquina.value.trim(),tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
   const fi=foto.files[0];
   if(fi){const b=await redimensionar(fi),pt=Date.now()+'_'+Math.random().toString(36).slice(2)+'.jpg';
     const up=await _supabase.storage.from('fotos-os').upload(pt,b,{contentType:'image/jpeg'});
@@ -583,6 +589,7 @@ function renderizarChamados(){renderTecnicos();renderStatusTurno();
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     let html='<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
     html+='<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';
+    html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
     html+='<p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "'+escaparHtml(os.descricao)+'"</p>';
@@ -1345,9 +1352,9 @@ async function exportarExcel(){
     ['Tempo total parado',document.getElementById('cParada')?.innerText||'—'],
     ['Observação','Relatório da tela de métricas. O.S. preventivas são excluídas dos indicadores e desta exportação.']
   ];
-  const cab=['Nº O.S.','Abertura','Atendimento','Conclusão','Status','Turno','Setor','Máquina','Tipo','Prioridade','Causa','Peça','Técnico','Resposta (min)','Reparo (min)','Tempo até fechar (min)','Parada em produção (min)','Descrição','Serviço executado'];
+  const cab=['Nº O.S.','Abertura','Quem abriu','Situação do equipamento','Atendimento','Conclusão','Status','Turno','Setor','Máquina','Tipo','Prioridade','Causa','Peça','Técnico','Resposta (min)','Reparo (min)','Tempo até fechar (min)','Parada em produção (min)','Descrição','Serviço executado'];
   const linhas=os.map(c=>[
-    String(c.numero||c.id||''),d(c.created_at),d(c.data_atendimento),d(c.data_conclusao),
+    String(c.numero||c.id||''),d(c.created_at),String(c.aberto_por||''),String(c.situacao_equipamento||''),d(c.data_atendimento),d(c.data_conclusao),
     String(c.status||''),String(c.turno||''),String(c.setor||''),String(c.maquina||''),
     String(c.tipo||''),String(c.prioridade||''),String(c.causa||''),String(c.peca||''),
     String(c.tecnico||''),m(c.created_at,c.data_atendimento),m(c.data_atendimento,c.data_conclusao),
