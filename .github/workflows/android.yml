@@ -263,6 +263,43 @@ jobs:
           print("Ícones Android gerados em todas as densidades.")
           PY
 
+      - name: Configurar assinatura permanente
+        env:
+          ERIMAX_KEYSTORE_BASE64: ${{ secrets.ERIMAX_KEYSTORE_BASE64 }}
+          ERIMAX_STORE_PASSWORD: ${{ secrets.ERIMAX_STORE_PASSWORD }}
+          ERIMAX_KEY_ALIAS: ${{ secrets.ERIMAX_KEY_ALIAS }}
+          ERIMAX_KEY_PASSWORD: ${{ secrets.ERIMAX_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for NAME in ERIMAX_KEYSTORE_BASE64 ERIMAX_STORE_PASSWORD ERIMAX_KEY_ALIAS ERIMAX_KEY_PASSWORD; do
+            if [ -z "${!NAME:-}" ]; then
+              echo "::error::Falta configurar o segredo do GitHub: $NAME"
+              exit 1
+            fi
+          done
+          printf '%s' "$ERIMAX_KEYSTORE_BASE64" | base64 --decode > android/app/erimax-signing-key.jks
+          test -s android/app/erimax-signing-key.jks
+          cat >> android/app/build.gradle <<'GRADLE'
+
+          // Assinatura permanente do EriMax: os mesmos segredos são usados em todas as compilações.
+          android {
+              signingConfigs {
+                  erimaxPermanent {
+                      storeFile file("erimax-signing-key.jks")
+                      storePassword System.getenv("ERIMAX_STORE_PASSWORD")
+                      keyAlias System.getenv("ERIMAX_KEY_ALIAS")
+                      keyPassword System.getenv("ERIMAX_KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  debug {
+                      signingConfig signingConfigs.erimaxPermanent
+                  }
+              }
+          }
+          GRADLE
+          echo "Assinatura permanente configurada sem exibir credenciais."
+
       - name: Gerar APK
         run: |
           cd android
