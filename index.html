@@ -123,7 +123,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <p style="font-size:.8rem;color:#64748b;margin-bottom:14px">Registre o defeito da máquina informando o turno atual.</p>
 <form id="formOS" onsubmit="salvarOS(event)">
 <div class="form-group"><label for="abertoPor">NOME DE QUEM ESTÁ ABRINDO A O.S. *</label><input type="text" id="abertoPor" maxlength="100" placeholder="Digite seu nome" autocomplete="name" required></div>
-<div class="form-group"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
+<div class="form-group" id="grupoSituacaoEquipamento"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
 <div class="form-group"><label for="turno">TURNO ATUAL *</label>
 <select id="turno" required><option value="Turno 1">Turno 1 (Manhã)</option><option value="Turno 2">Turno 2 (Tarde)</option><option value="Turno 3">Turno 3 (Noite)</option></select></div>
 <div class="form-group"><label for="setor">SETOR *</label>
@@ -132,7 +132,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <select id="maquina" required onchange="alternarOutroEquipamento()"><option value="">Escolha o setor primeiro</option></select></div>
 <div class="form-group" id="grupoOutroEquipamento" style="display:none"><label for="outroEquipamento">DESCREVA O EQUIPAMENTO OU LOCAL *</label><input type="text" id="outroEquipamento" maxlength="150" placeholder="Ex.: lâmpada do corredor, porta do banheiro, vazamento no telhado"></div>
 <div class="form-group"><label for="tipo">TIPO DE PROBLEMA *</label>
-<select id="tipo" required><option>Mecânico</option><option>Elétrico</option><option>Pneumático</option><option>Operacional</option></select></div>
+<select id="tipo" required onchange="atualizarSituacaoEquipamento()"><option>Mecânico</option><option>Elétrico</option><option>Pneumático</option><option>Operacional</option><option>Manutenção Predial</option></select></div>
 <div class="form-group"><label for="prioridade">PRIORIDADE *</label>
 <select id="prioridade" required><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta (Emergência)</option></select></div>
 <div class="form-group"><label for="descricao">DESCRIÇÃO DO DEFEITO (OPERADOR) *</label>
@@ -482,12 +482,24 @@ function mostrarToastOS(mensagem){
   toast._timer=setTimeout(()=>toast.classList.remove('visivel'),4000);
 }
 
+function atualizarSituacaoEquipamento(){
+  const predial=tipo.value==='Manutenção Predial';
+  const grupo=document.getElementById('grupoSituacaoEquipamento');
+  const campo=document.getElementById('situacaoEquipamento');
+  if(!grupo||!campo)return;
+  grupo.style.display=predial?'none':'';
+  campo.required=!predial;
+  if(predial)campo.value='';
+}
+
 async function salvarOS(e){
   e.preventDefault();
   const abertoPor=document.getElementById('abertoPor').value.trim();
-  const situacaoEquipamento=document.getElementById('situacaoEquipamento').value;
+  const situacaoSelecionada=document.getElementById('situacaoEquipamento').value;
+  const manutencaoPredial=tipo.value==='Manutenção Predial';
+  const situacaoEquipamento=manutencaoPredial?null:situacaoSelecionada;
   if(!abertoPor)return alert('Informe o nome de quem está abrindo a O.S.');
-  if(!['Parado','Rodando'].includes(situacaoEquipamento))return alert('Selecione se o equipamento está parado ou rodando.');
+  if(!manutencaoPredial&&!['Parado','Rodando'].includes(situacaoEquipamento))return alert('Selecione se o equipamento está parado ou rodando.');
   const outroEquipamento=document.getElementById('outroEquipamento').value.trim();
   if(maquina.value==='__outros__'&&outroEquipamento.length<2)return alert('Descreva qual é o equipamento ou local.');
   if(!maquina.value)return alert('Selecione uma máquina/equipamento ou a opção Outros.');
