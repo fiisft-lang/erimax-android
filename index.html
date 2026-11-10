@@ -1298,7 +1298,7 @@ async function iniciarApp(user){
   tbPainel.style.display='';
   tbOrdensAbertas.style.display=['tecnico','gestor'].includes(p)?'':'none';
   tbOrdensPausadas.style.display=['tecnico','gestor'].includes(p)?'':'none';
-  tbMetricas.style.display=tbCad.style.display=p==='gestor'?'':'none';
+  tbMetricas.style.display=['gestor','tecnico','operador'].includes(p)?'':'none';tbCad.style.display=p==='gestor'?'':'none';
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
   await carregarMaquinas();await carregarCfg();await carregarPreventivas();if(p==='gestor')carregarUsuarios();
