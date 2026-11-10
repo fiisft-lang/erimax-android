@@ -107,6 +107,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <button class="tab-btn active" type="button" onclick="mudarAba('abrir',event)">📝 Abrir OS</button>
 <button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)">🛠️ Painel <span id="badgePendentes" class="badge-count">0</span></button>
 <button id="tbOrdensAbertas" class="tab-btn" type="button" onclick="mudarAba('ordens-abertas',event)" style="display:none">📂 Ordens Abertas</button>
+<button id="tbOrdensPausadas" class="tab-btn" type="button" onclick="mudarAba('ordens-pausadas',event)" style="display:none">⏸️ Ordens Pausadas</button>
 <button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)">📊 Métricas</button>
 <button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)">⚙️ Cadastro</button>
 <button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🔎 Consultas</button>
@@ -159,8 +160,12 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 
 <!-- ORDENS ABERTAS -->
 <div id="tab-ordens-abertas" class="tab-content">
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">📂 Ordens Abertas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Todas as O.S. ainda não concluídas, incluindo ordens antigas que continuam pendentes.</p></div>
+<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">📂 Ordens Abertas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Ordens aguardando atendimento ou em execução.</p></div>
 <div id="listaOSAbertas"></div>
+</div>
+<div id="tab-ordens-pausadas" class="tab-content">
+<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">⏸️ Ordens Pausadas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Ordens interrompidas por falta de peça, prioridade ou outro impedimento. Retome quando puder continuar.</p></div>
+<div id="listaOSPausadas"></div>
 </div>
 
 <!-- CADASTRO -->
@@ -315,7 +320,7 @@ let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};le
 const SETORES_PADRAO=['Costura','Corte de atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 let SETORES=[...SETORES_PADRAO];
 
-let chamados=[],vibrationInterval=null;
+let chamados=[],HISTORICO_PAUSAS=[],vibrationInterval=null;
 
 // preenche os selects de setor (a lista vem do cadastro de setores)
 function popularSetores(){
@@ -431,13 +436,16 @@ function mudarAba(id,evt){
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
   if(evt&&evt.currentTarget)evt.currentTarget.classList.add('active');
-  if(id==='painel'||id==='ordens-abertas'||id==='metricas')carregarDadosSupabase();
+  if(id==='painel'||id==='ordens-abertas'||id==='ordens-pausadas'||id==='metricas')carregarDadosSupabase();
 }
 
 async function carregarDadosSupabase(){
   const {data,error}=await _supabase.from('os').select('*').order('id',{ascending:false});
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
+  const {data:hp,error:hpError}=await _supabase.from('historico_pausas_os').select('*').order('id',{ascending:false});
+  if(hpError)console.error('Erro ao carregar histórico de pausas:',hpError.message);
+  HISTORICO_PAUSAS=hp||[];
   const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');popularTecnicosPreventiva();
   const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
@@ -445,6 +453,7 @@ async function carregarDadosSupabase(){
   renderTecnicos();renderStatusTurno();renderRankingOperadores();
   if(document.getElementById('tab-painel').classList.contains('active'))renderizarChamados();
   if(document.getElementById('tab-ordens-abertas').classList.contains('active'))renderizarChamados('listaOSAbertas',true);
+  if(document.getElementById('tab-ordens-pausadas').classList.contains('active'))renderizarChamados('listaOSPausadas',false,true);
   if(document.getElementById('tab-metricas').classList.contains('active')){atualizarMaquinasMetrica();atualizarMetricasReais()}
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
 }
@@ -566,12 +575,12 @@ async function recalcularStatusTecnico(userId){
   const {error}=await _supabase.from('status_tecnicos').update({status,os_atual_id:ocupada?ativas[0].id:null,atualizado_em:new Date().toISOString()}).eq('user_id',userId);
   if(error)console.error('Erro ao atualizar status do técnico:',error.message);
 }
-function renderizarChamados(destino='listaOS',apenasAbertas=false){renderTecnicos();renderStatusTurno();
+function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas=false){renderTecnicos();renderStatusTurno();
   const box=document.getElementById(destino),filtro=apenasAbertas?'Abertas':document.getElementById('filtroStatus').value;
   const nome=localStorage.getItem('erimax_tecnico')||'';
   document.getElementById('nomeTecnico').value=nome;
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
-  const lista=chamados.filter(c=>apenasAbertas?(c.status==='Aberta'||c.status==='Em Atendimento'):(filtro==='Todas'||c.status===filtro));
+  const lista=chamados.filter(c=>apenasPausadas?c.status==='Pausada':apenasAbertas?(c.status==='Aberta'||c.status==='Em Atendimento'):(filtro==='Todas'||c.status===filtro));
   box.innerHTML='';
   if(!lista.length){box.innerHTML='<div class="card" style="text-align:center;color:#64748b">Nenhum chamado encontrado.</div>';return}
   lista.forEach(os=>{
@@ -593,9 +602,12 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false){renderTecnico
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
     if(status==='Aberta'&&(gestor||(PERFIL&&PERFIL.perfil==='tecnico')))b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir OS</button>';
     else if(status==='Em Atendimento'){
+      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
       if(PERFIL&&PERFIL.perfil==='tecnico'&&os.transferencia_para===PERFIL.nome)b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
+    }else if(status==='Pausada'){
+      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-assumir" onclick="retomarOS('+id+')">▶️ Retomar</button>';
     }
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
     if(status==='Concluída'&&PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Horários</button>';
@@ -609,6 +621,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false){renderTecnico
     html+='<p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "'+escaparHtml(os.descricao)+'"</p>';
     if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
     if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Técnico responsável: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
     if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
     html+='<div class="os-actions">'+b+'</div>';
@@ -631,6 +644,51 @@ async function assumirOS(id){
   const {error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id);
   if(error)return alert('Erro ao assumir OS: '+error.message);
   if(PERFIL&&PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
+  await carregarDadosSupabase();
+}
+
+async function pausarOS(id){
+  const os=chamados.find(c=>Number(c.id)===Number(id));if(!os||os.status!=='Em Atendimento')return;
+  const gestor=PERFIL&&PERFIL.perfil==='gestor';
+  const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
+  if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode pausar esta O.S.');
+  if(!os.tecnico)return alert('Esta O.S. ainda não tem um técnico responsável.');
+  const escolha=prompt('Por que deseja pausar esta O.S.?\n\n1 - Aguardando peça\n2 - Outra ordem mais urgente\n3 - Falta de material ou ferramenta\n4 - Equipamento indisponível\n5 - Outro motivo\n\nDigite o número da opção:');
+  if(escolha===null)return;
+  const motivos={'1':'Aguardando peça','2':'Outra ordem mais urgente','3':'Falta de material ou ferramenta','4':'Equipamento indisponível'};
+  let motivo=motivos[String(escolha).trim()];
+  if(String(escolha).trim()==='5')motivo=prompt('Descreva o motivo da pausa:');
+  if(!motivo&&String(escolha).trim()!=='5')return alert('Escolha uma das opções de 1 a 5.');
+  if(!motivo||!motivo.trim())return alert('Informe o motivo da pausa.');
+  motivo=motivo.trim().slice(0,300);
+  const pausadaEm=new Date().toISOString();
+  const {data:registro,error:histError}=await _supabase.from('historico_pausas_os').insert([{os_id:id,tecnico:os.tecnico,motivo,pausada_em:pausadaEm}]).select('id').single();
+  if(histError)return alert('Não foi possível registrar a pausa: '+histError.message);
+  const {error}=await _supabase.from('os').update({status:'Pausada',motivo_pausa:motivo,pausada_em:pausadaEm}).eq('id',id).eq('status','Em Atendimento');
+  if(error){await _supabase.from('historico_pausas_os').delete().eq('id',registro.id);return alert('Não foi possível pausar a O.S.: '+error.message)}
+  if(os.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
+  await carregarDadosSupabase();
+  alert(nOS(os)+' pausada. Agora você pode assumir outra O.S.');
+}
+
+async function retomarOS(id){
+  const os=chamados.find(c=>Number(c.id)===Number(id));if(!os||os.status!=='Pausada')return;
+  const gestor=PERFIL&&PERFIL.perfil==='gestor';
+  const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
+  if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode retomar esta O.S.');
+  if(!gestor){
+    const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',MEU_ID).maybeSingle();
+    if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
+    if(!st||!st.turno_ativo||st.status!=='ONLINE')return alert('Para retomar, você precisa estar ONLINE e sem outra O.S. em atendimento.');
+  }
+  const {error}=await _supabase.from('os').update({status:'Em Atendimento',motivo_pausa:null,pausada_em:null}).eq('id',id).eq('status','Pausada');
+  if(error)return alert('Não foi possível retomar a O.S.: '+error.message);
+  const {data:registro}=await _supabase.from('historico_pausas_os').select('id').eq('os_id',id).is('retomada_em',null).order('id',{ascending:false}).limit(1).maybeSingle();
+  if(registro){
+    const {error:histError}=await _supabase.from('historico_pausas_os').update({retomada_em:new Date().toISOString()}).eq('id',registro.id);
+    if(histError)console.error('A O.S. foi retomada, mas o histórico não foi atualizado:',histError.message);
+  }
+  if(os.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
   await carregarDadosSupabase();
 }
 
@@ -724,8 +782,11 @@ async function excluirOS(id){
 }
 
 function verHistorico(id){
-  const os=chamados.find(c=>c.id===id);
-  if(os)alert(`${nOS(os)} | ${os.turno}\nSetor: ${os.setor} | Máq: ${os.maquina}\nAberta por: ${os.aberto_por||'—'}\nEquipamento: ${os.situacao_equipamento||'—'}\nProblema: ${os.descricao}\nSolução: ${os.servico_executado||'Não concluída'}\nTécnico: ${os.tecnico||'Nenhum'}`);
+  const os=chamados.find(c=>Number(c.id)===Number(id));
+  if(!os)return;
+  const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).sort((a,b)=>new Date(a.pausada_em)-new Date(b.pausada_em));
+  const historico=pausas.length?'\\n\\nPAUSAS:\\n'+pausas.map(p=>'- '+new Date(p.pausada_em).toLocaleString('pt-BR')+' — '+p.motivo+(p.retomada_em?' | Retomada: '+new Date(p.retomada_em).toLocaleString('pt-BR'):' | Ainda pausada')).join('\\n'):'';
+  alert(nOS(os)+' | '+os.turno+'\\nSetor: '+os.setor+' | Máq: '+os.maquina+'\\nAberta por: '+(os.aberto_por||'—')+'\\nEquipamento: '+(os.situacao_equipamento||'—')+'\\nProblema: '+os.descricao+'\\nSolução: '+(os.servico_executado||'Não concluída')+'\\nTécnico: '+(os.tecnico||'Nenhum')+historico);
 }
 
 function atualizarMaquinasMetrica(){
@@ -1231,6 +1292,7 @@ async function iniciarApp(user){
   const p=PERFIL.perfil;
   tbPainel.style.display='';
   tbOrdensAbertas.style.display=['tecnico','gestor'].includes(p)?'':'none';
+  tbOrdensPausadas.style.display=['tecnico','gestor'].includes(p)?'':'none';
   tbMetricas.style.display=tbCad.style.display=p==='gestor'?'':'none';
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
