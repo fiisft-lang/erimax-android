@@ -488,6 +488,7 @@ async function salvarOS(e){
     });
   }
   document.getElementById('formOS').reset();
+  alternarOutroEquipamento();
   if(PERFIL.perfil==='operador'){
     carregarDadosSupabase();
   }else{
