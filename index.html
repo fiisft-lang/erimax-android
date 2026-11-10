@@ -127,7 +127,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label for="turno">TURNO ATUAL *</label>
 <select id="turno" required><option value="Turno 1">Turno 1 (Manhã)</option><option value="Turno 2">Turno 2 (Tarde)</option><option value="Turno 3">Turno 3 (Noite)</option></select></div>
 <div class="form-group"><label for="setor">SETOR *</label>
-<select id="setor" required onchange="carregarMaquinasSetor()"></select></div>
+<select id="setor" required onchange="carregarMaquinasSetor();atualizarSituacaoEquipamento()"></select></div>
 <div class="form-group"><label for="maquina">MÁQUINA / EQUIPAMENTO *</label>
 <select id="maquina" required onchange="alternarOutroEquipamento()"><option value="">Escolha o setor primeiro</option></select></div>
 <div class="form-group" id="grupoOutroEquipamento" style="display:none"><label for="outroEquipamento">DESCREVA O EQUIPAMENTO OU LOCAL *</label><input type="text" id="outroEquipamento" maxlength="150" placeholder="Ex.: lâmpada do corredor, porta do banheiro, vazamento no telhado"></div>
@@ -484,7 +484,7 @@ function mostrarToastOS(mensagem){
 }
 
 function atualizarSituacaoEquipamento(){
-  const predial=tipo.value==='Manutenção Predial';
+  const predial=(document.getElementById('setor')?.value||'').trim()==='Manutenção Predial';
   const grupo=document.getElementById('grupoSituacaoEquipamento');
   const campo=document.getElementById('situacaoEquipamento');
   if(!grupo||!campo)return;
@@ -497,7 +497,7 @@ async function salvarOS(e){
   e.preventDefault();
   const abertoPor=document.getElementById('abertoPor').value.trim();
   const situacaoSelecionada=document.getElementById('situacaoEquipamento').value;
-  const manutencaoPredial=tipo.value==='Manutenção Predial';
+  const manutencaoPredial=(document.getElementById('setor')?.value||'').trim()==='Manutenção Predial';
   const situacaoEquipamento=manutencaoPredial?null:situacaoSelecionada;
   if(!abertoPor)return alert('Informe o nome de quem está abrindo a O.S.');
   if(!manutencaoPredial&&!['Parado','Rodando'].includes(situacaoEquipamento))return alert('Selecione se o equipamento está parado ou rodando.');
@@ -526,6 +526,7 @@ async function salvarOS(e){
   }
   document.getElementById('formOS').reset();
   alternarOutroEquipamento();
+  atualizarSituacaoEquipamento();
   if(PERFIL.perfil==='operador'){
     carregarDadosSupabase();
   }else{
