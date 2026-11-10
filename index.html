@@ -832,6 +832,24 @@ function atualizarMaquinasMetrica(){
 // minutos de parada que caem dentro do horário de produção do setor (tn = número do turno, ou null para todos)
 function minutosHora(h){const [a,b]=String(h||'00:00').slice(0,5).split(':').map(Number);return a*60+b}
 function minutosTurno(t){let fim=minutosHora(t.hora_fim),ini=minutosHora(t.hora_inicio);if(fim<=ini)fim+=1440;return fim-ini}
+function intervaloTurnoOffsets(t){
+  const inicio=minutosHora(t.hora_inicio),fim=minutosHora(t.hora_fim),duracao=minutosTurno(t);
+  let pi=minutosHora(t.intervalo_inicio)-inicio,pf=minutosHora(t.intervalo_fim)-inicio;
+  if(pi<0)pi+=1440;if(pf<=pi)pf+=1440;
+  return {inicio:pi,fim:pf,duracao};
+}
+function intervaloTurnoValido(ini,fim,pIni,pFim){
+  const t={hora_inicio:ini,hora_fim:fim,intervalo_inicio:pIni,intervalo_fim:pFim},p=intervaloTurnoOffsets(t);
+  return p.inicio>=0&&p.fim>p.inicio&&p.fim<=p.duracao;
+}
+function minutosProdutivosTrecho(t,inicioTurno,iniMs,fimMs){
+  let total=Math.max(0,(fimMs-iniMs)/60000);
+  if(t&&t.intervalo_ativo&&t.intervalo_inicio&&t.intervalo_fim){
+    const p=intervaloTurnoOffsets(t),pi=inicioTurno+p.inicio*60000,pf=inicioTurno+p.fim*60000;
+    total-=Math.max(0,Math.min(fimMs,pf)-Math.max(iniMs,pi))/60000;
+  }
+  return Math.max(0,total);
+}
 function dataISOlocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function turnosDoSetor(s){
   const rows=HORARIOS_SEMANAIS[s];
@@ -904,7 +922,7 @@ function paradaProd(c,tn){
       const a=new Date(d);a.setHours(0,0,0,0);a.setMinutes(minutosHora(t.hora_inicio));
       const b=new Date(a);b.setMinutes(b.getMinutes()+minutosTurno(t));
       const iniMs=Math.max(a.getTime(),ini.getTime()),fimMs=Math.min(b.getTime(),fim.getTime());
-      if(fimMs>iniMs)total+=(fimMs-iniMs)/60000;
+      if(fimMs>iniMs)total+=minutosProdutivosTrecho(t,a.getTime(),iniMs,fimMs);
     }
   }
   return total;
@@ -1026,7 +1044,7 @@ function atualizarMetricasReais(){
       const a=new Date(x);a.setHours(0,0,0,0);a.setMinutes(minutosHora(t.hora_inicio));
       const b=new Date(a);b.setMinutes(b.getMinutes()+minutosTurno(t));
       const ini=Math.max(a.getTime(),limiteIni.getTime()),fim=Math.min(b.getTime(),limiteFim.getTime());
-      if(fim>ini)total+=(fim-ini)/60000;
+      if(fim>ini)total+=minutosProdutivosTrecho(t,a.getTime(),ini,fim);
     }
     return total};
   const maqsBase=MAQUINAS.filter(m=>(st==='Todos'||m.setor===st)&&(mq==='Todas'||m.nome===mq));
@@ -1531,8 +1549,8 @@ function renderEditorSetor(s,i){
   for(let d=0;d<7;d++){
     h+='<div class="cfg-semana" data-dia="'+d+'" style="border:1px solid #e2e8f0;border-radius:9px;padding:9px;margin:8px 0"><b>'+D[d]+'</b><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-top:8px">';
     for(let n=1;n<=3;n++){
-      const t=horarioEditor(s,d,n),ini=t?String(t.hora_inicio).slice(0,5):'',fim=t?String(t.hora_fim).slice(0,5):'';
-      h+='<div style="background:#f8fafc;padding:7px;border-radius:7px"><b style="font-size:.75rem">Turno '+n+'</b><div style="display:flex;gap:5px"><label style="font-size:.68rem">Entrada<input class="sem-ini" data-turno="'+n+'" type="time" value="'+ini+'" style="width:100%;padding:5px"></label><label style="font-size:.68rem">Saída<input class="sem-fim" data-turno="'+n+'" type="time" value="'+fim+'" style="width:100%;padding:5px"></label></div></div>';
+      const t=horarioEditor(s,d,n),ini=t?String(t.hora_inicio).slice(0,5):'',fim=t?String(t.hora_fim).slice(0,5):'',pausa=t&&t.intervalo_ativo===true,pIni=t&&t.intervalo_inicio?String(t.intervalo_inicio).slice(0,5):'',pFim=t&&t.intervalo_fim?String(t.intervalo_fim).slice(0,5):'';
+      h+='<div style="background:#f8fafc;padding:7px;border-radius:7px"><b style="font-size:.75rem">Turno '+n+'</b><div style="display:flex;gap:5px"><label style="font-size:.68rem">Entrada<input class="sem-ini" data-turno="'+n+'" type="time" value="'+ini+'" style="width:100%;padding:5px"></label><label style="font-size:.68rem">Saída<input class="sem-fim" data-turno="'+n+'" type="time" value="'+fim+'" style="width:100%;padding:5px"></label></div><label style="display:flex;align-items:center;gap:5px;font-size:.72rem;margin-top:7px"><input class="sem-int-ativo" data-turno="'+n+'" type="checkbox" '+(pausa?'checked':'')+' style="width:auto"> Descontar almoço/jantar</label><div style="display:flex;gap:5px"><label style="font-size:.68rem;flex:1">Início do intervalo<input class="sem-int-ini" data-turno="'+n+'" type="time" value="'+pIni+'" style="width:100%;padding:5px"></label><label style="font-size:.68rem;flex:1">Fim do intervalo<input class="sem-int-fim" data-turno="'+n+'" type="time" value="'+pFim+'" style="width:100%;padding:5px"></label></div></div>';
     }
     h+='</div></div>';
   }
@@ -1540,7 +1558,7 @@ function renderEditorSetor(s,i){
   h+='<div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:14px"><b>📅 Exceção / hora extra em uma data</b><p style="font-size:.75rem;color:#64748b;margin:4px 0 10px">Use para sábado, feriado, hora extra ou mudança pontual. A data cadastrada substitui o horário semanal somente naquele dia.</p>';
   h+='<label style="font-size:.75rem">Data<input type="date" id="exc-data-'+i+'" style="width:100%;padding:8px"></label><label style="font-size:.75rem">Observação<input id="exc-obs-'+i+'" placeholder="Ex.: Hora extra de sábado" style="width:100%;padding:8px"></label>';
   h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:8px 0">';
-  for(let n=1;n<=3;n++)h+='<div style="background:#f8fafc;padding:7px;border-radius:7px"><b style="font-size:.75rem">Turno '+n+'</b><div style="display:flex;gap:5px"><label style="font-size:.68rem">Entrada<input class="exc-ini" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label><label style="font-size:.68rem">Saída<input class="exc-fim" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label></div></div>';
+  for(let n=1;n<=3;n++)h+='<div style="background:#f8fafc;padding:7px;border-radius:7px"><b style="font-size:.75rem">Turno '+n+'</b><div style="display:flex;gap:5px"><label style="font-size:.68rem">Entrada<input class="exc-ini" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label><label style="font-size:.68rem">Saída<input class="exc-fim" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label></div><label style="display:flex;align-items:center;gap:5px;font-size:.72rem;margin-top:7px"><input class="exc-int-ativo" data-turno="'+n+'" type="checkbox" style="width:auto"> Descontar almoço/jantar</label><div style="display:flex;gap:5px"><label style="font-size:.68rem;flex:1">Início do intervalo<input class="exc-int-ini" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label><label style="font-size:.68rem;flex:1">Fim do intervalo<input class="exc-int-fim" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label></div></div>';
   h+='</div><button class="btn-submit" style="max-width:260px;background:var(--secondary)" onclick="salvarExcecaoHorario('+i+')">➕ Salvar data especial</button>';
   const ex=Object.values(EXCECOES_HORARIO).filter(r=>r.setor===s).sort((a,b)=>String(a.data_excecao).localeCompare(String(b.data_excecao)));
   h+='<div style="margin-top:12px"><b style="font-size:.8rem">Datas especiais cadastradas</b>';
@@ -1564,10 +1582,11 @@ async function salvarHorarioSemanal(i){
   for(const linha of linhas){
     const dia=+linha.dataset.dia;
     for(let n=1;n<=3;n++){
-      const ini=linha.querySelector('.sem-ini[data-turno="'+n+'"]').value,fim=linha.querySelector('.sem-fim[data-turno="'+n+'"]').value;
+      const ini=linha.querySelector('.sem-ini[data-turno="'+n+'"]').value,fim=linha.querySelector('.sem-fim[data-turno="'+n+'"]').value,pausa=linha.querySelector('.sem-int-ativo[data-turno="'+n+'"]').checked,pIni=linha.querySelector('.sem-int-ini[data-turno="'+n+'"]').value,pFim=linha.querySelector('.sem-int-fim[data-turno="'+n+'"]').value;
       if((ini&&!fim)||(!ini&&fim))return alert('No dia '+['domingo','segunda','terça','quarta','quinta','sexta','sábado'][dia]+', preencha entrada e saída do Turno '+n+'.');
       if(ini&&fim&&ini===fim)return alert('A entrada e a saída do Turno '+n+' não podem ser iguais.');
-      dados.push({setor:s,numero_turno:n,dia_semana:dia,hora_inicio:ini||'08:00',hora_fim:fim||'17:00',ativo:!!(ini&&fim)});
+      if(pausa&&(!ini||!fim||!pIni||!pFim||!intervaloTurnoValido(ini,fim,pIni,pFim)))return alert('Confira o intervalo do almoço/jantar do Turno '+n+'. Ele precisa estar dentro do horário do turno.');
+      dados.push({setor:s,numero_turno:n,dia_semana:dia,hora_inicio:ini||'08:00',hora_fim:fim||'17:00',ativo:!!(ini&&fim),intervalo_ativo:pausa,intervalo_inicio:pausa?pIni:null,intervalo_fim:pausa?pFim:null});
     }
   }
   if(!dados.some(x=>x.ativo))return alert('Cadastre pelo menos um horário de trabalho na semana.');
@@ -1580,10 +1599,11 @@ async function salvarExcecaoHorario(i){
   const s=SETORES[i],data=document.getElementById('exc-data-'+i).value,obs=document.getElementById('exc-obs-'+i).value.trim(),card=document.getElementById('listaCfg').children[i],horarios=[];
   if(!data)return alert('Escolha a data da hora extra ou da alteração.');
   for(let n=1;n<=3;n++){
-    const ini=card.querySelector('.exc-ini[data-turno="'+n+'"]').value,fim=card.querySelector('.exc-fim[data-turno="'+n+'"]').value;
+    const ini=card.querySelector('.exc-ini[data-turno="'+n+'"]').value,fim=card.querySelector('.exc-fim[data-turno="'+n+'"]').value,pausa=card.querySelector('.exc-int-ativo[data-turno="'+n+'"]').checked,pIni=card.querySelector('.exc-int-ini[data-turno="'+n+'"]').value,pFim=card.querySelector('.exc-int-fim[data-turno="'+n+'"]').value;
     if((ini&&!fim)||(!ini&&fim))return alert('Preencha entrada e saída do Turno '+n+'.');
     if(ini&&fim&&ini===fim)return alert('Entrada e saída do Turno '+n+' precisam ser diferentes.');
-    if(ini&&fim)horarios.push({numero_turno:n,hora_inicio:ini,hora_fim:fim});
+    if(pausa&&(!ini||!fim||!pIni||!pFim||!intervaloTurnoValido(ini,fim,pIni,pFim)))return alert('Confira o intervalo do almoço/jantar do Turno '+n+'. Ele precisa estar dentro do horário do turno.');
+    if(ini&&fim)horarios.push({numero_turno:n,hora_inicio:ini,hora_fim:fim,intervalo_ativo:pausa,intervalo_inicio:pausa?pIni:null,intervalo_fim:pausa?pFim:null});
   }
   if(!horarios.length&&!confirm('Nenhum horário foi informado. Deseja marcar '+data+' como dia sem produção?'))return;
   const {error}=await _supabase.from('setores_horarios_excecoes').upsert({setor:s,data_excecao:data,observacao:obs,horarios},{onConflict:'setor,data_excecao'});
