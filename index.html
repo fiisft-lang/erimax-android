@@ -297,7 +297,8 @@ const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[],STATUS_TECNICOS=[];
 let SETOR_MAQUINAS_EM_EDICAO=null;
-let canalOSTempoReal=null;
+let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,ultimoIdOSRealtime=null;
+const idsOSAlertadas=new Set();
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
@@ -330,26 +331,71 @@ function ativarAudioManual(){
 function estaNoAppAndroid(){
   return !!(window.Capacitor && typeof window.Capacitor.getPlatform==='function' && window.Capacitor.getPlatform()==='android');
 }
+function alertarNovaOSRealtime(os){
+  if(!os)return;
+  const idAtual=Number(os.id);
+  if(Number.isFinite(idAtual)&&(ultimoIdOSRealtime===null||idAtual>ultimoIdOSRealtime))ultimoIdOSRealtime=idAtual;
+  if(idsOSAlertadas.has(String(os.id)))return;
+  idsOSAlertadas.add(String(os.id));
+  if(idsOSAlertadas.size>100)idsOSAlertadas.delete(idsOSAlertadas.values().next().value);
+  if(PERFIL&&PERFIL.perfil!=='operador'&&!estaNoAppAndroid())exibirBannerAlerta(os);
+}
+function agendarReconexaoTempoReal(){
+  if(timerReconexaoOS)return;
+  timerReconexaoOS=setTimeout(()=>{
+    timerReconexaoOS=null;
+    iniciarTempoReal();
+  },5000);
+}
+function iniciarVerificacaoOS(){
+  if(intervaloVerificacaoOS)return;
+  const verificar=async()=>{
+    try{
+      if(ultimoIdOSRealtime===null){
+        const {data,error}=await _supabase.from('os').select('id').order('id',{ascending:false}).limit(1);
+        if(error)throw error;
+        ultimoIdOSRealtime=Number(data&&data[0]?data[0].id:0);
+        return;
+      }
+      const {data,error}=await _supabase.from('os').select('*').gt('id',ultimoIdOSRealtime).order('id',{ascending:true});
+      if(error)throw error;
+      if(data&&data.length){
+        data.forEach(os=>{
+          const id=Number(os.id);
+          if(Number.isFinite(id)&&id>ultimoIdOSRealtime)ultimoIdOSRealtime=id;
+          alertarNovaOSRealtime(os);
+        });
+        carregarDadosSupabase();
+      }
+    }catch(e){console.error('Verificação automática de novas O.S. falhou:',e.message||e)}
+  };
+  verificar();
+  intervaloVerificacaoOS=setInterval(verificar,12000);
+}
 function iniciarTempoReal(){
-  // Evita registrar eventos em um canal que já foi inscrito.
   if(canalOSTempoReal)return;
-  canalOSTempoReal = _supabase.channel('tabela-os-realtime')
-   .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>{if(PERFIL&&PERFIL.perfil!=='operador'&&!estaNoAppAndroid())exibirBannerAlerta(p.new);carregarDadosSupabase()})
+  const canal=_supabase.channel('tabela-os-realtime')
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>alertarNovaOSRealtime(p.new))
    .on('postgres_changes',{event:'*',schema:'public',table:'os'},()=>carregarDadosSupabase())
    .on('postgres_changes',{event:'*',schema:'public',table:'status_tecnicos'},()=>carregarDadosSupabase())
    .on('postgres_changes',{event:'*',schema:'public',table:'maquinas'},()=>carregarMaquinas())
    .on('postgres_changes',{event:'*',schema:'public',table:'setores_config'},()=>carregarCfg())
    .on('postgres_changes',{event:'*',schema:'public',table:'setores_turnos'},()=>carregarCfg())
    .on('postgres_changes',{event:'*',schema:'public',table:'setores_horarios_semanais'},()=>carregarCfg())
-   .on('postgres_changes',{event:'*',schema:'public',table:'setores_horarios_excecoes'},()=>carregarCfg())
-   .subscribe(status=>{
-     if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
-       console.error('Erro no canal Realtime:',status);
-       canalOSTempoReal=null;
-     }
-   });
+   .on('postgres_changes',{event:'*',schema:'public',table:'setores_horarios_excecoes'},()=>carregarCfg());
+  canalOSTempoReal=canal;
+  canal.subscribe(status=>{
+    if(status==='SUBSCRIBED'){
+      console.info('EriMax: atualização em tempo real conectada.');
+    }else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+      console.error('EriMax: conexão Realtime perdida:',status);
+      if(canalOSTempoReal===canal)canalOSTempoReal=null;
+      _supabase.removeChannel(canal).catch(()=>{});
+      agendarReconexaoTempoReal();
+    }
+  });
+  iniciarVerificacaoOS();
 }
-
 function dispararSireneEVibracao(){
   const a=document.getElementById('audioSirene');
   if(a){a.currentTime=0;a.play().catch(()=>console.log('Áudio bloqueado.'))}
