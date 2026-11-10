@@ -809,7 +809,7 @@ function verHistorico(id){
   });
   const historico=pausas.length?'\n\nPAUSAS:\n'+linhasPausa.join('\n')+
     '\n\nTEMPO TOTAL PARADO: '+minutosFmt(totalPausaMs):'\n\nNenhuma pausa registrada.';
-  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum)'+historico);
+  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico);
 }
 
 function atualizarMaquinasMetrica(){
