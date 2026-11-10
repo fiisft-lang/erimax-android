@@ -1193,8 +1193,9 @@ function tratarLinkOS(url){
     const m=(u.hostname==='os'?u.pathname.match(/^\/([^/]+)$/):u.pathname.match(/^\/os\/([^/]+)$/));
     if(u.protocol!=='erimax:'||!m)return;
     const id=decodeURIComponent(m[1]);
-    if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);return}
-    setTimeout(()=>abrirOSNoPainel(id),900);
+    const action=u.searchParams.get('action')||'';
+    if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);if(action==='assumir')localStorage.setItem('erimax_os_acao_pendente','assumir');return}
+    setTimeout(async()=>{await abrirOSNoPainel(id);if(action==='assumir')await assumirOS(Number(id));},900);
   }catch(e){console.error('Link de O.S. inválido:',e)}
 }
 async function iniciarLinksOS(){
@@ -1229,7 +1230,7 @@ async function iniciarApp(user){
   ubNome.innerText='👤 '+PERFIL.nome+' • '+PERFIL.perfil;
   const p=PERFIL.perfil;
   tbPainel.style.display='';
-  tbOrdensAbertas.style.display=p==='tecnico'?'':'none';
+  tbOrdensAbertas.style.display=['tecnico','gestor'].includes(p)?'':'none';
   tbMetricas.style.display=tbCad.style.display=p==='gestor'?'':'none';
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
