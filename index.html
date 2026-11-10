@@ -128,7 +128,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label for="setor">SETOR *</label>
 <select id="setor" required onchange="carregarMaquinasSetor()"></select></div>
 <div class="form-group"><label for="maquina">MÁQUINA / EQUIPAMENTO *</label>
-<select id="maquina" required><option value="">Escolha o setor primeiro</option></select></div>
+<select id="maquina" required onchange="alternarOutroEquipamento()"><option value="">Escolha o setor primeiro</option></select></div>
+<div class="form-group" id="grupoOutroEquipamento" style="display:none"><label for="outroEquipamento">DESCREVA O EQUIPAMENTO OU LOCAL *</label><input type="text" id="outroEquipamento" maxlength="150" placeholder="Ex.: lâmpada do corredor, porta do banheiro, vazamento no telhado"></div>
 <div class="form-group"><label for="tipo">TIPO DE PROBLEMA *</label>
 <select id="tipo" required><option>Mecânico</option><option>Elétrico</option><option>Pneumático</option><option>Operacional</option></select></div>
 <div class="form-group"><label for="prioridade">PRIORIDADE *</label>
@@ -463,7 +464,11 @@ async function salvarOS(e){
   const situacaoEquipamento=document.getElementById('situacaoEquipamento').value;
   if(!abertoPor)return alert('Informe o nome de quem está abrindo a O.S.');
   if(!['Parado','Rodando'].includes(situacaoEquipamento))return alert('Selecione se o equipamento está parado ou rodando.');
-  const nova={aberto_por:abertoPor,situacao_equipamento:situacaoEquipamento,turno:turno.value,setor:setor.value,maquina:maquina.value.trim(),tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
+  const outroEquipamento=document.getElementById('outroEquipamento').value.trim();
+  if(maquina.value==='__outros__'&&outroEquipamento.length<2)return alert('Descreva qual é o equipamento ou local.');
+  if(!maquina.value)return alert('Selecione uma máquina/equipamento ou a opção Outros.');
+  const maquinaOS=maquina.value==='__outros__'?'Outros — '+outroEquipamento:maquina.value.trim();
+  const nova={aberto_por:abertoPor,situacao_equipamento:situacaoEquipamento,turno:turno.value,setor:setor.value,maquina:maquinaOS,tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
   const fi=foto.files[0];
   if(fi){const b=await redimensionar(fi),pt=Date.now()+'_'+Math.random().toString(36).slice(2)+'.jpg';
     const up=await _supabase.storage.from('fotos-os').upload(pt,b,{contentType:'image/jpeg'});
@@ -1246,7 +1251,16 @@ async function carregarMaquinas(){
 }
 function carregarMaquinasSetor(){
   const l=MAQUINAS.filter(m=>m.setor===setor.value);
-  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join(''):'<option value="">Nenhuma máquina neste setor</option>';
+  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':(l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join(''):'<option value="">Nenhuma máquina cadastrada neste setor</option>')+'<option value="__outros__">Outros</option>';
+  alternarOutroEquipamento();
+}
+function alternarOutroEquipamento(){
+  const grupo=document.getElementById('grupoOutroEquipamento'),campo=document.getElementById('outroEquipamento');
+  if(!grupo||!campo)return;
+  const mostrar=maquina.value==='__outros__';
+  grupo.style.display=mostrar?'':'none';
+  campo.required=mostrar;
+  if(!mostrar)campo.value='';
 }
 async function salvarPrefixo(id,v){
   v=v.trim().toUpperCase();
