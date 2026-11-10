@@ -55,6 +55,8 @@ public class IncomingCallMessagingService extends MessagingService {
         .setAutoCancel(false)
         .setFullScreenIntent(full, true)
         .setContentIntent(full)
+        .addAction(android.R.drawable.ic_menu_view, "Assumir", actionIntent(id, machine, sector, number, "assumir"))
+        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Silenciar", actionIntent(id, machine, sector, number, "silenciar"))
         .setStyle(new NotificationCompat.BigTextStyle().bigText(number + " • " + machine + "\n" + sector))
         .build();
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -65,6 +67,19 @@ public class IncomingCallMessagingService extends MessagingService {
     } else {
       super.onMessageReceived(message);
     }
+  }
+
+  private PendingIntent actionIntent(String id, String machine, String sector, String number, String action) {
+    Intent intent = new Intent(this, IncomingCallActivity.class);
+    intent.putExtra("os_id", id);
+    intent.putExtra("maquina", machine);
+    intent.putExtra("setor", sector);
+    intent.putExtra("numero", number);
+    intent.putExtra("notification_action", action);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    int requestCode = (id + ":" + action).hashCode();
+    return PendingIntent.getActivity(this, requestCode, intent,
+      PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
   }
 
   public static synchronized void startAlertAlarm(Context context) {
