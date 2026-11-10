@@ -658,7 +658,9 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
       if(PERFIL&&PERFIL.perfil==='tecnico'&&os.transferencia_para===PERFIL.nome)b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
     }else if(status==='Pausada'){
-      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-assumir" onclick="retomarOS('+id+')">▶️ Retomar</button>';
+      const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
+      const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
+      if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button class="btn-action btn-assumir" onclick="retomarOS('+id+')">▶️ Retomar</button>';
     }
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
@@ -726,7 +728,7 @@ async function pausarOS(id){
   const {data:atualizada,error}=await _supabase.from('os').update({status:'Pausada',motivo_pausa:motivo,pausada_em:pausadaEm}).eq('id',id).eq('status','Em Atendimento').select('id').maybeSingle();
   if(error)return alert('Não foi possível pausar a O.S.: '+error.message);
   if(!atualizada)return alert('Esta O.S. já foi alterada. Atualize a lista e tente novamente.');
-  const {error:histError}=await _supabase.from('historico_pausas_os').insert([{os_id:id,tecnico:os.tecnico,motivo,pausada_em:pausadaEm}]);
+  const {error:histError}=await _supabase.from('historico_pausas_os').insert([{os_id:id,tecnico:PERFIL?.nome||os.tecnico,motivo,pausada_em:pausadaEm}]);
   if(histError){
     const {error:reversaoError}=await _supabase.from('os').update({status:'Em Atendimento',motivo_pausa:null,pausada_em:null}).eq('id',id).eq('status','Pausada');
     if(reversaoError)console.error('Falha ao reverter pausa sem histórico:',reversaoError.message);
@@ -740,8 +742,11 @@ async function pausarOS(id){
 async function retomarOS(id){
   const os=chamados.find(c=>Number(c.id)===Number(id));if(!os||os.status!=='Pausada')return;
   const gestor=PERFIL&&PERFIL.perfil==='gestor';
+  const {data:registroAtivo,error:registroError}=await _supabase.from('historico_pausas_os').select('id,tecnico').eq('os_id',id).is('retomada_em',null).order('id',{ascending:false}).limit(1).maybeSingle();
+  if(registroError)return alert('Não foi possível verificar quem pausou esta O.S.: '+registroError.message);
   const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
-  if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode retomar esta O.S.');
+  const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&registroAtivo?.tecnico===PERFIL.nome;
+  if(!gestor&&!tecnicoAtual&&!tecnicoQuePausou)return alert('Somente o técnico responsável, quem pausou a O.S. ou o gestor pode retomar.');
   if(!gestor){
     const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',MEU_ID).maybeSingle();
     if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
@@ -749,9 +754,8 @@ async function retomarOS(id){
   }
   const {error}=await _supabase.from('os').update({status:'Em Atendimento',motivo_pausa:null,pausada_em:null}).eq('id',id).eq('status','Pausada');
   if(error)return alert('Não foi possível retomar a O.S.: '+error.message);
-  const {data:registro}=await _supabase.from('historico_pausas_os').select('id').eq('os_id',id).is('retomada_em',null).order('id',{ascending:false}).limit(1).maybeSingle();
-  if(registro){
-    const {error:histError}=await _supabase.from('historico_pausas_os').update({retomada_em:new Date().toISOString()}).eq('id',registro.id);
+  if(registroAtivo){
+    const {error:histError}=await _supabase.from('historico_pausas_os').update({retomada_em:new Date().toISOString()}).eq('id',registroAtivo.id);
     if(histError)console.error('A O.S. foi retomada, mas o histórico não foi atualizado:',histError.message);
   }
   if(os.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
