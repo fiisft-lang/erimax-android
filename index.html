@@ -186,7 +186,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Descrição</label><input id="pvDesc" placeholder="Ex.: Lubrificar correntes"></div>
 <div class="form-group"><label>Repetir a cada (dias)</label><input id="pvDias" type="number" min="1" value="30"></div>
 <div class="form-group"><label>Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
-<div class="form-group"><label>Técnico responsável</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
+<div class="form-group"><label>Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
+<div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
@@ -674,7 +675,9 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       html+='<div style="margin:7px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem"><b>Execução por máquina: '+feitas+'/'+execucao.length+'</b>'+execucao.map(m=>'<div style="margin-top:3px;color:'+(m.concluida?'#166534':'#92400e')+'">'+(m.concluida?'✓':'○')+' '+escaparHtml(m.nome)+(m.concluida?' — concluída':' — pendente')+'</div>').join('')+'</div>';
     }
     if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
-    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Técnico responsável: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Manutentor responsável pela finalização: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    const equipeOS=Array.isArray(os.tecnicos_participantes)?os.tecnicos_participantes:[];
+    if(equipeOS.length)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Equipe participante: <b>'+escaparHtml(equipeOS.join(', '))+'</b></p>';
     if(os.situacao_equipamento==='Parado')html+='<p style="margin:6px 0;padding:7px 9px;background:#fff1f0;border:1px solid #fecaca;border-radius:5px;font-size:.8rem;color:#991b1b">⏱️ <b>Tempo de máquina parada:</b> <span data-tempo-parada-os="'+id+'">'+escaparHtml(fmt(Math.round(paradaProd(os,Number((String(os.turno||'').match(/\d+/)||[])[0])||null))))+'</span><small data-tempo-pausa-os="'+id+'" style="display:none;margin-top:3px;color:#805b00"></small></p>';
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
@@ -796,6 +799,8 @@ async function aceitarTransferenciaOS(id){
 let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
 function concluirOS(id){
+  const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
+  if(PERFIL&&PERFIL.perfil==='tecnico'&&(!osResponsavel||osResponsavel.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
   osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
@@ -846,6 +851,7 @@ function fecharModal(){modal.style.display='none'}
 async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
   const os0=chamados.find(c=>c.id===osConcluir),agora=new Date();
+  if(PERFIL&&PERFIL.perfil==='tecnico'&&(!os0||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
   const maquinasExecucao=obterMaquinasExecucaoModal();
   if(maquinasExecucao.length&&maquinasExecucao.some(m=>!m.concluida))return alert('Marque todas as máquinas como concluídas. Se alguma ainda estiver pendente, use “Salvar andamento” e finalize a O.S. depois.');
   let fim=mdHora.value?new Date(mdHora.value):agora;
@@ -1781,8 +1787,12 @@ async function salvarUsuario(id,campos){
 function popularTecnicosPreventiva(){
   const sel=document.getElementById('pvTecnico');if(!sel)return;
   const atual=sel.value;
-  sel.innerHTML='<option value="">Selecione o técnico...</option>'+TECNICOS.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
-  if(TECNICOS.some(t=>t.nome===atual))sel.value=atual;
+  const equipe=document.getElementById('pvEquipeTecnicos');
+  const selecionados=new Set(equipe?[...equipe.querySelectorAll('.pv-tecnico-equipe:checked')].map(e=>e.value):[]);
+  const tecnicos=TECNICOS.filter(t=>t.perfil==='tecnico');
+  sel.innerHTML='<option value="">Selecione o técnico...</option>'+tecnicos.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
+  if(tecnicos.some(t=>t.nome===atual))sel.value=atual;
+  if(equipe)equipe.innerHTML=tecnicos.length?tecnicos.map(t=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-tecnico-equipe" type="checkbox" value="'+escaparHtml(t.nome)+'" '+(selecionados.has(t.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(t.nome)+'</label>').join(''):'<small style="color:#64748b">Nenhum manutentor cadastrado.</small>';
   if(!pvDataPrevista.value)pvDataPrevista.value=dataISOlocal(new Date());
 }
 let PV_SETOR_RENDERIZADO='';
@@ -1822,8 +1832,9 @@ async function addPrev(){
   if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
   if(!dataPrevista)return alert('Escolha a próxima data prevista.');
   if(!tecnico)return alert('Selecione o técnico responsável.');
+  const equipeSelecionada=[...new Set([...document.querySelectorAll('#pvEquipeTecnicos .pv-tecnico-equipe:checked')].map(e=>e.value).concat(tecnico.nome))];
   const maquinasUnicas=[...new Set(maquinasSelecionadas)];
-  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:maquinasUnicas.length===1?maquinasUnicas[0]:maquinasUnicas.length+' máquinas do setor',maquinas:maquinasUnicas,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome}]);
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:maquinasUnicas.length===1?maquinasUnicas[0]:maquinasUnicas.length+' máquinas do setor',maquinas:maquinasUnicas,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
   if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
   pvDesc.value='';
   document.getElementById('pvTodasMaquinas').checked=false;
@@ -1845,7 +1856,7 @@ async function carregarPreventivas(){
     return;
   }
   PREV=data||[];
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 '+escaparHtml(p.tecnico_responsavel||'Técnico não definido')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
     let base;
@@ -1867,7 +1878,8 @@ async function gerarOSPrev(id){
     const maquinaLabel=maquinas.length>1?maquinas.length+' máquinas do setor':(maquinas[0]||p.maquina);
     const maquinasExecucao=maquinas.length>1?maquinas.map(nome=>({nome,concluida:false,concluida_em:null})):[];
     const descricaoOS='Preventiva: '+p.descricao+(maquinas.length>1?'\nMáquinas: '+maquinas.join(', '):'');
-    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
+    const equipeOS=[...new Set((Array.isArray(p.tecnicos_participantes)?p.tecnicos_participantes:[]).filter(x=>typeof x==='string'&&x.trim()).concat(p.tecnico_responsavel||[]))];
+    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
     if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
     const intervalo=Number(p.intervalo_dias)||30;
     let base=new Date(String(p.data_prevista||p.ultima||dataISOlocal(new Date())).slice(0,10)+'T00:00:00');
