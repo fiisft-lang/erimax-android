@@ -61,13 +61,18 @@
       const bundleUrl = new URL(manifest.url);
       const allowedPath = '/fiisft-lang/erimax-android/' + branch + '/ota/';
       if(bundleUrl.origin !== 'https://raw.githubusercontent.com' || !bundleUrl.pathname.startsWith(allowedPath)) throw new Error('Endereço do pacote não corresponde ao canal '+channel+'.');
+      // Verifica primeiro o pacote realmente ativo. Um APK novo pode continuar
+      // executando um bundle OTA antigo; nesse caso, o ID do APK não pode
+      // impedir a atualização do bundle que está em uso.
+      const current = await live.getCurrentBundle();
+      if(current && current.bundleId === manifest.bundleId) return;
       const localBuildResponse = await fetch('ota-build.json?ts=' + Date.now(), {cache:'no-store'});
       if(localBuildResponse.ok){
         const localBuild = await localBuildResponse.json();
-        if(localBuild && localBuild.bundleId === manifest.bundleId) return;
+        // Só considera o APK atualizado quando ele está usando o bundle nativo
+        // (current.bundleId nulo) e o build local já corresponde ao manifesto.
+        if((!current || !current.bundleId) && localBuild && localBuild.bundleId === manifest.bundleId) return;
       }
-      const current = await live.getCurrentBundle();
-      if(current && current.bundleId === manifest.bundleId) return;
       const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;
       const minimum = Number(manifest.minimumNativeVersionCode || 1);
       if(versionCode && minimum > versionCode) throw new Error('Esta atualização exige uma versão mais recente do aplicativo Android.');
