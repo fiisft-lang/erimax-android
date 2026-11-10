@@ -711,7 +711,7 @@ async function excluirOS(id){
 
 function verHistorico(id){
   const os=chamados.find(c=>c.id===id);
-  if(os)alert(`${nOS(os)} | ${os.turno}\nSetor: ${os.setor} | Máq: ${os.maquina}\nProblema: ${os.descricao}\nSolução: ${os.servico_executado||'Não concluída'}\nTécnico: ${os.tecnico||'Nenhum'}`);
+  if(os)alert(`${nOS(os)} | ${os.turno}\nSetor: ${os.setor} | Máq: ${os.maquina}\nAberta por: ${os.aberto_por||'—'}\nEquipamento: ${os.situacao_equipamento||'—'}\nProblema: ${os.descricao}\nSolução: ${os.servico_executado||'Não concluída'}\nTécnico: ${os.tecnico||'Nenhum'}`);
 }
 
 function atualizarMaquinasMetrica(){
