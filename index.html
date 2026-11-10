@@ -653,7 +653,7 @@ async function pausarOS(id){
   const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
   if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode pausar esta O.S.');
   if(!os.tecnico)return alert('Esta O.S. ainda não tem um técnico responsável.');
-  const escolha=prompt('Por que deseja pausar esta O.S.?\n\n1 - Aguardando peça\n2 - Outra ordem mais urgente\n3 - Falta de material ou ferramenta\n4 - Equipamento indisponível\n5 - Outro motivo\n\nDigite o número da opção:');
+  const escolha=prompt('Por que deseja pausar esta O.S.?\\n\\n1 - Aguardando peça\\n2 - Outra ordem mais urgente\\n3 - Falta de material ou ferramenta\\n4 - Equipamento indisponível\\n5 - Outro motivo\\n\\nDigite o número da opção:');
   if(escolha===null)return;
   const motivos={'1':'Aguardando peça','2':'Outra ordem mais urgente','3':'Falta de material ou ferramenta','4':'Equipamento indisponível'};
   let motivo=motivos[String(escolha).trim()];
@@ -662,10 +662,15 @@ async function pausarOS(id){
   if(!motivo||!motivo.trim())return alert('Informe o motivo da pausa.');
   motivo=motivo.trim().slice(0,300);
   const pausadaEm=new Date().toISOString();
-  const {data:registro,error:histError}=await _supabase.from('historico_pausas_os').insert([{os_id:id,tecnico:os.tecnico,motivo,pausada_em:pausadaEm}]).select('id').single();
-  if(histError)return alert('Não foi possível registrar a pausa: '+histError.message);
-  const {error}=await _supabase.from('os').update({status:'Pausada',motivo_pausa:motivo,pausada_em:pausadaEm}).eq('id',id).eq('status','Em Atendimento');
-  if(error){await _supabase.from('historico_pausas_os').delete().eq('id',registro.id);return alert('Não foi possível pausar a O.S.: '+error.message)}
+  const {data:atualizada,error}=await _supabase.from('os').update({status:'Pausada',motivo_pausa:motivo,pausada_em:pausadaEm}).eq('id',id).eq('status','Em Atendimento').select('id').maybeSingle();
+  if(error)return alert('Não foi possível pausar a O.S.: '+error.message);
+  if(!atualizada)return alert('Esta O.S. já foi alterada. Atualize a lista e tente novamente.');
+  const {error:histError}=await _supabase.from('historico_pausas_os').insert([{os_id:id,tecnico:os.tecnico,motivo,pausada_em:pausadaEm}]);
+  if(histError){
+    const {error:reversaoError}=await _supabase.from('os').update({status:'Em Atendimento',motivo_pausa:null,pausada_em:null}).eq('id',id).eq('status','Pausada');
+    if(reversaoError)console.error('Falha ao reverter pausa sem histórico:',reversaoError.message);
+    return alert('Não foi possível registrar o histórico da pausa: '+histError.message);
+  }
   if(os.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
   await carregarDadosSupabase();
   alert(nOS(os)+' pausada. Agora você pode assumir outra O.S.');
