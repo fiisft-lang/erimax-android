@@ -536,7 +536,7 @@ function renderTecnicos(){
     const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);
     const status=osAtivas.length?'EM SERVIÇO':(st?.status||(st&&st.turno_ativo?'ONLINE':'OFFLINE'));
     const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
-    const detalhe=osAtivas.length?' • '+osAtivas.map(c=>escaparHtml(nOS(c))+' ('+escaparHtml(c.maquina)+')').join(', '):'';
+    const detalhe=osAtivas.length?' • '+osAtivas.map(c=>escaparHtml(nOS(c))+' ('+escaparHtml(c.maquina)+' • Setor: '+escaparHtml(c.setor||'Não informado')+')').join(', '):'';
     return '<div class="maq-row"><b>TEC '+escaparHtml(t.nome)+'</b><span style="font-size:.75rem;font-weight:800;text-align:right;color:'+cor+'">● '+escaparHtml(status)+detalhe+'</span></div>';
   }).join(''):'<p style="color:#64748b;text-align:center;font-size:.8rem">Nenhum técnico cadastrado.</p>')+'<p style="font-size:.72rem;color:#64748b;margin-top:8px">'+ag+' OS aguardando atendimento</p></div>';
   boxTec2.innerHTML=boxTec.innerHTML;
