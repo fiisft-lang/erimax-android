@@ -386,6 +386,17 @@ function iniciarVerificacaoOS(){
   verificar();
   intervaloVerificacaoOS=setInterval(verificar,12000);
 }
+let intervaloAtualizacaoTempoParada=null;
+function iniciarAtualizacaoTempoParada(){
+  if(intervaloAtualizacaoTempoParada)return;
+  intervaloAtualizacaoTempoParada=setInterval(()=>{
+    const painel=document.getElementById('tab-painel');
+    const abertas=document.getElementById('tab-ordens-abertas');
+    const pausadas=document.getElementById('tab-ordens-pausadas');
+    if((painel&&painel.classList.contains('active'))||(abertas&&abertas.classList.contains('active'))||(pausadas&&pausadas.classList.contains('active')))atualizarTemposParadaPainel();
+  },60000);
+}
+iniciarAtualizacaoTempoParada();
 function iniciarTempoReal(){
   if(canalOSTempoReal)return;
   const canal=_supabase.channel('tabela-os-realtime')
@@ -575,6 +586,27 @@ async function recalcularStatusTecnico(userId){
   const {error}=await _supabase.from('status_tecnicos').update({status,os_atual_id:ocupada?ativas[0].id:null,atualizado_em:new Date().toISOString()}).eq('user_id',userId);
   if(error)console.error('Erro ao atualizar status do técnico:',error.message);
 }
+function minutosPausaOS(id){
+  const agora=Date.now();
+  return HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).reduce((total,p)=>{
+    const ini=new Date(p.pausada_em).getTime(),fim=p.retomada_em?new Date(p.retomada_em).getTime():agora;
+    return total+(Number.isFinite(ini)&&Number.isFinite(fim)?Math.max(0,fim-ini)/60000:0);
+  },0);
+}
+function atualizarTemposParadaPainel(){
+  document.querySelectorAll('[data-tempo-parada-os]').forEach(el=>{
+    const id=Number(el.dataset.tempoParadaOs),os=chamados.find(c=>Number(c.id)===id);
+    if(!os)return;
+    const turno=Number((String(os.turno||'').match(/\d+/)||[])[0])||null;
+    el.textContent=fmt(Math.round(paradaProd(os,turno)));
+    const pausa=document.querySelector('[data-tempo-pausa-os="'+id+'"]');
+    if(pausa){
+      const minutos=Math.round(minutosPausaOS(id));
+      pausa.textContent=minutos>0?'Observação: ficou pausada por '+fmt(minutos)+' (incluído no tempo total de parada).':'';
+      pausa.style.display=minutos>0?'block':'none';
+    }
+  });
+}
 function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas=false){renderTecnicos();renderStatusTurno();
   const box=document.getElementById(destino),filtro=apenasAbertas?'Abertas':document.getElementById('filtroStatus').value;
   const nome=localStorage.getItem('erimax_tecnico')||'';
@@ -621,6 +653,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     html+='<p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "'+escaparHtml(os.descricao)+'"</p>';
     if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
     if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Técnico responsável: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.situacao_equipamento==='Parado')html+='<p style="margin:6px 0;padding:7px 9px;background:#fff1f0;border:1px solid #fecaca;border-radius:5px;font-size:.8rem;color:#991b1b">⏱️ <b>Tempo de máquina parada:</b> <span data-tempo-parada-os="'+id+'">'+escaparHtml(fmt(Math.round(paradaProd(os,Number((String(os.turno||'').match(/\d+/)||[])[0])||null))))+'</span><small data-tempo-pausa-os="'+id+'" style="display:none;margin-top:3px;color:#805b00"></small></p>';
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
     if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
@@ -628,6 +661,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     card.innerHTML=html;
     box.appendChild(card);
   });
+  atualizarTemposParadaPainel();
 }
 
 function salvarNomeTecnico(){localStorage.setItem('erimax_tecnico',document.getElementById('nomeTecnico').value);renderizarChamados()}
