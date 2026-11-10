@@ -645,7 +645,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     }else if(status==='Pausada'){
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-assumir" onclick="retomarOS('+id+')">▶️ Retomar</button>';
     }
-    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';\n    b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
+    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
+    b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
     if(status==='Concluída'&&PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Horários</button>';
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
@@ -860,7 +861,9 @@ async function cancelarOS(id){
   const {error}=await _supabase.from('os').update({status:'Cancelada'}).eq('id',id);
   if(error)return alert('Erro ao cancelar O.S.: '+error.message);
   await carregarDadosSupabase();
-}\n\nasync function excluirOS(id){
+}
+
+async function excluirOS(id){
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Acesso negado! Apenas o administrador autorizado pode apagar ordens de serviço.');
   if(!confirm('ATENÇÃO: excluir definitivamente a O.S. #'+String(id).padStart(4,'0')+'? O registro será removido do banco de dados e não aparecerá mais no histórico. Prefira Cancelar quando quiser apenas encerrar sem apagar.'))return;
   const {error}=await _supabase.from('os').delete().eq('id',id);
