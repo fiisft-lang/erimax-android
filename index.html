@@ -602,7 +602,7 @@ function atualizarTemposParadaPainel(){
     const pausa=document.querySelector('[data-tempo-pausa-os="'+id+'"]');
     if(pausa){
       const minutos=Math.round(minutosPausaOS(id));
-      pausa.textContent=minutos>0?'Observação: ficou pausada por '+fmt(minutos)+' (incluído no tempo total de parada).':'';
+      pausa.textContent=minutos>0?'Observação: ficou pausada por '+fmt(minutos)+' (a contagem de parada continua durante o turno).':'';
       pausa.style.display=minutos>0?'block':'none';
     }
   });
