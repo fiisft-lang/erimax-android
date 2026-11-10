@@ -790,8 +790,26 @@ function verHistorico(id){
   const os=chamados.find(c=>Number(c.id)===Number(id));
   if(!os)return;
   const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).sort((a,b)=>new Date(a.pausada_em)-new Date(b.pausada_em));
-  const historico=pausas.length?'\n\nPAUSAS:\n'+pausas.map(p=>'- '+new Date(p.pausada_em).toLocaleString('pt-BR')+' — '+p.motivo+(p.retomada_em?' | Retomada: '+new Date(p.retomada_em).toLocaleString('pt-BR'):' | Ainda pausada')).join('\n'):'';
-  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico);
+  const agora=Date.now();
+  const minutosFmt=ms=>{
+    const total=Math.max(0,Math.floor(ms/60000)),dias=Math.floor(total/1440),horas=Math.floor((total%1440)/60),min=total%60;
+    if(dias)return dias+'d '+horas+'h '+min+'min';
+    if(horas)return horas+'h '+min+'min';
+    return min+' min';
+  };
+  let totalPausaMs=0;
+  const linhasPausa=pausas.map((p,i)=>{
+    const inicio=new Date(p.pausada_em).getTime();
+    const fim=p.retomada_em?new Date(p.retomada_em).getTime():agora;
+    const duracao=Number.isFinite(inicio)&&Number.isFinite(fim)?Math.max(0,fim-inicio):0;
+    totalPausaMs+=duracao;
+    return (i+1)+'. '+new Date(p.pausada_em).toLocaleString('pt-BR')+' — '+(p.motivo||'Motivo não informado')+
+      (p.retomada_em?'\n   Retomada: '+new Date(p.retomada_em).toLocaleString('pt-BR'):'\n   ⏸️ Pausa em andamento')+
+      '\n   Tempo parado: '+minutosFmt(duracao);
+  });
+  const historico=pausas.length?'\n\nPAUSAS:\n'+linhasPausa.join('\n')+
+    '\n\nTEMPO TOTAL PARADO: '+minutosFmt(totalPausaMs):'\n\nNenhuma pausa registrada.';
+  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum)'+historico);
 }
 
 function atualizarMaquinasMetrica(){
