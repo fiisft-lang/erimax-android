@@ -301,6 +301,10 @@ jobs:
           echo "Assinatura permanente configurada sem exibir credenciais."
 
       - name: Gerar APK
+        env:
+          ERIMAX_STORE_PASSWORD: ${{ secrets.ERIMAX_STORE_PASSWORD }}
+          ERIMAX_KEY_ALIAS: ${{ secrets.ERIMAX_KEY_ALIAS }}
+          ERIMAX_KEY_PASSWORD: ${{ secrets.ERIMAX_KEY_PASSWORD }}
         run: |
           cd android
           chmod +x gradlew
