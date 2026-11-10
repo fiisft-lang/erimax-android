@@ -28,6 +28,9 @@ public class IncomingCallActivity extends Activity {
     getWindow().setNavigationBarColor(Color.BLACK);
     osId = getIntent().getStringExtra("os_id");
     if (osId == null) osId = "";
+    String notificationAction = getIntent().getStringExtra("notification_action");
+    if ("silenciar".equals(notificationAction)) { dismissCall(); return; }
+    if ("assumir".equals(notificationAction)) { answerCall(); return; }
     String machine = getIntent().getStringExtra("maquina");
     String sector = getIntent().getStringExtra("setor");
     String number = getIntent().getStringExtra("numero");
@@ -114,7 +117,7 @@ public class IncomingCallActivity extends Activity {
 
   private void answerCall() {
     stopAlarm(); dismissNotification();
-    Intent open = new Intent(Intent.ACTION_VIEW,Uri.parse("erimax://os/" + Uri.encode(osId)),this,MainActivity.class);
+    Intent open = new Intent(Intent.ACTION_VIEW,Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=assumir"),this,MainActivity.class);
     open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     startActivity(open); finish();
   }
