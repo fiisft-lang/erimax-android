@@ -1947,8 +1947,7 @@ async function salvarHorarioSemanal(i){
     }
   }
   if(!dados.some(x=>x.ativo))return alert('Cadastre pelo menos um horário de trabalho na semana.');
-  const sobreposicao=encontrarSobreposicaoTurnos(dados,true);
-  if(sobreposicao)return alert(mensagemSobreposicaoTurnos(sobreposicao));
+  // Turnos podem se sobrepor para completar a carga horária; a união dos intervalos evita duplicar minutos nas métricas.
   const {error}=await _supabase.from('setores_horarios_semanais').upsert(dados,{onConflict:'setor,numero_turno,dia_semana'});
   if(error)return alert('Erro ao salvar a grade semanal: '+error.message);
   SETOR_EM_EDICAO=null;await carregarCfg();if(document.getElementById('tab-metricas').classList.contains('active'))atualizarMetricasReais();
@@ -1964,8 +1963,7 @@ async function salvarExcecaoHorario(i){
     if(pausa&&(!ini||!fim||!pIni||!pFim||!intervaloTurnoValido(ini,fim,pIni,pFim)))return alert('Confira o intervalo do almoço/jantar do Turno '+n+'. Ele precisa estar dentro do horário do turno.');
     if(ini&&fim)horarios.push({numero_turno:n,hora_inicio:ini,hora_fim:fim,intervalo_ativo:pausa,intervalo_inicio:pausa?pIni:null,intervalo_fim:pausa?pFim:null});
   }
-  const sobreposicao=encontrarSobreposicaoTurnos(horarios,false);
-  if(sobreposicao)return alert(mensagemSobreposicaoTurnos(sobreposicao));
+  // Exceções também permitem turnos sobrepostos; a disponibilidade une os intervalos sem duplicar tempo.
   if(!horarios.length&&!confirm('Nenhum horário foi informado. Deseja marcar '+data+' como dia sem produção?'))return;
   const {error}=await _supabase.from('setores_horarios_excecoes').upsert({setor:s,data_excecao:data,observacao:obs,horarios},{onConflict:'setor,data_excecao'});
   if(error)return alert('Erro ao salvar a data especial: '+error.message);
