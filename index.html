@@ -296,7 +296,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 
 <div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
-<div class="form-group"><label>Início do atendimento</label><input id="hrIni" type="datetime-local"></div>
+<div class="form-group"><label>Data e horário real em que a máquina parou / O.S. foi aberta</label><input id="hrAbertura" type="datetime-local" required></div>
+<div class="form-group"><label>Início do atendimento técnico (opcional enquanto não atendida)</label><input id="hrIni" type="datetime-local"></div>
 <div class="form-group"><label>Conclusão</label><input id="hrFim" type="datetime-local"></div>
 <div class="form-group"><label>Motivo do ajuste *</label><input id="hrMot" placeholder="Ex.: técnico esqueceu de fechar a OS"></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="modalHor.style.display='none'">Cancelar</button><button class="btn-submit" onclick="salvarHorarios()">Salvar</button></div></div></div>
@@ -667,7 +668,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     }
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
-    if(status==='Concluída'&&PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Horários</button>';
+    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Corrigir horários</button>';
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     let html='<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
@@ -840,22 +841,29 @@ async function salvarProgressoMaquinas(){
   alert('Andamento das máquinas salvo. A O.S. continua em atendimento.');
 }
 function editarHorarios(id){
-  const o=chamados.find(c=>c.id===id);if(!o)return;osHor=o;
+  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode corrigir os horários.');
+  const o=chamados.find(c=>Number(c.id)===Number(id));if(!o)return;osHor=o;
   hrInfo.innerText=nOS(o)+' — aberta em '+hm(o.created_at);
-  hrIni.value=o.data_atendimento?loc(o.data_atendimento):'';hrFim.value=o.data_conclusao?loc(o.data_conclusao):'';hrMot.value='';
+  hrAbertura.value=o.created_at?loc(o.created_at):'';hrIni.value=o.data_atendimento?loc(o.data_atendimento):'';hrFim.value=o.data_conclusao?loc(o.data_conclusao):'';hrMot.value='';
   modalHor.style.display='flex';
 }
 async function salvarHorarios(){
   const o=osHor;if(!o)return;
-  if(!hrIni.value||!hrFim.value)return alert('Preencha os dois horários.');
+  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode corrigir os horários.');
+  if(!hrAbertura.value)return alert('Informe o horário real da parada / abertura da O.S.');
   if(!hrMot.value.trim())return alert('Informe o motivo do ajuste.');
-  const ini=new Date(hrIni.value),fim=new Date(hrFim.value);
-  if(ini<new Date(o.created_at))return alert('O início do atendimento não pode ser antes da abertura da OS ('+hm(o.created_at)+').');
-  if(fim<ini)return alert('A conclusão não pode ser antes do início do atendimento.');
-  if(fim>new Date(Date.now()+60000))return alert('A conclusão não pode ser no futuro.');
-  const {error}=await _supabase.from('os').update({data_atendimento:ini.toISOString(),data_conclusao:fim.toISOString(),ajustado_por:PERFIL.nome,ajustado_em:new Date().toISOString(),ajuste_obs:hrMot.value.trim()}).eq('id',o.id);
-  if(error)return alert('Erro: '+error.message);
-  modalHor.style.display='none';carregarDadosSupabase();
+  const abertura=new Date(hrAbertura.value),ini=hrIni.value?new Date(hrIni.value):null,fim=hrFim.value?new Date(hrFim.value):null;
+  if(abertura>new Date(Date.now()+60000))return alert('O início da parada não pode ser no futuro.');
+  if(o.data_atendimento&&!ini)return alert('Informe o início do atendimento técnico.');
+  if(ini&&ini<abertura)return alert('O início do atendimento não pode ser antes do início real da parada.');
+  if(o.status==='Concluída'&&(!ini||!fim))return alert('Para O.S. concluída, preencha início do atendimento e conclusão.');
+  if(fim&&!ini)return alert('Informe o início do atendimento antes da conclusão.');
+  if(fim&&fim<ini)return alert('A conclusão não pode ser antes do início do atendimento.');
+  if(fim&&fim>new Date(Date.now()+60000))return alert('A conclusão não pode ser no futuro.');
+  const atualizacao={created_at:abertura.toISOString(),data_atendimento:ini?ini.toISOString():null,data_conclusao:fim?fim.toISOString():null,ajustado_por:PERFIL.nome,ajustado_em:new Date().toISOString(),ajuste_obs:hrMot.value.trim()};
+  const {error}=await _supabase.from('os').update(atualizacao).eq('id',o.id);
+  if(error)return alert('Erro ao corrigir horários: '+error.message);
+  modalHor.style.display='none';await carregarDadosSupabase();alert('Horários corrigidos. O histórico registra quem fez o ajuste e o motivo.');
 }
 function fecharModal(){modal.style.display='none'}
 async function confirmarConclusao(){
