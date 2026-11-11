@@ -1049,9 +1049,13 @@ function setorTemHorarioConfirmado(s,n,dia){
   return fonte.length>0&&fonte.every(horarioTurnoValido);
 }
 
-function paradaProd(c,tn){
+function paradaProd(c,tn,periodoInicio,periodoFim){
   if(String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return 0;
-  const ini=new Date(c.created_at),fim=new Date(c.data_conclusao||Date.now());
+  const inicioOriginal=new Date(c.created_at),fimOriginal=new Date(c.data_conclusao||Date.now());
+  const limiteIni=periodoInicio?new Date(periodoInicio).getTime():-Infinity;
+  const limiteFim=periodoFim?new Date(periodoFim).getTime():Infinity;
+  const ini=new Date(Math.max(inicioOriginal.getTime(),limiteIni));
+  const fim=new Date(Math.min(fimOriginal.getTime(),limiteFim));
   if(!(fim>ini))return 0;
   let total=0,d=new Date(ini),ultimo=new Date(fim);d.setHours(0,0,0,0);d.setDate(d.getDate()-1);ultimo.setHours(0,0,0,0);
   for(;d<=ultimo;d.setDate(d.getDate()+1)){
@@ -1155,11 +1159,26 @@ function atualizarMetricasReais(){
     }
   });
 
-  // parada só dentro do horário de produção; com filtro de turno, conta só a parte que cai naquele turno
+  // Período dos indicadores: a parada é atribuída ao turno/dia em que ocorreu,
+  // mesmo quando a O.S. foi aberta no turno ou dia anterior.
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  let pIni,pFim;
+  if(dia){pIni=new Date(dia+'T00:00:00');pFim=pIni}
+  else if(mes){const [y,mo]=mes.split('-').map(Number);pIni=new Date(y,mo-1,1);pFim=(hoje.getFullYear()===y&&hoje.getMonth()+1===mo)?hoje:new Date(y,mo,0)}
+  else{pIni=f.length?new Date(Math.min(...f.map(c=>new Date(c.created_at)))):new Date(hoje);pIni.setHours(0,0,0,0);pFim=hoje}
+  const pLimiteIni=new Date(pIni);pLimiteIni.setHours(0,0,0,0);
+  const pLimiteFim=new Date(pFim);pLimiteFim.setHours(0,0,0,0);pLimiteFim.setDate(pLimiteFim.getDate()+1);
+  // Não filtra pela coluna c.turno: ela guarda o turno de abertura da O.S.
+  // O cálculo cruza o intervalo real da O.S. com a grade de cada turno.
   const tnum=tn==='Todos'?null:+tn.slice(-1);
-  const fp=tn==='Todos'?f:chamados.filter(c=>{const d=c.created_at?diaLocal(c.created_at):'';return(!dia||d===dia)&&(!mes||d.startsWith(mes))&&(st==='Todos'||c.setor===st)&&(mq==='Todas'||c.maquina===mq)&&c.tipo!=='Preventiva'&&(tp==='Todos'||c.tipo===tp)});
+  const fp=chamados.filter(c=>{
+    if(c.tipo==='Preventiva'||c.status==='Cancelada')return false;
+    if((st!=='Todos'&&c.setor!==st)||(mq!=='Todas'&&c.maquina!==mq)||(tp!=='Todos'&&c.tipo!==tp))return false;
+    const ini=new Date(c.created_at),fim=new Date(c.data_conclusao||Date.now());
+    return fim>pLimiteIni&&ini<pLimiteFim;
+  });
   const osParada=[];
-  fp.forEach(c=>{const p=paradaProd(c,tnum);if(!p)return;osParada.push({os:c,parada:p});const m=maq[c.maquina]||(maq[c.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});parada+=p;m.parada+=p;setor[c.setor]=(setor[c.setor]||0)+p});
+  fp.forEach(c=>{const p=paradaProd(c,tnum,pLimiteIni,pLimiteFim);if(!p)return;osParada.push({os:c,parada:p});const m=maq[c.maquina]||(maq[c.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});parada+=p;m.parada+=p;setor[c.setor]=(setor[c.setor]||0)+p});
   OS_PARADA_ATUAL=osParada;
 
   // reincidência: OS cuja máquina+tipo aparece 2+ vezes
@@ -1168,11 +1187,6 @@ function atualizarMetricasReais(){
 
   // base de tempo: dias do período × máquinas × 540 min
   // período filtrado e minutos produtivos esperados (conforme o horário de cada setor)
-  const hoje=new Date();hoje.setHours(0,0,0,0);
-  let pIni,pFim;
-  if(dia){pIni=new Date(dia+'T00:00:00');pFim=pIni}
-  else if(mes){const [y,mo]=mes.split('-').map(Number);pIni=new Date(y,mo-1,1);pFim=(hoje.getFullYear()===y&&hoje.getMonth()+1===mo)?hoje:new Date(y,mo,0)}
-  else{pIni=f.length?new Date(Math.min(...f.map(c=>new Date(c.created_at)))):new Date(hoje);pIni.setHours(0,0,0,0);pFim=hoje}
   const baseDe=sx=>{
     let total=0,limiteIni=new Date(pIni),limiteFim=new Date(pFim);
     limiteIni.setHours(0,0,0,0);limiteFim.setHours(0,0,0,0);limiteFim.setDate(limiteFim.getDate()+1);
