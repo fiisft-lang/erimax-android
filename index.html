@@ -1232,7 +1232,7 @@ function atualizarMetricasReais(){
     });
     intervalosCobertosPorMaquina.set(chave,mesclados);
   });
-  osParada.forEach(({os,p})=>{
+  osParada.forEach(({os,parada:p})=>{
     const m=maq[os.maquina]||(maq[os.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:os.setor});
     parada+=p;m.parada+=p;setor[os.setor]=(setor[os.setor]||0)+p;
   });
