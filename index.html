@@ -219,7 +219,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 
 <div id="metricsHorarioAviso" class="card" style="display:none;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;text-align:center;padding:18px"><b>⚠️ Horário do turno não cadastrado</b><p id="metricsHorarioAvisoTexto" style="margin:8px 0 0;font-size:.85rem">Cadastre a entrada e a saída desse turno no setor para visualizar os gráficos com dados reais.</p></div>
 <div id="metricsDataContent">
-<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de O.S. concluídas por técnico</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Classificação dos técnicos pela quantidade de O.S. que concluíram no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div>
+<div class="card"><h4 style="color:var(--primary);margin-bottom:6px">🏆 Ranking mensal de O.S. concluídas por técnico</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Classificação dos técnicos pela quantidade de O.S. que concluíram no mês selecionado.</p><div class="form-group"><label>MÊS DO RANKING</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div><div id="boxRankingOperadores"></div></div><div class="card"><h4 style="color:#b45309;margin-bottom:6px">⚠️ O.S. com horário corrigido — acompanhamento de operadores</h4><p style="font-size:.75rem;color:#64748b;margin:0 0 10px">Conta correções classificadas como esquecimento do operador no mês selecionado. É um sinal para acompanhamento, não uma prova de má-fé.</p><div id="boxAjustesHorarioOperadores"></div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"><button class="btn-submit" onclick="exportarExcel()">📊 Excel (.xlsx)</button><button class="btn-submit" style="background:var(--secondary)" onclick="prepararPDF()">🖨️ PDF</button></div>
 <div id="printReportHeader"></div>
 <div class="metrics-grid">
@@ -299,7 +299,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Data e horário real em que a máquina parou / O.S. foi aberta</label><input id="hrAbertura" type="datetime-local" required></div>
 <div class="form-group"><label>Início do atendimento técnico (opcional enquanto não atendida)</label><input id="hrIni" type="datetime-local"></div>
 <div class="form-group"><label>Conclusão</label><input id="hrFim" type="datetime-local"></div>
-<div class="form-group"><label>Motivo do ajuste *</label><input id="hrMot" placeholder="Ex.: técnico esqueceu de fechar a OS"></div>
+<div class="form-group"><label>Motivo principal *</label><select id="hrTipo"><option value="Esquecimento do operador">Esquecimento do operador ao abrir a O.S.</option><option value="Horário informado incorretamente">Horário informado incorretamente</option><option value="Outro motivo">Outro motivo</option></select></div><div class="form-group"><label>Detalhes / justificativa *</label><input id="hrMot" placeholder="Descreva o motivo da correção"></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="modalHor.style.display='none'">Cancelar</button><button class="btn-submit" onclick="salvarHorarios()">Salvar</button></div></div></div>
 
 <audio id="audioSirene" preload="auto" loop>
@@ -549,6 +549,14 @@ function renderRankingOperadores(){
   const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
   if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
   box.innerHTML=lista.map(([nome,total],i)=>{const seguro=String(nome).replace(/[&<>\"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]));return `<div class="maq-row" style="display:flex;align-items:center;gap:10px"><b style="min-width:30px;font-size:1.05rem">${medalhas[i]||(i+1)+"º"}</b><span style="flex:1"><b>${seguro}</b></span><strong style="color:var(--primary);font-size:1.05rem">${total} <small style="font-size:.68rem;color:#64748b;font-weight:500">O.S.</small></strong></div>`}).join("");
+  const boxAjustes=document.getElementById("boxAjustesHorarioOperadores");
+  if(boxAjustes){
+    const ajustes=chamados.filter(c=>c.ajustado_em&&String(c.ajuste_obs||"").toLocaleLowerCase("pt-BR").includes("esquecimento do operador")&&(!mes||String(c.ajustado_em).slice(0,7)===mes));
+    const porOperador={};
+    ajustes.forEach(c=>{const nome=c.aberto_por||"Operador não identificado";if(!porOperador[nome])porOperador[nome]=[];porOperador[nome].push(c)});
+    const grupos=Object.entries(porOperador).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"pt-BR"));
+    boxAjustes.innerHTML=ajustes.length?'<p style="font-size:.82rem;color:#92400e;margin:0 0 8px"><b>'+ajustes.length+'</b> correção(ões) por esquecimento no período.</p>'+grupos.map(([nome,itens])=>'<div class="maq-row" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+escaparHtml(nome)+'</b><strong style="color:#b45309">'+itens.length+' ocorrência(s)</strong></div><small style="color:#64748b">'+itens.map(c=>escaparHtml(nOS(c)+' • '+c.maquina+' • '+new Date(c.ajustado_em).toLocaleDateString("pt-BR"))).join('<br>')+'</small></div>').join(""):'<p style="font-size:.8rem;color:#64748b;text-align:center">Nenhuma correção classificada como esquecimento do operador neste mês.</p>';
+  }
 }
 function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento'),ag=chamados.filter(c=>c.status==='Aberta').length;
@@ -672,7 +680,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     let html='<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
-    html+='<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';
+    html+='<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
     html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
@@ -844,14 +852,14 @@ function editarHorarios(id){
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode corrigir os horários.');
   const o=chamados.find(c=>Number(c.id)===Number(id));if(!o)return;osHor=o;
   hrInfo.innerText=nOS(o)+' — aberta em '+hm(o.created_at);
-  hrAbertura.value=o.created_at?loc(o.created_at):'';hrIni.value=o.data_atendimento?loc(o.data_atendimento):'';hrFim.value=o.data_conclusao?loc(o.data_conclusao):'';hrMot.value='';
+  hrAbertura.value=o.created_at?loc(o.created_at):'';hrIni.value=o.data_atendimento?loc(o.data_atendimento):'';hrFim.value=o.data_conclusao?loc(o.data_conclusao):'';hrTipo.value='Esquecimento do operador';hrMot.value='';
   modalHor.style.display='flex';
 }
 async function salvarHorarios(){
   const o=osHor;if(!o)return;
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode corrigir os horários.');
   if(!hrAbertura.value)return alert('Informe o horário real da parada / abertura da O.S.');
-  if(!hrMot.value.trim())return alert('Informe o motivo do ajuste.');
+  if(!hrTipo.value)return alert('Selecione o motivo principal do ajuste.');if(!hrMot.value.trim())return alert('Informe os detalhes da correção.');
   const abertura=new Date(hrAbertura.value),ini=hrIni.value?new Date(hrIni.value):null,fim=hrFim.value?new Date(hrFim.value):null;
   if(abertura>new Date(Date.now()+60000))return alert('O início da parada não pode ser no futuro.');
   if(o.data_atendimento&&!ini)return alert('Informe o início do atendimento técnico.');
@@ -860,7 +868,7 @@ async function salvarHorarios(){
   if(fim&&!ini)return alert('Informe o início do atendimento antes da conclusão.');
   if(fim&&fim<ini)return alert('A conclusão não pode ser antes do início do atendimento.');
   if(fim&&fim>new Date(Date.now()+60000))return alert('A conclusão não pode ser no futuro.');
-  const atualizacao={created_at:abertura.toISOString(),data_atendimento:ini?ini.toISOString():null,data_conclusao:fim?fim.toISOString():null,ajustado_por:PERFIL.nome,ajustado_em:new Date().toISOString(),ajuste_obs:hrMot.value.trim()};
+  const atualizacao={created_at:abertura.toISOString(),data_atendimento:ini?ini.toISOString():null,data_conclusao:fim?fim.toISOString():null,ajustado_por:PERFIL.nome,ajustado_em:new Date().toISOString(),ajuste_obs:hrTipo.value+' — '+hrMot.value.trim()};
   const {error}=await _supabase.from('os').update(atualizacao).eq('id',o.id);
   if(error)return alert('Erro ao corrigir horários: '+error.message);
   modalHor.style.display='none';await carregarDadosSupabase();alert('Horários corrigidos. O histórico registra quem fez o ajuste e o motivo.');
@@ -937,7 +945,8 @@ function verHistorico(id){
     return (i+1)+'. '+solicitada+' — '+(t.solicitada_por||t.tecnico_anterior)+' transferiu de '+t.tecnico_anterior+' para '+t.tecnico_novo+'\n   '+(t.aceita_por?'Aceita por '+t.aceita_por+' em '+aceita:'Pendente de aceite');
   });
   const historicoTransferencias=transferencias.length?'\n\nTRANSFERÊNCIAS:\n'+linhasTransferencia.join('\n'):'\n\nNenhuma transferência registrada.';
-  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias);
+  const historicoAjuste=os.ajustado_em?'\n\n⚠️ HORÁRIO CORRIGIDO PELO GESTOR:\nPor: '+(os.ajustado_por||'Gestor')+'\nEm: '+new Date(os.ajustado_em).toLocaleString('pt-BR')+'\nMotivo: '+(os.ajuste_obs||'Não informado'):'\n\nNenhuma correção de horário registrada.';
+  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoAjuste);
 }
 
 function atualizarMaquinasMetrica(){
