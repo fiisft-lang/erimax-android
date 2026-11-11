@@ -1111,25 +1111,46 @@ function setorTemHorarioConfirmado(s,n,dia){
   return fonte.length>0&&fonte.every(horarioTurnoValido);
 }
 
-function paradaProd(c,tn,periodoInicio,periodoFim){
-  if(String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return 0;
-  const inicioOriginal=new Date(c.created_at),fimOriginal=new Date(c.data_conclusao||Date.now());
-  const limiteIni=periodoInicio?new Date(periodoInicio).getTime():-Infinity;
-  const limiteFim=periodoFim?new Date(periodoFim).getTime():Infinity;
-  const ini=new Date(Math.max(inicioOriginal.getTime(),limiteIni));
-  const fim=new Date(Math.min(fimOriginal.getTime(),limiteFim));
-  if(!(fim>ini))return 0;
-  let total=0,d=new Date(ini),ultimo=new Date(fim);d.setHours(0,0,0,0);d.setDate(d.getDate()-1);ultimo.setHours(0,0,0,0);
+// Gera os intervalos produtivos reais e une sobreposições entre turnos do mesmo setor.
+// Assim, uma mesma faixa de relógio nunca entra duas vezes na base nem na parada.
+function intervalosProdutivosPeriodo(s,periodoInicio,periodoFim,tn){
+  const inicio=Number.isFinite(periodoInicio)?periodoInicio:-8640000000000000;
+  const fim=Number.isFinite(periodoFim)?periodoFim:8640000000000000;
+  if(!(fim>inicio)||!Number.isFinite(inicio)||!Number.isFinite(fim))return [];
+  const d=new Date(inicio);d.setHours(0,0,0,0);d.setDate(d.getDate()-1);
+  const ultimo=new Date(fim);ultimo.setHours(0,0,0,0);
+  const partes=[];
   for(;d<=ultimo;d.setDate(d.getDate()+1)){
-    const horarios=horariosDoDia(c.setor,d).filter(t=>!tn||+t.numero_turno===+tn);
+    const horarios=horariosDoDia(s,d).filter(t=>!tn||+t.numero_turno===+tn);
     for(const t of horarios){
       const a=new Date(d);a.setHours(0,0,0,0);a.setMinutes(minutosHora(t.hora_inicio));
       const b=new Date(a);b.setMinutes(b.getMinutes()+minutosTurno(t));
-      const iniMs=Math.max(a.getTime(),ini.getTime()),fimMs=Math.min(b.getTime(),fim.getTime());
-      if(fimMs>iniMs)total+=minutosProdutivosTrecho(t,a.getTime(),iniMs,fimMs);
+      const ini=Math.max(a.getTime(),inicio),fimTurno=Math.min(b.getTime(),fim);
+      if(fimTurno<=ini)continue;
+      const p=t&&t.intervalo_ativo&&t.intervalo_inicio&&t.intervalo_fim?intervaloTurnoOffsets(t):null;
+      if(!p){partes.push([ini,fimTurno]);continue}
+      const pi=a.getTime()+p.inicio*60000,pf=a.getTime()+p.fim*60000;
+      if(pi>ini)partes.push([ini,Math.min(pi,fimTurno)]);
+      if(pf<fimTurno)partes.push([Math.max(pf,ini),fimTurno]);
     }
   }
-  return total;
+  partes.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const unidas=[];
+  for(const parte of partes){
+    const ultima=unidas[unidas.length-1];
+    if(ultima&&parte[0]<=ultima[1])ultima[1]=Math.max(ultima[1],parte[1]);
+    else unidas.push([...parte]);
+  }
+  return unidas;
+}
+function paradaProd(c,tn,periodoInicio,periodoFim){
+  if(String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return 0;
+  const inicioOriginal=new Date(c.created_at).getTime(),fimOriginal=new Date(c.data_conclusao||Date.now()).getTime();
+  const limiteIni=periodoInicio?new Date(periodoInicio).getTime():inicioOriginal;
+  const limiteFim=periodoFim?new Date(periodoFim).getTime():fimOriginal;
+  const ini=Math.max(inicioOriginal,limiteIni),fim=Math.min(fimOriginal,limiteFim);
+  if(!(fim>ini))return 0;
+  return intervalosProdutivosPeriodo(c.setor,ini,fim,tn).reduce((total,p)=>total+(p[1]-p[0])/60000,0);
 }
 const charts={};
 const DETALHES_GRAFICOS={};
@@ -1300,14 +1321,8 @@ function atualizarMetricasReais(){
     // Não projeta horas futuras como se a máquina já tivesse rodado.
     // Em períodos que chegam até hoje (ou avançam para o futuro), limita a base ao instante atual.
     const limiteFimEfetivo=Math.min(limiteFim.getTime(),Date.now());
-    const x=new Date(limiteIni);x.setDate(x.getDate()-1);
-    for(;x.getTime()<limiteFimEfetivo;x.setDate(x.getDate()+1))for(const t of horariosDoDia(sx,x)){
-      if(tn!=='Todos'&&+t.numero_turno!==+tn.slice(-1))continue;
-      const a=new Date(x);a.setHours(0,0,0,0);a.setMinutes(minutosHora(t.hora_inicio));
-      const b=new Date(a);b.setMinutes(b.getMinutes()+minutosTurno(t));
-      const ini=Math.max(a.getTime(),limiteIni.getTime()),fim=Math.min(b.getTime(),limiteFimEfetivo);
-      if(fim>ini)total+=minutosProdutivosTrecho(t,a.getTime(),ini,fim);
-    }
+    const filtroTurno=tn==='Todos'?null:+tn.slice(-1);
+    total=intervalosProdutivosPeriodo(sx,limiteIni.getTime(),limiteFimEfetivo,filtroTurno).reduce((s,p)=>s+(p[1]-p[0])/60000,0);
     return total};
   const maqsBase=MAQUINAS.filter(m=>(st==='Todos'||m.setor===st)&&(mq==='Todas'||m.nome===mq));
   const base=maqsBase.length?maqsBase.reduce((t,m)=>t+baseDe(m.setor),0):Object.values(maq).reduce((t,m)=>t+baseDe(m.setor),0);
