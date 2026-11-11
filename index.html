@@ -242,13 +242,13 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 </div>
 
 <div class="card" style="border:1px solid #2563eb;background:#eff6ff;padding:12px 14px;margin-bottom:12px"><p style="margin:0;color:#1e40af;font-size:.84rem;line-height:1.5;text-align:center"><b>👆 DICA: os gráficos são interativos!</b><br>Toque em uma barra, fatia colorida ou ponto do gráfico para abrir as O.S. e os detalhes relacionados ao item selecionado. Os resultados respeitam o período e os filtros aplicados.</p></div>
-<div class="card metricas-com-horario" id="cardHorarioEfGeral"><h4>Eficiência geral da produção</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Parte verde: tempo rodando • parte vermelha: tempo parado. Clique na parte vermelha para ver as OS.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfGeral"><h4>Disponibilidade registrada</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Verde: tempo previsto sem parada registrada • vermelho: parada registrada em O.S. Toque no vermelho para ver os registros.</p><p style="font-size:.72rem;color:#92400e;background:#fffbeb;border-radius:7px;padding:8px;margin:8px 0 0">Este indicador considera somente paradas registradas em O.S. e os horários cadastrados. Paradas sem O.S. não entram no cálculo; portanto, ainda não representa a produção real da máquina.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div></div>
 
-<div class="card metricas-com-horario" id="cardHorarioRanking"><h4>Máquinas críticas (ranking)</h4>
+<div class="card metricas-com-horario" id="cardHorarioRanking"><h4>Máquinas com maior tempo de parada</h4><p style="font-size:.72rem;color:#64748b;text-align:center;margin:4px 0 8px">Toque em uma máquina para consultar os dados relacionados.</p>
 <div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></div>
 
-<div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Eficiência real por setor<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
-<div class="card metricas-com-horario" id="cardHorarioEfMaq"><h4>Eficiência real por máquina<br><small style="text-transform:none;color:#64748b">horas do turno − parada = horas rodadas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Disponibilidade registrada por setor<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioEfMaq"><h4>Disponibilidade registrada por máquina<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
 <div class="card"><h4>Causas das falhas (Pareto)</h4><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
 <div class="card"><h4>Tendência diária: abertas × concluídas</h4><div class="chart-wrapper"><canvas id="chTendencia"></canvas></div></div>
 <div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Parada por setor (Pareto)</h4><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
@@ -1108,9 +1108,9 @@ function mostrarOSParada(lista){
 }
 function mostrarMaquinasRodando(lista){
   const itens=(lista||[]).filter(x=>x&&x.rodou>0).sort((a,b)=>b.rodou-a.rodou);
-  modalEfOSTitulo.textContent='Máquinas com tempo rodando';
-  resumoEfOS.textContent=itens.length?itens.length+' máquinas com tempo de funcionamento no período e filtros selecionados.':'Nenhuma máquina com tempo rodando foi encontrada neste filtro.';
-  listaEfOS.innerHTML=itens.length?itens.map(m=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(m.nome)+'</span><span class="os-badge" style="background:#dcfce7;color:#166534">Rodando</span></div><p style="font-size:.82rem;margin:6px 0"><b>Tempo rodando:</b> '+fmt(m.rodou)+'</p><p style="font-size:.78rem;color:#64748b">Setor: '+escaparHtml(m.setor||'Não informado')+' • Eficiência: '+m.pct+'%</p></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma máquina com tempo rodando neste filtro.</p>';
+  modalEfOSTitulo.textContent='Máquinas sem parada registrada';
+  resumoEfOS.textContent=itens.length?itens.length+' máquinas com tempo previsto sem parada registrada no período e filtros selecionados.':'Nenhuma máquina com tempo rodando foi encontrada neste filtro.';
+  listaEfOS.innerHTML=itens.length?itens.map(m=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(m.nome)+'</span><span class="os-badge" style="background:#dcfce7;color:#166534">Sem parada registrada</span></div><p style="font-size:.82rem;margin:6px 0"><b>Tempo sem parada registrada:</b> '+fmt(m.rodou)+'</p><p style="font-size:.78rem;color:#64748b">Setor: '+escaparHtml(m.setor||'Não informado')+' • Disponibilidade registrada: '+m.pct+'%</p></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma máquina com tempo rodando neste filtro.</p>';
   modalEfOS.style.display='flex';
 }
 function mostrarOSDetalhe(titulo,lista){
@@ -1217,10 +1217,10 @@ function atualizarMetricasReais(){
   const mtbf=f.length?Math.max(0,(base-parada)/f.length):0;
 
   // Gráfico de pizza: disponibilidade (verde) x parada (vermelho).
-  mk('chEfGeral',{type:'doughnut',data:{labels:['Rodando','Parada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label(ctx){return ctx.label+': '+fmt(ctx.raw)}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('eficiência',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
+  mk('chEfGeral',{type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label(ctx){return ctx.label+': '+fmt(ctx.raw)}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('disp. registrada',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
 
   // cards
-  cDisp.innerText=horarioOKFiltro?(disp===null?'—':disp+'%'):'—';cDispSub.innerText=horarioOKFiltro?(base>0?'Previsto '+fmt(base)+' • rodou '+fmt(Math.max(0,base-parada)):'Sem horas produtivas no período'):'Aguardando horários confirmados';cDisp.style.color=!horarioOKFiltro||disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
+  cDisp.innerText=horarioOKFiltro?(disp===null?'—':disp+'%'):'—';cDispSub.innerText=horarioOKFiltro?(base>0?'Previsto '+fmt(base)+' • sem parada '+fmt(Math.max(0,base-parada)):'Sem horas produtivas no período'):'Aguardando horários confirmados';cDisp.style.color=!horarioOKFiltro||disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
   cParada.innerText=horarioOKFiltro?fmt(parada):'—';
   cResp.innerText=fmt(media(sResp,nResp));
   cMTTR.innerText=fmt(media(sRep,nRep));
@@ -1279,7 +1279,7 @@ function atualizarMetricasReais(){
     }
     wrapper.style.height=Math.max(220,arr.length*30+70+(avisos.length?100:0))+'px';
     DETALHES_GRAFICOS[id]=(_ds,i)=>{const nome=arr[i]?.n;return{titulo:'O.S. da máquina/setor '+nome,lista:f.filter(c=>id==='chEfMaq'?c.maquina===nome:c.setor===nome)}};
-    mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Rodou (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
+    mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Sem parada registrada (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada registrada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
   };
   const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
   const setoresSemHorario=[...new Set(semHorarioMaq.map(m=>m.setor||'Setor não definido'))];
