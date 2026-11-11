@@ -1071,6 +1071,41 @@ function horarioTurnoValido(t){
   const regex=/^([01][0-9]|2[0-3]):[0-5][0-9]$/;
   return !!(t&&regex.test(ini)&&regex.test(fim)&&ini!==fim);
 }
+
+// Impede que dois turnos do mesmo setor ocupem o mesmo horário.
+// Na grade semanal, também compara o fim de um dia com o começo do seguinte.
+function encontrarSobreposicaoTurnos(horarios,semanal){
+  const faixas=[];
+  if(semanal){
+    for(let desloc=-1;desloc<=7;desloc++){
+      const dia=((desloc%7)+7)%7;
+      horarios.filter(h=>h.ativo&&+h.dia_semana===dia).forEach(h=>{
+        const inicio=desloc*1440+minutosHora(h.hora_inicio);
+        faixas.push({inicio,fim:inicio+minutosTurno(h),turno:+h.numero_turno,dia:desloc});
+      });
+    }
+  }else{
+    horarios.forEach(h=>{
+      const inicio=minutosHora(h.hora_inicio);
+      faixas.push({inicio,fim:inicio+minutosTurno(h),turno:+h.numero_turno,dia:0});
+    });
+  }
+  faixas.sort((a,b)=>a.inicio-b.inicio||a.fim-b.fim);
+  for(let i=0;i<faixas.length;i++){
+    for(let j=i+1;j<faixas.length&&faixas[j].inicio<faixas[i].fim;j++){
+      const a=faixas[i],b=faixas[j];
+      if(a.dia===b.dia&&a.turno===b.turno)continue;
+      if(Math.min(a.fim,b.fim)>Math.max(a.inicio,b.inicio))return {a,b};
+    }
+  }
+  return null;
+}
+function mensagemSobreposicaoTurnos(o){
+  const dia=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  const nome=(x)=>'Turno '+x.turno+(x.dia!==0?' ('+(x.dia<0?'dia anterior':'dia seguinte')+')':'');
+  const faixa=(x)=>String(Math.floor(((x.inicio%1440)+1440)%1440/60)).padStart(2,'0')+':'+String(((x.inicio%1440)+1440)%1440%60).padStart(2,'0');
+  return 'Horários sobrepostos: '+nome(o.a)+' e '+nome(o.b)+'. Confira a entrada e a saída antes de salvar.';
+}
 function horariosDoDia(s,d){
   const chave=s+'|'+dataISOlocal(d);
   if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave))
@@ -1910,6 +1945,8 @@ async function salvarHorarioSemanal(i){
     }
   }
   if(!dados.some(x=>x.ativo))return alert('Cadastre pelo menos um horário de trabalho na semana.');
+  const sobreposicao=encontrarSobreposicaoTurnos(dados,true);
+  if(sobreposicao)return alert(mensagemSobreposicaoTurnos(sobreposicao));
   const {error}=await _supabase.from('setores_horarios_semanais').upsert(dados,{onConflict:'setor,numero_turno,dia_semana'});
   if(error)return alert('Erro ao salvar a grade semanal: '+error.message);
   SETOR_EM_EDICAO=null;await carregarCfg();if(document.getElementById('tab-metricas').classList.contains('active'))atualizarMetricasReais();
@@ -1925,6 +1962,8 @@ async function salvarExcecaoHorario(i){
     if(pausa&&(!ini||!fim||!pIni||!pFim||!intervaloTurnoValido(ini,fim,pIni,pFim)))return alert('Confira o intervalo do almoço/jantar do Turno '+n+'. Ele precisa estar dentro do horário do turno.');
     if(ini&&fim)horarios.push({numero_turno:n,hora_inicio:ini,hora_fim:fim,intervalo_ativo:pausa,intervalo_inicio:pausa?pIni:null,intervalo_fim:pausa?pFim:null});
   }
+  const sobreposicao=encontrarSobreposicaoTurnos(horarios,false);
+  if(sobreposicao)return alert(mensagemSobreposicaoTurnos(sobreposicao));
   if(!horarios.length&&!confirm('Nenhum horário foi informado. Deseja marcar '+data+' como dia sem produção?'))return;
   const {error}=await _supabase.from('setores_horarios_excecoes').upsert({setor:s,data_excecao:data,observacao:obs,horarios},{onConflict:'setor,data_excecao'});
   if(error)return alert('Erro ao salvar a data especial: '+error.message);
