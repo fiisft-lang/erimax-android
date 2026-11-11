@@ -1142,12 +1142,12 @@ function atualizarMetricasReais(){
     const k=c.maquina+'|'+c.tipo;grupos[k]=(grupos[k]||0)+1;
     if(c.status==='Concluída')concl++;else abertas++;
 
-    if(c.data_atendimento){
+    if(c.status!=='Cancelada'&&c.data_atendimento){
       const r=min(c.created_at,c.data_atendimento);
       if(r>=0){sResp+=r;nResp++;
         if(c.tecnico){const t=tec[c.tecnico]||(tec[c.tecnico]={sR:0,nR:0,sP:0,nP:0});t.sR+=r;t.nR++}}
     }
-    if(c.data_atendimento&&c.data_conclusao){
+    if(c.status!=='Cancelada'&&c.data_atendimento&&c.data_conclusao){
       const r=min(c.data_atendimento,c.data_conclusao);
       if(r>=0){sRep+=r;nRep++;m.sRep+=r;m.nRep++;
         if(c.tecnico){const t=tec[c.tecnico]||(tec[c.tecnico]={sR:0,nR:0,sP:0,nP:0});t.sP+=r;t.nP++}}
@@ -1281,7 +1281,7 @@ function atualizarMetricasReais(){
   mk('chTipos',{type:'doughnut',data:{labels:Object.entries(tipo).map(([k,v])=>`${k}: ${v} OS (${Math.round(v/tt*100)}%)`),datasets:[{data:Object.values(tipo),backgroundColor:COR}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:12}}}}},plugins:[{id:'pct',afterDatasetsDraw(ch){const c=ch.ctx,d=ch.data.datasets[0].data;c.save();c.fillStyle='#fff';c.font='bold 13px sans-serif';c.textAlign='center';c.textBaseline='middle';c.shadowColor='rgba(0,0,0,.7)';c.shadowBlur=3;ch.getDatasetMeta(0).data.forEach((arc,i)=>{const p=Math.round(d[i]/tt*100);if(!d[i]||p<5)return;const pos=arc.tooltipPosition();c.fillText(p+'%',pos.x,pos.y)});c.restore()}}]});
 
   const tn_=Object.keys(tec);
-  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const lista=f.filter(c=>c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao));return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
+  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const lista=f.filter(c=>c.status!=='Cancelada'&&c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao));return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
   mk('chTecnico',{type:'bar',data:{labels:tn_,datasets:[
     {label:'Resposta (min)',data:tn_.map(t=>Math.round(media(tec[t].sR,tec[t].nR))),backgroundColor:'#0056b3'},
     {label:'Reparo (min)',data:tn_.map(t=>Math.round(media(tec[t].sP,tec[t].nP))),backgroundColor:'#28a745'}]}});
