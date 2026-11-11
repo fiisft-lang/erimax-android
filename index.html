@@ -656,7 +656,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
       if(podeConcluir)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
-      if(PERFIL&&PERFIL.perfil==='tecnico'&&os.transferencia_para===PERFIL.nome)b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
+      if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome)b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
     }else if(status==='Pausada'){
       const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
