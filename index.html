@@ -462,7 +462,7 @@ async function carregarDadosSupabase(){
   const {data:hp,error:hpError}=await _supabase.from('historico_pausas_os').select('*').order('id',{ascending:false});
   if(hpError)console.error('Erro ao carregar histórico de pausas:',hpError.message);
   HISTORICO_PAUSAS=hp||[];
-  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');popularTecnicosPreventiva();
+  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');popularTecnicosPreventiva();
   const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
