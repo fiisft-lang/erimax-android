@@ -1189,8 +1189,53 @@ function atualizarMetricasReais(){
     const ini=new Date(c.created_at),fim=new Date(c.data_conclusao||Date.now());
     return fim>pLimiteIni&&ini<pLimiteFim;
   });
+  // Evita contar duas vezes o mesmo minuto quando há O.S. sobrepostas na mesma máquina.
+  // Atribui cada trecho de tempo à O.S. cronologicamente mais antiga.
   const osParada=[];
-  fp.forEach(c=>{const p=paradaProd(c,tnum,pLimiteIni,pLimiteFim);if(!p)return;osParada.push({os:c,parada:p});const m=maq[c.maquina]||(maq[c.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});parada+=p;m.parada+=p;setor[c.setor]=(setor[c.setor]||0)+p});
+  const intervalosCobertosPorMaquina=new Map();
+  const fpOrdenadas=fp
+    .filter(c=>String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')==='parado')
+    .filter(c=>Number.isFinite(new Date(c.created_at).getTime()))
+    .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  fpOrdenadas.forEach(c=>{
+    const chave=String(c.maquina||'').trim()||'__maquina_nao_informada__';
+    const inicio=new Date(c.created_at).getTime();
+    const fim=new Date(c.data_conclusao||Date.now()).getTime();
+    if(!(fim>inicio))return;
+
+    const cobertos=intervalosCobertosPorMaquina.get(chave)||[];
+    let trechos=[{ini:inicio,fim}];
+    cobertos.forEach(intervalo=>{
+      trechos=trechos.flatMap(t=>{
+        if(intervalo.fim<=t.ini||intervalo.ini>=t.fim)return [t];
+        const partes=[];
+        if(intervalo.ini>t.ini)partes.push({ini:t.ini,fim:intervalo.ini});
+        if(intervalo.fim<t.fim)partes.push({ini:intervalo.fim,fim:t.fim});
+        return partes;
+      });
+    });
+
+    let p=0;
+    trechos.forEach(t=>{
+      if(t.fim<=t.ini)return;
+      const trechoOS={...c,created_at:new Date(t.ini).toISOString(),data_conclusao:new Date(t.fim).toISOString()};
+      p+=paradaProd(trechoOS,tnum,pLimiteIni,pLimiteFim);
+    });
+    if(p>0)osParada.push({os:c,parada:p});
+
+    const unidos=[...cobertos,{ini:inicio,fim}].sort((a,b)=>a.ini-b.ini);
+    const mesclados=[];
+    unidos.forEach(t=>{
+      const ultimo=mesclados[mesclados.length-1];
+      if(ultimo&&t.ini<=ultimo.fim)ultimo.fim=Math.max(ultimo.fim,t.fim);
+      else mesclados.push({ini:t.ini,fim:t.fim});
+    });
+    intervalosCobertosPorMaquina.set(chave,mesclados);
+  });
+  osParada.forEach(({os,p})=>{
+    const m=maq[os.maquina]||(maq[os.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:os.setor});
+    parada+=p;m.parada+=p;setor[os.setor]=(setor[os.setor]||0)+p;
+  });
   OS_PARADA_ATUAL=osParada;
 
   // reincidência: OS cuja máquina+tipo aparece 2+ vezes
