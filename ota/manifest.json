@@ -1,8 +1,8 @@
 {
-  "bundleId": "b3214db4a0edbeb20809b3759a9fbc2a97d89877",
+  "bundleId": "85b26f1a9dc0c438822fb654fa8dd2c6727510d1",
   "channel": "production",
-  "url": "https://raw.githubusercontent.com/fiisft-lang/erimax-android/main/ota/latest.zip?v=b3214db4a0edbeb20809b3759a9fbc2a97d89877",
-  "checksum": "5e01d23b1c519ca9da221b328cf2c9028b1d23102525d42c3741a388cddb1cd1",
+  "url": "https://raw.githubusercontent.com/fiisft-lang/erimax-android/main/ota/latest.zip?v=85b26f1a9dc0c438822fb654fa8dd2c6727510d1",
+  "checksum": "964f3c04b13f46a44c3a9176ec98ac13cde04fe6c3dc71e8e9222626e70f0bef",
   "minimumNativeVersionCode": 1,
   "message": "Há melhorias e correções disponíveis no EriMax."
 }
