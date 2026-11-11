@@ -1487,7 +1487,7 @@ async function sair(){
 }
 
 async function registrarPresenca(){
-  if(!MEU_ID||document.visibilityState==='hidden')return;
+  if(!MEU_ID)return;
   const agora=Date.now();
   if(agora-ultimaPresencaEnviada<30000)return;
   ultimaPresencaEnviada=agora;
@@ -1510,7 +1510,7 @@ async function carregarPresencas(){
 function renderPresencas(){
   const box=document.getElementById('listaPresenca');
   if(!box||MEU_ID!=='e978d5b1-9382-41de-be43-549a4e1e081e')return;
-  const agora=Date.now(),limite=180000;
+  const agora=Date.now(),limite=300000;
   const linhas=(TODOS_USUARIOS||[]).map(u=>{
     const p=PRESENCAS.find(x=>x.user_id===u.id);
     const ts=p&&new Date(p.last_seen_at).getTime();
@@ -1524,7 +1524,7 @@ function renderPresencas(){
   const ativos=linhas.filter(x=>x.conectado).length;
   box.innerHTML='<div class="card"><h4 style="color:var(--primary)">🟢 '+ativos+' conectado(s) • '+linhas.length+' usuário(s)</h4>'+
     (linhas.length?linhas.map(x=>'<div class="maq-row" style="align-items:flex-start"><div style="flex:1"><b>'+escaparHtml(x.nome)+'</b><small style="display:block;color:#64748b">'+escaparHtml(x.perfil)+' • Expediente: '+escaparHtml(x.expediente)+'</small><small style="display:block;color:#64748b">'+escaparHtml(x.ultima)+'</small></div><strong style="font-size:.75rem;color:'+x.cor+'">'+(x.conectado?'● CONECTADO':'● FORA DO SISTEMA')+'</strong></div>').join(''):'<p style="color:#64748b">Nenhum usuário cadastrado.</p>')+
-    '<p style="font-size:.7rem;color:#64748b;margin-top:10px">A conexão é considerada ativa quando há atividade registrada nos últimos 3 minutos. A lista atualiza automaticamente.</p></div>';
+    '<p style="font-size:.7rem;color:#64748b;margin-top:10px">A conexão é considerada ativa quando há atividade registrada nos últimos 5 minutos. A lista atualiza automaticamente.</p></div>';
 }
 async function iniciarApp(user){
   const {data}=await _supabase.from('perfis').select('*').eq('id',user.id).maybeSingle();
