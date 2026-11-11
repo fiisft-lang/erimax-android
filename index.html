@@ -1297,12 +1297,15 @@ function atualizarMetricasReais(){
   const baseDe=sx=>{
     let total=0,limiteIni=new Date(pIni),limiteFim=new Date(pFim);
     limiteIni.setHours(0,0,0,0);limiteFim.setHours(0,0,0,0);limiteFim.setDate(limiteFim.getDate()+1);
+    // Não projeta horas futuras como se a máquina já tivesse rodado.
+    // Em períodos que chegam até hoje (ou avançam para o futuro), limita a base ao instante atual.
+    const limiteFimEfetivo=Math.min(limiteFim.getTime(),Date.now());
     const x=new Date(limiteIni);x.setDate(x.getDate()-1);
-    for(;x<limiteFim;x.setDate(x.getDate()+1))for(const t of horariosDoDia(sx,x)){
+    for(;x.getTime()<limiteFimEfetivo;x.setDate(x.getDate()+1))for(const t of horariosDoDia(sx,x)){
       if(tn!=='Todos'&&+t.numero_turno!==+tn.slice(-1))continue;
       const a=new Date(x);a.setHours(0,0,0,0);a.setMinutes(minutosHora(t.hora_inicio));
       const b=new Date(a);b.setMinutes(b.getMinutes()+minutosTurno(t));
-      const ini=Math.max(a.getTime(),limiteIni.getTime()),fim=Math.min(b.getTime(),limiteFim.getTime());
+      const ini=Math.max(a.getTime(),limiteIni.getTime()),fim=Math.min(b.getTime(),limiteFimEfetivo);
       if(fim>ini)total+=minutosProdutivosTrecho(t,a.getTime(),ini,fim);
     }
     return total};
