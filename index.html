@@ -1101,10 +1101,12 @@ function encontrarSobreposicaoTurnos(horarios,semanal){
   return null;
 }
 function mensagemSobreposicaoTurnos(o){
-  const dia=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
-  const nome=(x)=>'Turno '+x.turno+(x.dia!==0?' ('+(x.dia<0?'dia anterior':'dia seguinte')+')':'');
-  const faixa=(x)=>String(Math.floor(((x.inicio%1440)+1440)%1440/60)).padStart(2,'0')+':'+String(((x.inicio%1440)+1440)%1440%60).padStart(2,'0');
-  return 'Horários sobrepostos: '+nome(o.a)+' e '+nome(o.b)+'. Confira a entrada e a saída antes de salvar.';
+  const dias=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  const dia=dias[((o.a.dia%7)+7)%7];
+  const nome=x=>'Turno '+x.turno;
+  const hora=m=>String(Math.floor(((m%1440)+1440)%1440/60)).padStart(2,'0')+':'+String(((m%1440)+1440)%1440%60).padStart(2,'0');
+  const inicio=Math.max(o.a.inicio,o.b.inicio),fim=Math.min(o.a.fim,o.b.fim);
+  return 'Sobreposição na '+dia+': '+nome(o.a)+' e '+nome(o.b)+' coincidem entre '+hora(inicio)+' e '+hora(fim)+'. Ajuste os horários antes de salvar.';
 }
 function horariosDoDia(s,d){
   const chave=s+'|'+dataISOlocal(d);
