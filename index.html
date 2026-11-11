@@ -1180,6 +1180,32 @@ function intervalosProdutivosPeriodo(s,periodoInicio,periodoFim,tn){
   }
   return unidas;
 }
+// Distribui o tempo da O.S. entre os turnos que realmente estavam em expediente.
+// Na faixa de sobreposição, respeita o turno escolhido ao abrir a O.S.; fora dela,
+// a parada passa para o turno que estiver trabalhando naquele horário.
+function intervalosProdutivosAtribuidosOS(c,periodoInicio,periodoFim,turnoFiltro){
+  const turnos=[1,2,3].map(numero=>({
+    numero,
+    intervalos:intervalosProdutivosPeriodo(c.setor,periodoInicio,periodoFim,numero)
+  }));
+  const responsavel=Number(String(c.turno||'').match(/(1|2|3)/)?.[1]||0);
+  const limites=[periodoInicio,periodoFim];
+  turnos.forEach(t=>t.intervalos.forEach(p=>limites.push(p[0],p[1])));
+  const pontos=[...new Set(limites)].sort((a,b)=>a-b),resultado=[];
+  for(let i=0;i<pontos.length-1;i++){
+    const ini=pontos[i],fim=pontos[i+1];
+    if(!(fim>ini))continue;
+    const meio=ini+(fim-ini)/2;
+    const ativos=turnos.filter(t=>t.intervalos.some(p=>p[0]<=meio&&p[1]>=meio));
+    if(!ativos.length)continue;
+    const atribuido=ativos.length===1?ativos[0].numero:responsavel;
+    if(atribuido!==turnoFiltro||!ativos.some(t=>t.numero===atribuido))continue;
+    const ultimo=resultado[resultado.length-1];
+    if(ultimo&&ultimo[1]===ini)ultimo[1]=fim;
+    else resultado.push([ini,fim]);
+  }
+  return resultado;
+}
 function paradaProd(c,tn,periodoInicio,periodoFim){
   if(String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return 0;
   const inicioOriginal=new Date(c.created_at).getTime(),fimOriginal=new Date(c.data_conclusao||Date.now()).getTime();
@@ -1187,7 +1213,10 @@ function paradaProd(c,tn,periodoInicio,periodoFim){
   const limiteFim=periodoFim?new Date(periodoFim).getTime():fimOriginal;
   const ini=Math.max(inicioOriginal,limiteIni),fim=Math.min(fimOriginal,limiteFim);
   if(!(fim>ini))return 0;
-  return intervalosProdutivosPeriodo(c.setor,ini,fim,tn).reduce((total,p)=>total+(p[1]-p[0])/60000,0);
+  const intervalos=tn
+    ?intervalosProdutivosAtribuidosOS(c,ini,fim,tn)
+    :intervalosProdutivosPeriodo(c.setor,ini,fim,null);
+  return intervalos.reduce((total,p)=>total+(p[1]-p[0])/60000,0);
 }
 const charts={};
 const DETALHES_GRAFICOS={};
