@@ -793,7 +793,7 @@ async function transferirOS(id){
   await carregarDadosSupabase();
 }
 async function aceitarTransferenciaOS(id){
-  if(!PERFIL||PERFIL.perfil!=='tecnico')return alert('Somente o técnico destinatário pode aceitar esta transferência.');
+  if(!PERFIL||(PERFIL.perfil!=='tecnico'&&MEU_ID!=='e978d5b1-9382-41de-be43-549a4e1e081e'))return alert('Somente o técnico destinatário pode aceitar esta transferência.');
   const os=chamados.find(c=>c.id===id);
   if(!os||os.transferencia_para!==PERFIL.nome)return alert('Esta transferência não está destinada a você.');
   const {error}=await _supabase.rpc('erimax_aceitar_transferencia_os',{p_os_id:id});
