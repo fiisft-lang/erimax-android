@@ -205,6 +205,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group" style="margin-bottom:0"><label for="filtroStatus">FILTRAR POR STATUS</label>
 <select id="filtroStatus" onchange="renderizarChamados()"><option value="Todas">Todas as Ordens</option><option value="Aberta">Abertas</option><option value="Em Atendimento">Em Atendimento</option><option value="Concluída">Concluídas</option><option value="Cancelada">Canceladas</option></select></div>
 </div>
+<div id="painelMaquinasSupervisor"></div>
 <div id="boxTec"></div>
 <div id="boxPrev"></div>
 <div id="listaOS"></div>
@@ -514,6 +515,7 @@ function mudarAba(id,evt){
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
   if(evt&&evt.currentTarget)evt.currentTarget.classList.add('active');
   if(id==='painel'||id==='ordens-abertas'||id==='ordens-pausadas'||id==='metricas')carregarDadosSupabase();
+  if(id==='painel')renderPainelMaquinasSupervisor();
   if(id==='presenca'&&MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
 }
 
@@ -532,6 +534,7 @@ async function carregarDadosSupabase(){
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
   if(MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
+  renderPainelMaquinasSupervisor();
   renderTecnicos();renderStatusTurno();renderRankingOperadores();
   if(document.getElementById('tab-painel').classList.contains('active'))renderizarChamados();
   if(document.getElementById('tab-ordens-abertas').classList.contains('active'))renderizarChamados('listaOSAbertas',true);
@@ -619,6 +622,61 @@ function renderRankingOperadores(){
     const grupos=Object.entries(porOperador).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"pt-BR"));
     boxAjustes.innerHTML=ajustes.length?'<p style="font-size:.82rem;color:#92400e;margin:0 0 8px"><b>'+ajustes.length+'</b> correção(ões) por esquecimento no período.</p>'+grupos.map(([nome,itens])=>'<div class="maq-row" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+escaparHtml(nome)+'</b><strong style="color:#b45309">'+itens.length+' ocorrência(s)</strong></div><small style="color:#64748b">'+itens.map(c=>escaparHtml(nOS(c)+' • '+c.maquina+' • '+new Date(c.ajustado_em).toLocaleDateString("pt-BR"))).join('<br>')+'</small></div>').join(""):'<p style="font-size:.8rem;color:#64748b;text-align:center">Nenhuma correção classificada como esquecimento do operador neste mês.</p>';
   }
+}
+function renderPainelMaquinasSupervisor(){
+  const box=document.getElementById('painelMaquinasSupervisor');
+  if(!box)return;
+  const ativas=chamados.filter(c=>['Aberta','Em Atendimento','Pausada'].includes(String(c.status||'')));
+  const nomes=new Map();
+  MAQUINAS.filter(m=>m&&m.nome).forEach(m=>{
+    const chave=String(m.setor||'Não informado')+'||'+String(m.nome);
+    if(!nomes.has(chave))nomes.set(chave,{setor:String(m.setor||'Não informado'),maquina:String(m.nome),ordens:[]});
+  });
+  ativas.forEach(os=>{
+    const setorOS=String(os.setor||'Não informado'),maquinaOS=String(os.maquina||'').trim();
+    if(!maquinaOS)return;
+    const chave=setorOS+'||'+maquinaOS;
+    if(!nomes.has(chave))nomes.set(chave,{setor:setorOS,maquina:maquinaOS,ordens:[]});
+    nomes.get(chave).ordens.push(os);
+  });
+  const itens=[...nomes.values()].map(item=>{
+    item.ordens.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+    const pausada=item.ordens.some(o=>o.status==='Pausada');
+    const atendimento=item.ordens.some(o=>o.status==='Em Atendimento');
+    const abertaParada=item.ordens.some(o=>o.status==='Aberta'&&String(o.situacao_equipamento||'').toLocaleLowerCase('pt-BR')==='parado');
+    const abertaRodando=item.ordens.some(o=>o.status==='Aberta'&&String(o.situacao_equipamento||'').toLocaleLowerCase('pt-BR')==='rodando');
+    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':abertaParada?'Parada registrada':abertaRodando?'O.S. aguardando':'Sem O.S. ativa';
+    item.cor=pausada?'#a16207':atendimento?'#1d4ed8':abertaParada?'#b91c1c':abertaRodando?'#64748b':'#15803d';
+    return item;
+  }).sort((a,b)=>a.setor.localeCompare(b.setor,'pt-BR')||a.maquina.localeCompare(b.maquina,'pt-BR'));
+  const grupos=[...new Set(itens.map(x=>x.setor))];
+  const qtd=estado=>itens.filter(x=>x.estado===estado).length;
+  const resumo=[
+    ['Parada registrada',qtd('Parada registrada'),'#b91c1c'],
+    ['Manutenção em andamento',qtd('Manutenção em andamento'),'#1d4ed8'],
+    ['O.S. pausada',qtd('O.S. pausada'),'#a16207'],
+    ['Sem O.S. ativa',qtd('Sem O.S. ativa'),'#15803d']
+  ];
+  let html='<section class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Supervisão das máquinas</h3><p style="font-size:.76rem;color:#64748b;margin:4px 0 0">Situação baseada nas ordens de serviço registradas</p></div><span style="font-size:.72rem;color:#64748b">'+itens.length+' máquina(s)</span></div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px">';
+  resumo.forEach(r=>{html+='<div style="border:1px solid #e2e8f0;border-left:4px solid '+r[2]+';border-radius:9px;padding:9px;min-width:0"><div style="font-size:.7rem;color:#64748b">'+r[0]+'</div><b style="font-size:1.35rem;color:'+r[2]+'">'+r[1]+'</b></div>'});
+  html+='</div><p style="font-size:.7rem;color:#64748b;margin:10px 0 0">“Sem O.S. ativa” não confirma que a máquina está rodando. O sistema ainda não recebe sinal de sensores ou CLP.</p></section>';
+  if(!itens.length){html+='<div class="card" style="color:#64748b;text-align:center">Nenhuma máquina cadastrada ou O.S. ativa encontrada.</div>'}
+  grupos.forEach(setor=>{
+    const lista=itens.filter(x=>x.setor===setor);
+    html+='<section class="card" style="margin:8px 0;padding:12px"><h4 style="margin:0 0 9px;color:var(--primary)">'+escaparHtml(setor)+' <small style="font-weight:400;color:#64748b">('+lista.length+')</small></h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px">';
+    lista.forEach(item=>{
+      html+='<div style="border:1px solid #e2e8f0;border-radius:9px;padding:10px;min-width:0"><div style="font-weight:700;font-size:.86rem;overflow-wrap:anywhere">'+escaparHtml(item.maquina)+'</div><div style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:.72rem;font-weight:700;color:'+item.cor+'"><span style="width:8px;height:8px;border-radius:50%;background:'+item.cor+';flex:none"></span>'+item.estado+'</div>';
+      if(item.ordens.length){
+        item.ordens.forEach(os=>{
+          html+='<div style="border-top:1px solid #f1f5f9;margin-top:7px;padding-top:6px;font-size:.7rem;color:#64748b">'+escaparHtml(nOS(os))+' • '+escaparHtml(os.status)+'<br>'+ (os.tecnico?'Técnico: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • Informado: '+escaparHtml(os.situacao_equipamento):'')+'</div>';
+        });
+      }else html+='<div style="font-size:.7rem;color:#64748b;margin-top:6px">Nenhuma ordem ativa registrada</div>';
+      html+='</div>';
+    });
+    html+='</div></section>';
+  });
+  box.innerHTML=html;
 }
 function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento'),ag=chamados.filter(c=>c.status==='Aberta').length;
@@ -1753,6 +1811,7 @@ async function carregarMaquinas(){
   SETORES=[...nomes].filter(Boolean);
   popularSetores();carregarMaquinasSetor();pvMaquinas();
   renderMaquinasAgrupadas();
+  renderPainelMaquinasSupervisor();
 }
 function carregarMaquinasSetor(){
   const l=MAQUINAS.filter(m=>m.setor===setor.value);
