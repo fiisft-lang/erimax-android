@@ -1109,7 +1109,7 @@ function verHistorico(id){
   });
   const historicoTransferencias=transferencias.length?'\n\nTRANSFERÊNCIAS:\n'+linhasTransferencia.join('\n'):'\n\nNenhuma transferência registrada.';
   const historicoAjuste=os.ajustado_em?'\n\n⚠️ HORÁRIO CORRIGIDO PELO GESTOR:\nPor: '+(os.ajustado_por||'Gestor')+'\nEm: '+new Date(os.ajustado_em).toLocaleString('pt-BR')+'\nMotivo: '+(os.ajuste_obs||'Não informado'):'\n\nNenhuma correção de horário registrada.';
-  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoAjuste);
+  alert(nOS(os)+' | '+os.turno+'\nStatus: '+(os.status||'—')+' • Tipo: '+(os.tipo||'—')+' • Prioridade: '+(os.prioridade||'—')+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta em: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—')+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nInício do atendimento: '+(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não registrado')+'\nConclusão: '+(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Ainda não concluída')+'\nProblema: '+(os.descricao||'—')+'\nCausa: '+(os.causa||'Não informada')+'\nPeça: '+(os.peca||'Não informada')+'\nSolução/serviço: '+(os.servico_executado||'Não registrado')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoAjuste);
 }
 
 function atualizarMaquinasMetrica(){
