@@ -241,7 +241,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Máquinas por setor</h3>
 <p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Cada setor fica recolhido. Toque na ferramenta para abrir a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:12px">Manutenção Preventiva</h3>
+<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><button id="pvAlternarForm" type="button" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="alternarFormPreventiva()">Fechar ✕</button></div><div id="pvFormConteudo">
 <div class="form-group"><label>Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
 <div class="form-group"><label>Máquinas</label>
 <label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
@@ -252,7 +252,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
 <div class="form-group"><label>Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
-<button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div>
+<button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button><button type="button" class="btn-action" style="margin-top:8px;width:auto" onclick="fecharFormPreventiva()">Fechar cadastro</button></div></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
 <div class="form-group"><label>Novo usuário — e-mail</label><input id="nuEmail" type="email" autocomplete="off"></div>
@@ -1863,7 +1863,7 @@ function renderMaquinasAgrupadas(){
     const edit=SETOR_MAQUINAS_EM_EDICAO===nome,lista=MAQUINAS.filter(m=>m.setor===nome);
     let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span><b>'+escaparHtml(nome)+'</b><small style="display:block;color:#64748b;margin-top:3px">'+lista.length+' máquina(s) cadastrada(s)</small></span><button class="btn-action btn-transferir" title="Abrir máquinas do setor" aria-label="Abrir máquinas do setor" style="min-width:42px;flex:none" onclick="editarMaquinasSetor('+i+')">🛠️</button></div>';
     if(edit){
-      h+='<div style="border-top:1px solid #e2e8f0;padding-top:10px;margin-top:10px"><b>Máquinas de '+escaparHtml(nome)+'</b>';
+      h+='<div style="border-top:1px solid #e2e8f0;padding-top:10px;margin-top:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>Máquinas de '+escaparHtml(nome)+'</b><button type="button" class="btn-action" style="width:auto;min-width:0;flex:none" onclick="fecharMaquinasSetor()">Fechar ✕</button></div>';
       h+=lista.length?lista.map(m=>'<div class="maq-row" style="gap:6px;margin-top:7px"><span style="flex:1;min-width:100px"><b>'+escaparHtml(m.nome)+'</b></span><input value="'+escaparHtml(m.prefixo||'')+'" placeholder="MTC-11" maxlength="9" aria-label="Código da máquina" style="width:105px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo('+m.id+',this.value)"><button class="btn-action btn-excluir" aria-label="Excluir máquina" style="flex:none;min-width:0" onclick="delMaquina('+m.id+')">🗑️</button></div>').join(''):'<p style="font-size:.78rem;color:#64748b">Nenhuma máquina cadastrada neste setor.</p>';
       h+='<div style="border-top:1px solid #e2e8f0;margin-top:12px;padding-top:10px"><b>➕ Cadastrar máquina neste setor</b><div class="form-group"><label>Nome da máquina</label><input id="maq-nome-'+i+'" placeholder="Ex.: Tearcrochet 11"></div><div class="form-group"><label>Código da máquina</label><input id="maq-codigo-'+i+'" maxlength="9" placeholder="Ex.: MTC-11" style="text-transform:uppercase"></div><button class="btn-submit" onclick="addMaquina('+i+')">➕ Cadastrar máquina</button></div>';
       h+='<button class="btn-action" style="margin-top:9px;width:auto" onclick="fecharMaquinasSetor()">Fechar setor</button></div>';
@@ -2046,7 +2046,7 @@ function renderCfg(){
     const edit=SETOR_EM_EDICAO===s;
     const qtd=turnosDoSetor(s).length||1;
     let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button><button class="btn-action btn-excluir" title="Excluir setor" aria-label="Excluir setor '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button></div></div>';
-    if(edit)h+=renderEditorSetor(s,i);
+    if(edit)h+='<div style="display:flex;justify-content:flex-end;margin-top:10px"><button type="button" class="btn-action" style="width:auto;min-width:0" onclick="cancelarEdicaoHorario()">Fechar edição ✕</button></div>'+renderEditorSetor(s,i);
     else h+='<p style="font-size:.75rem;color:#64748b;margin-top:8px">🔒 Configuração protegida • '+qtd+' turno(s). Para alterar dias ou horários, toque na ferramenta.</p>';
     if(edit)h+='<button class="btn-action" style="margin-top:8px;width:auto" onclick="cancelarEdicaoHorario()">Fechar edição</button>';
     return h+'</div>';
@@ -2158,6 +2158,22 @@ async function salvarUsuario(id,campos){
 }
 
 /* ===== PREVENTIVAS ===== */
+function alternarFormPreventiva(){
+  const box=document.getElementById('pvFormConteudo');
+  if(!box)return;
+  if(box.style.display==='none')abrirFormPreventiva();else fecharFormPreventiva();
+}
+function fecharFormPreventiva(){
+  const box=document.getElementById('pvFormConteudo'),btn=document.getElementById('pvAlternarForm');
+  if(box)box.style.display='none';
+  if(btn)btn.textContent='Abrir cadastro';
+}
+function abrirFormPreventiva(){
+  const box=document.getElementById('pvFormConteudo'),btn=document.getElementById('pvAlternarForm');
+  if(box)box.style.display='';
+  if(btn)btn.textContent='Fechar ✕';
+}
+
 function popularTecnicosPreventiva(){
   const sel=document.getElementById('pvTecnico');if(!sel)return;
   const atual=sel.value;
