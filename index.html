@@ -1364,8 +1364,11 @@ function mostrarOSDetalhe(titulo,lista){
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 
 /* ===== IDENTIFICAÇÃO AUTOMÁTICA DE REINCIDÊNCIA (SEM CATÁLOGO OU SERVIÇO EXTERNO) ===== */
+function normalizarDescricaoProblemaOS(descricao){
+  return String(descricao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+}
 function tokensProblemaOS(os){
-  const texto=String(os&&os.descricao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+  const texto=normalizarDescricaoProblemaOS(os&&os.descricao);
   const ignorar=new Set(['a','o','as','os','um','uma','de','do','da','dos','das','em','no','na','nos','nas','com','sem','para','por','que','e','ou','foi','esta','estava','estao','estao','ser','ter','tem','tinha','nao','muito','pouco','mais','menos','maquina','equipamento','problema','defeito','apresenta','apresentou','parou','parar','parada','voltou','ficou','fica','ficando','na','ao']);
   const sinonimos={
     corta:'corte',cortar:'corte',cortando:'corte',cortou:'corte',cortado:'corte',cortada:'corte',
@@ -1394,12 +1397,16 @@ function calcularReincidenciasHistorico(historico){
     .slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
   ordenadas.forEach(os=>{
     const maquina=String(os.maquina||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
+    const descricaoNormalizada=normalizarDescricaoProblemaOS(os.descricao);
     const tokens=tokensProblemaOS(os);
-    // Sem pelo menos dois termos úteis, o sistema não arrisca classificar como reincidência.
-    if(!maquina||tokens.length<2)return;
+    if(!maquina||!descricaoNormalizada)return;
     const grupos=porMaquina.get(maquina)||[];
     let grupo=null;
     for(const candidato of grupos){
+      // Descrição igual após normalização é reincidência mesmo quando só sobra um termo útil
+      // (ex.: "Problema no datador" repetido). Para textos diferentes, mantém o critério conservador.
+      if(descricaoNormalizada===candidato.descricaoNormalizada){grupo=candidato;break}
+      if(tokens.length<2||candidato.tokens.length<2)continue;
       const comp=compararProblemasOS(tokens,candidato.tokens);
       if(comp.comuns>=2&&comp.indice>=0.5){grupo=candidato;break}
     }
@@ -1407,7 +1414,7 @@ function calcularReincidenciasHistorico(historico){
       resultado.set(String(os.id),{grupo:grupo.rotulo,primeiraOS:grupo.primeiraOS});
       grupo.ocorrencias++;
     }else{
-      grupos.push({tokens,rotulo:tokens.join(' + '),primeiraOS:os,ocorrencias:1});
+      grupos.push({tokens,descricaoNormalizada,rotulo:tokens.length?tokens.join(' + '):descricaoNormalizada,primeiraOS:os,ocorrencias:1});
       porMaquina.set(maquina,grupos);
     }
   });
