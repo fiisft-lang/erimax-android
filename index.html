@@ -1796,7 +1796,7 @@ function renderPresencas(){
 async function iniciarApp(user){
   const {data}=await _supabase.from('perfis').select('*').eq('id',user.id).maybeSingle();
   PERFIL=data||{nome:user.email,perfil:'operador'};MEU_ID=user.id;
-  const podeVerPresenca=MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e';
+  const podeVerPresenca=ehGestorPrincipal();
   document.getElementById('tbPresenca').style.display=podeVerPresenca?'':'none';
   iniciarPresenca();
   renderRankingOperadores();
@@ -2157,6 +2157,67 @@ async function salvarUsuario(id,campos){
   if(error){alert('Erro ao salvar: '+error.message);carregarUsuarios()}
 }
 
+/* ===== LEMBRETES LOCAIS DE PREVENTIVA (somente gestor principal) ===== */
+function ehGestorPrincipal(){
+  return MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e';
+}
+async function sincronizarNotificacoesPreventivas(){
+  if(!ehGestorPrincipal()||!PERFIL||PERFIL.perfil!=='gestor')return;
+  const LN=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
+  if(!LN)return;
+  try{
+    let permissao=await LN.checkPermissions();
+    if(permissao.display!=='granted')permissao=await LN.requestPermissions();
+    if(permissao.display!=='granted')return;
+    await LN.createChannel({id:'preventivas',name:'Lembretes de manutenção preventiva',description:'Avisos diários nos sete dias anteriores à preventiva',importance:5,visibility:1,sound:'default',vibration:true});
+    const chaveIds='erimax_prev_notificacao_ids';
+    let idsAntigos=[];
+    try{idsAntigos=JSON.parse(localStorage.getItem(chaveIds)||'[]').filter(Number.isInteger)}catch(_){}
+    if(idsAntigos.length)await LN.cancel({notifications:idsAntigos.map(id=>({id}))});
+    const agora=new Date(),hoje=dataISOlocal(agora);
+    let jaAvisado=[];
+    try{jaAvisado=JSON.parse(localStorage.getItem('erimax_prev_avisos_hoje')||'[]')}catch(_){}
+    const novas=[],novosIds=[],novosAvisos=[...jaAvisado].slice(-300);
+    const usados=new Set();
+    for(const p of (PREV||[])){
+      let vencimento;
+      if(p.data_prevista){
+        const partes=String(p.data_prevista).slice(0,10).split('-').map(Number);
+        vencimento=new Date(partes[0],partes[1]-1,partes[2]);
+      }else{
+        const partes=String(p.ultima||hoje).slice(0,10).split('-').map(Number);
+        vencimento=new Date(partes[0],partes[1]-1,partes[2]);
+        vencimento.setDate(vencimento.getDate()+(Number(p.intervalo_dias)||30));
+      }
+      if(!Number.isFinite(vencimento.getTime()))continue;
+      const dataVencimento=dataISOlocal(vencimento);
+      const maquinas=maquinasDaPreventiva(p);
+      const maquinaTxt=maquinas.length?maquinas.join(', '):(p.maquina||'Máquina não informada');
+      for(let faltam=7;faltam>=1;faltam--){
+        const dia=new Date(vencimento);dia.setDate(dia.getDate()-faltam);
+        const dataAviso=dataISOlocal(dia);
+        if(dataAviso<hoje)continue;
+        const chave=String(p.id)+':'+dataVencimento+':'+faltam;
+        if(dataAviso===hoje&&novosAvisos.includes(chave))continue;
+        const horario=new Date(dia);horario.setHours(9,0,0,0);
+        if(dataAviso===hoje&&horario<=agora)horario.setTime(agora.getTime()+10000);
+        if(horario<=agora)continue;
+        let hash=2166136261;
+        for(let i=0;i<chave.length;i++){hash^=chave.charCodeAt(i);hash=Math.imul(hash,16777619)}
+        let id=(hash>>>0)%2000000000+1;
+        while(usados.has(id))id=id===2000000000?1:id+1;
+        usados.add(id);
+        novas.push({id,title:'Preventiva em '+faltam+' dia(s)',body:p.setor+' • '+maquinaTxt+' • '+(p.descricao||'Manutenção programada')+' • prevista para '+vencimento.toLocaleDateString('pt-BR'),schedule:{at:horario,allowWhileIdle:true},channelId:'preventivas',sound:'default',extra:{preventiva_id:p.id}});
+        novosIds.push(id);
+        if(dataAviso===hoje)novosAvisos.push(chave);
+      }
+    }
+    if(novas.length)await LN.schedule({notifications:novas});
+    localStorage.setItem(chaveIds,JSON.stringify(novosIds));
+    localStorage.setItem('erimax_prev_avisos_hoje',JSON.stringify(novosAvisos.slice(-300)));
+  }catch(e){console.warn('Não foi possível programar os lembretes de preventiva:',e)}
+}
+
 /* ===== PREVENTIVAS ===== */
 function alternarFormPreventiva(){
   const box=document.getElementById('pvFormConteudo');
@@ -2246,6 +2307,7 @@ async function carregarPreventivas(){
     return;
   }
   PREV=data||[];
+  sincronizarNotificacoesPreventivas();
   listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
