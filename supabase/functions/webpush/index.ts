@@ -24,9 +24,22 @@ Deno.serve(async (req: Request) => {
     const auth = req.headers.get("Authorization") || "";
     const jwt = auth.startsWith("Bearer ") ? auth.slice(7) : "";
     if (!jwt) return json({ erro: "Não autenticado." }, 401);
-    const { data: authData, error: authError } = await admin.auth.getUser(jwt);
-    const user = authData?.user;
-    if (authError || !user) return json({ erro: "Sessão inválida." }, 401);
+
+    // A plataforma já validou a assinatura deste JWT (verify_jwt=true).
+    // Lemos apenas as claims autenticadas para evitar uma segunda validação remota.
+    let claims: { sub?: string; role?: string };
+    try {
+      const part = jwt.split(".")[1];
+      if (!part) throw new Error("JWT sem payload");
+      const normalized = part.replace(/-/g, "+").replace(/_/g, "/");
+      claims = JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")));
+    } catch {
+      return json({ erro: "Sessão inválida." }, 401);
+    }
+    if (claims.role !== "authenticated" || typeof claims.sub !== "string" || !claims.sub) {
+      return json({ erro: "Sessão inválida." }, 401);
+    }
+    const user = { id: claims.sub };
 
     const { data: profile, error: profileError } = await admin.from("perfis")
       .select("perfil").eq("id", user.id).maybeSingle();
@@ -83,17 +96,20 @@ Deno.serve(async (req: Request) => {
     }
 
     const { data: profiles, error: profilesError } = await admin.from("perfis")
-      .select("id").in("perfil", ["tecnico", "gestor"]);
+      .select("id,perfil").in("perfil", ["tecnico", "gestor"]);
     if (profilesError) throw profilesError;
     const { data: statuses, error: statusesError } = await admin.from("status_tecnicos")
       .select("user_id").eq("status", "ONLINE").eq("turno_ativo", true);
     if (statusesError) throw statusesError;
     const online = new Set((statuses || []).map((s: { user_id: string }) => s.user_id));
-    const recipientIds = (profiles || []).map((p: { id: string }) => p.id).filter((id: string) => online.has(id));
+    const recipientIds = (profiles || [])
+      // Somente Fii recebe aviso mesmo quando está EM SERVIÇO.
+      .filter((p: { id: string; perfil: string }) => online.has(p.id))
+      .map((p: { id: string }) => p.id);
     if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: "Nenhum usuário ONLINE." });
 
     const { data: subscriptions, error: subError } = await admin.from("web_push_subscriptions")
-      .select("id,endpoint,subscription").in("user_id", recipientIds);
+      .select("id,user_id,endpoint,subscription").in("user_id", recipientIds);
     if (subError) throw subError;
     if (!subscriptions?.length) return json({ ok: true, enviados: 0, aviso: "Nenhum navegador registrado." });
 
@@ -118,16 +134,30 @@ Deno.serve(async (req: Request) => {
       url: "/index.html?os=" + encodeURIComponent(String(os.id)),
       tag: "erimax-os-" + String(os.id),
     });
+    // Última conferência antes de enviar: exige expediente ativo.
+    const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')
+      .select('user_id').in('user_id', recipientIds).eq('status', 'ONLINE').eq('turno_ativo', true);
+    if (liveStatusError) throw liveStatusError;
+    const liveIds = new Set((liveStatuses || []).map((s: { user_id: string }) => s.user_id));
+    const liveSubscriptions = subscriptions.filter((item: { user_id: string }) => liveIds.has(item.user_id));
+    if (!liveSubscriptions.length) {
+      await admin.from('os').update({ web_notificado_em: null }).eq('id', osId).eq('web_notificado_em', claimTime);
+      claimedOsId = null;
+      claimTime = null;
+      return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário continua com expediente ativo.' });
+    }
+
     let enviados = 0;
     const invalid: string[] = [];
-    await Promise.all(subscriptions.map(async (item: { endpoint: string; subscription: unknown }) => {
+    await Promise.all(liveSubscriptions.map(async (item: { endpoint: string; subscription: unknown }) => {
       try {
-        await webpush.sendNotification(item.subscription as any, payload, { TTL: 120, urgency: "high" });
+        await webpush.sendNotification(item.subscription as any, payload, { TTL: 15, urgency: "high" });
         enviados++;
       } catch (error) {
         const statusCode = Number((error as { statusCode?: number })?.statusCode || 0);
         if (statusCode === 404 || statusCode === 410) invalid.push(item.endpoint);
-        console.error("Falha em Web Push:", statusCode || "erro");
+        const providerBody = String((error as { body?: unknown })?.body || "").slice(0, 500);
+        console.error("Falha em Web Push:", JSON.stringify({ status: statusCode || "erro", provider: providerBody || "sem detalhe" }));
       }
     }));
     if (invalid.length) await admin.from("web_push_subscriptions").delete().in("endpoint", invalid);

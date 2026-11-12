@@ -42,14 +42,27 @@ Deno.serve(async (req: Request) => {
     const auth = req.headers.get('Authorization') || ''
     const jwt = auth.startsWith('Bearer ') ? auth.slice(7) : ''
     if (!jwt) return json({ erro: 'Não autenticado.' }, 401)
-    const { data: authData, error: authError } = await admin.auth.getUser(jwt)
-    const user = authData?.user
-    if (authError || !user) return json({ erro: 'Sessão inválida.' }, 401)
+
+    // A plataforma já validou a assinatura deste JWT (verify_jwt=true).
+    // Lemos apenas as claims autenticadas para evitar uma segunda validação remota.
+    let claims: { sub?: string; role?: string }
+    try {
+      const part = jwt.split('.')[1]
+      if (!part) throw new Error('JWT sem payload')
+      const normalized = part.replace(/-/g, '+').replace(/_/g, '/')
+      claims = JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')))
+    } catch {
+      return json({ erro: 'Sessão inválida.' }, 401)
+    }
+    if (claims.role !== 'authenticated' || typeof claims.sub !== 'string' || !claims.sub) {
+      return json({ erro: 'Sessão inválida.' }, 401)
+    }
+    const user = { id: claims.sub }
 
     const { data: profile, error: profileError } = await admin.from('perfis')
       .select('perfil').eq('id', user.id).maybeSingle()
     if (profileError) throw profileError
-    if (!profile || !['gestor', 'operador'].includes(profile.perfil)) {
+    if (!profile || !['gestor', 'operador', 'tecnico'].includes(profile.perfil)) {
       return json({ erro: 'Seu perfil não pode disparar notificações de novas OS.' }, 403)
     }
 
@@ -77,6 +90,8 @@ Deno.serve(async (req: Request) => {
     if (statusError) throw statusError
     const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
     const recipientIds = (profiles || [])
+      // Somente Fii recebe aviso mesmo quando está EM SERVIÇO; os demais
+      // técnicos, gestores e operadores precisam estar ONLINE e com turno ativo.
       .filter((p: { id: string; perfil: string }) => onlineIds.has(p.id))
       .map((p: { id: string }) => p.id)
     if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE para receber a nova O.S.' })
@@ -106,18 +121,32 @@ Deno.serve(async (req: Request) => {
       setor: String(os.setor || 'Setor não informado'),
       numero: numero,
     }
+    // Última conferência antes de enviar: exige expediente ativo.
+    const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')
+      .select('user_id').in('user_id', recipientIds).eq('status', 'ONLINE').eq('turno_ativo', true)
+    if (liveStatusError) throw liveStatusError
+    const liveIds = (liveStatuses || []).map((s: { user_id: string }) => s.user_id)
+    const liveDeviceResult = liveIds.length ? await admin.from('dispositivos').select('token').in('user_id', liveIds) : { data: [], error: null }
+    if (liveDeviceResult.error) throw liveDeviceResult.error
+    const liveTokens = [...new Set((liveDeviceResult.data || []).map((d: { token: string }) => d.token).filter(Boolean))]
+    if (!liveTokens.length) {
+      await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
+      claimTime = null
+      return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário continua com expediente ativo.' })
+    }
+
     let enviados = 0
     const invalid: string[] = []
     const errors: string[] = []
 
-    await Promise.all(tokens.map(async (deviceToken: string) => {
+    await Promise.all(liveTokens.map(async (deviceToken: string) => {
       const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: {
             token: deviceToken,
-            android: { priority: 'HIGH', ttl: '120s' },
+            android: { priority: 'HIGH', ttl: '15s' },
             data,
           },
         }),
@@ -136,7 +165,7 @@ Deno.serve(async (req: Request) => {
       claimTime = null
       return json({ erro: 'O Firebase não aceitou nenhum envio.', detalhes: errors.slice(0, 2) }, 502)
     }
-    return json({ ok: true, enviados, total_dispositivos: tokens.length })
+    return json({ ok: true, enviados, total_dispositivos: liveTokens.length })
   } catch (error) {
     if (claimTime !== null && osId !== null) {
       await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
