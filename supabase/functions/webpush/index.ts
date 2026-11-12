@@ -93,9 +93,17 @@ Deno.serve(async (req: Request) => {
     if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: "Nenhum usuário ONLINE." });
 
     const { data: subscriptions, error: subError } = await admin.from("web_push_subscriptions")
-      .select("id,endpoint,subscription").in("user_id", recipientIds);
+      .select("id,user_id,endpoint,subscription").in("user_id", recipientIds);
     if (subError) throw subError;
     if (!subscriptions?.length) return json({ ok: true, enviados: 0, aviso: "Nenhum navegador registrado." });
+
+    // Revalida o expediente imediatamente antes de disparar o Web Push.
+    const { data: liveStatuses, error: liveStatusError } = await admin.from("status_tecnicos")
+      .select("user_id").in("user_id", recipientIds).eq("status", "ONLINE").eq("turno_ativo", true);
+    if (liveStatusError) throw liveStatusError;
+    const liveIds = new Set((liveStatuses || []).map((s: { user_id: string }) => s.user_id));
+    const liveSubscriptions = subscriptions.filter((item: { user_id: string }) => liveIds.has(item.user_id));
+    if (!liveIds.size || !liveSubscriptions.length) return json({ ok: true, enviados: 0, aviso: "Nenhum usuário continua com expediente ativo." });
 
     const publicKey = Deno.env.get("VAPID_PUBLIC_KEY") || "";
     const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") || "";
@@ -120,9 +128,9 @@ Deno.serve(async (req: Request) => {
     });
     let enviados = 0;
     const invalid: string[] = [];
-    await Promise.all(subscriptions.map(async (item: { endpoint: string; subscription: unknown }) => {
+    await Promise.all(liveSubscriptions.map(async (item: { endpoint: string; subscription: unknown }) => {
       try {
-        await webpush.sendNotification(item.subscription as any, payload, { TTL: 120, urgency: "high" });
+        await webpush.sendNotification(item.subscription as any, payload, { TTL: 15, urgency: "high" });
         enviados++;
       } catch (error) {
         const statusCode = Number((error as { statusCode?: number })?.statusCode || 0);
