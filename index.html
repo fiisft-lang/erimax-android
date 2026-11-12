@@ -1783,18 +1783,29 @@ async function sair(){
 }
 
 async function registrarPresenca(){
-  if(!MEU_ID)return;
+  if(!MEU_ID||document.visibilityState==='hidden')return;
   const agora=Date.now();
-  if(agora-ultimaPresencaEnviada<30000)return;
-  ultimaPresencaEnviada=agora;
-  const {error}=await _supabase.from('erimax_presencas').upsert({user_id:MEU_ID,last_seen_at:new Date(agora).toISOString()},{onConflict:'user_id'});
-  if(error)console.warn('EriMax: não foi possível atualizar presença:',error.message);
+  if(agora-ultimaPresencaEnviada<30000||PRESENCA_EM_ENVIO)return;
+  PRESENCA_EM_ENVIO=true;
+  try{
+    const {error}=await _supabase.from('erimax_presencas').upsert({user_id:MEU_ID,last_seen_at:new Date(agora).toISOString()},{onConflict:'user_id'});
+    if(error){console.warn('EriMax: não foi possível atualizar presença:',error.message);return}
+    ultimaPresencaEnviada=agora;
+  }catch(error){
+    console.warn('EriMax: falha inesperada ao atualizar presença:',error?.message||error);
+  }finally{
+    PRESENCA_EM_ENVIO=false;
+  }
 }
-function iniciarPresenca(){
+function aoVoltarParaOTela(){
+  if(document.visibilityState==='visible')registrarPresenca();
+}
+async function iniciarPresenca(){
   if(intervaloPresenca)clearInterval(intervaloPresenca);
-  registrarPresenca();
+  document.removeEventListener('visibilitychange',aoVoltarParaOTela);
+  document.addEventListener('visibilitychange',aoVoltarParaOTela);
+  await registrarPresenca();
   intervaloPresenca=setInterval(registrarPresenca,45000);
-  document.addEventListener('visibilitychange',registrarPresenca);
 }
 async function carregarPresencas(){
   if(MEU_ID!=='e978d5b1-9382-41de-be43-549a4e1e081e')return;
@@ -1827,7 +1838,7 @@ async function iniciarApp(user){
   PERFIL=data||{nome:user.email,perfil:'operador'};MEU_ID=user.id;
   const podeVerPresenca=ehGestorPrincipal();
   document.getElementById('tbPresenca').style.display=podeVerPresenca?'':'none';
-  iniciarPresenca();
+  await iniciarPresenca();
   renderRankingOperadores();
   localStorage.setItem('erimax_tecnico',PERFIL.nome);
   login.style.display='none';
