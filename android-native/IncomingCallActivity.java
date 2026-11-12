@@ -30,7 +30,8 @@ public class IncomingCallActivity extends Activity {
     if (osId == null) osId = "";
     String notificationAction = getIntent().getStringExtra("notification_action");
     if ("silenciar".equals(notificationAction)) { dismissCall(); return; }
-    if ("assumir".equals(notificationAction)) { answerCall(); return; }
+    if ("assumir".equals(notificationAction) || "aceitar_transferencia".equals(notificationAction)) { answerCall(); return; }
+    boolean transferencia = "transferencia_os".equals(getIntent().getStringExtra("acao"));
     String machine = getIntent().getStringExtra("maquina");
     String sector = getIntent().getStringExtra("setor");
     String number = getIntent().getStringExtra("numero");
@@ -43,7 +44,7 @@ public class IncomingCallActivity extends Activity {
     root.setBackgroundColor(Color.BLACK);
 
     TextView brand = label("ERIMAX • MANUTENÇÃO", 15, Color.rgb(160, 174, 192));
-    TextView title = label("NOVA ORDEM DE SERVIÇO", 23, Color.WHITE);
+    TextView title = label(transferencia ? "TRANSFERÊNCIA DE O.S. AGUARDANDO ACEITE" : "NOVA ORDEM DE SERVIÇO", 23, Color.WHITE);
     title.setTypeface(null, Typeface.BOLD);
     TextView detail = label((number == null ? "Nova O.S." : number)
       + "\nSetor: " + (sector == null ? "Não informado" : sector)
@@ -53,7 +54,7 @@ public class IncomingCallActivity extends Activity {
     root.addView(title);
     root.addView(detail);
     root.addView(label("Deslize uma das opções para continuar", 14, Color.LTGRAY));
-    addSwipeAction(root, "DESLIZE PARA ACEITAR A O.S.", "➜", Color.rgb(22, 163, 74), true, this::answerCall);
+    addSwipeAction(root, transferencia ? "DESLIZE PARA ACEITAR A TRANSFERÊNCIA" : "DESLIZE PARA ACEITAR A O.S.", "➜", Color.rgb(22, 163, 74), true, this::answerCall);
     addSwipeAction(root, "DESLIZE PARA SILENCIAR", "⬅", Color.rgb(220, 38, 38), false, this::dismissCall);
     setContentView(root);
   }
@@ -117,7 +118,8 @@ public class IncomingCallActivity extends Activity {
 
   private void answerCall() {
     stopAlarm(); dismissNotification();
-    Intent open = new Intent(Intent.ACTION_VIEW,Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=assumir"),this,MainActivity.class);
+    String action = "transferencia_os".equals(getIntent().getStringExtra("acao")) ? "aceitar_transferencia" : "assumir";
+    Intent open = new Intent(Intent.ACTION_VIEW,Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=" + action),this,MainActivity.class);
     open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     startActivity(open); finish();
   }
