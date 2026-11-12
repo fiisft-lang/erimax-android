@@ -1391,7 +1391,7 @@ function abrirDetalheMetrica(tipo){
   cfg={type:'bar',data:{labels:a.map(x=>x[0]),datasets:[{label:'Média em minutos',data:a.map(x=>Math.round(x[1])),backgroundColor:resp?'#2563eb':'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,title:{display:true,text:'minutos'}}}}};
   explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
  }else if(tipo==='mtbf'){
-  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(dados,c=>c.maquina,()=>1).slice(0,12);
+  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(todos,c=>c.maquina,()=>1).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=dados;explicacao='O MTBF geral mantém a fórmula atual baseada nas horas produtivas. O gráfico mostra a quantidade de falhas por máquina, sem inventar um MTBF individual sem base horária confiável.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma falha registrada.</p>';
  }else if(tipo==='total'||tipo==='conclusao'){
@@ -1399,7 +1399,7 @@ function abrirDetalheMetrica(tipo){
   cfg={type:'doughnut',data:{labels,datasets:[{data:labels.map(x=>g[x]),backgroundColor:labels.map((x,i)=>x==='Concluída'?'#16a34a':x==='Cancelada'?'#94a3b8':COR[i%COR.length]),borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'}}}};
   lista=todos;explicacao='A taxa mantém a fórmula atual: O.S. concluídas divididas pelo total de O.S. no filtro. O gráfico separa as demais situações.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma O.S. neste filtro.</p>';
  }else if(tipo==='reincidencia'){
-  titulo.textContent='Reincidência';const g={};dados.forEach(c=>{const k=(c.maquina||'Máquina não informada')+' • '+(c.tipo||'Tipo não informado');if(!g[k])g[k]=[];g[k].push(c)});
+  titulo.textContent='Reincidência';const g={};todos.forEach(c=>{const k=(c.maquina||'Máquina não informada')+' • '+(c.tipo||'Tipo não informado');if(!g[k])g[k]=[];g[k].push(c)});
   const r=Object.entries(g).filter(x=>x[1].length>1).sort((a,b)=>b[1].length-a[1].length);
   cfg={type:'bar',data:{labels:r.slice(0,12).map(x=>x[0]),datasets:[{label:'O.S. repetidas',data:r.slice(0,12).map(x=>x[1].length),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=r.flatMap(x=>x[1]);explicacao='Só entram como reincidência grupos com mais de uma O.S. para a mesma máquina e o mesmo tipo.';box.innerHTML=lista.length?r.map(x=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(x[0])+' • '+x[1].length+' O.S.</b>'+x[1].map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada.</p>';
