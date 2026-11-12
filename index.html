@@ -2169,16 +2169,13 @@ async function sincronizarNotificacoesPreventivas(){
     let permissao=await LN.checkPermissions();
     if(permissao.display!=='granted')permissao=await LN.requestPermissions();
     if(permissao.display!=='granted')return;
-    await LN.createChannel({id:'preventivas',name:'Lembretes de manutenção preventiva',description:'Avisos diários nos sete dias anteriores à preventiva',importance:5,visibility:1,sound:'default',vibration:true});
+    await LN.createChannel({id:'preventivas',name:'Lembretes de manutenção preventiva',description:'Avisos diários nos sete dias anteriores à preventiva',importance:5,visibility:1,vibration:true});
     const chaveIds='erimax_prev_notificacao_ids';
-    let idsAntigos=[];
-    try{idsAntigos=JSON.parse(localStorage.getItem(chaveIds)||'[]').filter(Number.isInteger)}catch(_){}
-    if(idsAntigos.length)await LN.cancel({notifications:idsAntigos.map(id=>({id}))});
-    const agora=new Date(),hoje=dataISOlocal(agora);
-    let jaAvisado=[];
-    try{jaAvisado=JSON.parse(localStorage.getItem('erimax_prev_avisos_hoje')||'[]')}catch(_){}
-    const novas=[],novosIds=[],novosAvisos=[...jaAvisado].slice(-300);
-    const usados=new Set();
+    let antigas=[];
+    try{antigas=JSON.parse(localStorage.getItem(chaveIds)||'[]')}catch(_){}
+    if(!Array.isArray(antigas))antigas=[];
+    const antigasPorChave=new Map(antigas.filter(x=>x&&Number.isInteger(x.id)&&typeof x.key==='string').map(x=>[x.key,x]));
+    const agora=new Date(),hoje=dataISOlocal(agora),novas=[],registros=[],idsManter=new Set(),usados=new Set();
     for(const p of (PREV||[])){
       let vencimento;
       if(p.data_prevista){
@@ -2198,7 +2195,10 @@ async function sincronizarNotificacoesPreventivas(){
         const dataAviso=dataISOlocal(dia);
         if(dataAviso<hoje)continue;
         const chave=String(p.id)+':'+dataVencimento+':'+faltam;
-        if(dataAviso===hoje&&novosAvisos.includes(chave))continue;
+        const existente=antigasPorChave.get(chave);
+        if(existente){
+          registros.push(existente);idsManter.add(existente.id);usados.add(existente.id);continue;
+        }
         const horario=new Date(dia);horario.setHours(9,0,0,0);
         if(dataAviso===hoje&&horario<=agora)horario.setTime(agora.getTime()+10000);
         if(horario<=agora)continue;
@@ -2207,14 +2207,14 @@ async function sincronizarNotificacoesPreventivas(){
         let id=(hash>>>0)%2000000000+1;
         while(usados.has(id))id=id===2000000000?1:id+1;
         usados.add(id);
-        novas.push({id,title:'Preventiva em '+faltam+' dia(s)',body:p.setor+' • '+maquinaTxt+' • '+(p.descricao||'Manutenção programada')+' • prevista para '+vencimento.toLocaleDateString('pt-BR'),schedule:{at:horario,allowWhileIdle:true},channelId:'preventivas',sound:'default',extra:{preventiva_id:p.id}});
-        novosIds.push(id);
-        if(dataAviso===hoje)novosAvisos.push(chave);
+        novas.push({id,title:'Preventiva em '+faltam+' dia(s)',body:p.setor+' • '+maquinaTxt+' • '+(p.descricao||'Manutenção programada')+' • prevista para '+vencimento.toLocaleDateString('pt-BR'),schedule:{at:horario,allowWhileIdle:true},channelId:'preventivas',extra:{preventiva_id:p.id}});
+        registros.push({id,key:chave});
       }
     }
+    const cancelar=antigas.filter(x=>x&&Number.isInteger(x.id)&&!idsManter.has(x.id)&&!registros.some(n=>n.id===x.id)).map(x=>({id:x.id}));
+    if(cancelar.length)await LN.cancel({notifications:cancelar});
     if(novas.length)await LN.schedule({notifications:novas});
-    localStorage.setItem(chaveIds,JSON.stringify(novosIds));
-    localStorage.setItem('erimax_prev_avisos_hoje',JSON.stringify(novosAvisos.slice(-300)));
+    localStorage.setItem(chaveIds,JSON.stringify(registros));
   }catch(e){console.warn('Não foi possível programar os lembretes de preventiva:',e)}
 }
 
