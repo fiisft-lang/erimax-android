@@ -655,10 +655,11 @@ function renderPainelMaquinasSupervisor(){
     ['Parada registrada',qtd('Parada registrada'),'#b91c1c'],
     ['Manutenção em andamento',qtd('Manutenção em andamento'),'#1d4ed8'],
     ['O.S. pausada',qtd('O.S. pausada'),'#a16207'],
+    ['O.S. aguardando',qtd('O.S. aguardando'),'#64748b'],
     ['Sem O.S. ativa',qtd('Sem O.S. ativa'),'#15803d']
   ];
   let html='<section class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Supervisão das máquinas</h3><p style="font-size:.76rem;color:#64748b;margin:4px 0 0">Situação baseada nas ordens de serviço registradas</p></div><span style="font-size:.72rem;color:#64748b">'+itens.length+' máquina(s)</span></div>';
-  html+='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px">';
+  html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:12px">';
   resumo.forEach(r=>{html+='<div style="border:1px solid #e2e8f0;border-left:4px solid '+r[2]+';border-radius:9px;padding:9px;min-width:0"><div style="font-size:.7rem;color:#64748b">'+r[0]+'</div><b style="font-size:1.35rem;color:'+r[2]+'">'+r[1]+'</b></div>'});
   html+='</div><p style="font-size:.7rem;color:#64748b;margin:10px 0 0">“Sem O.S. ativa” não confirma que a máquina está rodando. O sistema ainda não recebe sinal de sensores ou CLP.</p></section>';
   if(!itens.length){html+='<div class="card" style="color:#64748b;text-align:center">Nenhuma máquina cadastrada ou O.S. ativa encontrada.</div>'}
