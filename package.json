@@ -13,8 +13,7 @@
     "@capacitor/push-notifications": "^7.0.7",
     "@capacitor/app": "^7.0.1",
     "@capawesome/capacitor-live-update": "v7-lts",
-    "@capgo/capacitor-printer": "7.0.14",
-    "@capacitor/local-notifications": "^7.0.2"
+    "@capgo/capacitor-printer": "7.0.14"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
