@@ -401,7 +401,7 @@ const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
 let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
 let SETOR_MAQUINAS_EM_EDICAO=null;
-let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,ultimoIdOSRealtime=null;
+let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,intervaloStatusTecnicos=null,atualizacaoStatusEmCurso=false,ultimoIdOSRealtime=null;
 const idsOSAlertadas=new Set();
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
@@ -488,6 +488,7 @@ function iniciarAtualizacaoTempoParada(){
 }
 iniciarAtualizacaoTempoParada();
 function iniciarTempoReal(){
+  iniciarAtualizacaoAutomaticaStatusTecnicos();
   if(canalOSTempoReal)return;
   const canal=_supabase.channel('tabela-os-realtime')
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>alertarNovaOSRealtime(p.new))
@@ -511,6 +512,46 @@ function iniciarTempoReal(){
     }
   });
   iniciarVerificacaoOS();
+}
+function iniciarAtualizacaoAutomaticaStatusTecnicos(){
+  if(intervaloStatusTecnicos)return;
+  const atualizar=async()=>{
+    if(document.visibilityState==='hidden'||atualizacaoStatusEmCurso)return;
+    atualizacaoStatusEmCurso=true;
+    try{
+      const {data:status,error:statusError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
+      if(statusError)throw statusError;
+      const {data:ativas,error:ativasError}=await _supabase.from('os').select('*').eq('status','Em Atendimento');
+      if(ativasError)throw ativasError;
+      const ativasPorId=new Map((ativas||[]).map(o=>[Number(o.id),o]));
+      const idsConhecidos=chamados.filter(o=>o.status==='Em Atendimento').map(o=>Number(o.id)).filter(Number.isFinite);
+      const idsDesatualizados=idsConhecidos.filter(id=>!ativasPorId.has(id));
+      let estadosFechados=[];
+      if(idsDesatualizados.length){
+        const {data,error}=await _supabase.from('os').select('id,status,tecnico').in('id',idsDesatualizados);
+        if(error)throw error;
+        estadosFechados=data||[];
+      }
+      let mudou=false;
+      (ativas||[]).forEach(os=>{
+        const i=chamados.findIndex(c=>Number(c.id)===Number(os.id));
+        if(i<0){chamados.unshift({...os,setor:normSetor(os.setor)});mudou=true}
+        else if(chamados[i].status!==os.status||chamados[i].tecnico!==os.tecnico){chamados[i]={...chamados[i],...os,setor:normSetor(os.setor)};mudou=true}
+      });
+      estadosFechados.forEach(os=>{
+        const i=chamados.findIndex(c=>Number(c.id)===Number(os.id));
+        if(i>=0&&(chamados[i].status!==os.status||chamados[i].tecnico!==os.tecnico)){chamados[i]={...chamados[i],...os};mudou=true}
+      });
+      const assinaturaStatus=lista=>(lista||[]).map(x=>[x.user_id,x.status,x.turno_ativo,x.os_atual_id].join('|')).sort().join(';');
+      const statusAnterior=assinaturaStatus(STATUS_TECNICOS);
+      STATUS_TECNICOS=status||[];
+      if(statusAnterior!==assinaturaStatus(STATUS_TECNICOS))mudou=true;
+      if(mudou){renderTecnicos();renderStatusTurno();renderPainelMaquinasSupervisor()}
+    }catch(e){console.error('Atualização automática dos status dos técnicos falhou:',e.message||e)}
+    finally{atualizacaoStatusEmCurso=false}
+  };
+  atualizar();
+  intervaloStatusTecnicos=setInterval(atualizar,8000);
 }
 function dispararSireneEVibracao(){
   const a=document.getElementById('audioSirene');
@@ -749,7 +790,7 @@ function renderTecnicos(){
   boxTec.innerHTML='<div class="card"><h4 style="color:var(--primary)">👷 Técnicos agora</h4>'+(equipe.length?equipe.map(t=>{
     const osAtivas=em.filter(c=>c.tecnico===t.nome);
     const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);
-    const status=osAtivas.length?'EM SERVIÇO':(st?.status||(st&&st.turno_ativo?'ONLINE':'OFFLINE'));
+    const status=osAtivas.length?'EM SERVIÇO':(st&&st.turno_ativo?'ONLINE':'OFFLINE');
     const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
     const detalhe=osAtivas.length?' • '+osAtivas.map(c=>escaparHtml(nOS(c))+' ('+escaparHtml(c.maquina)+' • Setor: '+escaparHtml(c.setor||'Não informado')+')').join(', '):'';
     return '<div class="maq-row"><b>TEC '+escaparHtml(t.nome)+'</b><span style="font-size:.75rem;font-weight:800;text-align:right;color:'+cor+'">● '+escaparHtml(status)+detalhe+'</span></div>';
@@ -762,8 +803,8 @@ function renderStatusTurno(){
   if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil)){box.innerHTML='';return}
   const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const ativa=!!(st&&st.turno_ativo);
-  const emServico=PERFIL.perfil==='tecnico'&&(st?.status==='EM SERVIÇO'||chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome));
-  const status=emServico?'EM SERVIÇO':(st?.status||(ativa?'ONLINE':'OFFLINE'));
+  const emServico=PERFIL.perfil==='tecnico'&&chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
+  const status=emServico?'EM SERVIÇO':(ativa?'ONLINE':'OFFLINE');
   const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
   box.innerHTML=`<div class="card" style="border-left:5px solid ${cor}">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
