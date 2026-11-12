@@ -93,6 +93,18 @@ Deno.serve(async (req: Request) => {
     if (!sa.project_id || !sa.client_email || !sa.private_key) throw new Error('Segredo FCM_SERVICE_ACCOUNT inválido.')
     const access = await googleAccessToken(sa)
 
+    // Revalida o expediente imediatamente antes do envio.
+    const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')
+      .select('user_id').in('user_id', recipientIds).eq('status', 'ONLINE').eq('turno_ativo', true)
+    if (liveStatusError) throw liveStatusError
+    const liveIds = (liveStatuses || []).map((s: { user_id: string }) => s.user_id)
+    if (!liveIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário continua com expediente ativo.' })
+    const { data: liveDevices, error: liveDevicesError } = await admin.from('dispositivos')
+      .select('token').in('user_id', liveIds)
+    if (liveDevicesError) throw liveDevicesError
+    const liveTokens = [...new Set((liveDevices || []).map((d: { token: string }) => d.token).filter(Boolean))]
+    if (!liveTokens.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum dispositivo ativo para receber o chamado.' })
+
     claimTime = new Date().toISOString()
     const { data: claim, error: claimError } = await admin.from('os').update({ notificado_em: claimTime })
       .eq('id', osId).is('notificado_em', null).select('id').maybeSingle()
@@ -110,14 +122,14 @@ Deno.serve(async (req: Request) => {
     const invalid: string[] = []
     const errors: string[] = []
 
-    await Promise.all(tokens.map(async (deviceToken: string) => {
+    await Promise.all(liveTokens.map(async (deviceToken: string) => {
       const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: {
             token: deviceToken,
-            android: { priority: 'HIGH', ttl: '120s' },
+            android: { priority: 'HIGH', ttl: '15s' },
             data,
           },
         }),
