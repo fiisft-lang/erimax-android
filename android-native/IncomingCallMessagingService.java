@@ -58,7 +58,7 @@ public class IncomingCallMessagingService extends MessagingService {
         .setFullScreenIntent(full, true)
         .setContentIntent(full)
         .addAction(android.R.drawable.ic_menu_view, transferencia ? "Aceitar transferência" : "Assumir", actionIntent(id, machine, sector, number, transferencia ? "aceitar_transferencia" : "assumir"))
-        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Silenciar", actionIntent(id, machine, sector, number, "silenciar"))
+        .addAction(android.R.drawable.ic_menu_close_clear_cancel, transferencia ? "Recusar transferência" : "Silenciar", actionIntent(id, machine, sector, number, transferencia ? "recusar_transferencia" : "silenciar"))
         .setStyle(new NotificationCompat.BigTextStyle().bigText(number + " • " + machine + "\n" + sector))
         .build();
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -80,7 +80,7 @@ public class IncomingCallMessagingService extends MessagingService {
     intent.putExtra("setor", sector);
     intent.putExtra("numero", number);
     intent.putExtra("notification_action", action);
-    intent.putExtra("acao", "aceitar_transferencia".equals(action) ? "transferencia_os" : "nova_os");
+    intent.putExtra("acao", ("aceitar_transferencia".equals(action) || "recusar_transferencia".equals(action)) ? "transferencia_os" : "nova_os");
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     int requestCode = (id + ":" + action).hashCode();
     return PendingIntent.getActivity(this, requestCode, intent,
