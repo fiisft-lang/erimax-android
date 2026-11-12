@@ -33,12 +33,14 @@ public class IncomingCallMessagingService extends MessagingService {
       String machine = data.getOrDefault("maquina", "Nova ordem de serviço");
       String sector = data.getOrDefault("setor", "Manutenção");
       String number = data.getOrDefault("numero", "Nova O.S.");
+      boolean transferencia = "transferencia_os".equals(data.get("acao"));
       createChannel();
       Intent screen = new Intent(this, IncomingCallActivity.class);
       screen.putExtra("os_id", id);
       screen.putExtra("maquina", machine);
       screen.putExtra("setor", sector);
       screen.putExtra("numero", number);
+      screen.putExtra("acao", transferencia ? "transferencia_os" : "nova_os");
       screen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
       PendingIntent full = PendingIntent.getActivity(this, id.hashCode(), screen,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -46,8 +48,8 @@ public class IncomingCallMessagingService extends MessagingService {
         .setSound(null)
         .setVibrate(null)
         .setSmallIcon(getApplicationInfo().icon)
-        .setContentTitle("Nova ordem de serviço")
-        .setContentText(machine + " • " + sector)
+        .setContentTitle(transferencia ? "O.S. aguardando seu aceite" : "Nova ordem de serviço")
+        .setContentText(transferencia ? number + " • " + machine + " • " + sector : machine + " • " + sector)
         .setCategory(NotificationCompat.CATEGORY_CALL)
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -55,15 +57,17 @@ public class IncomingCallMessagingService extends MessagingService {
         .setAutoCancel(false)
         .setFullScreenIntent(full, true)
         .setContentIntent(full)
-        .addAction(android.R.drawable.ic_menu_view, "Assumir", actionIntent(id, machine, sector, number, "assumir"))
-        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Silenciar", actionIntent(id, machine, sector, number, "silenciar"))
+        .addAction(android.R.drawable.ic_menu_view, transferencia ? "Aceitar transferência" : "Assumir", actionIntent(id, machine, sector, number, transferencia ? "aceitar_transferencia" : "assumir"))
+        .addAction(android.R.drawable.ic_menu_close_clear_cancel, transferencia ? "Recusar transferência" : "Silenciar", actionIntent(id, machine, sector, number, transferencia ? "recusar_transferencia" : "silenciar"))
         .setStyle(new NotificationCompat.BigTextStyle().bigText(number + " • " + machine + "\n" + sector))
         .build();
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       nm.notify(id.hashCode(), n);
       vibrateForIncomingOS();
       KeyguardManager keyguard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
-      if (keyguard != null && !keyguard.isKeyguardLocked()) startAlertAlarm(this);
+      // Transferências também precisam tocar com a tela bloqueada: não dependem
+      // de a Activity de tela cheia conseguir abrir no Android.
+      if (transferencia || (keyguard != null && !keyguard.isKeyguardLocked())) startAlertAlarm(this);
     } else {
       super.onMessageReceived(message);
     }
@@ -76,6 +80,7 @@ public class IncomingCallMessagingService extends MessagingService {
     intent.putExtra("setor", sector);
     intent.putExtra("numero", number);
     intent.putExtra("notification_action", action);
+    intent.putExtra("acao", ("aceitar_transferencia".equals(action) || "recusar_transferencia".equals(action)) ? "transferencia_os" : "nova_os");
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     int requestCode = (id + ":" + action).hashCode();
     return PendingIntent.getActivity(this, requestCode, intent,
