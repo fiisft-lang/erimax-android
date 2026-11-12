@@ -691,13 +691,13 @@ function renderPainelMaquinasSupervisor(){
       if(item.ativas.length){
         html+='<div style="font-size:.75rem;font-weight:800;color:var(--primary);margin:9px 0 5px">O.S. em andamento</div>';
         item.ativas.forEach(os=>{
-          html+='<div style="background:#f8fafc;border-radius:7px;padding:9px;margin-top:6px;font-size:.73rem;color:#475569"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.status)+'</b><div style="margin-top:4px">'+escaparHtml(os.descricao||'Descrição não informada')+'</div><div style="margin-top:4px">Abertura: '+(os.created_at?escaparHtml(new Date(os.created_at).toLocaleString('pt-BR')):'—')+'<br>'+ (os.tecnico?'Técnico: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • Equipamento informado: '+escaparHtml(os.situacao_equipamento):'')+'</div></div>';
+          html+='<div role="button" tabindex="0" title="Toque para abrir esta O.S. e acessar as ações" onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:7px;padding:9px;margin-top:6px;font-size:.73rem;color:#475569;cursor:pointer"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.status)+'</b><div style="margin-top:4px">'+escaparHtml(os.descricao||'Descrição não informada')+'</div><div style="margin-top:4px">Abertura: '+(os.created_at?escaparHtml(new Date(os.created_at).toLocaleString('pt-BR')):'—')+'<br>'+ (os.tecnico?'Técnico: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • Equipamento informado: '+escaparHtml(os.situacao_equipamento):'')+'</div><small style="display:block;margin-top:6px;color:var(--primary);font-weight:700">Toque para abrir a O.S. e acessar as ações ›</small></div>';
         });
       }else html+='<p style="font-size:.72rem;color:#64748b;margin:9px 0 5px">Nenhuma O.S. ativa nesta máquina.</p>';
       if(qtdConcluidas){
         html+='<div style="font-size:.75rem;font-weight:800;color:var(--primary);margin:12px 0 5px">Histórico de O.S. concluídas ('+qtdConcluidas+')</div>';
         item.concluidas.slice(0,8).forEach(os=>{
-          html+='<div style="border-top:1px solid #f1f5f9;padding:8px 2px;font-size:.72rem;color:#64748b"><b style="color:#15803d">'+escaparHtml(nOS(os))+' • Concluída</b><br>'+(os.data_conclusao?'Conclusão: '+escaparHtml(new Date(os.data_conclusao).toLocaleString('pt-BR')):'Data de conclusão não informada')+(os.tecnico?'<br>Técnico: '+escaparHtml(os.tecnico):'')+(os.causa?'<br>Causa: '+escaparHtml(os.causa):'')+(os.servico_executado?'<br>Serviço: '+escaparHtml(os.servico_executado):'')+'</div>';
+          html+='<div role="button" tabindex="0" title="Toque para consultar o histórico completo desta O.S." onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="border-top:1px solid #f1f5f9;padding:8px 6px;font-size:.72rem;color:#64748b;cursor:pointer;border-radius:6px"><b style="color:#15803d">'+escaparHtml(nOS(os))+' • Concluída</b><br>'+(os.data_conclusao?'Conclusão: '+escaparHtml(new Date(os.data_conclusao).toLocaleString('pt-BR')):'Data de conclusão não informada')+(os.tecnico?'<br>Técnico: '+escaparHtml(os.tecnico):'')+(os.causa?'<br>Causa: '+escaparHtml(os.causa):'')+(os.servico_executado?'<br>Serviço: '+escaparHtml(os.servico_executado):'')+'<small style="display:block;margin-top:5px;color:#15803d;font-weight:700">Toque para ver o histórico completo ›</small></div>';
         });
         if(qtdConcluidas>8)html+='<small style="display:block;color:#64748b;margin-top:5px">Mostrando as 8 mais recentes de '+qtdConcluidas+' ordens concluídas.</small>';
       }else html+='<p style="font-size:.72rem;color:#64748b;margin:9px 0 0">Ainda não há O.S. concluída registrada para esta máquina.</p>';
@@ -1109,7 +1109,7 @@ function verHistorico(id){
   });
   const historicoTransferencias=transferencias.length?'\n\nTRANSFERÊNCIAS:\n'+linhasTransferencia.join('\n'):'\n\nNenhuma transferência registrada.';
   const historicoAjuste=os.ajustado_em?'\n\n⚠️ HORÁRIO CORRIGIDO PELO GESTOR:\nPor: '+(os.ajustado_por||'Gestor')+'\nEm: '+new Date(os.ajustado_em).toLocaleString('pt-BR')+'\nMotivo: '+(os.ajuste_obs||'Não informado'):'\n\nNenhuma correção de horário registrada.';
-  alert(nOS(os)+' | '+os.turno+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nProblema: '+os.descricao+'\nSolução: '+(os.servico_executado||'Não concluída')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoAjuste);
+  alert(nOS(os)+' | '+os.turno+'\nStatus: '+(os.status||'—')+' • Tipo: '+(os.tipo||'—')+' • Prioridade: '+(os.prioridade||'—')+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta em: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—')+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nInício do atendimento: '+(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não registrado')+'\nConclusão: '+(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Ainda não concluída')+'\nProblema: '+(os.descricao||'—')+'\nCausa: '+(os.causa||'Não informada')+'\nPeça: '+(os.peca||'Não informada')+'\nSolução/serviço: '+(os.servico_executado||'Não registrado')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoAjuste);
 }
 
 function atualizarMaquinasMetrica(){
@@ -1752,6 +1752,12 @@ function tratarLinkOS(url){
     if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);if(action==='assumir')localStorage.setItem('erimax_os_acao_pendente','assumir');return}
     setTimeout(async()=>{await abrirOSNoPainel(id);if(action==='assumir')await assumirOS(Number(id));},900);
   }catch(e){console.error('Link de O.S. inválido:',e)}
+}
+async function abrirOSDaSupervisao(id){
+  const os=chamados.find(c=>Number(c.id)===Number(id));
+  if(!os)return alert('Esta O.S. não está mais disponível. Atualize a supervisão e tente novamente.');
+  await abrirOSNoPainel(id);
+  if(os.status==='Concluída')setTimeout(()=>verHistorico(id),350);
 }
 async function iniciarLinksOS(){
   try{
