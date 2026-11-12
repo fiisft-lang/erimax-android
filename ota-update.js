@@ -36,10 +36,10 @@ import { LiveUpdate } from '@capawesome/capacitor-live-update';
       const currentId = current && current.bundleId || 'padrão do APK';
       if(current && current.bundleId === expected){
         storageRemove(PENDING_KEY);
-        setTimeout(()=>alert('Atualização do EriMax aplicada com sucesso.\\nPacote: '+expected.slice(0,12)),700);
+        setTimeout(()=>alert('Atualização do EriMax aplicada com sucesso.\nPacote: '+expected.slice(0,12)),700);
       } else {
         const rollback = !!(result && result.rollback);
-        setTimeout(()=>alert('A atualização do EriMax não foi confirmada.\\nPacote esperado: '+expected.slice(0,12)+'\\nPacote em uso: '+currentId+'\\n'+(rollback?'O sistema voltou ao pacote anterior por segurança.':'O pacote novo ainda não está ativo.')),700);
+        setTimeout(()=>alert('A atualização do EriMax não foi confirmada.\nPacote esperado: '+expected.slice(0,12)+'\nPacote em uso: '+currentId+'\n'+(rollback?'O sistema voltou ao pacote anterior por segurança.':'O pacote novo ainda não está ativo.')),700);
       }
     }
     return result;
@@ -78,15 +78,15 @@ import { LiveUpdate } from '@capawesome/capacitor-live-update';
       await live.setNextBundle({bundleId:manifest.bundleId});
       const next = typeof live.getNextBundle === 'function' ? await live.getNextBundle() : null;
       if(!next || next.bundleId !== manifest.bundleId) throw new Error('O pacote foi baixado, mas o Android não confirmou a seleção para atualização.');
-      const notes = typeof manifest.message === 'string' && manifest.message.trim() ? '\\n\\n' + manifest.message.trim() : '';
-      const applyNow = window.confirm('Nova atualização do EriMax disponível!' + notes + '\\n\\nDeseja atualizar agora? Se estiver preenchendo uma O.S., escolha “Cancelar” e a atualização será aplicada na próxima abertura do aplicativo.');
+      const notes = typeof manifest.message === 'string' && manifest.message.trim() ? '\n\n' + manifest.message.trim() : '';
+      const applyNow = window.confirm('Nova atualização do EriMax disponível!' + notes + '\n\nDeseja atualizar agora? Se estiver preenchendo uma O.S., escolha “Cancelar” e a atualização será aplicada na próxima abertura do aplicativo.');
       if(applyNow){
         storageSet(PENDING_KEY,manifest.bundleId);
         await live.reload();
       }
     }catch(error){
       console.error('[EriMax OTA] Verificação/instalação não concluída:',error);
-      alert('Não foi possível concluir a atualização do EriMax.\\n\\nMotivo: '+(error && error.message ? error.message : String(error))+'\\n\\nNenhum dado das ordens de serviço foi apagado.');
+      alert('Não foi possível concluir a atualização do EriMax.\n\nMotivo: '+(error && error.message ? error.message : String(error))+'\n\nNenhum dado das ordens de serviço foi apagado.');
     }finally{
       checking = false;
     }
