@@ -80,6 +80,7 @@ public class IncomingCallMessagingService extends MessagingService {
     intent.putExtra("setor", sector);
     intent.putExtra("numero", number);
     intent.putExtra("notification_action", action);
+    intent.putExtra("acao", "aceitar_transferencia".equals(action) ? "transferencia_os" : "nova_os");
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     int requestCode = (id + ":" + action).hashCode();
     return PendingIntent.getActivity(this, requestCode, intent,
