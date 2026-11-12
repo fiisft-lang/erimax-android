@@ -1365,7 +1365,7 @@ function fecharModalEfOS(){modalEfOS.style.display='none'}
 
 /* ===== IDENTIFICAÇÃO AUTOMÁTICA DE REINCIDÊNCIA (SEM CATÁLOGO OU SERVIÇO EXTERNO) ===== */
 function tokensProblemaOS(os){
-  const texto=String(os&&os.descricao||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+  const texto=String(os&&os.descricao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
   const ignorar=new Set(['a','o','as','os','um','uma','de','do','da','dos','das','em','no','na','nos','nas','com','sem','para','por','que','e','ou','foi','esta','estava','estao','estao','ser','ter','tem','tinha','nao','muito','pouco','mais','menos','maquina','equipamento','problema','defeito','apresenta','apresentou','parou','parar','parada','voltou','ficou','fica','ficando','na','ao']);
   const sinonimos={
     corta:'corte',cortar:'corte',cortando:'corte',cortou:'corte',cortado:'corte',cortada:'corte',
@@ -1379,7 +1379,7 @@ function tokensProblemaOS(os){
     solta:'folga',soltar:'folga',soltando:'folga',soltou:'folga',solto:'folga',
     desgastado:'desgaste',desgastada:'desgaste',desgastando:'desgaste',desgaste:'desgaste'
   };
-  const palavras=texto.replace(/[^a-z0-9]+/g,' ').trim().split(/\\s+/);
+  const palavras=texto.replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/);
   return [...new Set(palavras.map(p=>sinonimos[p]||p).filter(p=>p.length>=3&&!ignorar.has(p)))].sort();
 }
 function compararProblemasOS(a,b){
@@ -1393,7 +1393,7 @@ function calcularReincidenciasHistorico(historico){
   const ordenadas=(historico||[]).filter(c=>c&&c.status!=='Cancelada'&&c.tipo!=='Preventiva'&&c.id!=null)
     .slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
   ordenadas.forEach(os=>{
-    const maquina=String(os.maquina||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
+    const maquina=String(os.maquina||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
     const tokens=tokensProblemaOS(os);
     // Sem pelo menos dois termos úteis, o sistema não arrisca classificar como reincidência.
     if(!maquina||tokens.length<2)return;
@@ -1653,7 +1653,7 @@ function atualizarMetricasReais(){
   });
   const rankingReinc=Object.entries(reincPorMaquina).sort((a,b)=>b[1].total-a[1].total);
   const corpoRankingReinc=document.getElementById('tbRankingReincidencia');
-  if(corpoRankingReinc)corpoRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map(([nome,d])=>'<tr style="cursor:pointer" onclick="abrirDetalheMetrica(\\'reincidencia\\')"><td><b>'+escaparHtml(nome)+'</b></td><td>'+escaparHtml(d.setor)+'</td><td style="font-weight:800;color:#dc3545">'+d.total+'</td><td>'+escaparHtml([...d.problemas].join('; '))+'</td></tr>').join(''):'<tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr>';
+  if(corpoRankingReinc)corpoRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map(([nome,d])=>`<tr style="cursor:pointer" onclick="abrirDetalheMetrica('reincidencia')"><td><b>${escaparHtml(nome)}</b></td><td>${escaparHtml(d.setor)}</td><td style="font-weight:800;color:#dc3545">${d.total}</td><td>${escaparHtml([...d.problemas].join('; '))}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr>';
 
   // relatório
   const rel=document.getElementById('listaRelatorioProblemas');
