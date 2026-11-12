@@ -913,6 +913,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
 
 function salvarNomeTecnico(){localStorage.setItem('erimax_tecnico',document.getElementById('nomeTecnico').value);renderizarChamados()}
 
+// Mesmo em serviço, o técnico recebe alertas de novas O.S.; assumir continua exigindo ONLINE.
 async function assumirOS(id){
   if(!PERFIL||!['tecnico','gestor'].includes(PERFIL.perfil))return alert('Somente técnicos e gestores podem assumir uma O.S.');
   const t=PERFIL.perfil==='tecnico'?PERFIL.nome:localStorage.getItem('erimax_tecnico');
