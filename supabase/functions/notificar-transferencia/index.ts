@@ -87,7 +87,7 @@ Deno.serve(async (req: Request) => {
     const { data: status, error: statusError } = await admin.from("status_tecnicos")
       .select("user_id,status,turno_ativo").eq("user_id", destinatario.id).maybeSingle();
     if (statusError) throw statusError;
-    if (!status || status.status !== "ONLINE" || !status.turno_ativo) {
+    if (!status || !["ONLINE", "EM SERVIÇO"].includes(String(status.status || "").toUpperCase()) || !status.turno_ativo) {
       return json({ ok: true, enviados: 0, aviso: "O destinatário está fora do expediente. A transferência continua aguardando aceite." });
     }
 
@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
     if (osAtualError) throw osAtualError;
     if (statusAtualError) throw statusAtualError;
     if (!osAtual || osAtual.status !== "Em Atendimento" || osAtual.transferencia_para !== destinatario.nome ||
-        !statusAtual || statusAtual.status !== "ONLINE" || !statusAtual.turno_ativo) {
+        !statusAtual || !["ONLINE", "EM SERVIÇO"].includes(String(statusAtual.status || "").toUpperCase()) || !statusAtual.turno_ativo) {
       return json({ ok: true, enviados: 0, aviso: "A transferência ou o expediente mudou antes do envio." });
     }
 
@@ -126,20 +126,16 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           message: {
             token,
-            notification: {
-              title: "🔄 O.S. aguardando seu aceite",
-              body: "O.S. #" + numero + " • " + (os.setor || "Setor não informado") + " • " + (os.maquina || "Máquina não informada"),
-            },
-            android: {
-              priority: "HIGH",
-              ttl: "15s",
-              notification: { channel_id: "chamados", sound: "alarme" },
-            },
+            // Data-only: garante que IncomingCallMessagingService receba o evento
+            // em segundo plano e construa a notificação + tela cheia customizadas.
+            android: { priority: "HIGH", ttl: "15s" },
             data: {
               acao: "transferencia_os",
               os_id: String(os.id),
               numero: numero,
               destinatario_id: String(destinatario.id),
+              maquina: String(os.maquina || "Máquina não informada"),
+              setor: String(os.setor || "Setor não informado"),
             },
           },
         }),
