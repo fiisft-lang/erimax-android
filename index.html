@@ -1934,4 +1934,425 @@ async function prepararPDF(){
       if(cabecalhoDuplicado)cabecalhoDuplicado.remove();
       const originais=metricas.querySelectorAll('canvas'),copias=conteudo.querySelectorAll('canvas');
       Array.from(originais).forEach((canvas,i)=>{if(copias[i]){const img=document.createElement('img');img.src=canvas.toDataURL('image/png');img.style.maxWidth='100%';copias[i].replaceWith(img);}});
-      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+conteudo.innerHTML+'</main></body></html>
+      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+conteudo.innerHTML+'</main></body></html>';
+      await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
+    }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
+    return;
+  }
+  window.print();
+}
+async function exportarExcel(){
+  if(typeof XLSX==='undefined'){alert('A biblioteca de Excel não carregou. Verifique a internet e tente novamente.');return}
+  const f=obterFiltrosRelatorio(),os=FILTRADAS||[];
+  const d=dataHoraRelatorio,m=(a,b)=>a&&b?Math.round((new Date(b)-new Date(a))/60000):'';
+  const concluidas=os.filter(c=>c.status==='Concluída').length;
+  const abertas=os.filter(c=>c.status==='Aberta').length;
+  const resumo=[
+    ['ERIMAX — RELATÓRIO DE MANUTENÇÃO'],
+    ['Gerado em',new Date().toLocaleString('pt-BR')],
+    ['Período — dia',f.dia||'Todos'],['Período — mês',f.mes||'Todos'],
+    ['Turno',f.turno],['Tipo',f.tipo],['Setor',f.setor],['Máquina',f.maquina],
+    ['Total de O.S.',os.length],['Concluídas',concluidas],['Abertas',abertas],
+    ['Taxa de conclusão',os.length?Math.round(concluidas/os.length*100)+'%':'0%'],
+    ['Tempo médio de resposta (min)',document.getElementById('cResp')?.innerText||'—'],
+    ['MTTR (min)',document.getElementById('cMTTR')?.innerText||'—'],
+    ['Disponibilidade',document.getElementById('cDisp')?.innerText||'—'],
+    ['Tempo total parado',document.getElementById('cParada')?.innerText||'—'],
+    ['Observação','Relatório da tela de métricas. O.S. preventivas são excluídas dos indicadores e desta exportação.']
+  ];
+  const cab=['Nº O.S.','Abertura','Quem abriu','Situação do equipamento','Atendimento','Conclusão','Status','Turno','Setor','Máquina','Tipo','Prioridade','Causa','Peça','Técnico','Resposta (min)','Reparo (min)','Tempo até fechar (min)','Parada em produção (min)','Descrição','Serviço executado'];
+  const linhas=os.map(c=>[
+    String(c.numero||c.id||''),d(c.created_at),String(c.aberto_por||''),String(c.situacao_equipamento||''),d(c.data_atendimento),d(c.data_conclusao),
+    String(c.status||''),String(c.turno||''),String(c.setor||''),String(c.maquina||''),
+    String(c.tipo||''),String(c.prioridade||''),String(c.causa||''),String(c.peca||''),
+    String(c.tecnico||''),m(c.created_at,c.data_atendimento),m(c.data_atendimento,c.data_conclusao),
+    m(c.created_at,c.data_conclusao),c.data_conclusao?Math.round(paradaProd(c)):'',
+    String(c.descricao||''),String(c.servico_executado||'')
+  ]);
+  const wb=XLSX.utils.book_new();
+  const wsResumo=XLSX.utils.aoa_to_sheet(resumo);
+  wsResumo['!cols']=[{wch:38},{wch:70}];
+  XLSX.utils.book_append_sheet(wb,wsResumo,'Resumo');
+  const wsOS=XLSX.utils.aoa_to_sheet([cab,...linhas]);
+  wsOS['!cols']=[{wch:13},{wch:20},{wch:20},{wch:20},{wch:14},{wch:13},{wch:20},{wch:24},{wch:18},{wch:16},{wch:24},{wch:24},{wch:24},{wch:15},{wch:15},{wch:19},{wch:22},{wch:50},{wch:50}];
+  wsOS['!autofilter']={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(0,linhas.length),c:cab.length-1}})};
+  wsOS['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
+  XLSX.utils.book_append_sheet(wb,wsOS,'Ordens de serviço');
+  const nome='EriMax_Relatorio_'+new Date().toISOString().slice(0,10)+'.xlsx';
+  if(window.erimaxNativeExports?.saveExcel && window.Capacitor?.isNativePlatform?.()){
+    try{
+      const base64=XLSX.write(wb,{bookType:'xlsx',type:'base64',compression:true});
+      await window.erimaxNativeExports.saveExcel({filename:nome,base64});
+      alert('Excel salvo na pasta Downloads/EriMax do celular.');
+    }catch(error){console.error('Erro ao salvar Excel:',error);alert('Não foi possível salvar o Excel no celular: '+(error?.message||error));}
+    return;
+  }
+  XLSX.writeFile(wb,nome,{compression:true});
+}
+
+/* ===== HORÁRIO DE PRODUÇÃO ===== */
+async function carregarCfg(){
+  const [a,b,c,d]=await Promise.all([
+    _supabase.from('setores_config').select('*'),
+    _supabase.from('setores_turnos').select('*').order('setor').order('numero_turno'),
+    _supabase.from('setores_horarios_semanais').select('*').order('setor').order('dia_semana').order('numero_turno'),
+    _supabase.from('setores_horarios_excecoes').select('*').order('data_excecao')
+  ]);
+  if(a.error)console.error('Erro ao carregar setores:',a.error.message);
+  if(b.error)console.error('Erro ao carregar turnos antigos:',b.error.message);
+  if(c.error)console.error('Erro ao carregar horários semanais:',c.error.message);
+  if(d.error)console.error('Erro ao carregar exceções de horário:',d.error.message);
+  CFG={};(a.data||[]).forEach(r=>CFG[normSetor(r.setor)]={horas:+r.horas,turnos:r.turnos,dias:r.dias,inicio:String(r.inicio||'06:00').slice(0,5)});
+  TURNOS_CFG={};(b.data||[]).forEach(r=>(TURNOS_CFG[normSetor(r.setor)]||(TURNOS_CFG[normSetor(r.setor)]=[])).push({...r,setor:normSetor(r.setor)}));
+  HORARIOS_SEMANAIS={};(c.data||[]).forEach(r=>(HORARIOS_SEMANAIS[normSetor(r.setor)]||(HORARIOS_SEMANAIS[normSetor(r.setor)]=[])).push({...r,setor:normSetor(r.setor)}));
+  EXCECOES_HORARIO={};(d.data||[]).forEach(r=>EXCECOES_HORARIO[normSetor(r.setor)+'|'+r.data_excecao]={...r,setor:normSetor(r.setor)});
+  (b.data||[]).forEach(r=>{const s=normSetor(r.setor);if(!CFG[s])CFG[s]={horas:minutosTurno(r)/60,turnos:1,dias:r.dias,inicio:String(r.hora_inicio).slice(0,5)};});
+  const nomes=new Set([...(a.error?SETORES:(a.data||[]).map(r=>normSetor(r.setor))),...(b.data||[]).map(r=>normSetor(r.setor)),...(c.data||[]).map(r=>normSetor(r.setor)),...(d.data||[]).map(r=>normSetor(r.setor)),...MAQUINAS.map(m=>m.setor)]);
+  SETORES=[...nomes].filter(Boolean).sort((x,y)=>x.localeCompare(y,'pt-BR'));
+  popularSetores();if(document.getElementById('listaCfg'))renderCfg();if(document.getElementById('listaMaquinas'))renderMaquinasAgrupadas();
+}
+function editarHorarioSetor(i){SETOR_EM_EDICAO=SETORES[i];renderCfg()}
+function cancelarEdicaoHorario(){SETOR_EM_EDICAO=null;renderCfg()}
+function horarioEditor(s,d,n){
+  if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].find(r=>+r.dia_semana===d&&+r.numero_turno===n&&r.ativo)||null;
+  const t=turnosDoSetor(s).find(x=>+x.numero_turno===n&&(x.dias||'').includes(String(d)));
+  return t||null;
+}
+function renderEditorSetor(s,i){
+  const D=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  let h='<div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:10px"><b>🗓️ Horário semanal</b><p style="font-size:.75rem;color:#64748b;margin:4px 0 10px">Defina a entrada e a saída de cada turno em cada dia. Deixe em branco os turnos que não trabalham naquele dia.</p>';
+  for(let d=0;d<7;d++){
+    h+='<div class="cfg-semana" data-dia="'+d+'" style="border:1px solid #e2e8f0;border-radius:9px;padding:9px;margin:8px 0"><b>'+D[d]+'</b><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-top:8px">';
+    for(let n=1;n<=3;n++){
+      const t=horarioEditor(s,d,n),ini=t?String(t.hora_inicio).slice(0,5):'',fim=t?String(t.hora_fim).slice(0,5):'',pausa=t&&t.intervalo_ativo===true,pIni=t&&t.intervalo_inicio?String(t.intervalo_inicio).slice(0,5):'',pFim=t&&t.intervalo_fim?String(t.intervalo_fim).slice(0,5):'';
+      h+='<div style="background:#f8fafc;padding:7px;border-radius:7px"><b style="font-size:.75rem">Turno '+n+'</b><div style="display:flex;gap:5px"><label style="font-size:.68rem">Entrada<input class="sem-ini" data-turno="'+n+'" type="time" value="'+ini+'" style="width:100%;padding:5px"></label><label style="font-size:.68rem">Saída<input class="sem-fim" data-turno="'+n+'" type="time" value="'+fim+'" style="width:100%;padding:5px"></label></div><label style="display:flex;align-items:center;gap:5px;font-size:.72rem;margin-top:7px"><input class="sem-int-ativo" data-turno="'+n+'" type="checkbox" '+(pausa?'checked':'')+' style="width:auto"> Descontar almoço/jantar</label><div style="display:flex;gap:5px"><label style="font-size:.68rem;flex:1">Início do intervalo<input class="sem-int-ini" data-turno="'+n+'" type="time" value="'+pIni+'" style="width:100%;padding:5px"></label><label style="font-size:.68rem;flex:1">Fim do intervalo<input class="sem-int-fim" data-turno="'+n+'" type="time" value="'+pFim+'" style="width:100%;padding:5px"></label></div></div>';
+    }
+    h+='</div></div>';
+  }
+  h+='<button class="btn-submit" style="max-width:260px" onclick="salvarHorarioSemanal('+i+')">💾 Salvar grade semanal</button></div>';
+  h+='<div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:14px"><b>📅 Exceção / hora extra em uma data</b><p style="font-size:.75rem;color:#64748b;margin:4px 0 10px">Use para sábado, feriado, hora extra ou mudança pontual. A data cadastrada substitui o horário semanal somente naquele dia.</p>';
+  h+='<label style="font-size:.75rem">Data<input type="date" id="exc-data-'+i+'" style="width:100%;padding:8px"></label><label style="font-size:.75rem">Observação<input id="exc-obs-'+i+'" placeholder="Ex.: Hora extra de sábado" style="width:100%;padding:8px"></label>';
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:8px 0">';
+  for(let n=1;n<=3;n++)h+='<div style="background:#f8fafc;padding:7px;border-radius:7px"><b style="font-size:.75rem">Turno '+n+'</b><div style="display:flex;gap:5px"><label style="font-size:.68rem">Entrada<input class="exc-ini" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label><label style="font-size:.68rem">Saída<input class="exc-fim" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label></div><label style="display:flex;align-items:center;gap:5px;font-size:.72rem;margin-top:7px"><input class="exc-int-ativo" data-turno="'+n+'" type="checkbox" style="width:auto"> Descontar almoço/jantar</label><div style="display:flex;gap:5px"><label style="font-size:.68rem;flex:1">Início do intervalo<input class="exc-int-ini" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label><label style="font-size:.68rem;flex:1">Fim do intervalo<input class="exc-int-fim" data-turno="'+n+'" type="time" style="width:100%;padding:5px"></label></div></div>';
+  h+='</div><button class="btn-submit" style="max-width:260px;background:var(--secondary)" onclick="salvarExcecaoHorario('+i+')">➕ Salvar data especial</button>';
+  const ex=Object.values(EXCECOES_HORARIO).filter(r=>r.setor===s).sort((a,b)=>String(a.data_excecao).localeCompare(String(b.data_excecao)));
+  h+='<div style="margin-top:12px"><b style="font-size:.8rem">Datas especiais cadastradas</b>';
+  h+=ex.length?ex.map(r=>'<div class="maq-row" style="margin-top:6px;gap:8px"><span style="flex:1"><b>'+String(r.data_excecao).split('-').reverse().join('/')+'</b><small style="display:block;color:#64748b">'+escaparHtml(r.observacao||((r.horarios||[]).length?'Horário especial':'Sem produção'))+' • '+(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(', ')+'</small></span><button class="btn-action btn-excluir" style="min-width:0;flex:none" onclick="excluirExcecaoHorario('+i+',\''+r.data_excecao+'\')">🗑️</button></div>').join(''):'<p style="font-size:.75rem;color:#64748b;margin-top:6px">Nenhuma data especial cadastrada.</p>';
+  h+='</div></div>';
+  return h;
+}
+function renderCfg(){
+  listaCfg.innerHTML=SETORES.map((s,i)=>{
+    const edit=SETOR_EM_EDICAO===s;
+    const qtd=turnosDoSetor(s).length||1;
+    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>'+escaparHtml(s)+'</b><div style="display:flex;gap:6px"><button class="btn-action btn-transferir" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="editarHorarioSetor('+i+')">🛠️</button><button class="btn-action btn-excluir" title="Excluir setor" aria-label="Excluir setor '+escaparHtml(s)+'" style="min-width:42px;flex:none" onclick="apagarSetor('+i+')">🗑️</button></div></div>';
+    if(edit)h+='<div style="display:flex;justify-content:flex-end;margin-top:10px"><button type="button" class="btn-action" style="width:auto;min-width:0" onclick="cancelarEdicaoHorario()">Fechar edição ✕</button></div>'+renderEditorSetor(s,i);
+    else h+='<p style="font-size:.75rem;color:#64748b;margin-top:8px">🔒 Configuração protegida • '+qtd+' turno(s). Para alterar dias ou horários, toque na ferramenta.</p>';
+    if(edit)h+='<button class="btn-action" style="margin-top:8px;width:auto" onclick="cancelarEdicaoHorario()">Fechar edição</button>';
+    return h+'</div>';
+  }).join('');
+}
+async function salvarHorarioSemanal(i){
+  const s=SETORES[i],card=document.getElementById('listaCfg').children[i],linhas=[...card.querySelectorAll('.cfg-semana')],dados=[];
+  for(const linha of linhas){
+    const dia=+linha.dataset.dia;
+    for(let n=1;n<=3;n++){
+      const ini=linha.querySelector('.sem-ini[data-turno="'+n+'"]').value,fim=linha.querySelector('.sem-fim[data-turno="'+n+'"]').value,pausa=linha.querySelector('.sem-int-ativo[data-turno="'+n+'"]').checked,pIni=linha.querySelector('.sem-int-ini[data-turno="'+n+'"]').value,pFim=linha.querySelector('.sem-int-fim[data-turno="'+n+'"]').value;
+      if((ini&&!fim)||(!ini&&fim))return alert('No dia '+['domingo','segunda','terça','quarta','quinta','sexta','sábado'][dia]+', preencha entrada e saída do Turno '+n+'.');
+      if(ini&&fim&&ini===fim)return alert('A entrada e a saída do Turno '+n+' não podem ser iguais.');
+      if(pausa&&(!ini||!fim||!pIni||!pFim||!intervaloTurnoValido(ini,fim,pIni,pFim)))return alert('Confira o intervalo do almoço/jantar do Turno '+n+'. Ele precisa estar dentro do horário do turno.');
+      dados.push({setor:s,numero_turno:n,dia_semana:dia,hora_inicio:ini||'08:00',hora_fim:fim||'17:00',ativo:!!(ini&&fim),intervalo_ativo:pausa,intervalo_inicio:pausa?pIni:null,intervalo_fim:pausa?pFim:null});
+    }
+  }
+  if(!dados.some(x=>x.ativo))return alert('Cadastre pelo menos um horário de trabalho na semana.');
+  // Turnos podem se sobrepor para completar a carga horária; a união dos intervalos evita duplicar minutos nas métricas.
+  const {error}=await _supabase.from('setores_horarios_semanais').upsert(dados,{onConflict:'setor,numero_turno,dia_semana'});
+  if(error)return alert('Erro ao salvar a grade semanal: '+error.message);
+  SETOR_EM_EDICAO=null;await carregarCfg();if(document.getElementById('tab-metricas').classList.contains('active'))atualizarMetricasReais();
+  alert('Horários semanais de '+s+' salvos. As métricas já usarão os horários de cada dia.');
+}
+async function salvarExcecaoHorario(i){
+  const s=SETORES[i],data=document.getElementById('exc-data-'+i).value,obs=document.getElementById('exc-obs-'+i).value.trim(),card=document.getElementById('listaCfg').children[i],horarios=[];
+  if(!data)return alert('Escolha a data da hora extra ou da alteração.');
+  for(let n=1;n<=3;n++){
+    const ini=card.querySelector('.exc-ini[data-turno="'+n+'"]').value,fim=card.querySelector('.exc-fim[data-turno="'+n+'"]').value,pausa=card.querySelector('.exc-int-ativo[data-turno="'+n+'"]').checked,pIni=card.querySelector('.exc-int-ini[data-turno="'+n+'"]').value,pFim=card.querySelector('.exc-int-fim[data-turno="'+n+'"]').value;
+    if((ini&&!fim)||(!ini&&fim))return alert('Preencha entrada e saída do Turno '+n+'.');
+    if(ini&&fim&&ini===fim)return alert('Entrada e saída do Turno '+n+' precisam ser diferentes.');
+    if(pausa&&(!ini||!fim||!pIni||!pFim||!intervaloTurnoValido(ini,fim,pIni,pFim)))return alert('Confira o intervalo do almoço/jantar do Turno '+n+'. Ele precisa estar dentro do horário do turno.');
+    if(ini&&fim)horarios.push({numero_turno:n,hora_inicio:ini,hora_fim:fim,intervalo_ativo:pausa,intervalo_inicio:pausa?pIni:null,intervalo_fim:pausa?pFim:null});
+  }
+  // Exceções também permitem turnos sobrepostos; a disponibilidade une os intervalos sem duplicar tempo.
+  if(!horarios.length&&!confirm('Nenhum horário foi informado. Deseja marcar '+data+' como dia sem produção?'))return;
+  const {error}=await _supabase.from('setores_horarios_excecoes').upsert({setor:s,data_excecao:data,observacao:obs,horarios},{onConflict:'setor,data_excecao'});
+  if(error)return alert('Erro ao salvar a data especial: '+error.message);
+  await carregarCfg();SETOR_EM_EDICAO=s;renderCfg();
+  alert('Data especial salva. O horário semanal não será alterado.');
+}
+async function excluirExcecaoHorario(i,data){
+  const s=SETORES[i];if(!confirm('Excluir a exceção de '+data+'? O setor voltará a usar o horário semanal nessa data.'))return;
+  const {error}=await _supabase.from('setores_horarios_excecoes').delete().eq('setor',s).eq('data_excecao',data);
+  if(error)return alert('Erro ao excluir: '+error.message);
+  await carregarCfg();SETOR_EM_EDICAO=s;renderCfg();
+}
+async function adicionarSetor(){
+  const nome=novoSetor.value.trim().replace(/\s+/g,' ');
+  if(nome.length<2)return alert('Digite um nome de setor com pelo menos 2 caracteres.');
+  if(nome.length>60)return alert('O nome do setor deve ter no máximo 60 caracteres.');
+  if(SETORES.some(x=>x.toLowerCase()===nome.toLowerCase()))return alert('Esse setor já existe.');
+  const {error}=await _supabase.from('setores_config').insert([{setor:nome}]);
+  if(error)return alert(error.code==='23505'?'Esse setor já existe.':'Erro ao adicionar setor: '+error.message);
+  novoSetor.value='';SETOR_EM_EDICAO=null;await carregarCfg();
+  alert('Setor "'+nome+'" adicionado com sucesso.');
+}
+async function apagarSetor(i){
+  const nome=SETORES[i];
+  const vinculadas=MAQUINAS.filter(m=>m.setor===nome);
+  if(vinculadas.length)return alert('Não é possível excluir "'+nome+'" porque existem '+vinculadas.length+' máquina(s) cadastrada(s) nele. Para preservar os cadastros, primeiro remova ou transfira essas máquinas na tela Máquinas por setor.');
+  if(!confirm('Apagar o setor "'+nome+'"? Os horários serão removidos, mas as ordens de serviço antigas continuarão no histórico.'))return;
+  for(const tabela of ['setores_horarios_excecoes','setores_horarios_semanais','setores_turnos']){
+    const {error}=await _supabase.from(tabela).delete().eq('setor',nome);
+    if(error)return alert('Erro ao limpar horários do setor: '+error.message);
+  }
+  const {error}=await _supabase.from('setores_config').delete().eq('setor',nome);
+  if(error)return alert('Erro: '+error.message);
+  SETOR_EM_EDICAO=null;await carregarCfg();
+}
+/* ===== USUÁRIOS ===== */
+async function carregarUsuarios(){
+  const {data,error}=await _supabase.from('perfis').select('*').order('nome');
+  if(error){listaUsuarios.innerHTML='<p class="alerta">Erro: '+error.message+'</p>';return}
+  listaUsuarios.innerHTML=(data||[]).map(u=>`<div class="maq-row" style="flex-wrap:wrap;gap:6px"><small style="flex:1 1 100%;color:#64748b">${u.email||''}${u.id===MEU_ID?' (você)':''}</small><input value="${(u.nome||'').replace(/"/g,'&quot;')}" style="flex:1;padding:8px" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><select style="width:120px;padding:8px" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<button class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="redefinirSenha('${u.id}')">🔑</button><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarUsuario('${u.id}')">🗑️</button>`}</div>`).join('')||'<p style="color:#64748b;text-align:center">Nenhum usuário.</p>';
+}
+async function criarUsuario(){
+  const body={email:nuEmail.value.trim(),nome:nuNome.value.trim(),senha:nuSenha.value,perfil:nuPerfil.value};
+  if(!body.email||!body.nome||!body.senha)return alert('Preencha e-mail, nome e senha.');
+  const {data,error}=await _supabase.functions.invoke('criar-usuario',{body});
+  let msg=data&&data.erro;
+  if(error&&!msg){try{msg=(await error.context.json()).erro}catch(e){msg=error.message}}
+  if(msg)return alert('Erro: '+msg);
+  alert('Usuário criado! Passe o e-mail e a senha para a pessoa.');
+  nuEmail.value=nuNome.value=nuSenha.value='';carregarUsuarios();
+}
+async function redefinirSenha(id){
+  const nova=prompt('Digite a nova senha (mínimo 8 caracteres):');
+  if(!nova)return;
+  if(nova.length<8)return alert('A senha precisa ter no mínimo 8 caracteres.');
+  const {data,error}=await _supabase.functions.invoke('criar-usuario',{body:{acao:'senha',id,senha:nova}});
+  let msg=data&&data.erro;
+  if(error&&!msg){try{msg=(await error.context.json()).erro}catch(e){msg=error.message}}
+  if(msg)return alert('Erro: '+msg);
+  alert('Senha alterada! Passe a nova senha para a pessoa.');
+}
+async function apagarUsuario(id){
+  if(!confirm('Apagar este usuário? Ele perde o acesso. As OS que ele atendeu continuam no histórico.'))return;
+  const {data,error}=await _supabase.functions.invoke('criar-usuario',{body:{acao:'apagar',id}});
+  let msg=data&&data.erro;
+  if(error&&!msg){try{msg=(await error.context.json()).erro}catch(e){msg=error.message}}
+  if(msg)return alert('Erro: '+msg);
+  carregarUsuarios();
+}
+async function salvarUsuario(id,campos){
+  if(campos.nome==='')return alert('O nome não pode ficar vazio.');
+  const {error}=await _supabase.from('perfis').update(campos).eq('id',id);
+  if(error){alert('Erro ao salvar: '+error.message);carregarUsuarios()}
+}
+
+/* ===== PREVENTIVAS ===== */
+function alternarFormPreventiva(){
+  const box=document.getElementById('pvFormConteudo');
+  if(!box)return;
+  if(box.style.display==='none')abrirFormPreventiva();else fecharFormPreventiva();
+}
+function fecharFormPreventiva(){
+  const box=document.getElementById('pvFormConteudo'),btn=document.getElementById('pvAlternarForm');
+  if(box)box.style.display='none';
+  if(btn)btn.textContent='Abrir cadastro';
+}
+function abrirFormPreventiva(){
+  const box=document.getElementById('pvFormConteudo'),btn=document.getElementById('pvAlternarForm');
+  if(box)box.style.display='';
+  if(btn)btn.textContent='Fechar ✕';
+}
+
+function popularTecnicosPreventiva(){
+  const sel=document.getElementById('pvTecnico');if(!sel)return;
+  const atual=sel.value;
+  const equipe=document.getElementById('pvEquipeTecnicos');
+  const selecionados=new Set(equipe?[...equipe.querySelectorAll('.pv-tecnico-equipe:checked')].map(e=>e.value):[]);
+  const tecnicos=TECNICOS.filter(t=>t.perfil==='tecnico');
+  sel.innerHTML='<option value="">Selecione o técnico...</option>'+tecnicos.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
+  if(tecnicos.some(t=>t.nome===atual))sel.value=atual;
+  if(equipe)equipe.innerHTML=tecnicos.length?tecnicos.map(t=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-tecnico-equipe" type="checkbox" value="'+escaparHtml(t.nome)+'" '+(selecionados.has(t.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(t.nome)+'</label>').join(''):'<small style="color:#64748b">Nenhum manutentor cadastrado.</small>';
+  if(!pvDataPrevista.value)pvDataPrevista.value=dataISOlocal(new Date());
+}
+let PV_SETOR_RENDERIZADO='';
+function pvMaquinas(){
+  const itens=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome);
+  const lista=document.getElementById('pvListaMaquinas');
+  const todas=document.getElementById('pvTodasMaquinas');
+  if(!lista||!todas)return;
+  if(!itens.length){lista.innerHTML='<p style="color:#b91c1c;font-size:.8rem">Sem máquinas cadastradas neste setor.</p>';todas.checked=false;PV_SETOR_RENDERIZADO=pvSetor.value;return}
+  if(todas.checked){
+    lista.innerHTML='<p style="font-size:.8rem;color:#166534;background:#ecfdf5;padding:8px;border-radius:6px">Todas as '+itens.length+' máquinas deste setor serão incluídas na mesma O.S.</p>';
+    PV_SETOR_RENDERIZADO=pvSetor.value;return;
+  }
+  const mesmoSetor=PV_SETOR_RENDERIZADO===pvSetor.value;
+  const selecionadas=mesmoSetor?[...lista.querySelectorAll('.pv-maquina:checked')].map(e=>e.value):[];
+  const ativos=new Set(selecionadas.filter(nome=>itens.some(m=>m.nome===nome)));
+  if(!ativos.size)ativos.add(itens[0].nome);
+  lista.innerHTML=itens.map(m=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-maquina" type="checkbox" value="'+escaparHtml(m.nome)+'" '+(ativos.has(m.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+'</label>').join('');
+  PV_SETOR_RENDERIZADO=pvSetor.value;
+}
+function maquinasDaPreventiva(p){
+  const lista=Array.isArray(p&&p.maquinas)?p.maquinas.filter(x=>typeof x==='string'&&x.trim()):[];
+  return lista.length?lista:(p&&p.maquina?[p.maquina]:[]);
+}
+function resumoMaquinasPreventiva(p){
+  const lista=maquinasDaPreventiva(p);
+  return lista.length>1?lista.length+' máquinas do setor':(lista[0]||'Máquina não informada');
+}
+async function addPrev(){
+  const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value);
+  if(!pvSetor.value)return alert('Escolha um setor.');
+  const todas=document.getElementById('pvTodasMaquinas').checked;
+  const maquinasSetor=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome).map(m=>m.nome);
+  const maquinasSelecionadas=todas?maquinasSetor:[...document.querySelectorAll('#pvListaMaquinas .pv-maquina:checked')].map(e=>e.value);
+  if(!maquinasSelecionadas.length)return alert('Selecione pelo menos uma máquina do setor.');
+  if(descricao.length<3)return alert('Descreva a atividade com pelo menos 3 caracteres.');
+  if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
+  if(!dataPrevista)return alert('Escolha a próxima data prevista.');
+  if(!tecnico)return alert('Selecione o técnico responsável.');
+  const equipeSelecionada=[...new Set([...document.querySelectorAll('#pvEquipeTecnicos .pv-tecnico-equipe:checked')].map(e=>e.value).concat(tecnico.nome))];
+  const maquinasUnicas=[...new Set(maquinasSelecionadas)];
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:maquinasUnicas.length===1?maquinasUnicas[0]:maquinasUnicas.length+' máquinas do setor',maquinas:maquinasUnicas,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
+  if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
+  pvDesc.value='';
+  document.getElementById('pvTodasMaquinas').checked=false;
+  pvMaquinas();
+  await carregarPreventivas();
+  alert('Preventiva cadastrada com sucesso para '+maquinasUnicas.length+' máquina(s).');
+}
+async function delPrev(id){
+  if(!confirm('Remover esta preventiva? O histórico de ordens de serviço já abertas será preservado.'))return;
+  const {error}=await _supabase.from('preventivas').delete().eq('id',id);
+  if(error)return alert('Não foi possível remover a preventiva: '+error.message);
+  await carregarPreventivas();
+}
+async function carregarPreventivas(){
+  const {data,error}=await _supabase.from('preventivas').select('*').order('id');
+  if(error){
+    listaPrev.innerHTML='<p class="alerta">Erro ao carregar preventivas: '+escaparHtml(error.message)+'</p>';
+    boxPrev.innerHTML='';
+    return;
+  }
+  PREV=data||[];
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const v=PREV.map(p=>{
+    let base;
+    if(p.data_prevista)base=new Date(String(p.data_prevista).slice(0,10)+'T00:00:00');
+    else {base=new Date(String(p.ultima||dataISOlocal(hoje)).slice(0,10)+'T00:00:00');base.setDate(base.getDate()+ (Number(p.intervalo_dias)||30));}
+    const dias=Math.ceil((base.getTime()-hoje.getTime())/864e5);
+    return {...p,dias};
+  }).filter(p=>Number.isFinite(p.dias)&&p.dias<=3).sort((a,b)=>a.dias-b.dias);
+  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
+}
+async function gerarOSPrev(id){
+  const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
+  window.__erimaxPrevGerando=window.__erimaxPrevGerando||new Set();
+  if(window.__erimaxPrevGerando.has(String(id)))return;
+  if(!confirm('Gerar uma nova ordem de serviço para esta preventiva?'))return;
+  window.__erimaxPrevGerando.add(String(id));
+  try{
+    const h=new Date().getHours(),maquinas=maquinasDaPreventiva(p);
+    const maquinaLabel=maquinas.length>1?maquinas.length+' máquinas do setor':(maquinas[0]||p.maquina);
+    const maquinasExecucao=maquinas.length>1?maquinas.map(nome=>({nome,concluida:false,concluida_em:null})):[];
+    const descricaoOS='Preventiva: '+p.descricao+(maquinas.length>1?'\nMáquinas: '+maquinas.join(', '):'');
+    const equipeOS=[...new Set((Array.isArray(p.tecnicos_participantes)?p.tecnicos_participantes:[]).filter(x=>typeof x==='string'&&x.trim()).concat(p.tecnico_responsavel||[]))];
+    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
+    if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
+    const intervalo=Number(p.intervalo_dias)||30;
+    let base=new Date(String(p.data_prevista||p.ultima||dataISOlocal(new Date())).slice(0,10)+'T00:00:00');
+    if(!p.data_prevista)base.setDate(base.getDate()+intervalo);
+    base.setDate(base.getDate()+intervalo);
+    const proxima=dataISOlocal(base);
+    const {error:atualizaError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(new Date()),data_prevista:proxima}).eq('id',id);
+    await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
+    if(atualizaError)alert('A O.S. foi criada, mas a próxima data da preventiva não foi atualizada. Verifique a preventiva: '+atualizaError.message);
+    else alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'.');
+  }finally{
+    window.__erimaxPrevGerando.delete(String(id));
+  }
+}
+
+/* ===== CONSULTAS LOCAIS DO HISTÓRICO (SEM IA EXTERNA) ===== */
+function executarConsultaHistorico(){
+  const mes=document.getElementById('consultaMes')?.value||'';
+  const tipo=document.getElementById('consultaTipo')?.value||'motores';
+  const filtro=(document.getElementById('consultaFiltro')?.value||'').trim().toLocaleLowerCase('pt-BR');
+  const box=document.getElementById('resultadoConsulta');
+  if(!box)return;
+  const registros=chamados.filter(c=>{
+    const data=c.created_at?diaLocal(c.created_at):'';
+    const noMes=!mes||data.startsWith(mes);
+    const texto=[c.maquina,c.setor,c.tipo,c.descricao,c.causa,c.peca,c.servico_executado,c.tecnico].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');
+    const bateFiltro=!filtro||texto.includes(filtro);
+    return noMes&&bateFiltro&&c.tipo!=='Preventiva';
+  });
+  const escapeHTML=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const periodo=mes?mes.split('-').reverse().join('/'):'todo o histórico';
+  if(tipo==='motores'){
+    const motores=registros.filter(c=>/motor(?:es)?.{0,50}queim|queim.{0,50}motor(?:es)?/i.test([c.tipo,c.descricao,c.causa,c.peca,c.servico_executado].filter(Boolean).join(' ')));
+    box.innerHTML='<h4>Resultado: '+motores.length+' O.S. com relato de motor queimado em '+escapeHTML(periodo)+'</h4>'+
+      (motores.length?motores.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.data_conclusao?hm(c.data_conclusao):hm(c.created_at))+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div><div style="font-size:.76rem;color:#137333">'+escapeHTML(c.causa||'')+' '+escapeHTML(c.peca||'')+' '+escapeHTML(c.servico_executado||'')+'</div></div>').join(''):'<p>Nenhum relato de motor queimado foi encontrado nesse período. A busca considera o texto registrado na O.S.</p>');
+    return;
+  }
+  if(tipo==='maquina'){
+    const grupos={};
+    registros.forEach(c=>{const k=c.maquina||'Máquina não informada';grupos[k]=(grupos[k]||0)+1});
+    const lista=Object.entries(grupos).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML='<h4>Máquinas com mais O.S. em '+escapeHTML(periodo)+'</h4>'+
+      (lista.length?lista.map(([nome,total],i)=>'<div class="maq-row"><b>'+(i+1)+'º • '+escapeHTML(nome)+'</b><strong>'+total+' O.S.</strong></div>').join(''):'<p>Nenhuma O.S. encontrada nesse período.</p>');
+    return;
+  }
+  if(tipo==='causas'){
+    const grupos={};
+    registros.forEach(c=>{const k=c.causa||'Causa não informada';grupos[k]=(grupos[k]||0)+1});
+    const lista=Object.entries(grupos).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML='<h4>Causas registradas em '+escapeHTML(periodo)+'</h4>'+
+      (lista.length?lista.map(([nome,total])=>'<div class="maq-row"><b>'+escapeHTML(nome)+'</b><strong>'+total+'</strong></div>').join(''):'<p>Nenhuma causa registrada nesse período.</p>');
+    return;
+  }
+  if(!filtro){box.innerHTML='<p>Digite uma palavra ou nome de máquina para pesquisar.</p>';return}
+  box.innerHTML='<h4>'+registros.length+' O.S. encontradas para “'+escapeHTML(filtro)+'” em '+escapeHTML(periodo)+'</h4>'+
+    (registros.length?registros.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.tecnico||'Sem técnico')+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div></div>').join(''):'<p>Nenhum registro corresponde à pesquisa.</p>');
+}
+navigator.serviceWorker?.addEventListener('message',event=>{
+  if(event.origin!==location.origin)return;
+  if(event.data?.type==='ERIMAX_SILENCE_ALERT'){desligarAlarme();return}
+  if(event.data?.type==='ERIMAX_OPEN_OS'&&event.data.os_id&&PERFIL){
+    setTimeout(async()=>{
+      await abrirOSNoPainel(event.data.os_id);
+      if(event.data.action==='assumir')await assumirOS(Number(event.data.os_id));
+    },300);
+  }
+});
+window.onload=async function(){
+  // A checagem OTA não pode depender da resposta da sessão do Supabase.
+  if(window.erimaxOTA){
+    window.erimaxOTA.ready().catch(error=>console.warn('[EriMax OTA] Inicialização:',error));
+    setTimeout(()=>window.erimaxOTA.checkForUpdate(),1800);
+  }
+  const mesConsulta=document.getElementById('consultaMes');
+  if(mesConsulta){const agora=new Date();mesConsulta.value=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0')}
+  try{
+    const {data:{session}}=await _supabase.auth.getSession();
+    if(session)iniciarApp(session.user);
+  }catch(error){
+    console.error('[EriMax] Não foi possível recuperar a sessão:',error);
+  }
+};
+</script>
+ <script src="export-bridge.js"></script>
+</body>
+</html>
