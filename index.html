@@ -542,9 +542,10 @@ function iniciarAtualizacaoAutomaticaStatusTecnicos(){
         const i=chamados.findIndex(c=>Number(c.id)===Number(os.id));
         if(i>=0&&(chamados[i].status!==os.status||chamados[i].tecnico!==os.tecnico)){chamados[i]={...chamados[i],...os};mudou=true}
       });
-      const statusAnterior=JSON.stringify(STATUS_TECNICOS);
+      const assinaturaStatus=lista=>(lista||[]).map(x=>[x.user_id,x.status,x.turno_ativo,x.os_atual_id].join('|')).sort().join(';');
+      const statusAnterior=assinaturaStatus(STATUS_TECNICOS);
       STATUS_TECNICOS=status||[];
-      if(statusAnterior!==JSON.stringify(STATUS_TECNICOS))mudou=true;
+      if(statusAnterior!==assinaturaStatus(STATUS_TECNICOS))mudou=true;
       if(mudou){renderTecnicos();renderStatusTurno();renderPainelMaquinasSupervisor()}
     }catch(e){console.error('Atualização automática dos status dos técnicos falhou:',e.message||e)}
     finally{atualizacaoStatusEmCurso=false}
