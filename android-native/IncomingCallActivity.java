@@ -127,7 +127,7 @@ public class IncomingCallActivity extends Activity {
 
   private void rejectTransfer() {
     stopAlarm(); dismissNotification();
-    Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=abrir_transferencia"), this, MainActivity.class);
+    Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=recusar_transferencia"), this, MainActivity.class);
     open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     startActivity(open); finish();
   }
