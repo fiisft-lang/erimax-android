@@ -1129,6 +1129,7 @@ async function salvarHorarios(){
   modalHor.style.display='none';await carregarDadosSupabase();alert('Horários corrigidos. O histórico registra quem fez o ajuste e o motivo.');
 }
 function fecharModal(){modal.style.display='none'}
+// Status dos técnicos sincronizados automaticamente a cada 8 segundos como proteção ao Realtime.
 async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
   const os0=chamados.find(c=>c.id===osConcluir),agora=new Date();
