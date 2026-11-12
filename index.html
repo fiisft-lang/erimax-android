@@ -218,8 +218,15 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <p style="font-size:.8rem;color:#64748b;margin-bottom:12px">Acompanhe ordens abertas, em atendimento e concluídas.</p>
 <div class="form-group"><label for="nomeTecnico">SEU NOME (TÉCNICO)</label>
 <input type="text" id="nomeTecnico" placeholder="Ex.: Fii" readonly></div>
-<div class="form-group" style="margin-bottom:0"><label for="filtroStatus">FILTRAR POR STATUS</label>
+<div class="form-group"><label for="filtroStatus">FILTRAR POR STATUS</label>
 <select id="filtroStatus" onchange="renderizarChamados()"><option value="Todas">Todas as Ordens</option><option value="Aberta">Abertas</option><option value="Em Atendimento">Em Atendimento</option><option value="Pausada">Pausadas</option><option value="Concluída">Concluídas</option><option value="Cancelada">Canceladas</option></select></div>
+<div class="form-group"><label for="buscaOS">BUSCAR O.S., MÁQUINA OU DEFEITO</label><input id="buscaOS" type="search" placeholder="Digite para localizar..." oninput="renderizarChamados()"></div>
+<div class="form-group"><label for="ordenarOS">ORDENAR ORDENS</label><select id="ordenarOS" onchange="renderizarChamados()"><option value="recentes">Mais recentes primeiro</option><option value="antigas">Mais antigas primeiro</option><option value="prioridade">Prioridade alta primeiro</option></select></div>
+<details style="margin-top:8px"><summary style="cursor:pointer;font-weight:700;color:var(--primary);padding:8px 0">＋ Mais filtros</summary>
+<div class="form-group"><label for="filtroPrioridadeOS">PRIORIDADE</label><select id="filtroPrioridadeOS" onchange="renderizarChamados()"><option value="Todas">Todas as prioridades</option><option value="Alta">Alta</option><option value="Média">Média</option><option value="Baixa">Baixa</option></select></div>
+<div class="form-group"><label for="filtroSetorOS">SETOR</label><select id="filtroSetorOS" onchange="renderizarChamados()"><option value="Todos">Todos os setores</option></select></div>
+<div class="form-group"><label for="filtroTecnicoOS">MANUTENTOR RESPONSÁVEL</label><select id="filtroTecnicoOS" onchange="renderizarChamados()"><option value="Todos">Todos os manutentores</option></select></div>
+<div class="form-group" style="margin-bottom:0"><label for="filtroTransferenciaOS">TRANSFERÊNCIA</label><select id="filtroTransferenciaOS" onchange="renderizarChamados()"><option value="Todas">Todas as ordens</option><option value="Pendente">Aguardando aceite</option><option value="SemPendente">Sem transferência pendente</option></select></div></details>
 </div>
 <div id="boxTec"></div>
 <div id="boxPrev"></div>
@@ -820,7 +827,28 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
   const nome=localStorage.getItem('erimax_tecnico')||'';
   document.getElementById('nomeTecnico').value=nome;
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
-  const lista=chamados.filter(c=>apenasPausadas?c.status==='Pausada':apenasAbertas?(c.status==='Aberta'||c.status==='Em Atendimento'):(filtro==='Todas'||c.status===filtro));
+  const principal=destino==='listaOS';
+  const preencher=(id,opcoes,rotulo)=>{const el=document.getElementById(id);if(!el||!principal)return;const atual=el.value;el.innerHTML='<option value="Todos">'+rotulo+'</option>'+opcoes.map(v=>'<option value="'+escaparHtml(v)+'">'+escaparHtml(v)+'</option>').join('');if(opcoes.includes(atual))el.value=atual};
+  preencher('filtroSetorOS',[...new Set(chamados.map(c=>normSetor(c.setor)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')),'Todos os setores');
+  preencher('filtroTecnicoOS',[...new Set(chamados.map(c=>c.tecnico).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')),'Todos os manutentores');
+  const busca=principal?(document.getElementById('buscaOS')?.value||'').trim().toLocaleLowerCase('pt-BR'):'';
+  const pf=principal?(document.getElementById('filtroPrioridadeOS')?.value||'Todas'):'Todas';
+  const sf=principal?(document.getElementById('filtroSetorOS')?.value||'Todos'):'Todos';
+  const tf=principal?(document.getElementById('filtroTecnicoOS')?.value||'Todos'):'Todos';
+  const xf=principal?(document.getElementById('filtroTransferenciaOS')?.value||'Todas'):'Todas';
+  const lista=chamados.filter(c=>{
+    if(apenasPausadas&&c.status!=='Pausada')return false;
+    if(apenasAbertas&&!['Aberta','Em Atendimento'].includes(c.status))return false;
+    if(!apenasPausadas&&!apenasAbertas&&filtro!=='Todas'&&c.status!==filtro)return false;
+    if(pf!=='Todas'&&c.prioridade!==pf)return false;
+    if(sf!=='Todos'&&normSetor(c.setor)!==sf)return false;
+    if(tf!=='Todos'&&c.tecnico!==tf)return false;
+    if(xf==='Pendente'&&!c.transferencia_para)return false;
+    if(xf==='SemPendente'&&c.transferencia_para)return false;
+    if(busca){const t=[nOS(c),c.maquina,c.descricao,c.setor,c.tecnico,c.aberto_por].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');if(!t.includes(busca))return false}
+    return true;
+  });
+  if(principal){const ordem=document.getElementById('ordenarOS')?.value||'recentes';const peso={Alta:3,'Média':2,Baixa:1};lista.sort((a,b)=>{if(ordem==='prioridade'){const d=(peso[b.prioridade]||0)-(peso[a.prioridade]||0);if(d)return d}const ta=a.created_at?new Date(a.created_at).getTime():0,tb=b.created_at?new Date(b.created_at).getTime():0;return ordem==='antigas'?ta-tb:tb-ta})}
   box.innerHTML='';
   if(!lista.length){box.innerHTML='<div class="card" style="text-align:center;color:#64748b">Nenhum chamado encontrado.</div>';return}
   lista.forEach(os=>{
@@ -972,7 +1000,9 @@ async function transferirOS(id){
     p_motivo:motivo.trim()
   });
   if(error)return alert('Não foi possível solicitar a transferência: '+error.message);
-  alert('Pedido de transferência enviado para '+novoTec.nome+'. Motivo registrado. A responsabilidade continuará com '+os.tecnico+' até o destinatário aceitar.');
+  let pushConfirmado=false;
+  try{const {data,error:pushError}=await _supabase.functions.invoke('notificar-transferencia',{body:{os_id:id}});if(pushError||data?.erro)throw new Error(data?.erro||pushError?.message||'Falha no envio');pushConfirmado=Number(data?.enviados||0)>0}catch(e){console.warn('Transferência registrada, mas notificação não confirmada:',e)}
+  alert('Pedido de transferência enviado para '+novoTec.nome+'. Motivo registrado. A responsabilidade continuará com '+os.tecnico+' até o destinatário aceitar.'+(pushConfirmado?'\n\nNotificação enviada ao celular do destinatário.':'\n\nNão foi possível confirmar a notificação no celular. O pedido continua aguardando aceite no EriMax.'));
   await carregarDadosSupabase();
 }
 async function aceitarTransferenciaOS(id){
@@ -1781,7 +1811,13 @@ async function iniciarPush(){
       if(error)console.error('Erro ao registrar o celular:',error.message);
     });
     PN.addListener('registrationError',e=>console.error('Erro no push:',e));
-    PN.addListener('pushNotificationActionPerformed',()=>mudarAba('ordens-servico',{currentTarget:tbOrdensServico}));
+    PN.addListener('pushNotificationActionPerformed',async e=>{
+      const dados=e?.notification?.data||{};
+      const acao=String(dados.acao||dados.action||'');
+      const id=dados.os_id||dados.osId;
+      if(id){await abrirOSNoPainel(String(id));return}
+      mudarAba('ordens-servico',{currentTarget:tbOrdensServico});
+    });
     await PN.register();
   }catch(e){console.error('Erro ao ativar notificações:',e)}
 }
