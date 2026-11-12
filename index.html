@@ -964,22 +964,15 @@ async function transferirOS(id){
   const novoTec=TECNICOS.find(x=>x.nome.toLowerCase()===novo.trim().toLowerCase());
   if(!novoTec)return alert('Não encontrei esse técnico cadastrado.');
   if(novoTec.nome===os.tecnico)return alert('Escolha um técnico diferente do responsável atual.');
-  if(tecnicoAtual){
-    const {error}=await _supabase.rpc('erimax_solicitar_transferencia_os',{p_os_id:id,p_tecnico_destino:novoTec.nome});
-    if(error)return alert('Não foi possível solicitar a transferência: '+error.message);
-    alert('Pedido enviado para '+novoTec.nome+'. A responsabilidade continuará com você até ele aceitar.');
-    await carregarDadosSupabase();
-    return;
-  }
-  const {data:novoStatus,error:statusError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',novoTec.id).maybeSingle();
-  if(statusError)return alert('Não foi possível verificar o status do técnico: '+statusError.message);
-  if(!novoStatus||!novoStatus.turno_ativo||novoStatus.status!=='ONLINE')return alert('Esse técnico não está ONLINE ou já está em serviço. Escolha alguém disponível.');
-  const {error}=await _supabase.from('os').update({tecnico:novoTec.nome}).eq('id',id);
-  if(error)return alert('Erro ao transferir: '+error.message);
-  const antigo=TECNICOS.find(x=>x.nome===os.tecnico);
-  if(antigo)await recalcularStatusTecnico(antigo.id);
-  await recalcularStatusTecnico(novoTec.id);
-  alert('O.S. transferida pelo gestor para '+novoTec.nome+'.');
+  const motivo=prompt('Informe o motivo obrigatório da transferência da '+nOS(os)+':');
+  if(!motivo||!motivo.trim())return alert('A transferência não foi solicitada. Informe o motivo para continuar.');
+  const {error}=await _supabase.rpc('erimax_solicitar_transferencia_os',{
+    p_os_id:id,
+    p_tecnico_destino:novoTec.nome,
+    p_motivo:motivo.trim()
+  });
+  if(error)return alert('Não foi possível solicitar a transferência: '+error.message);
+  alert('Pedido de transferência enviado para '+novoTec.nome+'. Motivo registrado. A responsabilidade continuará com '+os.tecnico+' até o destinatário aceitar.');
   await carregarDadosSupabase();
 }
 async function aceitarTransferenciaOS(id){
@@ -988,6 +981,8 @@ async function aceitarTransferenciaOS(id){
   if(!os||os.transferencia_para!==PERFIL.nome)return alert('Esta transferência não está destinada a você.');
   const {error}=await _supabase.rpc('erimax_aceitar_transferencia_os',{p_os_id:id});
   if(error)return alert('Não foi possível aceitar a responsabilidade: '+error.message);
+  const tecnicoAnterior=TECNICOS.find(t=>t.nome===os.tecnico);
+  if(tecnicoAnterior)await recalcularStatusTecnico(tecnicoAnterior.id);
   await recalcularStatusTecnico(MEU_ID);
   alert('Transferência aceita. A O.S. agora está sob sua responsabilidade.');
   await carregarDadosSupabase();
@@ -1134,11 +1129,12 @@ function verHistorico(id){
   const linhasTransferencia=transferencias.map((t,i)=>{
     const solicitada=new Date(t.solicitada_em).toLocaleString('pt-BR');
     const aceita=t.aceita_em?new Date(t.aceita_em).toLocaleString('pt-BR'):'Aguardando aceite';
-    return (i+1)+'. '+solicitada+' — '+(t.solicitada_por||t.tecnico_anterior)+' transferiu de '+t.tecnico_anterior+' para '+t.tecnico_novo+'\n   '+(t.aceita_por?'Aceita por '+t.aceita_por+' em '+aceita:'Pendente de aceite');
+    return (i+1)+'. '+solicitada+' — '+(t.solicitada_por||t.tecnico_anterior)+' solicitou transferência de '+t.tecnico_anterior+' para '+t.tecnico_novo+'\n   Motivo: '+(t.motivo||'Não informado')+'\n   '+(t.aceita_por?'Aceita por '+t.aceita_por+' em '+aceita:'Pendente de aceite');
   });
   const historicoTransferencias=transferencias.length?'\n\nTRANSFERÊNCIAS:\n'+linhasTransferencia.join('\n'):'\n\nNenhuma transferência registrada.';
+  const transferenciaPendente=os.transferencia_para?'\n\nTRANSFERÊNCIA AGUARDANDO ACEITE:\nDestino: '+os.transferencia_para+'\nSolicitada por: '+(os.transferencia_solicitada_por||'—')+'\nEm: '+(os.transferencia_solicitada_em?new Date(os.transferencia_solicitada_em).toLocaleString('pt-BR'):'—')+'\nMotivo: '+(os.transferencia_motivo||'Não informado'):'';
   const historicoAjuste=os.ajustado_em?'\n\n⚠️ HORÁRIO CORRIGIDO PELO GESTOR:\nPor: '+(os.ajustado_por||'Gestor')+'\nEm: '+new Date(os.ajustado_em).toLocaleString('pt-BR')+'\nMotivo: '+(os.ajuste_obs||'Não informado'):'\n\nNenhuma correção de horário registrada.';
-  alert(nOS(os)+' | '+os.turno+'\nStatus: '+(os.status||'—')+' • Tipo: '+(os.tipo||'—')+' • Prioridade: '+(os.prioridade||'—')+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta em: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—')+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nInício do atendimento: '+(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não registrado')+'\nConclusão: '+(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Ainda não concluída')+'\nProblema: '+(os.descricao||'—')+'\nCausa: '+(os.causa||'Não informada')+'\nPeça: '+(os.peca||'Não informada')+'\nSolução/serviço: '+(os.servico_executado||'Não registrado')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoAjuste);
+  alert(nOS(os)+' | '+os.turno+'\nStatus: '+(os.status||'—')+' • Tipo: '+(os.tipo||'—')+' • Prioridade: '+(os.prioridade||'—')+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta em: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—')+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nInício do atendimento: '+(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não registrado')+'\nConclusão: '+(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Ainda não concluída')+'\nProblema: '+(os.descricao||'—')+'\nCausa: '+(os.causa||'Não informada')+'\nPeça: '+(os.peca||'Não informada')+'\nSolução/serviço: '+(os.servico_executado||'Não registrado')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+transferenciaPendente+historicoAjuste);
 }
 
 function atualizarMaquinasMetrica(){
