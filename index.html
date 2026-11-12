@@ -1044,11 +1044,16 @@ async function confirmarConclusao(){
   if(error)return alert('Erro ao concluir OS: '+error.message);
   let erroAtualizacaoPreventiva=null;
   if(os0&&os0.preventiva_id){
-    const intervalo=Number((PREV||[]).find(p=>Number(p.id)===Number(os0.preventiva_id))?.intervalo_dias)||30;
-    const base=new Date(fim.getFullYear(),fim.getMonth(),fim.getDate());
-    base.setDate(base.getDate()+intervalo);
-    const {error:prevError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(fim),data_prevista:dataISOlocal(base)}).eq('id',os0.preventiva_id);
-    erroAtualizacaoPreventiva=prevError;
+    const {data:prevCfg,error:prevCfgError}=await _supabase.from('preventivas').select('intervalo_dias').eq('id',os0.preventiva_id).single();
+    if(prevCfgError||!prevCfg){
+      erroAtualizacaoPreventiva=prevCfgError||new Error('Cadastro da preventiva não encontrado.');
+    }else{
+      const intervalo=Number(prevCfg.intervalo_dias)||30;
+      const base=new Date(fim.getFullYear(),fim.getMonth(),fim.getDate());
+      base.setDate(base.getDate()+intervalo);
+      const {error:prevError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(fim),data_prevista:dataISOlocal(base)}).eq('id',os0.preventiva_id);
+      erroAtualizacaoPreventiva=prevError;
+    }
   }
   if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
   fecharModal();await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
