@@ -1,9 +1,13 @@
 // Atualização remota limitada ao canal nativo compatível do EriMax.
+import { Capacitor } from '@capacitor/core';
+import { LiveUpdate } from '@capawesome/capacitor-live-update';
+
 (function(){
   const RAW_BASE = 'https://raw.githubusercontent.com/fiisft-lang/erimax-android/';
   const PENDING_KEY = 'erimax_ota_pending_bundle';
-  const PLUGIN = () => window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LiveUpdate;
-  const isAndroid = () => !!(window.Capacitor && typeof window.Capacitor.getPlatform === 'function' && window.Capacitor.getPlatform() === 'android');
+  // O plugin é importado e empacotado pelo esbuild; não depende de Plugins global.
+  const PLUGIN = () => LiveUpdate;
+  const isAndroid = () => Capacitor.getPlatform() === 'android';
   let readyPromise = null;
   let checking = false;
 
@@ -25,7 +29,6 @@
       return null;
     });
     const result = await readyPromise;
-    // Confirma ao usuário se o pacote que foi selecionado realmente entrou em uso.
     const expected = storageGet(PENDING_KEY);
     if(expected){
       let current = null;
@@ -61,16 +64,11 @@
       const bundleUrl = new URL(manifest.url);
       const allowedPath = '/fiisft-lang/erimax-android/' + branch + '/ota/';
       if(bundleUrl.origin !== 'https://raw.githubusercontent.com' || !bundleUrl.pathname.startsWith(allowedPath)) throw new Error('Endereço do pacote não corresponde ao canal '+channel+'.');
-      // Verifica primeiro o pacote realmente ativo. Um APK novo pode continuar
-      // executando um bundle OTA antigo; nesse caso, o ID do APK não pode
-      // impedir a atualização do bundle que está em uso.
       const current = await live.getCurrentBundle();
       if(current && current.bundleId === manifest.bundleId) return;
       const localBuildResponse = await fetch('ota-build.json?ts=' + Date.now(), {cache:'no-store'});
       if(localBuildResponse.ok){
         const localBuild = await localBuildResponse.json();
-        // Só considera o APK atualizado quando ele está usando o bundle nativo
-        // (current.bundleId nulo) e o build local já corresponde ao manifesto.
         if((!current || !current.bundleId) && localBuild && localBuild.bundleId === manifest.bundleId) return;
       }
       const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;

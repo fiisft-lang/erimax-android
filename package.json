@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav && cp ota-update.js www/ota-update.js && cp manifest.json www/manifest.json && cp erimax-pwa.svg www/erimax-pwa.svg && node -e \"require('fs').writeFileSync('www/ota-build.json', JSON.stringify({bundleId:process.env.ERIMAX_BUILD_ID || 'development'}))\" && npx esbuild export-bridge.js --bundle --format=iife --target=es2020 --outfile=www/export-bridge.js",
+    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav && npx esbuild ota-update.js --bundle --format=iife --target=es2020 --outfile=www/ota-update.js && cp manifest.json www/manifest.json && cp erimax-pwa.svg www/erimax-pwa.svg && node -e \"require('fs').writeFileSync('www/ota-build.json', JSON.stringify({bundleId:process.env.ERIMAX_BUILD_ID || 'development'}))\" && npx esbuild export-bridge.js --bundle --format=iife --target=es2020 --outfile=www/export-bridge.js",
     "cap:add": "cap add android",
     "cap:sync": "cap sync android"
   },
