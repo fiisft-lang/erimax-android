@@ -681,16 +681,16 @@ function renderPainelMaquinasSupervisor(){
   ];
   let html='<section class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Supervisão das máquinas</h3><p style="font-size:.76rem;color:#64748b;margin:4px 0 0">Abra um setor e toque na máquina para consultar suas ordens e seu histórico</p></div><span style="font-size:.72rem;color:#64748b">'+itens.length+' máquina(s)</span></div>';
   html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:12px">';
-  resumo.forEach(r=>{html+='<div style="border:1px solid #e2e8f0;border-left:4px solid '+r[2]+';border-radius:9px;padding:9px;min-width:0"><div style="font-size:.7rem;color:#64748b">'+r[0]+'</div><b style="font-size:1.35rem;color:'+r[2]+'">'+r[1]+'</b></div>'});
-  html+='</div><p style="font-size:.7rem;color:#64748b;margin:10px 0 0">“Sem O.S. ativa” não confirma que a máquina está rodando. O sistema ainda não recebe sinal de sensores ou CLP.</p></section>';
+  resumo.forEach(r=>{html+='<div role="button" tabindex="0" aria-label="Filtrar máquinas: '+escaparHtml(r[0])+'" onclick="filtrarMaquinasSupervisor(\''+r[0]+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();filtrarMaquinasSupervisor(\''+r[0]+'\')}" style="border:1px solid #e2e8f0;border-left:4px solid '+r[2]+';border-radius:9px;padding:9px;min-width:0;cursor:pointer;background:#fff;transition:background .15s,box-shadow .15s" onmouseover="this.style.background=\'#f8fafc\';this.style.boxShadow=\'0 2px 8px #0f172a14\'" onmouseout="this.style.background=\'#fff\';this.style.boxShadow=\'none\'"><div style="font-size:.7rem;color:#64748b">'+r[0]+'</div><b style="font-size:1.35rem;color:'+r[2]+'">'+r[1]+'</b><small style="display:block;color:#64748b;font-size:.65rem;margin-top:2px">Toque para ver máquinas ›</small></div>'});
+  html+='</div><p style="font-size:.7rem;color:#64748b;margin:10px 0 0">“Sem O.S. ativa” não confirma que a máquina está rodando. O sistema ainda não recebe sinal de sensores ou CLP.</p><div id="filtroMaquinasSupervisorAtivo" style="display:none;margin-top:12px"></div></section>';
   if(!itens.length)html+='<div class="card" style="color:#64748b;text-align:center">Nenhuma máquina cadastrada ou O.S. encontrada.</div>';
   grupos.forEach(setor=>{
     const lista=itens.filter(x=>x.setor===setor);
     const ativasSetor=lista.reduce((n,x)=>n+x.ativas.length,0);
-    html+='<details class="card" style="margin:8px 0;padding:0;overflow:hidden;border:1px solid #e2e8f0"><summary style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;list-style:none"><span style="font-size:1.25rem">📁</span><span style="flex:1;min-width:0"><b style="color:var(--primary)">'+escaparHtml(setor)+'</b><small style="display:block;color:#64748b;font-size:.7rem;margin-top:2px">'+lista.length+' máquina(s) • '+ativasSetor+' O.S. ativa(s)</small></span><span style="font-size:.75rem;color:#64748b">Abrir ▾</span></summary><div style="padding:0 10px 10px;display:grid;gap:7px">';
+    html+='<details data-supervisor-setor="1" class="card" style="margin:8px 0;padding:0;overflow:hidden;border:1px solid #e2e8f0"><summary style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;list-style:none"><span style="font-size:1.25rem">📁</span><span style="flex:1;min-width:0"><b style="color:var(--primary)">'+escaparHtml(setor)+'</b><small style="display:block;color:#64748b;font-size:.7rem;margin-top:2px">'+lista.length+' máquina(s) • '+ativasSetor+' O.S. ativa(s)</small></span><span style="font-size:.75rem;color:#64748b">Abrir ▾</span></summary><div style="padding:0 10px 10px;display:grid;gap:7px">';
     lista.forEach(item=>{
       const qtdConcluidas=item.concluidas.length;
-      html+='<details style="border:1px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff"><summary style="display:flex;align-items:center;gap:8px;padding:11px;cursor:pointer;list-style:none"><span style="width:9px;height:9px;border-radius:50%;background:'+item.cor+';flex:none"></span><span style="flex:1;min-width:0"><b style="font-size:.84rem;overflow-wrap:anywhere">'+escaparHtml(item.maquina)+'</b><small style="display:block;font-size:.7rem;color:'+item.cor+';margin-top:3px;font-weight:700">'+item.estado+'</small></span><span style="font-size:.68rem;color:#64748b;text-align:right;white-space:nowrap">'+item.ativas.length+' ativa(s)<br>'+qtdConcluidas+' concluída(s)</span></summary><div style="padding:0 10px 10px;border-top:1px solid #f1f5f9">';
+      html+='<details data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" style="border:1px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff"><summary style="display:flex;align-items:center;gap:8px;padding:11px;cursor:pointer;list-style:none"><span style="width:9px;height:9px;border-radius:50%;background:'+item.cor+';flex:none"></span><span style="flex:1;min-width:0"><b style="font-size:.84rem;overflow-wrap:anywhere">'+escaparHtml(item.maquina)+'</b><small style="display:block;font-size:.7rem;color:'+item.cor+';margin-top:3px;font-weight:700">'+item.estado+'</small></span><span style="font-size:.68rem;color:#64748b;text-align:right;white-space:nowrap">'+item.ativas.length+' ativa(s)<br>'+qtdConcluidas+' concluída(s)</span></summary><div style="padding:0 10px 10px;border-top:1px solid #f1f5f9">';
       if(item.ativas.length){
         html+='<div style="font-size:.75rem;font-weight:800;color:var(--primary);margin:9px 0 5px">O.S. em andamento</div>';
         item.ativas.forEach(os=>{
@@ -709,6 +709,32 @@ function renderPainelMaquinasSupervisor(){
     html+='</div></details>';
   });
   box.innerHTML=html;
+}
+
+function filtrarMaquinasSupervisor(estado){
+  const box=document.getElementById('painelMaquinasSupervisor');
+  if(!box)return;
+  const painel=box.querySelector('#filtroMaquinasSupervisorAtivo');
+  if(!painel)return;
+  const atual=painel.dataset.estado||'';
+  if(atual===estado){
+    painel.style.display='none';painel.innerHTML='';painel.dataset.estado='';
+    box.querySelectorAll('[data-supervisor-maquina]').forEach(el=>el.style.display='');
+    box.querySelectorAll('[data-supervisor-setor]').forEach(el=>el.style.display='');
+    return;
+  }
+  painel.dataset.estado=estado;
+  const maquinas=[...box.querySelectorAll('[data-supervisor-maquina]')];
+  let total=0;
+  maquinas.forEach(el=>{const mostrar=el.dataset.supervisorEstado===estado;el.style.display=mostrar?'':'none';if(mostrar)total++});
+  box.querySelectorAll('[data-supervisor-setor]').forEach(setor=>{
+    const tem=[...setor.querySelectorAll('[data-supervisor-maquina]')].some(el=>el.dataset.supervisorEstado===estado);
+    setor.style.display=tem?'':'none';
+    if(tem)setor.open=true;
+  });
+  painel.style.display='flex';painel.style.alignItems='center';painel.style.justifyContent='space-between';painel.style.gap='10px';painel.style.flexWrap='wrap';
+  painel.innerHTML='<div><b style="color:var(--primary);font-size:.9rem">'+escaparHtml(estado)+'</b><small style="display:block;color:#64748b;font-size:.72rem">'+total+' máquina(s) encontrada(s). Os setores correspondentes foram abertos abaixo.</small></div><button type="button" class="btn-secundario" style="width:auto;margin:0;padding:7px 10px" onclick="filtrarMaquinasSupervisor(\''+estado+'\')">Limpar filtro ✕</button>';
+  painel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento'),ag=chamados.filter(c=>c.status==='Aberta').length;
