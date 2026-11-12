@@ -1137,7 +1137,7 @@ async function cancelarOS(id){
 async function excluirOS(id){
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Acesso negado! Apenas o administrador autorizado pode apagar ordens de serviço.');
   if(!confirm('ATENÇÃO: excluir definitivamente a O.S. #'+String(id).padStart(4,'0')+'? O registro será removido do banco de dados e não aparecerá mais no histórico. Prefira Cancelar quando quiser apenas encerrar sem apagar.'))return;
-  // Guarda o responsável antes da exclusão para liberar seu status se esta era a O.S. em atendimento.
+  // Guarda o responsável antes da exclusão; após apagar, recalcula ONLINE/OFFLINE conforme O.S. restantes e turno ativo.
   const {data:os,error:buscaError}=await _supabase.from('os').select('id,tecnico').eq('id',id).maybeSingle();
   if(buscaError)return alert('Não foi possível verificar o técnico da O.S.: '+buscaError.message);
   const {error}=await _supabase.from('os').delete().eq('id',id);
