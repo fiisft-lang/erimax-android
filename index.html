@@ -1815,7 +1815,9 @@ async function iniciarPush(){
       const dados=e?.data||e?.notification?.data||{};
       if(String(dados.acao||dados.action||'')==='transferencia_os'){
         mostrarToastOS('🔄 '+(e?.title||e?.notification?.title||'Você recebeu uma transferência de O.S.'));
-        dispararSireneEVibracao();
+        const audio=document.getElementById('audioSirene');
+        if(audio){audio.pause();audio.currentTime=0;audio.loop=false;audio.play().catch(()=>{});audio.onended=()=>{audio.loop=true}}
+        if('vibrate' in navigator){try{navigator.vibrate([500,250,500])}catch(e){}}
       }
     });
     PN.addListener('pushNotificationActionPerformed',async e=>{
