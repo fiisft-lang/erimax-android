@@ -605,7 +605,7 @@ async function salvarOS(e){
   if(PERFIL.perfil==='operador'){
     carregarDadosSupabase();
   }else{
-    mudarAba('painel',{currentTarget:tbPainel});
+    mudarAba('ordens-servico',{currentTarget:tbOrdensServico});
   }
 }
 
@@ -1600,7 +1600,7 @@ async function iniciarPush(){
       if(error)console.error('Erro ao registrar o celular:',error.message);
     });
     PN.addListener('registrationError',e=>console.error('Erro no push:',e));
-    PN.addListener('pushNotificationActionPerformed',()=>mudarAba('painel',{currentTarget:tbPainel}));
+    PN.addListener('pushNotificationActionPerformed',()=>mudarAba('ordens-servico',{currentTarget:tbOrdensServico}));
     await PN.register();
   }catch(e){console.error('Erro ao ativar notificações:',e)}
 }
@@ -1706,7 +1706,7 @@ async function abrirOSNoPainel(id){
   if(modalEf)modalEf.style.display='none';
   const filtro=document.getElementById('filtroStatus');
   if(filtro)filtro.value='Todas';
-  mudarAba('painel',null);
+  mudarAba('ordens-servico',null);
   await carregarDadosSupabase();
   setTimeout(()=>{
     const el=document.getElementById('os-'+id);
