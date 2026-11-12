@@ -1042,8 +1042,17 @@ async function confirmarConclusao(){
   if(maquinasExecucao.length)atualizacao.maquinas_execucao=maquinasExecucao;
   const {error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir);
   if(error)return alert('Erro ao concluir OS: '+error.message);
+  let erroAtualizacaoPreventiva=null;
+  if(os0&&os0.preventiva_id){
+    const intervalo=Number((PREV||[]).find(p=>Number(p.id)===Number(os0.preventiva_id))?.intervalo_dias)||30;
+    const base=new Date(fim.getFullYear(),fim.getMonth(),fim.getDate());
+    base.setDate(base.getDate()+intervalo);
+    const {error:prevError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(fim),data_prevista:dataISOlocal(base)}).eq('id',os0.preventiva_id);
+    erroAtualizacaoPreventiva=prevError;
+  }
   if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
-  fecharModal();await carregarDadosSupabase();
+  fecharModal();await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
+  if(erroAtualizacaoPreventiva)alert('A O.S. foi concluída, mas não foi possível atualizar a próxima data da preventiva: '+erroAtualizacaoPreventiva.message+'. Atualize o cadastro da preventiva.');
 }
 
 async function cancelarOS(id){
@@ -2332,17 +2341,10 @@ async function gerarOSPrev(id){
     const maquinasExecucao=maquinas.length>1?maquinas.map(nome=>({nome,concluida:false,concluida_em:null})):[];
     const descricaoOS='Preventiva: '+p.descricao+(maquinas.length>1?'\nMáquinas: '+maquinas.join(', '):'');
     const equipeOS=[...new Set((Array.isArray(p.tecnicos_participantes)?p.tecnicos_participantes:[]).filter(x=>typeof x==='string'&&x.trim()).concat(p.tecnico_responsavel||[]))];
-    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
+    const {error}=await _supabase.from('os').insert([{preventiva_id:p.id,turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
     if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
-    const intervalo=Number(p.intervalo_dias)||30;
-    let base=new Date(String(p.data_prevista||p.ultima||dataISOlocal(new Date())).slice(0,10)+'T00:00:00');
-    if(!p.data_prevista)base.setDate(base.getDate()+intervalo);
-    base.setDate(base.getDate()+intervalo);
-    const proxima=dataISOlocal(base);
-    const {error:atualizaError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(new Date()),data_prevista:proxima}).eq('id',id);
     await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
-    if(atualizaError)alert('A O.S. foi criada, mas a próxima data da preventiva não foi atualizada. Verifique a preventiva: '+atualizaError.message);
-    else alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'.');
+    alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'. A próxima data será atualizada somente quando a O.S. for concluída.');
   }finally{
     window.__erimaxPrevGerando.delete(String(id));
   }
