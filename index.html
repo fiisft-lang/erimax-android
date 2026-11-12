@@ -139,12 +139,21 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
  #metricsDataContent>.card{margin-bottom:0}
  #cardHorarioEfGeral .chart-wrapper{height:280px}
 }
+/* Alerta discreto de preventivas */
+#alertaPreventivaApp{display:none;align-items:flex-start;gap:9px;margin:10px 12px;padding:9px 11px;border:1px solid #f1d28a;border-radius:10px;background:#fff9e9;color:#76520b;font-size:.78rem;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+#alertaPreventivaApp .prev-alerta-icone{font-size:1rem;line-height:1.2}
+#alertaPreventivaApp .prev-alerta-conteudo{flex:1;min-width:0}
+#alertaPreventivaApp .prev-alerta-linha{margin-top:3px;line-height:1.35;overflow-wrap:anywhere}
+#alertaPreventivaApp .prev-alerta-linha small{display:block;color:#876b35;font-size:.7rem}
+#alertaPreventivaApp .prev-alerta-mais{display:block;margin-top:3px;color:#876b35}
+#alertaPreventivaApp .prev-alerta-fechar{font-size:1.1rem;color:#9b7b3b;line-height:1}
 </style>
 </head>
 <body>
 <header><img class="logo" alt="Erimax"><div class="hd">Gestão de<br>Manutenção</div></header>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
 
+<button id="alertaPreventivaApp" type="button" onclick="dispensarAlertaPreventiva()" aria-label="Dispensar aviso de manutenção preventiva"></button>
 <div id="barraAtivacaoAudio" onclick="ativarAudioManual()">🔊 CLIQUE AQUI PARA ATIVAR O ALARME E VIBRAÇÃO DO CELULAR</div>
 <div id="toastOS" role="status" aria-live="polite"></div>
 
@@ -1033,8 +1042,22 @@ async function confirmarConclusao(){
   if(maquinasExecucao.length)atualizacao.maquinas_execucao=maquinasExecucao;
   const {error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir);
   if(error)return alert('Erro ao concluir OS: '+error.message);
+  let erroAtualizacaoPreventiva=null;
+  if(os0&&os0.preventiva_id){
+    const {data:prevCfg,error:prevCfgError}=await _supabase.from('preventivas').select('intervalo_dias').eq('id',os0.preventiva_id).single();
+    if(prevCfgError||!prevCfg){
+      erroAtualizacaoPreventiva=prevCfgError||new Error('Cadastro da preventiva não encontrado.');
+    }else{
+      const intervalo=Number(prevCfg.intervalo_dias)||30;
+      const base=new Date(fim.getFullYear(),fim.getMonth(),fim.getDate());
+      base.setDate(base.getDate()+intervalo);
+      const {error:prevError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(fim),data_prevista:dataISOlocal(base)}).eq('id',os0.preventiva_id);
+      erroAtualizacaoPreventiva=prevError;
+    }
+  }
   if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
-  fecharModal();await carregarDadosSupabase();
+  fecharModal();await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
+  if(erroAtualizacaoPreventiva)alert('A O.S. foi concluída, mas não foi possível atualizar a próxima data da preventiva: '+erroAtualizacaoPreventiva.message+'. Atualize o cadastro da preventiva.');
 }
 
 async function cancelarOS(id){
@@ -1796,7 +1819,7 @@ function renderPresencas(){
 async function iniciarApp(user){
   const {data}=await _supabase.from('perfis').select('*').eq('id',user.id).maybeSingle();
   PERFIL=data||{nome:user.email,perfil:'operador'};MEU_ID=user.id;
-  const podeVerPresenca=MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e';
+  const podeVerPresenca=ehGestorPrincipal();
   document.getElementById('tbPresenca').style.display=podeVerPresenca?'':'none';
   iniciarPresenca();
   renderRankingOperadores();
@@ -2157,7 +2180,60 @@ async function salvarUsuario(id,campos){
   if(error){alert('Erro ao salvar: '+error.message);carregarUsuarios()}
 }
 
-/* ===== PREVENTIVAS ===== */
+/* ===== ALERTA DISCRETO DE MANUTENÇÃO PREVENTIVA (somente gestor principal) ===== */
+function ehGestorPrincipal(){
+  return MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e';
+}
+function renderAlertaPreventivas(){
+  const box=document.getElementById('alertaPreventivaApp');
+  if(!box)return;
+  if(!ehGestorPrincipal()||!PERFIL||PERFIL.perfil!=='gestor'){
+    box.style.display='none';
+    return;
+  }
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const hojeISO=dataISOlocal(hoje);
+  if(localStorage.getItem('erimax_prev_alerta_dispensa')===hojeISO){
+    box.style.display='none';
+    return;
+  }
+  const avisos=(PREV||[]).map(p=>{
+    let vencimento;
+    if(p.data_prevista){
+      const partes=String(p.data_prevista).slice(0,10).split('-').map(Number);
+      vencimento=new Date(partes[0],partes[1]-1,partes[2]);
+    }else{
+      const partes=String(p.ultima||hojeISO).slice(0,10).split('-').map(Number);
+      vencimento=new Date(partes[0],partes[1]-1,partes[2]);
+      vencimento.setDate(vencimento.getDate()+(Number(p.intervalo_dias)||30));
+    }
+    if(!Number.isFinite(vencimento.getTime()))return null;
+    vencimento.setHours(0,0,0,0);
+    const dias=Math.round((vencimento.getTime()-hoje.getTime())/86400000);
+    if(dias<0||dias>7)return null;
+    const maquinas=maquinasDaPreventiva(p);
+    return {setor:p.setor||'Setor não informado',maquinas:maquinas.length?maquinas.join(', '):(p.maquina||'Máquina não informada'),descricao:p.descricao||'Manutenção programada',dias,data:vencimento};
+  }).filter(Boolean).sort((a,b)=>a.dias-b.dias);
+  if(!avisos.length){
+    box.style.display='none';
+    box.innerHTML='';
+    return;
+  }
+  const linhas=avisos.slice(0,3).map(a=>{
+    const prazo=a.dias===0?'Manutenção prevista para hoje':a.dias===1?'Falta 1 dia':'Faltam '+a.dias+' dias';
+    return '<div class="prev-alerta-linha"><b>'+escaparHtml(prazo)+'</b> • '+escaparHtml(a.setor)+' • '+escaparHtml(a.maquinas)+'<small>'+escaparHtml(a.descricao)+' • '+a.data.toLocaleDateString('pt-BR')+'</small></div>';
+  }).join('');
+  const mais=avisos.length>3?'<small class="prev-alerta-mais">+ '+(avisos.length-3)+' outra(s) preventiva(s)</small>':'';
+  box.innerHTML='<span class="prev-alerta-icone" aria-hidden="true">⚠️</span><span class="prev-alerta-conteudo"><b>Manutenção preventiva</b>'+linhas+mais+'</span><span class="prev-alerta-fechar" aria-hidden="true">×</span>';
+  box.style.display='flex';
+}
+function dispensarAlertaPreventiva(){
+  localStorage.setItem('erimax_prev_alerta_dispensa',dataISOlocal(new Date()));
+  const box=document.getElementById('alertaPreventivaApp');
+  if(box)box.style.display='none';
+}
+
+/* ===== PREVENTIVAS ===== *//* ===== PREVENTIVAS ===== */
 function alternarFormPreventiva(){
   const box=document.getElementById('pvFormConteudo');
   if(!box)return;
@@ -2246,6 +2322,7 @@ async function carregarPreventivas(){
     return;
   }
   PREV=data||[];
+  renderAlertaPreventivas();
   listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
@@ -2269,17 +2346,10 @@ async function gerarOSPrev(id){
     const maquinasExecucao=maquinas.length>1?maquinas.map(nome=>({nome,concluida:false,concluida_em:null})):[];
     const descricaoOS='Preventiva: '+p.descricao+(maquinas.length>1?'\nMáquinas: '+maquinas.join(', '):'');
     const equipeOS=[...new Set((Array.isArray(p.tecnicos_participantes)?p.tecnicos_participantes:[]).filter(x=>typeof x==='string'&&x.trim()).concat(p.tecnico_responsavel||[]))];
-    const {error}=await _supabase.from('os').insert([{turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
+    const {error}=await _supabase.from('os').insert([{preventiva_id:p.id,turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
     if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
-    const intervalo=Number(p.intervalo_dias)||30;
-    let base=new Date(String(p.data_prevista||p.ultima||dataISOlocal(new Date())).slice(0,10)+'T00:00:00');
-    if(!p.data_prevista)base.setDate(base.getDate()+intervalo);
-    base.setDate(base.getDate()+intervalo);
-    const proxima=dataISOlocal(base);
-    const {error:atualizaError}=await _supabase.from('preventivas').update({ultima:dataISOlocal(new Date()),data_prevista:proxima}).eq('id',id);
     await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
-    if(atualizaError)alert('A O.S. foi criada, mas a próxima data da preventiva não foi atualizada. Verifique a preventiva: '+atualizaError.message);
-    else alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'.');
+    alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'. A próxima data será atualizada somente quando a O.S. for concluída.');
   }finally{
     window.__erimaxPrevGerando.delete(String(id));
   }
