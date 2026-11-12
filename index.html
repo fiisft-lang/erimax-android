@@ -981,6 +981,8 @@ async function aceitarTransferenciaOS(id){
   if(!os||os.transferencia_para!==PERFIL.nome)return alert('Esta transferência não está destinada a você.');
   const {error}=await _supabase.rpc('erimax_aceitar_transferencia_os',{p_os_id:id});
   if(error)return alert('Não foi possível aceitar a responsabilidade: '+error.message);
+  const tecnicoAnterior=TECNICOS.find(t=>t.nome===os.tecnico);
+  if(tecnicoAnterior)await recalcularStatusTecnico(tecnicoAnterior.id);
   await recalcularStatusTecnico(MEU_ID);
   alert('Transferência aceita. A O.S. agora está sob sua responsabilidade.');
   await carregarDadosSupabase();
