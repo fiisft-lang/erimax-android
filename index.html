@@ -644,8 +644,8 @@ function renderPainelMaquinasSupervisor(){
     const pausada=item.ordens.some(o=>o.status==='Pausada');
     const atendimento=item.ordens.some(o=>o.status==='Em Atendimento');
     const abertaParada=item.ordens.some(o=>o.status==='Aberta'&&String(o.situacao_equipamento||'').toLocaleLowerCase('pt-BR')==='parado');
-    const abertaRodando=item.ordens.some(o=>o.status==='Aberta'&&String(o.situacao_equipamento||'').toLocaleLowerCase('pt-BR')==='rodando');
-    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':abertaParada?'Parada registrada':abertaRodando?'O.S. aguardando':'Sem O.S. ativa';
+    const abertaAguardando=item.ordens.some(o=>o.status==='Aberta'&&String(o.situacao_equipamento||'').toLocaleLowerCase('pt-BR')!=='parado');
+    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':abertaParada?'Parada registrada':abertaAguardando?'O.S. aguardando':'Sem O.S. ativa';
     item.cor=pausada?'#a16207':atendimento?'#1d4ed8':abertaParada?'#b91c1c':abertaRodando?'#64748b':'#15803d';
     return item;
   }).sort((a,b)=>a.setor.localeCompare(b.setor,'pt-BR')||a.maquina.localeCompare(b.maquina,'pt-BR'));
