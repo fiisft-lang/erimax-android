@@ -1811,9 +1811,15 @@ async function iniciarPush(){
       if(error)console.error('Erro ao registrar o celular:',error.message);
     });
     PN.addListener('registrationError',e=>console.error('Erro no push:',e));
+    PN.addListener('pushNotificationReceived',e=>{
+      const dados=e?.data||e?.notification?.data||{};
+      if(String(dados.acao||dados.action||'')==='transferencia_os'){
+        mostrarToastOS('🔄 '+(e?.title||e?.notification?.title||'Você recebeu uma transferência de O.S.'));
+        dispararSireneEVibracao();
+      }
+    });
     PN.addListener('pushNotificationActionPerformed',async e=>{
-      const dados=e?.notification?.data||{};
-      const acao=String(dados.acao||dados.action||'');
+      const dados=e?.notification?.data||e?.data||{};
       const id=dados.os_id||dados.osId;
       if(id){await abrirOSNoPainel(String(id));return}
       mudarAba('ordens-servico',{currentTarget:tbOrdensServico});
@@ -1923,6 +1929,9 @@ async function abrirOSNoPainel(id){
   if(modalEf)modalEf.style.display='none';
   const filtro=document.getElementById('filtroStatus');
   if(filtro)filtro.value='Todas';
+  const limpar=(id,valor)=>{const el=document.getElementById(id);if(el)el.value=valor};
+  limpar('buscaOS','');limpar('ordenarOS','recentes');limpar('filtroPrioridadeOS','Todas');
+  limpar('filtroSetorOS','Todos');limpar('filtroTecnicoOS','Todos');limpar('filtroTransferenciaOS','Todas');
   mudarAba('ordens-servico',null);
   await carregarDadosSupabase();
   setTimeout(()=>{
