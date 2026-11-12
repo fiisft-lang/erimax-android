@@ -99,6 +99,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 .metrics-grid{gap:10px}
 .metric-card{min-width:0;box-shadow:0 4px 14px rgba(15,42,75,.045);border-color:#e1e8f0;padding:14px 10px;transition:transform .18s ease,box-shadow .18s ease}
 .metric-card .title{letter-spacing:.045em;font-size:.66rem}
+.metric-card[role="button"]{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}.metric-card[role="button"]:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
 .metric-card .value{font-size:clamp(1.15rem,4vw,1.55rem);line-height:1.2;overflow-wrap:anywhere}
 .chart-wrapper{height:260px;min-width:0;margin-top:14px}
 #metricsDataContent>.card{border-color:#e1e8f0;box-shadow:0 4px 16px rgba(15,42,75,.045);overflow:hidden}
@@ -296,14 +297,14 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"><button class="btn-submit" onclick="exportarExcel()">📊 Excel (.xlsx)</button><button class="btn-submit" style="background:var(--secondary)" onclick="prepararPDF()">🖨️ PDF</button></div>
 <div id="printReportHeader"></div>
 <div class="metrics-grid">
-<div class="metric-card metricas-com-horario" id="metricHorarioDisp"><div class="title">Disponibilidade registrada</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
-<div class="metric-card metricas-com-horario" id="metricHorarioParada"><div class="title">Tempo total parado</div><div class="value" id="cParada" style="color:#ff6b00">0 min</div><div class="sub">Só em horário de produção</div></div>
-<div class="metric-card"><div class="title">Tempo de resposta</div><div class="value" id="cResp">0 min</div><div class="sub">Abertura → aceite (média)</div></div>
-<div class="metric-card"><div class="title">MTTR</div><div class="value" id="cMTTR" style="color:#28a745">0 min</div><div class="sub">Aceite → conclusão (média)</div></div>
-<div class="metric-card metricas-com-horario" id="metricHorarioMTBF"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
-<div class="metric-card"><div class="title">Total de OS</div><div class="value" id="cTotal">0</div><div class="sub" id="cTotalSub">0 abertas</div></div>
-<div class="metric-card"><div class="title">Taxa de conclusão</div><div class="value" id="cTaxa" style="color:#28a745">0%</div><div class="sub">Concluídas ÷ total</div></div>
-<div class="metric-card"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesma máquina + mesmo tipo</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioDisp" role="button" tabindex="0" onclick="abrirDetalheMetrica('disp')"><div class="title">Disponibilidade registrada</div><div class="value" id="cDisp" style="color:#28a745">100%</div><div class="sub" id="cDispSub">Conforme o horário de cada setor</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioParada" role="button" tabindex="0" onclick="abrirDetalheMetrica('parada')"><div class="title">Tempo total parado</div><div class="value" id="cParada" style="color:#ff6b00">0 min</div><div class="sub">Só em horário de produção</div></div>
+<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('resposta')"><div class="title">Tempo de resposta</div><div class="value" id="cResp">0 min</div><div class="sub">Abertura → aceite (média)</div></div>
+<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('mttr')"><div class="title">MTTR</div><div class="value" id="cMTTR" style="color:#28a745">0 min</div><div class="sub">Aceite → conclusão (média)</div></div>
+<div class="metric-card metricas-com-horario" id="metricHorarioMTBF" role="button" tabindex="0" onclick="abrirDetalheMetrica('mtbf')"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
+<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('total')"><div class="title">Total de OS</div><div class="value" id="cTotal">0</div><div class="sub" id="cTotalSub">0 abertas</div></div>
+<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('conclusao')"><div class="title">Taxa de conclusão</div><div class="value" id="cTaxa" style="color:#28a745">0%</div><div class="sub">Concluídas ÷ total</div></div>
+<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('reincidencia')"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesma máquina + mesmo tipo</div></div>
 </div>
 
 <div class="card" style="border:1px solid #d7e5f5;background:linear-gradient(120deg,#f0f7ff,#f8fbff);padding:12px 14px;margin-bottom:12px;border-radius:12px"><p style="margin:0;color:#1e40af;font-size:.84rem;line-height:1.5;text-align:center"><b>👆 DICA: os gráficos são interativos!</b><br>Toque em uma barra, fatia colorida ou ponto do gráfico para abrir as O.S. e os detalhes relacionados ao item selecionado. Os resultados respeitam o período e os filtros aplicados.</p></div>
@@ -367,6 +368,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 
 <div id="modalEfOS" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box" style="max-width:760px;max-height:90vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 id="modalEfOSTitulo">Ordens de serviço relacionadas</h2><button class="btn-action btn-transferir" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" style="font-size:.8rem;color:#64748b;margin:8px 0 12px"></p><div id="listaEfOS"></div></div></div>
 
+<div id="modalDetalheMetrica" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1300;align-items:center;justify-content:center;padding:12px"><div class="box" style="width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><h2 id="tituloDetalheMetrica" style="font-size:1.08rem;color:var(--primary);margin:0">Detalhes da métrica</h2><small style="color:#64748b">Conforme os filtros selecionados</small></div><button class="btn-action btn-transferir" onclick="fecharDetalheMetrica()">Voltar ✕</button></div><p id="resumoDetalheMetrica" style="font-size:.84rem;color:#475569;line-height:1.5;margin:10px 0"></p><div class="chart-wrapper" style="height:280px;margin:8px 0 14px"><canvas id="chartDetalheMetrica"></canvas></div><h3 style="font-size:.92rem;color:var(--primary);margin:8px 0">Registros relacionados</h3><div id="listaDetalheMetrica"></div></div></div>
 <div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
 <div class="form-group"><label>Data e horário real em que a máquina parou / O.S. foi aberta</label><input id="hrAbertura" type="datetime-local" required></div>
@@ -1359,6 +1361,52 @@ function mostrarOSDetalhe(titulo,lista){
   modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
+
+let chartDetalheMetrica=null;
+function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMetrica');if(m)m.style.display='none';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}}
+function abrirDetalheMetrica(tipo){
+ const modal=document.getElementById('modalDetalheMetrica'),titulo=document.getElementById('tituloDetalheMetrica'),resumo=document.getElementById('resumoDetalheMetrica'),box=document.getElementById('listaDetalheMetrica'),canvas=document.getElementById('chartDetalheMetrica');
+ if(!modal||!canvas)return;
+ const todos=(FILTRADAS||[]).filter(Boolean),dados=todos.filter(c=>c.status!=='Cancelada');
+ const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
+ const agrupar=(arr,key,val)=>{const g={};arr.forEach(x=>{const k=key(x)||'Não informado';g[k]=(g[k]||0)+val(x)});return Object.entries(g).sort((a,b)=>b[1]-a[1])};
+ let cfg={type:'bar',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}},explicacao='',lista=[];
+ if(tipo==='disp'){
+  titulo.textContent='Disponibilidade registrada';const v=charts.chEfGeral?.data?.datasets?.[0]?.data||[];
+  cfg={type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:v,backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}};
+  lista=(OS_PARADA_ATUAL||[]).slice().sort((a,b)=>b.parada-a.parada).map(x=>x.os);
+  explicacao='Usa a mesma base de horas do indicador principal. Considera somente paradas registradas em O.S. dentro do horário de produção.';
+  box.innerHTML=(OS_PARADA_ATUAL||[]).length?OS_PARADA_ATUAL.slice().sort((a,b)=>b.parada-a.parada).map(x=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(x.os))+' • '+escaparHtml(x.os.maquina)+'</b><p>Parada considerada: '+fmt(x.parada)+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(x.os.id)+')">Abrir O.S.</button></div>').join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
+ }else if(tipo==='parada'){
+  titulo.textContent='Tempo total parado';const g=agrupar(OS_PARADA_ATUAL||[],x=>x.os.maquina,x=>x.parada).slice(0,12);
+  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
+  lista=(OS_PARADA_ATUAL||[]).slice().sort((a,b)=>b.parada-a.parada).map(x=>x.os);
+  explicacao='Considera somente horários produtivos e evita duplicar minutos de O.S. sobrepostas na mesma máquina.';
+  box.innerHTML=lista.length?lista.map(itemOS).join(''):'<p>Nenhuma O.S. com parada neste filtro.</p>';
+ }else if(tipo==='resposta'||tipo==='mttr'){
+  const resp=tipo==='resposta';titulo.textContent=resp?'Tempo de resposta':'MTTR — tempo de reparo';
+  lista=dados.filter(c=>c.data_atendimento&&(!resp?c.data_conclusao:true));const g={};
+  lista.forEach(c=>{const n=c.tecnico||'Sem técnico',v=min(resp?c.created_at:c.data_atendimento,resp?c.data_atendimento:c.data_conclusao);if(v>=0){if(!g[n])g[n]={s:0,n:0};g[n].s+=v;g[n].n++}});
+  const a=Object.entries(g).map(([n,v])=>[n,v.n?v.s/v.n:0]).sort((x,y)=>y[1]-x[1]);
+  cfg={type:'bar',data:{labels:a.map(x=>x[0]),datasets:[{label:'Média em minutos',data:a.map(x=>Math.round(x[1])),backgroundColor:resp?'#2563eb':'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,title:{display:true,text:'minutos'}}}}};
+  explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
+ }else if(tipo==='mtbf'){
+  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(dados,c=>c.maquina,()=>1).slice(0,12);
+  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  lista=dados;explicacao='O MTBF geral mantém a fórmula atual baseada nas horas produtivas. O gráfico mostra a quantidade de falhas por máquina, sem inventar um MTBF individual sem base horária confiável.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma falha registrada.</p>';
+ }else if(tipo==='total'||tipo==='conclusao'){
+  titulo.textContent=tipo==='total'?'Total de O.S.':'Taxa de conclusão';const g={};todos.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g);
+  cfg={type:'doughnut',data:{labels,datasets:[{data:labels.map(x=>g[x]),backgroundColor:labels.map((x,i)=>x==='Concluída'?'#16a34a':x==='Cancelada'?'#94a3b8':COR[i%COR.length]),borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'}}}};
+  lista=todos;explicacao='A taxa mantém a fórmula atual: O.S. concluídas divididas pelo total de O.S. no filtro. O gráfico separa as demais situações.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma O.S. neste filtro.</p>';
+ }else if(tipo==='reincidencia'){
+  titulo.textContent='Reincidência';const g={};dados.forEach(c=>{const k=(c.maquina||'Máquina não informada')+' • '+(c.tipo||'Tipo não informado');if(!g[k])g[k]=[];g[k].push(c)});
+  const r=Object.entries(g).filter(x=>x[1].length>1).sort((a,b)=>b[1].length-a[1].length);
+  cfg={type:'bar',data:{labels:r.slice(0,12).map(x=>x[0]),datasets:[{label:'O.S. repetidas',data:r.slice(0,12).map(x=>x[1].length),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  lista=r.flatMap(x=>x[1]);explicacao='Só entram como reincidência grupos com mais de uma O.S. para a mesma máquina e o mesmo tipo.';box.innerHTML=lista.length?r.map(x=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(x[0])+' • '+x[1].length+' O.S.</b>'+x[1].map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada.</p>';
+ }else{return}
+ resumo.textContent=explicacao;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
+}
+
 function atualizarMetricasReais(){
   const dia=filtroDia.value,mes=filtroMes.value,tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
   const avisoHorario=document.getElementById('metricsHorarioAviso');
