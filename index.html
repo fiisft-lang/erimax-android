@@ -304,7 +304,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="metric-card metricas-com-horario" id="metricHorarioMTBF" role="button" tabindex="0" onclick="abrirDetalheMetrica('mtbf')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('mtbf')}"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
 <div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('total')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('total')}"><div class="title">Total de OS</div><div class="value" id="cTotal">0</div><div class="sub" id="cTotalSub">0 abertas</div></div>
 <div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('conclusao')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('conclusao')}"><div class="title">Taxa de conclusão</div><div class="value" id="cTaxa" style="color:#28a745">0%</div><div class="sub">Concluídas ÷ total</div></div>
-<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('reincidencia')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('reincidencia')}"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesma máquina + mesmo tipo</div></div>
+<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('reincidencia')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('reincidencia')}"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesmo defeito na mesma máquina</div></div>
 </div>
 
 <div class="card" style="border:1px solid #d7e5f5;background:linear-gradient(120deg,#f0f7ff,#f8fbff);padding:12px 14px;margin-bottom:12px;border-radius:12px"><p style="margin:0;color:#1e40af;font-size:.84rem;line-height:1.5;text-align:center"><b>👆 DICA: os gráficos são interativos!</b><br>Toque em uma barra, fatia colorida ou ponto do gráfico para abrir as O.S. e os detalhes relacionados ao item selecionado. Os resultados respeitam o período e os filtros aplicados.</p></div>
@@ -313,6 +313,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="card metricas-com-horario" id="cardHorarioRanking"><h4>Máquinas com maior tempo de parada</h4><p style="font-size:.72rem;color:#64748b;text-align:center;margin:4px 0 8px">Toque em uma máquina para consultar os dados relacionados.</p>
 <div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></div>
 
+<div class="card" id="cardRankingReincidencia"><h4>🔁 Máquinas com mais reincidências</h4><p style="font-size:.72rem;color:#64748b;text-align:center;margin:4px 0 8px">Mostra defeitos que voltaram na mesma máquina, mesmo quando a descrição foi escrita de outra forma. Toque para abrir o histórico.</p><div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Setor</th><th>Reincidências</th><th>Problemas repetidos</th></tr></thead><tbody id="tbRankingReincidencia"><tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr></tbody></table></div></div>
 <div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Disponibilidade por setor<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
 <div class="card metricas-com-horario" id="cardHorarioEfMaq"><h4>Disponibilidade por máquina<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
 <div class="card"><h4>Principais causas das falhas</h4><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
@@ -1362,6 +1363,57 @@ function mostrarOSDetalhe(titulo,lista){
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 
+/* ===== IDENTIFICAÇÃO AUTOMÁTICA DE REINCIDÊNCIA (SEM CATÁLOGO OU SERVIÇO EXTERNO) ===== */
+function tokensProblemaOS(os){
+  const texto=String(os&&os.descricao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+  const ignorar=new Set(['a','o','as','os','um','uma','de','do','da','dos','das','em','no','na','nos','nas','com','sem','para','por','que','e','ou','foi','esta','estava','estao','estao','ser','ter','tem','tinha','nao','muito','pouco','mais','menos','maquina','equipamento','problema','defeito','apresenta','apresentou','parou','parar','parada','voltou','ficou','fica','ficando','na','ao']);
+  const sinonimos={
+    corta:'corte',cortar:'corte',cortando:'corte',cortou:'corte',cortado:'corte',cortada:'corte',
+    trava:'travamento',travar:'travamento',travando:'travamento',travou:'travamento',travado:'travamento',
+    quebra:'quebra',quebrar:'quebra',quebrando:'quebra',quebrou:'quebra',quebrado:'quebra',quebrada:'quebra',
+    vaza:'vazamento',vazar:'vazamento',vazando:'vazamento',vazou:'vazamento',
+    falha:'falha',falhar:'falha',falhando:'falha',falhou:'falha',
+    queima:'queima',queimar:'queima',queimando:'queima',queimou:'queima',queimado:'queima',
+    vibra:'vibracao',vibrar:'vibracao',vibrando:'vibracao',vibrou:'vibracao',vibracao:'vibracao',
+    aquece:'aquecimento',aquecer:'aquecimento',aquecendo:'aquecimento',aquecimento:'aquecimento',esquentando:'aquecimento',esquenta:'aquecimento',
+    solta:'folga',soltar:'folga',soltando:'folga',soltou:'folga',solto:'folga',
+    desgastado:'desgaste',desgastada:'desgaste',desgastando:'desgaste',desgaste:'desgaste'
+  };
+  const palavras=texto.replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/);
+  return [...new Set(palavras.map(p=>sinonimos[p]||p).filter(p=>p.length>=3&&!ignorar.has(p)))].sort();
+}
+function compararProblemasOS(a,b){
+  const A=new Set(a||[]),B=new Set(b||[]);
+  let comuns=0;A.forEach(x=>{if(B.has(x))comuns++});
+  const uniao=new Set([...(a||[]),...(b||[])]);
+  return {comuns,indice:uniao.size?comuns/uniao.size:0};
+}
+function calcularReincidenciasHistorico(historico){
+  const porMaquina=new Map(),resultado=new Map();
+  const ordenadas=(historico||[]).filter(c=>c&&c.status!=='Cancelada'&&c.tipo!=='Preventiva'&&c.id!=null)
+    .slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
+  ordenadas.forEach(os=>{
+    const maquina=String(os.maquina||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
+    const tokens=tokensProblemaOS(os);
+    // Sem pelo menos dois termos úteis, o sistema não arrisca classificar como reincidência.
+    if(!maquina||tokens.length<2)return;
+    const grupos=porMaquina.get(maquina)||[];
+    let grupo=null;
+    for(const candidato of grupos){
+      const comp=compararProblemasOS(tokens,candidato.tokens);
+      if(comp.comuns>=2&&comp.indice>=0.5){grupo=candidato;break}
+    }
+    if(grupo){
+      resultado.set(String(os.id),{grupo:grupo.rotulo,primeiraOS:grupo.primeiraOS});
+      grupo.ocorrencias++;
+    }else{
+      grupos.push({tokens,rotulo:tokens.join(' + '),primeiraOS:os,ocorrencias:1});
+      porMaquina.set(maquina,grupos);
+    }
+  });
+  return resultado;
+}
+
 let chartDetalheMetrica=null;
 function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMetrica');if(m)m.style.display='none';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}}
 function abrirDetalheMetrica(tipo){
@@ -1399,10 +1451,20 @@ function abrirDetalheMetrica(tipo){
   cfg={type:'doughnut',data:{labels,datasets:[{data:labels.map(x=>g[x]),backgroundColor:labels.map((x,i)=>x==='Concluída'?'#16a34a':x==='Cancelada'?'#94a3b8':COR[i%COR.length]),borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'}}}};
   lista=todos;explicacao='A taxa mantém a fórmula atual: O.S. concluídas divididas pelo total de O.S. no filtro. O gráfico separa as demais situações.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma O.S. neste filtro.</p>';
  }else if(tipo==='reincidencia'){
-  titulo.textContent='Reincidência';const g={};todos.forEach(c=>{const k=(c.maquina||'Máquina não informada')+' • '+(c.tipo||'Tipo não informado');if(!g[k])g[k]=[];g[k].push(c)});
-  const r=Object.entries(g).filter(x=>x[1].length>1).sort((a,b)=>b[1].length-a[1].length);
-  cfg={type:'bar',data:{labels:r.slice(0,12).map(x=>x[0]),datasets:[{label:'O.S. repetidas',data:r.slice(0,12).map(x=>x[1].length),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
-  lista=r.flatMap(x=>x[1]);explicacao='Só entram como reincidência grupos com mais de uma O.S. para a mesma máquina e o mesmo tipo.';box.innerHTML=lista.length?r.map(x=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(x[0])+' • '+x[1].length+' O.S.</b>'+x[1].map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada.</p>';
+  titulo.textContent='Reincidência por defeito';const mapa=calcularReincidenciasHistorico(chamados),grupos={};
+  dados.forEach(os=>{
+    const info=mapa.get(String(os.id));if(!info)return;
+    const maquina=os.maquina||'Máquina não informada',k=maquina+' • '+info.grupo;
+    if(!grupos[k])grupos[k]={maquina,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
+    grupos[k].os.push(os);
+  });
+  const r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length);
+  const porMaquina={};r.forEach(g=>{porMaquina[g.maquina]=(porMaquina[g.maquina]||0)+g.os.length});
+  const ranking=Object.entries(porMaquina).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  cfg={type:'bar',data:{labels:ranking.map(x=>x[0]),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x[1]),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  lista=r.flatMap(g=>[g.primeiraOS,...g.os].filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i));
+  explicacao='Compara o histórico da mesma máquina, usando os termos relevantes da descrição do defeito. Variações como “a faca não estava cortando” e “faca parou de cortar” podem ser agrupadas. Descrições curtas ou ambíguas ficam sem classificação automática para evitar falsos positivos.';
+  box.innerHTML=r.length?r.map(g=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(g.maquina)+' • '+escaparHtml(g.problema)+' • '+g.os.length+' reincidência(s)</b>'+itemOS(g.primeiraOS)+g.os.map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
  resumo.textContent=explicacao;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
 }
@@ -1432,7 +1494,6 @@ function atualizarMetricasReais(){
   // agregadores
   let parada=0,sResp=0,nResp=0,sRep=0,nRep=0,concl=0,abertas=0;
   const maq={},setor={},tec={},tipo={},causa={},turno={'Turno 1':0,'Turno 2':0,'Turno 3':0},hora=Array(24).fill(0),aberDia={},conclDia={};
-  const grupos={}; // máquina|tipo -> qtd (reincidência)
 
   f.forEach(c=>{
     const m=maq[c.maquina]||(maq[c.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});
@@ -1441,7 +1502,6 @@ function atualizarMetricasReais(){
     turno[c.turno]=(turno[c.turno]||0)+1;
     hora[new Date(c.created_at).getHours()]++;
     const dc=diaLocal(c.created_at);aberDia[dc]=(aberDia[dc]||0)+1;
-    const k=c.maquina+'|'+c.tipo;grupos[k]=(grupos[k]||0)+1;
     if(c.status==='Concluída')concl++;else abertas++;
 
     if(c.status!=='Cancelada'&&c.data_atendimento){
@@ -1533,9 +1593,17 @@ function atualizarMetricasReais(){
   });
   OS_PARADA_ATUAL=osParada;
 
-  // reincidência: OS cuja máquina+tipo aparece 2+ vezes
+  // Compara cada O.S. filtrada com todo o histórico anterior da mesma máquina.
+  // A classificação usa descrição normalizada e só conta quando há termos suficientes em comum.
+  const reincidenciasHistorico=calcularReincidenciasHistorico(chamados);
   let reincOS=0;
-  f.forEach(c=>{if(grupos[c.maquina+'|'+c.tipo]>1){reincOS++;maq[c.maquina].reinc++}});
+  f.forEach(c=>{
+    if(reincidenciasHistorico.has(String(c.id))){
+      reincOS++;
+      const m=maq[c.maquina]||(maq[c.maquina]={falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});
+      m.reinc++;
+    }
+  });
 
   // base de tempo: dias do período × máquinas × 540 min
   // período filtrado e minutos produtivos esperados (conforme o horário de cada setor)
@@ -1573,6 +1641,19 @@ function atualizarMetricasReais(){
     const mt=m.falhas?(bd-m.parada)/m.falhas:0,cor=pct>=90?'#28a745':pct>=75?'#ff6b00':'#dc3545';
     return`<tr><td>${n}</td><td>${fmt(bd)}</td><td>${fmt(m.parada)}</td><td>${fmt(rodou)}</td><td style="font-weight:800;color:${cor}">${bd?pct+'%':'—'}</td><td>${m.falhas}</td><td>${fmt(media(m.sRep,m.nRep))}</td><td>${fmt(Math.max(0,mt))}</td><td class="${m.reinc?'alerta':''}">${m.reinc}</td></tr>`;
   }).join(''):'<tr><td colspan="9" style="text-align:center;color:#64748b">Sem dados no filtro.</td></tr>';
+
+  // Ranking específico de reincidências para facilitar a cobrança de ações preventivas.
+  const reincPorMaquina={};
+  f.forEach(os=>{
+    const info=reincidenciasHistorico.get(String(os.id));if(!info)return;
+    const nome=os.maquina||'Máquina não informada';
+    if(!reincPorMaquina[nome])reincPorMaquina[nome]={setor:os.setor||'—',total:0,problemas:new Set()};
+    reincPorMaquina[nome].total++;
+    reincPorMaquina[nome].problemas.add(info.grupo);
+  });
+  const rankingReinc=Object.entries(reincPorMaquina).sort((a,b)=>b[1].total-a[1].total);
+  const corpoRankingReinc=document.getElementById('tbRankingReincidencia');
+  if(corpoRankingReinc)corpoRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map(([nome,d])=>`<tr style="cursor:pointer" onclick="abrirDetalheMetrica('reincidencia')"><td><b>${escaparHtml(nome)}</b></td><td>${escaparHtml(d.setor)}</td><td style="font-weight:800;color:#dc3545">${d.total}</td><td>${escaparHtml([...d.problemas].join('; '))}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr>';
 
   // relatório
   const rel=document.getElementById('listaRelatorioProblemas');
