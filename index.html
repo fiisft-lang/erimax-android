@@ -389,7 +389,7 @@ const {createClient}=supabase;
 const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
-let intervaloPresenca=null,ultimaPresencaEnviada=0;
+let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
 let SETOR_MAQUINAS_EM_EDICAO=null;
 let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,ultimoIdOSRealtime=null;
 const idsOSAlertadas=new Set();
