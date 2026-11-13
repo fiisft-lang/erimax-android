@@ -948,7 +948,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
       if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
     }
-    if(status==='Concluída'&&tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
+    if(status==='Concluída'&&gestor)b+='<button type="button" class="btn-action btn-transferir" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     if(PERFIL&&(PERFIL.perfil==='gestor'||PERFIL.perfil==='operador')&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="editarEquipamentoOS('+id+')">✏️ Editar equipamento</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
@@ -1200,10 +1200,9 @@ function fecharModalReabrirOS(){
   osReabrir=null;
 }
 function abrirModalReabrirOS(id){
-  if(!PERFIL||PERFIL.perfil!=='tecnico')return alert('Somente o mecânico responsável pode reabrir a O.S.');
+  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode reabrir uma O.S.');
   const os=chamados.find(c=>Number(c.id)===Number(id));
   if(!os||os.status!=='Concluída')return alert('Esta O.S. não está mais concluída. Atualize a lista e tente novamente.');
-  if(os.tecnico!==PERFIL.nome)return alert('Você só pode reabrir uma O.S. atribuída a você.');
   osReabrir=Number(id);
   document.getElementById('reabrirOSInfo').textContent=nOS(os)+' — '+os.maquina+' | '+os.setor;
   document.getElementById('motivoReabrirOS').value='';
@@ -1218,7 +1217,9 @@ async function confirmarReaberturaOS(){
   const {error}=await _supabase.rpc('reabrir_os_concluida',{p_os_id:id,p_motivo:motivo});
   if(error)return alert('Não foi possível reabrir a O.S.: '+error.message);
   fecharModalReabrirOS();
-  await recalcularStatusTecnico(MEU_ID);
+  const osReaberta=chamados.find(c=>Number(c.id)===Number(id));
+  const tecnicoResponsavel=TECNICOS.find(t=>t.nome===osReaberta?.tecnico);
+  if(tecnicoResponsavel)await recalcularStatusTecnico(tecnicoResponsavel.id);
   await carregarDadosSupabase();
   alert('O.S. reaberta! Ela voltou para Em Atendimento.');
 }
