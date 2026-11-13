@@ -1389,6 +1389,7 @@ function limparPeriodoPersonalizado(recalcular=false){
   if(ajuda)ajuda.textContent='Escolha as duas datas para analisar uma semana ou qualquer intervalo.';
   if(recalcular)atualizarMetricasReais();
 }
+// Filtro de métricas por intervalo de datas, com período inclusivo e exportação nos relatórios.
 function aplicarPeriodoPersonalizado(){
   const ini=document.getElementById('filtroDataInicio'),fim=document.getElementById('filtroDataFim'),ajuda=document.getElementById('filtroPeriodoAjuda');
   const dia=document.getElementById('filtroDia'),mes=document.getElementById('filtroMes');
