@@ -12,7 +12,6 @@ create table if not exists public.historico_reaberturas_os (
 alter table public.historico_reaberturas_os enable row level security;
 revoke all on public.historico_reaberturas_os from anon, authenticated;
 grant select on public.historico_reaberturas_os to authenticated;
-grant usage, select on sequence public.historico_reaberturas_os_id_seq to authenticated;
 
 drop policy if exists historico_reaberturas_os_ler on public.historico_reaberturas_os;
 create policy historico_reaberturas_os_ler
@@ -103,7 +102,7 @@ begin
     ),
     '[]'::jsonb
   ) into v_maquinas
-  from jsonb_array_elements(coalesce(v_os.maquinas_execucao, '[]'::jsonb)) as m;
+  from jsonb_array_elements(coalesce(v_os.maquinas_execucao, '[]'::jsonb)) as itens(m);
 
   update public.os
   set status = 'Em Atendimento',
