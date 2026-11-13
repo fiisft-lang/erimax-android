@@ -383,6 +383,22 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
+<div id="modalReabrirOS" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1250;align-items:center;justify-content:center;padding:16px">
+  <div class="box" style="max-width:420px">
+    <h2>↩️ Reabrir ordem de serviço</h2>
+    <p id="reabrirOSInfo" style="font-size:.85rem;color:#475569;margin-bottom:12px"></p>
+    <div class="form-group">
+      <label for="motivoReabrirOS">Por que está reabrindo? *</label>
+      <textarea id="motivoReabrirOS" rows="3" maxlength="500" placeholder="Ex.: Concluí por engano, o serviço ainda não terminou."></textarea>
+      <small style="color:#64748b">Informe pelo menos 8 caracteres. O motivo ficará registrado no histórico.</small>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-submit" style="background:#94a3b8" onclick="fecharModalReabrirOS()">Voltar</button>
+      <button class="btn-submit" style="background:#b45309" onclick="confirmarReaberturaOS()">Reabrir O.S.</button>
+    </div>
+  </div>
+</div>
+
 <div id="modalEfOS" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box" style="max-width:760px;max-height:90vh;overflow:auto"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 id="modalEfOSTitulo">Ordens de serviço relacionadas</h2><button class="btn-action btn-transferir" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" style="font-size:.8rem;color:#64748b;margin:8px 0 12px"></p><div id="listaEfOS"></div></div></div>
 
 <div id="modalDetalheMetrica" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1300;align-items:center;justify-content:center;padding:12px"><div class="box" style="width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><h2 id="tituloDetalheMetrica" style="font-size:1.08rem;color:var(--primary);margin:0">Detalhes da métrica</h2><small style="color:#64748b">Conforme os filtros selecionados</small></div><button class="btn-action btn-transferir" onclick="fecharDetalheMetrica()">Voltar ✕</button></div><p id="resumoDetalheMetrica" style="font-size:.84rem;color:#475569;line-height:1.5;margin:10px 0"></p><div class="chart-wrapper" style="height:280px;margin:8px 0 14px"><canvas id="chartDetalheMetrica"></canvas></div><h3 style="font-size:.92rem;color:var(--primary);margin:8px 0">Registros relacionados</h3><div id="listaDetalheMetrica"></div></div></div>
@@ -932,6 +948,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
       if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
     }
+    if(status==='Concluída'&&tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     if(PERFIL&&(PERFIL.perfil==='gestor'||PERFIL.perfil==='operador')&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="editarEquipamentoOS('+id+')">✏️ Editar equipamento</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
@@ -1175,6 +1192,36 @@ async function salvarEdicaoEquipamentoOS(){
 }
 
 function fecharModal(){modal.style.display='none'}
+let osReabrir=null;
+function fecharModalReabrirOS(){
+  const el=document.getElementById('modalReabrirOS');
+  if(el)el.style.display='none';
+  osReabrir=null;
+}
+function abrirModalReabrirOS(id){
+  if(!PERFIL||PERFIL.perfil!=='tecnico')return alert('Somente o mecânico responsável pode reabrir a O.S.');
+  const os=chamados.find(c=>Number(c.id)===Number(id));
+  if(!os||os.status!=='Concluída')return alert('Esta O.S. não está mais concluída. Atualize a lista e tente novamente.');
+  if(os.tecnico!==PERFIL.nome)return alert('Você só pode reabrir uma O.S. atribuída a você.');
+  osReabrir=Number(id);
+  document.getElementById('reabrirOSInfo').textContent=nOS(os)+' — '+os.maquina+' | '+os.setor;
+  document.getElementById('motivoReabrirOS').value='';
+  document.getElementById('modalReabrirOS').style.display='flex';
+}
+async function confirmarReaberturaOS(){
+  const id=osReabrir;
+  const motivo=document.getElementById('motivoReabrirOS').value.trim();
+  if(!id)return;
+  if(motivo.length<8)return alert('Informe o motivo com pelo menos 8 caracteres.');
+  if(!confirm('Reabrir a O.S. '+String(id).padStart(4,'0')+'? Ela voltará para Em Atendimento.'))return;
+  const {error}=await _supabase.rpc('reabrir_os_concluida',{p_os_id:id,p_motivo:motivo});
+  if(error)return alert('Não foi possível reabrir a O.S.: '+error.message);
+  fecharModalReabrirOS();
+  await recalcularStatusTecnico(MEU_ID);
+  await carregarDadosSupabase();
+  alert('O.S. reaberta! Ela voltou para Em Atendimento.');
+}
+
 // Status dos técnicos sincronizados automaticamente a cada 8 segundos como proteção ao Realtime.
 async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
@@ -1238,11 +1285,14 @@ async function excluirOS(id){
   await carregarDadosSupabase();
 }
 
-function verHistorico(id){
+async function verHistorico(id){
   const os=chamados.find(c=>Number(c.id)===Number(id));
   if(!os)return;
   const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).sort((a,b)=>new Date(a.pausada_em)-new Date(b.pausada_em));
   const transferencias=HISTORICO_TRANSFERENCIAS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.solicitada_em)-new Date(b.solicitada_em));
+  const {data:reaberturas,error:erroReaberturas}=await _supabase.from('historico_reaberturas_os').select('*').eq('os_id',id).order('reaberta_em',{ascending:true});
+  if(erroReaberturas)console.warn('Não foi possível carregar histórico de reaberturas:',erroReaberturas.message);
+
   const agora=Date.now();
   const minutosFmt=ms=>{
     const total=Math.max(0,Math.floor(ms/60000)),dias=Math.floor(total/1440),horas=Math.floor((total%1440)/60),min=total%60;
@@ -1268,9 +1318,11 @@ function verHistorico(id){
     return (i+1)+'. '+solicitada+' — '+(t.solicitada_por||t.tecnico_anterior)+' solicitou transferência de '+t.tecnico_anterior+' para '+t.tecnico_novo+'\n   Motivo: '+(t.motivo||'Não informado')+'\n   '+(t.aceita_por?'Aceita por '+t.aceita_por+' em '+aceita:'Pendente de aceite');
   });
   const historicoTransferencias=transferencias.length?'\n\nTRANSFERÊNCIAS:\n'+linhasTransferencia.join('\n'):'\n\nNenhuma transferência registrada.';
+  const linhasReabertura=(reaberturas||[]).map((r,i)=>(i+1)+'. '+new Date(r.reaberta_em).toLocaleString('pt-BR')+' — reaberta por '+(r.tecnico_nome||'—')+'\n   Motivo: '+(r.motivo||'Não informado'));
+  const historicoReaberturas=linhasReabertura.length?'\n\nREABERTURAS:\n'+linhasReabertura.join('\n'):'\n\nNenhuma reabertura registrada.';
   const transferenciaPendente=os.transferencia_para?'\n\nTRANSFERÊNCIA AGUARDANDO ACEITE:\nDestino: '+os.transferencia_para+'\nSolicitada por: '+(os.transferencia_solicitada_por||'—')+'\nEm: '+(os.transferencia_solicitada_em?new Date(os.transferencia_solicitada_em).toLocaleString('pt-BR'):'—')+'\nMotivo: '+(os.transferencia_motivo||'Não informado'):'';
   const historicoAjuste=os.ajustado_em?'\n\n⚠️ HORÁRIO CORRIGIDO PELO GESTOR:\nPor: '+(os.ajustado_por||'Gestor')+'\nEm: '+new Date(os.ajustado_em).toLocaleString('pt-BR')+'\nMotivo: '+(os.ajuste_obs||'Não informado'):'\n\nNenhuma correção de horário registrada.';
-  alert(nOS(os)+' | '+os.turno+'\nStatus: '+(os.status||'—')+' • Tipo: '+(os.tipo||'—')+' • Prioridade: '+(os.prioridade||'—')+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta em: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—')+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nInício do atendimento: '+(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não registrado')+'\nConclusão: '+(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Ainda não concluída')+'\nProblema: '+(os.descricao||'—')+'\nCausa: '+(os.causa||'Não informada')+'\nPeça: '+(os.peca||'Não informada')+'\nSolução/serviço: '+(os.servico_executado||'Não registrado')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+transferenciaPendente+historicoAjuste);
+  alert(nOS(os)+' | '+os.turno+'\nStatus: '+(os.status||'—')+' • Tipo: '+(os.tipo||'—')+' • Prioridade: '+(os.prioridade||'—')+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta em: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—')+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nInício do atendimento: '+(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não registrado')+'\nConclusão: '+(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Ainda não concluída')+'\nProblema: '+(os.descricao||'—')+'\nCausa: '+(os.causa||'Não informada')+'\nPeça: '+(os.peca||'Não informada')+'\nSolução/serviço: '+(os.servico_executado||'Não registrado')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoReaberturas+transferenciaPendente+historicoAjuste);
 }
 
 function atualizarMaquinasMetrica(){
