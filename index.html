@@ -286,8 +286,17 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="card metrics-filter-card">
 <h3 style="margin-bottom:2px;font-size:1.1rem;color:var(--primary)">Métricas da Manutenção</h3>
 <p style="font-size:.8rem;color:#64748b;margin-bottom:12px">Filtre por período, turno, setor e máquina.</p>
-<div class="form-group"><label>DIA ESPECÍFICO</label><input type="date" id="filtroDia" onchange="atualizarMetricasReais()"></div>
-<div class="form-group"><label>MÊS</label><input type="month" id="filtroMes" onchange="atualizarMetricasReais()"></div>
+<div class="form-group"><label>DIA ESPECÍFICO</label><input type="date" id="filtroDia" onchange="limparPeriodoPersonalizado();atualizarMetricasReais()"></div>
+<div class="form-group"><label>MÊS</label><input type="month" id="filtroMes" onchange="limparPeriodoPersonalizado();atualizarMetricasReais()"></div>
+<div style="border:1px solid var(--border,#dbe3ec);border-radius:10px;padding:11px;margin:10px 0;background:var(--surface,#fff)">
+  <label style="display:block;font-weight:700;font-size:.78rem;margin-bottom:8px">PERÍODO PERSONALIZADO</label>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
+    <div class="form-group" style="margin:0"><label for="filtroDataInicio">DATA INICIAL</label><input type="date" id="filtroDataInicio" onchange="aplicarPeriodoPersonalizado()"></div>
+    <div class="form-group" style="margin:0"><label for="filtroDataFim">DATA FINAL</label><input type="date" id="filtroDataFim" onchange="aplicarPeriodoPersonalizado()"></div>
+  </div>
+  <p id="filtroPeriodoAjuda" style="font-size:.72rem;color:#64748b;margin:7px 0 0">Escolha as duas datas para analisar uma semana ou qualquer intervalo.</p>
+  <button type="button" class="btn-action" style="margin-top:8px" onclick="limparPeriodoPersonalizado(true)">Limpar período</button>
+</div>
 <div class="form-group"><label>TURNO</label>
 <select id="filtroTurnoMetrica" onchange="atualizarMetricasReais()"><option value="Todos">Todos os Turnos</option><option>Turno 1</option><option>Turno 2</option><option>Turno 3</option></select></div>
 <div class="form-group"><label>TIPO DE PROBLEMA</label>
@@ -1374,6 +1383,28 @@ function horariosDoDia(s,d){
   return (TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(d.getDay()))&&horarioTurnoValido(t)).map(t=>({...t}));
 }
 
+function limparPeriodoPersonalizado(recalcular=false){
+  const ini=document.getElementById('filtroDataInicio'),fim=document.getElementById('filtroDataFim'),ajuda=document.getElementById('filtroPeriodoAjuda');
+  if(ini)ini.value='';if(fim)fim.value='';
+  if(ajuda)ajuda.textContent='Escolha as duas datas para analisar uma semana ou qualquer intervalo.';
+  if(recalcular)atualizarMetricasReais();
+}
+function aplicarPeriodoPersonalizado(){
+  const ini=document.getElementById('filtroDataInicio'),fim=document.getElementById('filtroDataFim'),ajuda=document.getElementById('filtroPeriodoAjuda');
+  const dia=document.getElementById('filtroDia'),mes=document.getElementById('filtroMes');
+  if(dia)dia.value='';if(mes)mes.value='';
+  if(!ini.value||!fim.value){
+    if(ajuda)ajuda.textContent='Informe a data inicial e a data final para aplicar o período.';
+    return;
+  }
+  if(ini.value>fim.value){
+    if(ajuda)ajuda.textContent='A data inicial não pode ser posterior à data final.';
+    fim.value='';
+    return;
+  }
+  if(ajuda)ajuda.textContent='Analisando de '+ini.value.split('-').reverse().join('/')+' até '+fim.value.split('-').reverse().join('/')+'.';
+  atualizarMetricasReais();
+}
 // Confirma horários reais para todo o escopo: turno inativo, dia sem expediente ou
 // duração genérica em setores_config nunca contam como entrada/saída cadastradas.
 function setorTemHorarioConfirmado(s,n,dia){
@@ -1399,6 +1430,30 @@ function setorTemHorarioConfirmado(s,n,dia){
     ?semana.filter(t=>t.ativo===true&&(!n||+t.numero_turno===n))
     :(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(!n||+t.numero_turno===n));
   return fonte.length>0&&fonte.every(horarioTurnoValido);
+}
+
+function setorTemHorarioConfirmadoPeriodo(s,n,inicio,fim){
+  const semana=HORARIOS_SEMANAIS[s]||[];
+  const temGradeSemanal=semana.some(t=>t.ativo===true);
+  const d=new Date(inicio+'T12:00:00'),ultimo=new Date(fim+'T12:00:00');
+  let encontrouDiaOperacional=false;
+  for(;d<=ultimo;d.setDate(d.getDate()+1)){
+    const iso=dataISOlocal(d),chave=s+'|'+iso;
+    let aplicaveis=[];
+    if(Object.prototype.hasOwnProperty.call(EXCECOES_HORARIO,chave)){
+      const especiais=EXCECOES_HORARIO[chave].horarios||[];
+      if(!especiais.length)continue;
+      aplicaveis=especiais.filter(t=>!n||+t.numero_turno===+n);
+    }else if(temGradeSemanal){
+      aplicaveis=semana.filter(t=>t.ativo===true&&+t.dia_semana===d.getDay()&&(!n||+t.numero_turno===+n));
+    }else{
+      aplicaveis=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(d.getDay()))&&(!n||+t.numero_turno===+n));
+    }
+    if(!aplicaveis.length)continue;
+    encontrouDiaOperacional=true;
+    if(!aplicaveis.every(horarioTurnoValido))return false;
+  }
+  return encontrouDiaOperacional;
 }
 
 // Gera os intervalos produtivos reais e une sobreposições entre turnos do mesmo setor.
@@ -1626,14 +1681,14 @@ function abrirDetalheMetrica(tipo){
 }
 
 function atualizarMetricasReais(){
-  const dia=filtroDia.value,mes=filtroMes.value,tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
+  const dia=filtroDia.value,mes=filtroMes.value,dataInicio=document.getElementById('filtroDataInicio')?.value||'',dataFim=document.getElementById('filtroDataFim')?.value||'',periodoPersonalizado=!!(dataInicio&&dataFim),tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
   const avisoHorario=document.getElementById('metricsHorarioAviso');
   const turnoNum=tn==='Todos'?null:+tn.slice(-1);
   let setoresEscopo;
   if(st!=='Todos')setoresEscopo=[st];
   else if(mq!=='Todas')setoresEscopo=[...new Set(MAQUINAS.filter(m=>m&&m.nome===mq).map(m=>m.setor).filter(Boolean))];
   else setoresEscopo=[...new Set([...SETORES,...MAQUINAS.map(m=>m&&m.setor).filter(Boolean)])];
-  const setoresSemHorarioFiltro=setoresEscopo.filter(s=>!setorTemHorarioConfirmado(s,turnoNum,dia||null));
+  const setoresSemHorarioFiltro=setoresEscopo.filter(s=>periodoPersonalizado?!setorTemHorarioConfirmadoPeriodo(s,turnoNum,dataInicio,dataFim):!setorTemHorarioConfirmado(s,turnoNum,dia||null));
   const horarioOKFiltro=setoresEscopo.length>0&&setoresSemHorarioFiltro.length===0;
   document.querySelectorAll('.metricas-com-horario').forEach(el=>el.style.display=horarioOKFiltro?'':'none');
   avisoHorario.style.display=horarioOKFiltro?'none':'block';
@@ -1643,7 +1698,8 @@ function atualizarMetricasReais(){
   const agora=new Date().toISOString();
   const f=chamados.filter(c=>{
     const d=c.created_at?diaLocal(c.created_at):'';
-    return(!dia||d===dia)&&(!mes||d.startsWith(mes))&&(tn==='Todos'||c.turno===tn)&&(st==='Todos'||c.setor===st)&&(mq==='Todas'||c.maquina===mq)&&c.tipo!=='Preventiva'&&(tp==='Todos'||c.tipo===tp);
+    const dentroPeriodo=periodoPersonalizado?(d>=dataInicio&&d<=dataFim):((!dia||d===dia)&&(!mes||d.startsWith(mes)));
+    return dentroPeriodo&&(tn==='Todos'||c.turno===tn)&&(st==='Todos'||c.setor===st)&&(mq==='Todas'||c.maquina===mq)&&c.tipo!=='Preventiva'&&(tp==='Todos'||c.tipo===tp);
   });
 
   FILTRADAS=f;
@@ -1677,7 +1733,8 @@ function atualizarMetricasReais(){
   // mesmo quando a O.S. foi aberta no turno ou dia anterior.
   const hoje=new Date();hoje.setHours(0,0,0,0);
   let pIni,pFim;
-  if(dia){pIni=new Date(dia+'T00:00:00');pFim=pIni}
+  if(periodoPersonalizado){pIni=new Date(dataInicio+'T00:00:00');pFim=new Date(dataFim+'T00:00:00')}
+  else if(dia){pIni=new Date(dia+'T00:00:00');pFim=pIni}
   else if(mes){const [y,mo]=mes.split('-').map(Number);pIni=new Date(y,mo-1,1);pFim=(hoje.getFullYear()===y&&hoje.getMonth()+1===mo)?hoje:new Date(y,mo,0)}
   else{
     // O histórico do período não pode depender do turno de abertura selecionado:
@@ -2243,7 +2300,7 @@ function redimensionar(f){return new Promise(r=>{const i=new Image();i.onload=()
 function obterFiltrosRelatorio(){
   const valor=id=>document.getElementById(id)?.value||'Todos';
   return {
-    dia:valor('filtroDia'),mes:valor('filtroMes'),turno:valor('filtroTurnoMetrica'),
+    dia:valor('filtroDia'),mes:valor('filtroMes'),dataInicio:valor('filtroDataInicio'),dataFim:valor('filtroDataFim'),turno:valor('filtroTurnoMetrica'),
     tipo:valor('filtroTipoMetrica'),setor:valor('filtroSetorMetrica'),maquina:valor('filtroMaquinaMetrica')
   };
 }
@@ -2255,7 +2312,7 @@ function dataHoraRelatorio(v){
 async function prepararPDF(){
   const f=obterFiltrosRelatorio();
   const filtros=[
-    'Dia: '+(f.dia||'Todos'),'Mês: '+(f.mes||'Todos'),'Turno: '+f.turno,
+    'Dia: '+(f.dia||'Todos'),'Mês: '+(f.mes||'Todos'),'Período: '+(f.dataInicio&&f.dataFim?f.dataInicio.split('-').reverse().join('/')+' até '+f.dataFim.split('-').reverse().join('/'):'Não selecionado'),'Turno: '+f.turno,
     'Tipo: '+f.tipo,'Setor: '+f.setor,'Máquina: '+f.maquina
   ].join(' • ');
   const total=FILTRADAS.length;
@@ -2293,6 +2350,7 @@ async function exportarExcel(){
     ['ERIMAX — RELATÓRIO DE MANUTENÇÃO'],
     ['Gerado em',new Date().toLocaleString('pt-BR')],
     ['Período — dia',f.dia||'Todos'],['Período — mês',f.mes||'Todos'],
+    ['Período personalizado',f.dataInicio&&f.dataFim?f.dataInicio+' até '+f.dataFim:'Não selecionado'],
     ['Turno',f.turno],['Tipo',f.tipo],['Setor',f.setor],['Máquina',f.maquina],
     ['Total de O.S.',os.length],['Concluídas',concluidas],['Abertas',abertas],
     ['Taxa de conclusão',os.length?Math.round(concluidas/os.length*100)+'%':'0%'],
