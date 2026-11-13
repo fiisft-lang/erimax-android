@@ -385,6 +385,8 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 <div class="form-group"><label>Motivo principal *</label><select id="hrTipo"><option value="Esquecimento do operador">Esquecimento do operador ao abrir a O.S.</option><option value="Horário informado incorretamente">Horário informado incorretamente</option><option value="Outro motivo">Outro motivo</option></select></div><div class="form-group"><label>Detalhes / justificativa *</label><input id="hrMot" placeholder="Descreva o motivo da correção"></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="modalHor.style.display='none'">Cancelar</button><button class="btn-submit" onclick="salvarHorarios()">Salvar</button></div></div></div>
 
+<div id="modalEditarEquipamentoOS" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1500;align-items:center;justify-content:center;padding:14px"><div class="box" style="width:100%;max-width:480px;max-height:90vh;overflow:auto"><h2 style="color:var(--primary)">Corrigir equipamento da O.S.</h2><p id="editarEquipamentoInfo" style="font-size:.8rem;color:#64748b;margin:6px 0 12px"></p><div class="form-group"><label for="editarEquipamentoSelect">EQUIPAMENTO CORRETO *</label><select id="editarEquipamentoSelect" required></select></div><p style="font-size:.72rem;color:#64748b">Somente o equipamento será alterado. O sistema registra quem fez a correção, a data e o nome anterior.</p><div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharEdicaoEquipamentoOS()">Cancelar</button><button type="button" class="btn-submit" onclick="salvarEdicaoEquipamentoOS()">Salvar correção</button></div></div></div>
+
 <audio id="audioSirene" preload="auto" loop>
 <source src="/alarme.wav" type="audio/wav">
 </audio>
@@ -922,6 +924,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
     }
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
+    if(PERFIL&&(PERFIL.perfil==='gestor'||PERFIL.perfil==='operador')&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="editarEquipamentoOS('+id+')">✏️ Editar equipamento</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
     if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Corrigir horários</button>';
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
@@ -1128,6 +1131,40 @@ async function salvarHorarios(){
   if(error)return alert('Erro ao corrigir horários: '+error.message);
   modalHor.style.display='none';await carregarDadosSupabase();alert('Horários corrigidos. O histórico registra quem fez o ajuste e o motivo.');
 }
+
+function editarEquipamentoOS(id){
+  if(!PERFIL||!['operador','gestor'].includes(PERFIL.perfil))return alert('Você não tem permissão para corrigir o equipamento.');
+  const os=chamados.find(c=>Number(c.id)===Number(id));
+  if(!os||!['Aberta','Em Atendimento','Pausada','Concluída'].includes(os.status))return alert('Esta O.S. não está disponível para correção do equipamento.');
+  const select=document.getElementById('editarEquipamentoSelect');
+  const lista=(MAQUINAS||[]).filter(m=>m&&m.nome&&normSetor(m.setor)===normSetor(os.setor)).map(m=>String(m.nome).trim()).filter(Boolean);
+  const nomes=[...new Set(lista)].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  if(os.maquina&&!nomes.some(n=>n.toLocaleLowerCase('pt-BR')===String(os.maquina).toLocaleLowerCase('pt-BR')))nomes.unshift(String(os.maquina));
+  if(!nomes.length)return alert('Não há equipamentos cadastrados para este setor. Peça ao gestor para conferir o cadastro.');
+  select.innerHTML='<option value="">Selecione o equipamento correto...</option>'+nomes.map(n=>'<option value="'+escaparHtml(n)+'">'+escaparHtml(n)+'</option>').join('');
+  select.value=nomes.find(n=>n.toLocaleLowerCase('pt-BR')===String(os.maquina||'').toLocaleLowerCase('pt-BR'))||'';
+  document.getElementById('editarEquipamentoInfo').textContent=nOS(os)+' • '+(os.setor||'Setor não informado')+' • Atual: '+(os.maquina||'Não informado');
+  window.osEquipamentoEmEdicao=Number(os.id);
+  document.getElementById('modalEditarEquipamentoOS').style.display='flex';
+}
+function fecharEdicaoEquipamentoOS(){
+  document.getElementById('modalEditarEquipamentoOS').style.display='none';
+  window.osEquipamentoEmEdicao=null;
+}
+async function salvarEdicaoEquipamentoOS(){
+  const id=Number(window.osEquipamentoEmEdicao),select=document.getElementById('editarEquipamentoSelect'),novo=String(select.value||'').trim();
+  if(!PERFIL||!['operador','gestor'].includes(PERFIL.perfil))return alert('Você não tem permissão para corrigir o equipamento.');
+  if(!id||!novo)return alert('Selecione o equipamento correto.');
+  const os=chamados.find(c=>Number(c.id)===id);
+  if(!os)return alert('Não foi possível localizar esta O.S. Atualize a tela e tente novamente.');
+  if(novo===String(os.maquina||''))return alert('O equipamento selecionado já é o registrado nesta O.S.');
+  const {error}=await _supabase.rpc('corrigir_equipamento_os',{p_os_id:id,p_nova_maquina:novo});
+  if(error)return alert('Não foi possível corrigir o equipamento: '+error.message);
+  fecharEdicaoEquipamentoOS();
+  await carregarDadosSupabase();
+  alert('Equipamento corrigido. A alteração ficou registrada no histórico da O.S.');
+}
+
 function fecharModal(){modal.style.display='none'}
 // Status dos técnicos sincronizados automaticamente a cada 8 segundos como proteção ao Realtime.
 async function confirmarConclusao(){
