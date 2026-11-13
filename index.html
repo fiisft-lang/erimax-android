@@ -948,7 +948,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
       if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
     }
-    if(status==='Concluída'&&gestor)b+='<button type="button" class="btn-action btn-transferir" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
+    if(status.trim().normalize('NFC').toLocaleLowerCase('pt-BR')==='concluída'&&gestor)b+='<button type="button" class="btn-action btn-transferir" style="background:#d97706;color:#fff" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     if(PERFIL&&(PERFIL.perfil==='gestor'||PERFIL.perfil==='operador')&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="editarEquipamentoOS('+id+')">✏️ Editar equipamento</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
