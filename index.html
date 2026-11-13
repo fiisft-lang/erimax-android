@@ -1192,6 +1192,7 @@ async function salvarEdicaoEquipamentoOS(){
 }
 
 function fecharModal(){modal.style.display='none'}
+// Reabertura segura: o backend valida o técnico, exige motivo e mantém auditoria da conclusão anterior.
 let osReabrir=null;
 function fecharModalReabrirOS(){
   const el=document.getElementById('modalReabrirOS');
