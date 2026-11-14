@@ -1786,6 +1786,14 @@ function renderStatusTurno(){
     <p style="font-size:.72rem;color:#64748b;margin:8px 0 0">${emServico?'Conclua ou transfira a O.S. atual para voltar a ficar ONLINE e depois encerrar o turno.':ativa?'Você recebe avisos de novas O.S. quando estiver ONLINE ou EM SERVIÇO. Mesmo ocupado, o aviso toca; para assumir outra, precisa estar ONLINE.':'Você está OFFLINE e não receberá notificações de novas O.S.'}</p>
   </div>`;
 }
+function silenciarAlarmeNativo(){
+  desligarAlarme();
+  try{
+    const plugin=window.Capacitor?.Plugins?.EriMaxExport;
+    if(plugin&&typeof plugin.stopIncomingAlert==='function')plugin.stopIncomingAlert().catch(e=>console.warn('Não foi possível parar o alarme nativo:',e));
+  }catch(e){console.warn('Não foi possível acessar o controle do alarme nativo:',e)}
+}
+
 async function alternarTurno(){
   if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil))return;
   const atual=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
@@ -1795,6 +1803,7 @@ async function alternarTurno(){
     if(em.length)return alert('Você ainda tem uma O.S. em serviço. Conclua ou transfira antes de encerrar o turno.');
     const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'OFFLINE',turno_ativo:false,turno_fim:agora,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
     if(error)return alert('Não foi possível encerrar o turno: '+error.message);
+    silenciarAlarmeNativo();
   }else{
     const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'ONLINE',turno_ativo:true,turno_inicio:agora,turno_fim:null,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
     if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
