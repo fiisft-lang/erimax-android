@@ -7,10 +7,6 @@ import android.app.PendingIntent;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
 import android.os.VibrationEffect;
@@ -20,11 +16,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 public class IncomingCallMessagingService extends MessagingService {
-  // Canal novo e silencioso: o toque é controlado por um único Ringtone,
-  // para que SILENCIAR consiga interrompê-lo em todos os aparelhos.
   private static final String CHANNEL = "erimax_incoming_calls_v5";
-  private static Ringtone activeAlarm;
-  private static Vibrator activeVibrator;
 
   @Override public void onMessageReceived(RemoteMessage message) {
     Map<String,String> data = message.getData();
@@ -89,40 +81,24 @@ public class IncomingCallMessagingService extends MessagingService {
       PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
   }
 
-  public static synchronized void startAlertAlarm(Context context) {
-    stopAlert();
-    try {
-      Uri sound = Uri.parse("android.resource://" + context.getPackageName() + "/raw/alarme");
-      activeAlarm = RingtoneManager.getRingtone(context.getApplicationContext(), sound);
-      if (activeAlarm != null) {
-        if (Build.VERSION.SDK_INT >= 21) {
-          activeAlarm.setAudioAttributes(new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ALARM)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build());
-        }
-        if (Build.VERSION.SDK_INT >= 28) activeAlarm.setLooping(true);
-        activeAlarm.play();
-      }
-    } catch (Exception ignored) { stopAlert(); }
+  public static void startAlertAlarm(Context context) {
+    Intent service = new Intent(context, IncomingAlertService.class);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(service);
+    else context.startService(service);
   }
 
-  public static synchronized void stopAlert() {
-    if (activeAlarm != null) {
-      try { activeAlarm.stop(); } catch (Exception ignored) { }
-      activeAlarm = null;
-    }
-    if (activeVibrator != null) {
-      try { activeVibrator.cancel(); } catch (Exception ignored) { }
-      activeVibrator = null;
-    }
+  public static void stopAlert(Context context) {
+    context.stopService(new Intent(context, IncomingAlertService.class));
+    try {
+      Vibrator vibrator = (Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE);
+      if (vibrator != null) vibrator.cancel();
+    } catch (Exception ignored) { }
   }
 
   private void vibrateForIncomingOS() {
     try {
       Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
       if (vibrator == null || !vibrator.hasVibrator()) return;
-      activeVibrator = vibrator;
       long[] pattern = new long[]{0, 700, 350, 700, 350, 1000};
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
