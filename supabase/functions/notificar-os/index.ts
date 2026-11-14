@@ -86,15 +86,15 @@ Deno.serve(async (req: Request) => {
     if (profilesError) throw profilesError
 
     const { data: onlineStatuses, error: statusError } = await admin.from('status_tecnicos')
-      .select('user_id').eq('status', 'ONLINE').eq('turno_ativo', true)
+      .select('user_id').in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
     if (statusError) throw statusError
     const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
     const recipientIds = (profiles || [])
-      // Somente Fii recebe aviso mesmo quando está EM SERVIÇO; os demais
-      // técnicos, gestores e operadores precisam estar ONLINE e com turno ativo.
+      // Técnicos, gestores e operadores recebem o aviso quando estiverem
+      // ONLINE ou EM SERVIÇO, desde que o turno esteja ativo.
       .filter((p: { id: string; perfil: string }) => onlineIds.has(p.id))
       .map((p: { id: string }) => p.id)
-    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE para receber a nova O.S.' })
+    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE ou EM SERVIÇO para receber a nova O.S.' })
 
     const { data: devices, error: devicesError } = await admin.from('dispositivos')
       .select('token').in('user_id', recipientIds)
@@ -123,7 +123,7 @@ Deno.serve(async (req: Request) => {
     }
     // Última conferência antes de enviar: exige expediente ativo.
     const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')
-      .select('user_id').in('user_id', recipientIds).eq('status', 'ONLINE').eq('turno_ativo', true)
+      .select('user_id').in('user_id', recipientIds).in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
     if (liveStatusError) throw liveStatusError
     const liveIds = (liveStatuses || []).map((s: { user_id: string }) => s.user_id)
     const liveDeviceResult = liveIds.length ? await admin.from('dispositivos').select('token').in('user_id', liveIds) : { data: [], error: null }
@@ -146,7 +146,19 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           message: {
             token: deviceToken,
-            android: { priority: 'HIGH', ttl: '15s' },
+            notification: {
+              title: 'Nova O.S. ' + numero,
+              body: String(os.maquina || 'Máquina não informada') + ' • ' + String(os.setor || 'Setor não informado'),
+            },
+            android: {
+              priority: 'HIGH',
+              ttl: '15s',
+              notification: {
+                channel_id: 'chamados',
+                sound: 'alarme',
+                visibility: 'PUBLIC',
+              },
+            },
             data,
           },
         }),
