@@ -3298,7 +3298,7 @@ async function prepararPDF(){
       if(cabecalhoDuplicado)cabecalhoDuplicado.remove();
       const originais=metricas.querySelectorAll('canvas'),copias=conteudo.querySelectorAll('canvas');
       Array.from(originais).forEach((canvas,i)=>{if(copias[i]){const img=document.createElement('img');img.src=canvas.toDataURL('image/png');img.style.maxWidth='100%';copias[i].replaceWith(img);}});
-      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}
+      const html=`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}
 /* ===== VISUAL MODERNO DAS ORDENS DE SERVIÇO ===== */
 .os-card{position:relative;border:1px solid #e5eaf1;border-left:4px solid var(--primary);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 5px 18px rgba(15,23,42,.055);transition:box-shadow .2s ease,transform .2s ease}
 .os-card:focus-within{box-shadow:0 0 0 3px rgba(37,99,235,.12),0 8px 22px rgba(15,23,42,.08)}
@@ -3315,7 +3315,7 @@ async function prepararPDF(){
 .os-swipe:active .os-swipe-knob{cursor:grabbing}
 .os-actions .btn-action{min-height:40px;border-radius:10px}
 @media(max-width:480px){.os-card{padding:13px;border-radius:14px}.os-problema{padding:11px}.os-swipe{min-height:56px}.os-swipe-knob{width:46px;height:46px}}
-</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+conteudo.innerHTML+'</main></body></html>';
+</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main></body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
     return;
