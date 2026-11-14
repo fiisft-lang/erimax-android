@@ -24,8 +24,9 @@ public class IncomingCallActivity extends Activity {
     if (Build.VERSION.SDK_INT >= 27) setShowWhenLocked(true);
     if (Build.VERSION.SDK_INT >= 27) setTurnScreenOn(true);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    getWindow().setStatusBarColor(Color.BLACK);
-    getWindow().setNavigationBarColor(Color.BLACK);
+    getWindow().setStatusBarColor(Color.rgb(248, 250, 252));
+    getWindow().setNavigationBarColor(Color.rgb(248, 250, 252));
+    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
     osId = getIntent().getStringExtra("os_id");
     if (osId == null) osId = "";
     String notificationAction = getIntent().getStringExtra("notification_action");
@@ -41,11 +42,11 @@ public class IncomingCallActivity extends Activity {
     LinearLayout root = new LinearLayout(this);
     root.setOrientation(1);
     root.setGravity(Gravity.CENTER);
-    root.setPadding(dp(24), dp(42), dp(24), dp(34));
-    root.setBackgroundColor(Color.BLACK);
+    root.setPadding(dp(20), dp(28), dp(20), dp(24));
+    root.setBackgroundColor(Color.rgb(248, 250, 252));
 
-    TextView brand = label("ERIMAX • MANUTENÇÃO", 15, Color.rgb(160, 174, 192));
-    TextView title = label(transferencia ? "TRANSFERÊNCIA DE O.S. AGUARDANDO ACEITE" : "NOVA ORDEM DE SERVIÇO", 23, Color.WHITE);
+    TextView brand = label("ERIMAX  •  MANUTENÇÃO", 13, Color.rgb(100, 116, 139));
+    TextView title = label(transferencia ? "Transferência de O.S." : "Nova ordem de serviço", 23, Color.rgb(15, 23, 42));
     title.setTypeface(null, Typeface.BOLD);
     TextView detail = label((number == null ? "Nova O.S." : number)
       + "\nSetor: " + (sector == null ? "Não informado" : sector)
@@ -53,8 +54,16 @@ public class IncomingCallActivity extends Activity {
     detail.setTypeface(null, Typeface.BOLD);
     root.addView(brand);
     root.addView(title);
-    root.addView(detail);
-    root.addView(label("Deslize uma das opções para continuar", 14, Color.LTGRAY));
+    android.graphics.drawable.GradientDrawable infoBg = new android.graphics.drawable.GradientDrawable();
+    infoBg.setColor(Color.WHITE);
+    infoBg.setCornerRadius(dp(18));
+    infoBg.setStroke(dp(1), Color.rgb(226, 232, 240));
+    detail.setBackground(infoBg);
+    detail.setPadding(dp(18), dp(18), dp(18), dp(18));
+    LinearLayout.LayoutParams detailParams = new LinearLayout.LayoutParams(-1, -2);
+    detailParams.setMargins(0, dp(18), 0, dp(12));
+    root.addView(detail, detailParams);
+    root.addView(label("Arraste o botão para cima para escolher", 14, Color.rgb(100, 116, 139)));
     LinearLayout actions = new LinearLayout(this);
     actions.setOrientation(0);
     actions.setGravity(Gravity.CENTER);
@@ -76,21 +85,21 @@ public class IncomingCallActivity extends Activity {
     LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(0, -2, 1f);
     itemParams.setMargins(dp(7), 0, dp(7), 0);
 
-    TextView title = label(hint, 12, Color.WHITE);
+    TextView title = label(hint, 12, Color.rgb(51, 65, 85));
     title.setTypeface(null, Typeface.BOLD);
     item.addView(title, new LinearLayout.LayoutParams(-1, dp(48)));
 
     FrameLayout track = new FrameLayout(this);
     android.graphics.drawable.GradientDrawable trackBg = new android.graphics.drawable.GradientDrawable();
-    trackBg.setColor(Color.rgb(38, 43, 52));
+    trackBg.setColor(Color.rgb(241, 245, 249));
     trackBg.setCornerRadius(dp(34));
-    trackBg.setStroke(dp(1), Color.rgb(86, 96, 110));
+    trackBg.setStroke(dp(1), Color.rgb(203, 213, 225));
     track.setBackground(trackBg);
     LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(dp(82), dp(148));
     trackParams.gravity = Gravity.CENTER_HORIZONTAL;
     trackParams.topMargin = dp(5);
 
-    TextView hintView = label("↑", 22, Color.LTGRAY);
+    TextView hintView = label("↑", 22, Color.rgb(100, 116, 139));
     hintView.setTypeface(null, Typeface.BOLD);
     FrameLayout.LayoutParams hintParams = new FrameLayout.LayoutParams(-1, dp(48), Gravity.TOP);
     track.addView(hintView, hintParams);
@@ -133,7 +142,7 @@ public class IncomingCallActivity extends Activity {
       return true;
     });
     item.addView(track, trackParams);
-    TextView instruction = label("ARRASTE PARA CIMA", 10, Color.LTGRAY);
+    TextView instruction = label("ARRASTE PARA CIMA", 10, Color.rgb(100, 116, 139));
     item.addView(instruction, new LinearLayout.LayoutParams(-1, dp(34)));
     row.addView(item, itemParams);
   }
