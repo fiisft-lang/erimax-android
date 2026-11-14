@@ -994,6 +994,9 @@ html.erimax-app-android .os-card .os-vertical-caption{font-size:.68rem;font-weig
 html.erimax-app-android .os-card .os-vertical-track{position:relative;width:62px;height:96px;display:flex;align-items:flex-end;justify-content:center;padding:4px;box-sizing:border-box;border:1px solid #dfe7ef;border-radius:999px;background:linear-gradient(to top,#eaf0f6 var(--os-vertical-progresso,0%),#f7f9fc var(--os-vertical-progresso,0%));box-shadow:inset 0 2px 5px rgba(28,48,70,.06);touch-action:none;user-select:none;-webkit-user-select:none}
 html.erimax-app-android .os-card .os-vertical-knob{position:relative;z-index:2;width:52px;height:52px;min-width:52px;min-height:52px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:50%;box-sizing:border-box;background:linear-gradient(145deg,#3288dc,#1762ad);color:#fff;font-size:23px;font-weight:800;box-shadow:0 4px 12px rgba(23,92,168,.24);will-change:transform}
 html.erimax-app-android .os-card .os-vertical-action.mute .os-vertical-knob{background:linear-gradient(145deg,#8997a8,#657487);font-size:20px}
+html.erimax-app-android .os-card .os-vertical-action.reject .os-vertical-knob{background:linear-gradient(145deg,#ef8b8b,#c94b58);font-size:22px}
+html.erimax-app-android .os-card .os-transfer-actions{margin-top:12px}
+html.erimax-app-android .os-card .os-transfer-actions .os-vertical-action small{color:#8793a2}
 html.erimax-app-android .os-card .os-vertical-action small{font-size:.65rem;color:#91a0af;font-weight:650}
 html.erimax-app-android .os-card .os-vertical-hint{position:absolute;top:8px;left:0;right:0;text-align:center;color:#8a9aab;font-size:15px;font-weight:800;pointer-events:none}
 @media(max-width:360px){html.erimax-app-android .os-card .os-vertical-actions{gap:10px;padding:12px 8px}html.erimax-app-android .os-card .os-vertical-track{width:58px;height:90px}html.erimax-app-android .os-card .os-vertical-knob{width:48px;height:48px;min-width:48px;min-height:48px}}
@@ -1888,7 +1891,10 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
       if(podeConcluir)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
-      if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';b+='<button class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';}
+      if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
+        if(document.documentElement.classList.contains('erimax-app-android'))b+='<div class="os-vertical-actions os-transfer-actions" role="group" aria-label="Decisão da transferência da ordem de serviço"><div class="os-vertical-action accept"><span class="os-vertical-caption">ACEITAR</span><div class="os-vertical-track" onpointerdown="iniciarArrasteAcaoOS(event,'+id+',\'aceitar_transferencia\')" onpointermove="moverArrasteAcaoOS(event,'+id+',\'aceitar_transferencia\')" onpointerup="finalizarArrasteAcaoOS(event,'+id+',\'aceitar_transferencia\')" onpointercancel="cancelarArrasteAcaoOS('+id+',\'aceitar_transferencia\')"><span class="os-vertical-hint">↑</span><span class="os-vertical-knob" aria-hidden="true">✓</span></div><small>Arraste para cima</small></div><div class="os-vertical-action reject"><span class="os-vertical-caption">RECUSAR</span><div class="os-vertical-track" onpointerdown="iniciarArrasteAcaoOS(event,'+id+',\'recusar_transferencia\')" onpointermove="moverArrasteAcaoOS(event,'+id+',\'recusar_transferencia\')" onpointerup="finalizarArrasteAcaoOS(event,'+id+',\'recusar_transferencia\')" onpointercancel="cancelarArrasteAcaoOS('+id+',\'recusar_transferencia\')"><span class="os-vertical-hint">↑</span><span class="os-vertical-knob" aria-hidden="true">✕</span></div><small>Arraste para cima</small></div></div>';
+        else{b+='<button class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';b+='<button class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';}
+      }
     }else if(status==='Pausada'){
       const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
@@ -1961,7 +1967,8 @@ async function finalizarArrasteAcaoOS(event,id,acao){
   else if(acao==='silenciar'){
     desligarAlarme();
     mostrarToastOS('🔕 Alerta sonoro e vibração silenciados.');
-  }
+  }else if(acao==='aceitar_transferencia')await aceitarTransferenciaOS(id);
+  else if(acao==='recusar_transferencia')await recusarTransferenciaOS(id);
 }
 function cancelarArrasteAcaoOS(id,acao){
   const chave=id+':'+acao,estado=ARRasteAcaoOS[chave];
