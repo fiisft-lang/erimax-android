@@ -1010,7 +1010,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
     const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&tecnicoAtual):(gestor||tecnicoAtual);
-    if(status==='Aberta'&&(gestor||(PERFIL&&PERFIL.perfil==='tecnico')))b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir OS</button>';
+    if(status==='Aberta'&&PERFIL&&PERFIL.perfil==='tecnico')b+='<div class="os-swipe" role="group" aria-label="Arraste para aceitar a ordem de serviço" onpointerdown="iniciarArrasteOS(event,'+id+')" onpointermove="moverArrasteOS(event,'+id+')" onpointerup="finalizarArrasteOS(event,'+id+')" onpointercancel="cancelarArrasteOS('+id+')"><span class="os-swipe-label">Arraste para aceitar a O.S.</span><span class="os-swipe-hint">→</span><span class="os-swipe-knob" aria-hidden="true">➜</span></div>';
+    else if(status==='Aberta'&&gestor)b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir O.S.</button>';
     else if(status==='Em Atendimento'){
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
       if(podeConcluir)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
@@ -1033,7 +1034,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
-    html+='<p style="margin:6px 0;background:#f8fafc;padding:6px;border-radius:4px;font-size:.85rem;border:1px solid #e2e8f0"><b>Operador:</b> "'+escaparHtml(os.descricao)+'"</p>';
+    html+='<div class="os-problema"><span class="os-problema-titulo">⚠️ Problema relatado pelo operador</span><p>'+escaparHtml(os.descricao||'Problema não informado')+'</p></div>';
     const execucao=Array.isArray(os.maquinas_execucao)?os.maquinas_execucao:[];
     if(execucao.length){
       const feitas=execucao.filter(m=>m.concluida).length;
@@ -1055,6 +1056,50 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
 }
 
 function salvarNomeTecnico(){localStorage.setItem('erimax_tecnico',document.getElementById('nomeTecnico').value);renderizarChamados()}
+
+// Controle de arraste para aceite de O.S. (somente interface; a validação de disponibilidade continua em assumirOS).
+const ARRasteOS = window.__erimaxArrasteOS || (window.__erimaxArrasteOS = {});
+function iniciarArrasteOS(event,id){
+  if(event.button!==undefined&&event.button!==0)return;
+  const trilha=event.currentTarget,botao=trilha.querySelector('.os-swipe-knob');
+  if(!botao)return;
+  trilha.setPointerCapture?.(event.pointerId);
+  ARRasteOS[id]={trilha,botao,progresso:0,pointerId:event.pointerId};
+  moverArrasteOS(event,id);
+}
+function moverArrasteOS(event,id){
+  const estado=ARRasteOS[id];
+  if(!estado||estado.pointerId!==event.pointerId)return;
+  const area=estado.trilha.getBoundingClientRect();
+  const largura=estado.botao.offsetWidth||48;
+  const limite=Math.max(0,area.width-largura-8);
+  const posicao=Math.max(0,Math.min(limite,event.clientX-area.left-largura/2));
+  estado.progresso=limite?posicao/limite:0;
+  estado.botao.style.transform='translateX('+posicao+'px)';
+  estado.trilha.style.setProperty('--os-swipe-progresso',(estado.progresso*100)+'%');
+  const label=estado.trilha.querySelector('.os-swipe-label');
+  if(label)label.textContent=estado.progresso>=0.88?'Solte para aceitar':'Arraste para aceitar a O.S.';
+}
+async function finalizarArrasteOS(event,id){
+  const estado=ARRasteOS[id];
+  if(!estado)return;
+  const aceitar=estado.progresso>=0.88;
+  delete ARRasteOS[id];
+  estado.botao.style.transform='';
+  estado.trilha.style.setProperty('--os-swipe-progresso','0%');
+  const label=estado.trilha.querySelector('.os-swipe-label');
+  if(label)label.textContent='Arraste para aceitar a O.S.';
+  if(aceitar)await assumirOS(id);
+}
+function cancelarArrasteOS(id){
+  const estado=ARRasteOS[id];
+  if(!estado)return;
+  delete ARRasteOS[id];
+  estado.botao.style.transform='';
+  estado.trilha.style.setProperty('--os-swipe-progresso','0%');
+  const label=estado.trilha.querySelector('.os-swipe-label');
+  if(label)label.textContent='Arraste para aceitar a O.S.';
+}
 
 // Mesmo em serviço, o técnico recebe alertas de novas O.S.; assumir continua exigindo ONLINE.
 async function assumirOS(id){
@@ -2468,7 +2513,24 @@ async function prepararPDF(){
       if(cabecalhoDuplicado)cabecalhoDuplicado.remove();
       const originais=metricas.querySelectorAll('canvas'),copias=conteudo.querySelectorAll('canvas');
       Array.from(originais).forEach((canvas,i)=>{if(copias[i]){const img=document.createElement('img');img.src=canvas.toDataURL('image/png');img.style.maxWidth='100%';copias[i].replaceWith(img);}});
-      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+conteudo.innerHTML+'</main></body></html>';
+      const html='<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' @page{size:A4 portrait;margin:12mm}body{background:#fff!important;color:#111!important}.nav-tabs,.user-bar,.noprint,#filtrosMetricas{display:none!important}#printReportHeader{display:block!important}
+/* ===== VISUAL MODERNO DAS ORDENS DE SERVIÇO ===== */
+.os-card{position:relative;border:1px solid #e5eaf1;border-left:4px solid var(--primary);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 5px 18px rgba(15,23,42,.055);transition:box-shadow .2s ease,transform .2s ease}
+.os-card:focus-within{box-shadow:0 0 0 3px rgba(37,99,235,.12),0 8px 22px rgba(15,23,42,.08)}
+.os-header{gap:10px;align-items:flex-start;margin-bottom:10px}
+.os-id{font-size:.98rem;line-height:1.35;letter-spacing:-.01em}
+.os-badge{flex:none;padding:5px 10px;font-size:.68rem;letter-spacing:.01em}
+.os-problema{margin:12px 0;padding:12px 13px;background:linear-gradient(135deg,#fff8ed,#fff);border:1px solid #fed7aa;border-left:4px solid #f59e0b;border-radius:12px}
+.os-problema-titulo{display:block;margin-bottom:6px;color:#9a3412;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.045em}
+.os-problema p{margin:0;color:#334155;font-size:.9rem;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.os-swipe{--os-swipe-progresso:0%;position:relative;display:flex;align-items:center;justify-content:center;min-height:58px;width:100%;margin-top:12px;padding:5px 12px;border:1px solid #bfdbfe;border-radius:999px;background:linear-gradient(90deg,#dbeafe var(--os-swipe-progresso),#f1f5f9 var(--os-swipe-progresso));overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.os-swipe-label{position:relative;z-index:1;color:#1e40af;font-size:.8rem;font-weight:800;pointer-events:none;text-align:center}
+.os-swipe-hint{position:absolute;right:17px;color:#64748b;font-size:1rem;pointer-events:none}
+.os-swipe-knob{position:absolute;z-index:2;left:5px;top:5px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(145deg,#2563eb,#1d4ed8);color:#fff;font-size:1.35rem;font-weight:800;box-shadow:0 3px 9px rgba(37,99,235,.3);cursor:grab;will-change:transform;transition:transform .12s ease}
+.os-swipe:active .os-swipe-knob{cursor:grabbing}
+.os-actions .btn-action{min-height:40px;border-radius:10px}
+@media(max-width:480px){.os-card{padding:13px;border-radius:14px}.os-problema{padding:11px}.os-swipe{min-height:56px}.os-swipe-knob{width:46px;height:46px}}
+</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">'+cab.innerHTML+'</section><main>'+conteudo.innerHTML+'</main></body></html>';
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
     return;
