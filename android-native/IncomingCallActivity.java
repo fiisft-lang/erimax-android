@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class IncomingCallActivity extends Activity {
@@ -21,12 +22,19 @@ public class IncomingCallActivity extends Activity {
 
   @Override protected void onCreate(Bundle state) {
     super.onCreate(state);
-    if (Build.VERSION.SDK_INT >= 27) setShowWhenLocked(true);
-    if (Build.VERSION.SDK_INT >= 27) setTurnScreenOn(true);
-    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    getWindow().setStatusBarColor(Color.rgb(248, 250, 252));
-    getWindow().setNavigationBarColor(Color.rgb(248, 250, 252));
-    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+    // Compatibilidade reforçada: mantém a Activity visível sobre a tela bloqueada
+    // também em aparelhos que dependem das flags clássicas da janela.
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+      | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+      | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    if (Build.VERSION.SDK_INT >= 27) {
+      setShowWhenLocked(true);
+      setTurnScreenOn(true);
+    }
+    // Evita forçar o modo de barras claras, que varia entre fabricantes/versões.
+    // O conteúdo continua claro; as barras do sistema ficam no padrão anterior.
+    getWindow().setStatusBarColor(Color.BLACK);
+    getWindow().setNavigationBarColor(Color.BLACK);
     osId = getIntent().getStringExtra("os_id");
     if (osId == null) osId = "";
     String notificationAction = getIntent().getStringExtra("notification_action");
@@ -74,7 +82,14 @@ public class IncomingCallActivity extends Activity {
     addSwipeAction(actions, transferencia ? "RECUSAR TRANSFERÊNCIA" : "SILENCIAR", transferencia ? "✕" : "🔕", Color.rgb(220, 38, 38), transferencia ? this::rejectTransfer : this::dismissCall);
     addSwipeAction(actions, transferencia ? "ACEITAR TRANSFERÊNCIA" : "ACEITAR O.S.", "✓", Color.rgb(22, 163, 74), this::answerCall);
     root.addView(actions);
-    setContentView(root);
+    // A descrição pode ser longa e a altura útil muda conforme o aparelho.
+    // ScrollView impede que os controles fiquem fora da tela ou sejam cortados.
+    ScrollView scroll = new ScrollView(this);
+    scroll.setFillViewport(true);
+    scroll.setBackgroundColor(Color.rgb(248, 250, 252));
+    scroll.setClipToPadding(false);
+    scroll.addView(root, new ScrollView.LayoutParams(-1, -2));
+    setContentView(scroll);
   }
 
   private int dp(int value) {
