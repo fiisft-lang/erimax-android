@@ -770,6 +770,149 @@ header .hd{
 }
 </style>
 
+
+<style id="erimax-quinta-etapa">
+/* Quinta etapa: leitura rápida e organização dos cartões de O.S. */
+.os-card{
+  position:relative;
+  padding:17px;
+  border:1px solid #dce6ef;
+  border-left:4px solid #2878b8;
+  border-radius:17px;
+  background:linear-gradient(150deg,#fff 0%,#fbfdff 100%);
+  box-shadow:0 5px 17px rgba(28,67,103,.055);
+}
+.os-card.prioridade-Alta{border-left-color:#dc4545}
+.os-card.prioridade-Média{border-left-color:#e99a37}
+.os-card.prioridade-Baixa{border-left-color:#3a9b75}
+.os-card .os-header{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:9px;
+}
+.os-card .os-id{
+  min-width:0;
+  color:#234b6d;
+  font-size:1rem;
+  font-weight:850;
+  letter-spacing:-.02em;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.os-card .os-badge{
+  flex:none;
+  min-height:25px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 10px;
+  border:1px solid rgba(40,70,100,.08);
+  border-radius:999px;
+  font-size:.68rem;
+  font-weight:850;
+  letter-spacing:.015em;
+}
+.os-card>p{
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.os-card>p[style*="font-size:.75rem"]{
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px 6px;
+  padding:8px 10px;
+  border:1px solid #e8eef4;
+  border-radius:10px;
+  background:#f6f9fc;
+  color:#5e7388!important;
+  font-size:.74rem!important;
+}
+.os-card>p[style*="color:var(--primary-dark)"]{
+  margin-top:8px;
+  color:#365f80!important;
+}
+.os-card .os-problema{
+  margin:12px 0;
+  padding:13px 14px;
+  border-radius:13px;
+  background:linear-gradient(135deg,#fff8ee 0%,#fff 100%);
+  border:1px solid #f4d7b6;
+  border-left:4px solid #f28b38;
+}
+.os-card .os-problema-titulo{
+  font-size:.7rem;
+  letter-spacing:.05em;
+  font-weight:850;
+}
+.os-card .os-problema p{
+  font-size:.88rem;
+  line-height:1.55;
+}
+.os-card .os-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:stretch;
+  margin-top:13px;
+  padding-top:12px;
+  border-top:1px solid #e9eff5;
+}
+.os-card .os-actions .btn-action{
+  min-height:39px;
+  flex:1 1 145px;
+  margin:0;
+  padding:9px 12px;
+  border-radius:10px;
+  font-size:.75rem;
+  font-weight:800;
+  line-height:1.25;
+  box-shadow:0 2px 5px rgba(30,64,96,.07);
+}
+.os-card .os-actions .btn-excluir{
+  flex:0 1 auto;
+}
+.os-card .os-swipe{
+  margin-top:13px;
+  border-color:#c6dff1;
+  background:linear-gradient(90deg,#d9ecfa var(--os-swipe-progresso),#f2f7fb var(--os-swipe-progresso));
+}
+.os-card [data-tempo-parada-os],
+.os-card [data-tempo-pausa-os]{
+  font-variant-numeric:tabular-nums;
+  font-weight:800;
+}
+.os-card img[alt="Foto da ordem de serviço"]{
+  display:block;
+  border:1px solid #e1e9f0;
+  border-radius:12px!important;
+  background:#f4f7fa;
+}
+@media(min-width:700px){
+  .os-card{padding:18px 19px}
+  .os-card .os-actions .btn-action{flex:0 1 auto;min-width:145px}
+}
+@media(max-width:600px){
+  .os-card{padding:13px;border-radius:15px;margin-bottom:12px}
+  .os-card .os-id{font-size:.93rem}
+  .os-card .os-header{gap:7px}
+  .os-card .os-badge{font-size:.65rem;padding:5px 9px}
+  .os-card>p[style*="font-size:.75rem"]{padding:7px 8px}
+  .os-card .os-problema{padding:11px 12px}
+  .os-card .os-actions{gap:7px}
+  .os-card .os-actions .btn-action{flex:1 1 calc(50% - 7px);min-width:0;min-height:42px;padding:9px 8px;font-size:.72rem}
+  .os-card .os-actions .btn-excluir{flex:1 1 100%}
+}
+@media(max-width:360px){
+  .os-card .os-actions .btn-action{flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .os-card{transition:none}
+}
+</style>
+
 </head>
 <body>
 <header><img class="logo" alt="Erimax"><div class="hd">Gestão de<br>Manutenção</div></header>
