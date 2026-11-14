@@ -12,7 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--primary:#0056b3;--primary-dark:#003d80;--secondary:#ff6b00;--bg:#f4f7f9;--card:#fff;--text:#2c3e50;--danger:#dc3545;--warning:#ffc107;--success:#28a745;--border:#e2e8f0}
+:root{--primary:#2878b8;--primary-dark:#205f91;--secondary:#f28b38;--bg:#f4f7fb;--card:#fff;--text:#26384b;--danger:#dc3545;--warning:#e9a23b;--success:#249b68;--border:#e2eaf2}
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
 body{background:var(--bg);color:var(--text);padding-bottom:50px}
 header{background:var(--primary);color:#fff;padding:14px 16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15);position:sticky;top:0;z-index:100}
@@ -148,6 +148,177 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 #alertaPreventivaApp .prev-alerta-linha small{display:block;color:#876b35;font-size:.7rem}
 #alertaPreventivaApp .prev-alerta-mais{display:block;margin-top:3px;color:#876b35}
 #alertaPreventivaApp .prev-alerta-fechar{font-size:1.1rem;color:#9b7b3b;line-height:1}
+
+/* ===== IDENTIDADE VISUAL ERIMAX — CLEAN PREMIUM ===== */
+:root{
+  --primary:#2878b8;
+  --primary-dark:#205f91;
+  --secondary:#f28b38;
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --text:#26384b;
+  --border:#e2eaf2;
+}
+body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+header{
+  background:rgba(255,255,255,.97);
+  border-bottom:1px solid #e4ebf3;
+  box-shadow:0 3px 16px rgba(27,65,102,.055);
+  padding-inline:clamp(14px,3vw,28px);
+}
+header img.logo{height:42px;max-width:min(48vw,190px);object-fit:contain;object-position:left center}
+header .hd{color:#55718c;letter-spacing:.075em;font-size:.65rem}
+.user-bar{background:#edf4fa;color:#315d83;border-bottom:1px solid #e2eaf2;padding:8px clamp(12px,3vw,24px)}
+.nav-tabs{
+  background:rgba(255,255,255,.98);
+  border-bottom:1px solid #e2eaf2;
+  box-shadow:0 5px 16px rgba(30,65,100,.045);
+  backdrop-filter:blur(12px);
+}
+.tab-btn{
+  color:#63778b;
+  font-weight:650;
+  letter-spacing:.005em;
+  border-bottom-width:3px;
+  transition:color .18s ease,background .18s ease,border-color .18s ease;
+}
+.tab-btn.active{color:var(--primary);background:#f1f7fc;border-bottom-color:var(--secondary)}
+.card{
+  border:1px solid #e5ebf2;
+  border-radius:15px;
+  box-shadow:0 5px 18px rgba(27,55,85,.045);
+}
+.card h3,.card h4{letter-spacing:.015em}
+input,select,textarea{
+  background:#fbfcfe;
+  border:1px solid #dce5ee;
+  border-radius:10px;
+  color:#26384b;
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:#70a6d1;
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(40,120,184,.12);
+}
+label{color:#52677c;letter-spacing:.025em}
+.btn-submit,.btn-assumir{
+  background:linear-gradient(135deg,#347fb8,#246da8);
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(40,120,184,.14);
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+.btn-submit:active,.btn-assumir:active,.btn-action:active{transform:translateY(1px);filter:brightness(.97)}
+.btn-concluir{background:#f28b38;color:#fff}
+.btn-action{border-radius:9px;min-height:38px}
+.os-card{
+  border-radius:15px;
+  border-color:#e4ebf2;
+  box-shadow:0 4px 15px rgba(27,55,85,.045);
+}
+.metric-card{
+  border-radius:14px;
+  background:linear-gradient(155deg,#fff 0%,#f9fbfe 100%);
+}
+.metric-card .value{color:var(--primary)}
+#barraAtivacaoAudio{
+  background:linear-gradient(90deg,#e98a3e,#f2a04e);
+  box-shadow:0 3px 10px rgba(180,103,39,.12);
+  letter-spacing:.015em;
+}
+#login{
+  overflow:auto;
+  background:
+    radial-gradient(ellipse at 12% 18%,rgba(71,143,196,.17),transparent 38%),
+    radial-gradient(ellipse at 88% 82%,rgba(242,139,56,.13),transparent 34%),
+    linear-gradient(135deg,#eaf2f9 0%,#f5f8fc 52%,#fff5eb 100%);
+  isolation:isolate;
+}
+#login::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  opacity:.32;
+  background-image:linear-gradient(rgba(55,105,150,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(55,105,150,.055) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:linear-gradient(120deg,#000,transparent 78%);
+}
+#login .box{
+  width:min(100%,410px);
+  max-height:min(90vh,760px);
+  padding:clamp(24px,5vw,34px);
+  border:1px solid rgba(255,255,255,.9);
+  border-top:4px solid var(--secondary);
+  border-radius:22px;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 24px 70px rgba(38,75,110,.16),0 3px 12px rgba(38,75,110,.055);
+  backdrop-filter:blur(16px);
+}
+#login .box img.logo{
+  max-width:240px;
+  width:78%;
+  max-height:90px;
+  height:auto;
+  object-fit:contain;
+  margin:0 auto 18px!important;
+  filter:drop-shadow(0 3px 5px rgba(28,60,90,.08));
+}
+#login .box h2{
+  color:#285f8d;
+  font-size:1.42rem;
+  font-weight:750;
+  letter-spacing:-.025em;
+  margin-bottom:22px;
+}
+#login .box h2::after{
+  content:"GESTÃO INTELIGENTE DE MANUTENÇÃO";
+  display:block;
+  margin-top:7px;
+  color:#8a9bad;
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.13em;
+}
+#login .form-group{margin-bottom:17px}
+#login label{font-size:.7rem}
+#login input{
+  min-height:48px;
+  padding:13px 14px;
+  background:#f8fafc;
+  border-color:#dce6ef;
+}
+#login .btn-submit{
+  min-height:49px;
+  margin-top:5px;
+  font-size:.95rem;
+  letter-spacing:.015em;
+  background:linear-gradient(110deg,#347fb8,#246da8);
+}
+@media(min-width:760px){
+  #login{padding:32px}
+  #login .box{width:420px}
+}
+@media(max-width:480px){
+  header img.logo{height:37px;max-width:46vw}
+  header .hd{font-size:.59rem}
+  #login{padding:18px}
+  #login .box{border-radius:19px;padding:24px 21px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
+
+
+/* Navegação com ícones vetoriais consistentes */
+.nav-tabs{align-items:stretch;gap:2px;padding:4px clamp(4px,1vw,10px)}
+.tab-btn{display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;padding:9px 10px}
+.tab-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 19px;width:19px;height:19px;color:#6f8ba4}
+.tab-icon svg{display:block;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn.active .tab-icon{color:var(--primary)}
+.tab-btn .badge-count{margin-left:-3px}
+@media(max-width:600px){.nav-tabs{gap:1px;padding:3px}.tab-btn{gap:5px;padding:8px 4px;min-height:48px;font-size:.7rem}.tab-icon,.tab-icon svg{width:17px;height:17px;flex-basis:17px}}
 </style>
 </head>
 <body>
@@ -165,15 +336,15 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 </div>
 
 <nav class="nav-tabs">
-<button class="tab-btn active" type="button" onclick="mudarAba('abrir',event)">📝 Abrir OS</button>
-<button id="tbOrdensServico" class="tab-btn" type="button" onclick="mudarAba('ordens-servico',event)">🛠️ Ordens de Serviço <span id="badgePendentes" class="badge-count">0</span></button>
-<button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)">🏭 Supervisão</button>
-<button id="tbOrdensAbertas" class="tab-btn" type="button" onclick="mudarAba('ordens-abertas',event)" style="display:none">📂 Ordens Abertas</button>
-<button id="tbOrdensPausadas" class="tab-btn" type="button" onclick="mudarAba('ordens-pausadas',event)" style="display:none">⏸️ Ordens Pausadas</button>
-<button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)">📊 Métricas</button>
-<button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)">⚙️ Cadastro</button>
-<button id="tbPresenca" class="tab-btn" type="button" onclick="mudarAba('presenca',event)" style="display:none">👥 Conectados</button>
-<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🔎 Consultas</button>
+<button class="tab-btn active" type="button" onclick="mudarAba('abrir',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8a2 2 0 0 1 2 2v14H6V6a2 2 0 0 1 2-2Z"/><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h3"/></svg></span><span>Abrir OS</span></button>
+<button id="tbOrdensServico" class="tab-btn" type="button" onclick="mudarAba('ordens-servico',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4l-3 3-3-3 3-3Z"/></svg></span><span>Ordens de Serviço</span> <span id="badgePendentes" class="badge-count">0</span></button>
+<button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l6 3V8l6 4V5h4v16H3Z"/><path d="M7 17h2m3 0h2m3 0h2M16 5V3h3v2"/></svg></span><span>Supervisão</span></button>
+<button id="tbOrdensAbertas" class="tab-btn" type="button" onclick="mudarAba('ordens-abertas',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></span><span>Ordens Abertas</span></button>
+<button id="tbOrdensPausadas" class="tab-btn" type="button" onclick="mudarAba('ordens-pausadas',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zM15 5h3v14h-3z"/></svg></span><span>Ordens Pausadas</span></button>
+<button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h17"/><path d="m7 15 4-4 3 2 5-6"/></svg></span><span>Métricas</span></button>
+<button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z"/></svg></span><span>Cadastro</span></button>
+<button id="tbPresenca" class="tab-btn" type="button" onclick="mudarAba('presenca',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1H3Zm13-9a3 3 0 1 0-1-5.8M17 14a5 5 0 0 1 4 5v1h-3"/></svg></span><span>Conectados</span></button>
+<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><span>Consultas</span></button>
 </nav>
 
 <div class="container">
