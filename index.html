@@ -943,6 +943,16 @@ body.menu-lateral-aberto .nav-tabs{transform:translateX(0)}
 }
 @media(prefers-reduced-motion:reduce){#menuBackdrop,.nav-tabs,.menu-toggle span{transition:none}}
 </style>
+<style id="erimax-os-premium-nov14">
+.os-card .os-problema{display:block!important;visibility:visible!important;opacity:1!important;margin:14px 0!important;padding:15px 16px!important;border:1px solid #f3d2ad!important;border-left:5px solid #f28b38!important;border-radius:15px!important;background:linear-gradient(135deg,#fff7eb 0%,#fff 82%)!important;box-shadow:0 5px 16px rgba(148,91,34,.07)}
+.os-card .os-problema-titulo{display:block!important;margin-bottom:7px;color:#9a4c12;font-size:.72rem;font-weight:850;letter-spacing:.06em}
+.os-card .os-problema p{display:block!important;margin:0!important;color:#26384b;font-size:.94rem!important;font-weight:550;line-height:1.6!important;white-space:pre-wrap;overflow-wrap:anywhere}
+.os-card .os-swipe{min-height:64px!important;border-radius:999px!important;border:1px solid #c8dff1!important;background:linear-gradient(90deg,#dceeff var(--os-swipe-progresso),#f3f7fb var(--os-swipe-progresso))!important;box-shadow:inset 0 1px 3px rgba(30,64,96,.06),0 4px 12px rgba(30,64,96,.06)}
+.os-card .os-swipe-knob{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;aspect-ratio:1/1!important;box-sizing:border-box!important;border-radius:50%!important;clip-path:circle(50%)!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(145deg,#338be0,#175ca8)!important;color:#fff!important;border:3px solid #fff!important;box-shadow:0 4px 12px rgba(23,92,168,.28)!important}
+.os-card .os-swipe-label{font-size:.82rem;font-weight:850;letter-spacing:.01em}
+.os-card .os-swipe-hint{right:19px;font-size:1.15rem;color:#47759c}
+@media(max-width:480px){.os-card .os-problema{padding:13px!important}.os-card .os-swipe{min-height:62px!important}.os-card .os-swipe-knob{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}}
+</style>
 </head>
 <body>
 <header><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -1486,24 +1496,30 @@ function mudarAba(id,evt){
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
   if(evt&&evt.currentTarget)evt.currentTarget.classList.add('active');
-  if(id==='painel'||id==='ordens-servico'||id==='ordens-abertas'||id==='ordens-pausadas'||id==='metricas')carregarDadosSupabase();
+  const precisaAtualizar=['painel','ordens-servico','ordens-abertas','ordens-pausadas','metricas'].includes(id);
+  const carregamento=precisaAtualizar?carregarDadosSupabase():Promise.resolve();
   if(id==='painel')renderPainelMaquinasSupervisor();
-  if(id==='ordens-servico')renderizarChamados();
+  if(id==='ordens-servico'&&!precisaAtualizar)renderizarChamados();
   if(id==='presenca'&&MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
+  return carregamento;
 }
 
 async function carregarDadosSupabase(){
-  const {data,error}=await _supabase.from('os').select('*').order('id',{ascending:false});
+  // Consultas independentes em paralelo para reduzir o tempo de abertura das O.S.
+  const [{data,error},{data:hp,error:hpError},{data:ht,error:htError},{data:pf},{data:st,error:stError}]=await Promise.all([
+    _supabase.from('os').select('*').order('id',{ascending:false}),
+    _supabase.from('historico_pausas_os').select('*').order('id',{ascending:false}),
+    _supabase.from('historico_transferencias_os').select('*').order('solicitada_em',{ascending:false}),
+    _supabase.from('perfis').select('id,nome,perfil'),
+    _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em')
+  ]);
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
-  const {data:hp,error:hpError}=await _supabase.from('historico_pausas_os').select('*').order('id',{ascending:false});
   if(hpError)console.error('Erro ao carregar histórico de pausas:',hpError.message);
   HISTORICO_PAUSAS=hp||[];
-  const {data:ht,error:htError}=await _supabase.from('historico_transferencias_os').select('*').order('solicitada_em',{ascending:false});
   if(htError)console.error('Erro ao carregar histórico de transferências:',htError.message);
   HISTORICO_TRANSFERENCIAS=ht||[];
-  const {data:pf}=await _supabase.from('perfis').select('id,nome,perfil');TODOS_USUARIOS=pf||[];TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');popularTecnicosPreventiva();
-  const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
+  TODOS_USUARIOS=pf||[];TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
   if(MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
@@ -1841,7 +1857,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
-    html+='<div class="os-problema"><span class="os-problema-titulo">⚠️ Problema relatado pelo operador</span><p>'+escaparHtml(os.descricao||'Problema não informado')+'</p></div>';
+    html+='<div class="os-problema"><span class="os-problema-titulo">⚠️ Problema relatado pelo operador</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div>';
     const execucao=Array.isArray(os.maquinas_execucao)?os.maquinas_execucao:[];
     if(execucao.length){
       const feitas=execucao.filter(m=>m.concluida).length;
@@ -3075,8 +3091,7 @@ async function abrirOSNoPainel(id){
   const limpar=(id,valor)=>{const el=document.getElementById(id);if(el)el.value=valor};
   limpar('buscaOS','');limpar('ordenarOS','recentes');limpar('filtroPrioridadeOS','Todas');
   limpar('filtroSetorOS','Todos');limpar('filtroTecnicoOS','Todos');limpar('filtroTransferenciaOS','Todas');
-  mudarAba('ordens-servico',null);
-  await carregarDadosSupabase();
+  await mudarAba('ordens-servico',null);
   setTimeout(()=>{
     const el=document.getElementById('os-'+id);
     if(el){
