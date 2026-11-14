@@ -46,7 +46,6 @@ public class IncomingCallActivity extends Activity {
     String sector = getIntent().getStringExtra("setor");
     String number = getIntent().getStringExtra("numero");
     String problem = getIntent().getStringExtra("problema");
-    IncomingCallMessagingService.startAlertAlarm(this);
 
     LinearLayout root = new LinearLayout(this);
     root.setOrientation(1);
@@ -165,7 +164,7 @@ public class IncomingCallActivity extends Activity {
     row.addView(item, itemParams);
   }
   private void stopAlarm() {
-    IncomingCallMessagingService.stopAlert();
+    IncomingCallMessagingService.stopAlert(this);
   }
 
   private TextView label(String text,int size,int color) {
@@ -197,8 +196,4 @@ public class IncomingCallActivity extends Activity {
     ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(osId.hashCode());
   }
 
-  @Override protected void onDestroy() {
-    stopAlarm();
-    super.onDestroy();
-  }
 }
