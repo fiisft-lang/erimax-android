@@ -40,6 +40,7 @@ public class IncomingCallMessagingService extends MessagingService {
       screen.putExtra("maquina", machine);
       screen.putExtra("setor", sector);
       screen.putExtra("numero", number);
+      screen.putExtra("problema", data.getOrDefault("problema", "Não informado"));
       screen.putExtra("acao", transferencia ? "transferencia_os" : "nova_os");
       screen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
       PendingIntent full = PendingIntent.getActivity(this, id.hashCode(), screen,
@@ -79,6 +80,7 @@ public class IncomingCallMessagingService extends MessagingService {
     intent.putExtra("maquina", machine);
     intent.putExtra("setor", sector);
     intent.putExtra("numero", number);
+    intent.putExtra("problema", "");
     intent.putExtra("notification_action", action);
     intent.putExtra("acao", ("aceitar_transferencia".equals(action) || "recusar_transferencia".equals(action)) ? "transferencia_os" : "nova_os");
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
