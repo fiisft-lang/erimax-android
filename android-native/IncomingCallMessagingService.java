@@ -67,7 +67,7 @@ public class IncomingCallMessagingService extends MessagingService {
       KeyguardManager keyguard = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
       // Transferências também precisam tocar com a tela bloqueada: não dependem
       // de a Activity de tela cheia conseguir abrir no Android.
-      if (transferencia || (keyguard != null && !keyguard.isKeyguardLocked())) startAlertAlarm(this);
+      startAlertAlarm(this);
     } else {
       super.onMessageReceived(message);
     }
