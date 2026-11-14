@@ -319,6 +319,132 @@ label{color:#52677c;letter-spacing:.025em}
 .tab-btn.active .tab-icon{color:var(--primary)}
 .tab-btn .badge-count{margin-left:-3px}
 @media(max-width:600px){.nav-tabs{gap:1px;padding:3px}.tab-btn{gap:5px;padding:8px 4px;min-height:48px;font-size:.7rem}.tab-icon,.tab-icon svg{width:17px;height:17px;flex-basis:17px}}
+
+/* ===== Acabamento premium: supervisao, maquinas e graficos ===== */
+#painelMaquinasSupervisor{display:grid;gap:12px}
+#painelMaquinasSupervisor>section.card:first-child{
+ background:linear-gradient(145deg,#fff 0%,#f7faff 100%);
+ border:1px solid #dce7f1;border-radius:18px;
+ box-shadow:0 8px 24px rgba(31,72,112,.07);
+ padding:16px;
+}
+#painelMaquinasSupervisor>section.card:first-child h3{font-size:1.12rem!important;letter-spacing:-.02em}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]{gap:10px!important}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]{
+ border:1px solid #e1eaf3!important;border-left:0!important;border-radius:13px!important;
+ padding:12px 12px 11px!important;background:#fff!important;
+ box-shadow:0 3px 12px rgba(32,76,119,.045);
+ transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]:hover{
+ transform:translateY(-2px);border-color:#b8d2e8!important;
+ box-shadow:0 7px 17px rgba(32,76,119,.09)!important;
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>div{
+ font-weight:700;line-height:1.35;color:#52677c!important;
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>b{
+ display:block;font-size:1.65rem!important;line-height:1.2;margin-top:5px;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]{
+ border:1px solid #e1eaf3!important;border-radius:15px!important;
+ box-shadow:0 4px 15px rgba(32,76,119,.045);
+ background:#fff;transition:border-color .18s ease,box-shadow .18s ease;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor][open]{
+ border-color:#b9d4e9!important;box-shadow:0 7px 20px rgba(32,76,119,.07);
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary{
+ background:linear-gradient(100deg,#f5f9fd,#fff);
+ min-height:64px;transition:background .18s ease;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor][open]>summary{
+ background:linear-gradient(100deg,#eaf4fc,#f8fbfe);
+ border-bottom:1px solid #e4edf5;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary>span:first-child{
+ display:grid;place-items:center;width:36px;height:36px;border-radius:11px;
+ background:#eaf3fb;color:#2878b8;font-size:1.05rem!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]{
+ border:1px solid #e3ebf3!important;border-radius:12px!important;
+ box-shadow:0 2px 8px rgba(32,76,119,.035);
+ transition:border-color .18s ease,box-shadow .18s ease;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina][open]{
+ border-color:#c5d9ea!important;box-shadow:0 5px 14px rgba(32,76,119,.065);
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary{
+ min-height:62px;background:#fff;transition:background .18s ease;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary:hover{
+ background:#f7fafe;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary b{
+ color:#26384b;letter-spacing:.005em;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary>span:first-child{
+ width:10px!important;height:10px!important;box-shadow:0 0 0 4px rgba(40,120,184,.08);
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>div[style*="border-top"]{
+ background:#fbfdff;
+}
+#painelMaquinasSupervisor [role="button"][title*="abrir esta O.S."],
+#painelMaquinasSupervisor [role="button"][title*="histórico completo"]{
+ border-radius:10px!important;border-color:#e2eaf2!important;
+ transition:background .18s ease,border-color .18s ease;
+}
+#painelMaquinasSupervisor [role="button"][title*="abrir esta O.S."]:hover,
+#painelMaquinasSupervisor [role="button"][title*="histórico completo"]:hover{
+ background:#f0f7fd!important;border-color:#b8d2e8!important;
+}
+#painelMaquinasSupervisor [role="button"]:focus-visible{
+ outline:3px solid rgba(40,120,184,.28);outline-offset:2px;
+}
+#metricsDataContent>.card{
+ position:relative;border:1px solid #e1eaf3!important;border-radius:16px!important;
+ box-shadow:0 5px 18px rgba(32,76,119,.055)!important;
+ padding:16px;transition:box-shadow .18s ease,border-color .18s ease;
+}
+#metricsDataContent>.card h4{
+ display:flex;align-items:center;gap:8px;
+ color:#244b70!important;font-size:.96rem;letter-spacing:-.01em;
+}
+#metricsDataContent>.card h4:before{
+ content:"";display:block;flex:0 0 4px;height:19px;border-radius:5px;
+ background:linear-gradient(180deg,#2878b8,#f28b38);
+}
+#metricsDataContent>.metrics-grid .metric-card{
+ border-radius:14px;background:linear-gradient(155deg,#fff,#f7faff);
+ border:1px solid #e1eaf3;box-shadow:0 3px 12px rgba(32,76,119,.045);
+}
+#metricsDataContent>.metrics-grid .metric-card[role="button"]:hover{
+ transform:translateY(-2px);box-shadow:0 7px 17px rgba(32,76,119,.09);
+}
+#metricsDataContent .chart-wrapper{
+ position:relative;border-radius:12px;background:linear-gradient(180deg,#fbfdff,#fff);
+ border:1px solid #edf2f7;padding:10px 8px 4px;
+}
+#metricsDataContent .tbl-wrap{
+ border:1px solid #e3ebf3;border-radius:11px;overflow:hidden;
+}
+#metricsDataContent table{border-collapse:separate;border-spacing:0}
+#metricsDataContent th{background:#edf4fa;color:#385873;font-weight:800}
+#metricsDataContent td{border-color:#edf2f7}
+@media(max-width:600px){
+ #painelMaquinasSupervisor>section.card:first-child{padding:13px;border-radius:15px}
+ #painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ #painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]{padding:10px!important}
+ #painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>b{font-size:1.45rem!important}
+ #painelMaquinasSupervisor>details[data-supervisor-setor]>summary{padding:12px!important}
+ #painelMaquinasSupervisor details[data-supervisor-maquina]>summary{padding:10px!important}
+ #metricsDataContent>.card{padding:13px;border-radius:14px!important}
+ #metricsDataContent .chart-wrapper{padding:6px 3px 2px}
+}
+@media(prefers-reduced-motion:reduce){
+ #painelMaquinasSupervisor *,#metricsDataContent *{transition:none!important}
+}
+
 </style>
 </head>
 <body>
