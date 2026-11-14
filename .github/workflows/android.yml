@@ -92,6 +92,23 @@ jobs:
           ET.ElementTree(root).write(p, encoding="utf-8", xml_declaration=True)
           PY
           npx cap sync android
+          # Cada APK precisa de versionCode maior para o Android/LiveUpdate
+          # reconhecer a atualização nativa e voltar aos arquivos embarcados.
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p = Path("android/app/build.gradle")
+          lines = p.read_text().splitlines()
+          version_code = int(os.environ["GITHUB_RUN_NUMBER"])
+          matches = [i for i, line in enumerate(lines) if line.strip().startswith("versionCode ")]
+          if len(matches) != 1:
+              raise SystemExit("Não foi possível localizar exatamente um versionCode no APK.")
+          i = matches[0]
+          indent = lines[i][:len(lines[i]) - len(lines[i].lstrip())]
+          lines[i] = f"{indent}versionCode {version_code}"
+          p.write_text("\\n".join(lines) + "\\n")
+          print(f"Android versionCode definido como {version_code}")
+          PY
           # Registrar o plugin customizado DEPOIS do cap sync, garantindo que a MainActivity final do APK o carregue.
           python3 - <<'PY'
           from pathlib import Path
