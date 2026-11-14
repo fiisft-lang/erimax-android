@@ -31,12 +31,15 @@
       let current = null;
       try { current = await live.getCurrentBundle(); } catch (_) {}
       const currentId = current && current.bundleId || 'padrão do APK';
-      if(current && current.bundleId === expected){
+      if(expected === '__native__' && (!current || !current.bundleId)){
         storageRemove(PENDING_KEY);
-        setTimeout(()=>alert('Atualização do EriMax aplicada com sucesso.\nPacote: '+expected.slice(0,12)),700);
+        setTimeout(()=>alert('Atualização do EriMax aplicada.\\nA versão nova do APK está em uso.'),700);
+      } else if(expected !== '__native__' && current && current.bundleId === expected){
+        storageRemove(PENDING_KEY);
+        setTimeout(()=>alert('Atualização do EriMax aplicada com sucesso.\\nPacote: '+expected.slice(0,12)),700);
       } else {
         const rollback = !!(result && result.rollback);
-        setTimeout(()=>alert('A atualização do EriMax não foi confirmada.\nPacote esperado: '+expected.slice(0,12)+'\nPacote em uso: '+currentId+'\n'+(rollback?'O sistema voltou ao pacote anterior por segurança.':'O pacote novo ainda não está ativo.')),700);
+        setTimeout(()=>alert('A atualização do EriMax não foi confirmada.\\nPacote esperado: '+(expected === '__native__' ? 'versão do APK' : expected.slice(0,12))+'\\nPacote em uso: '+currentId+'\\n'+(rollback?'O sistema voltou ao pacote anterior por segurança.':'O pacote novo ainda não está ativo.')),700);
       }
     }
     return result;
@@ -61,18 +64,26 @@
       const bundleUrl = new URL(manifest.url);
       const allowedPath = '/fiisft-lang/erimax-android/' + branch + '/ota/';
       if(bundleUrl.origin !== 'https://raw.githubusercontent.com' || !bundleUrl.pathname.startsWith(allowedPath)) throw new Error('Endereço do pacote não corresponde ao canal '+channel+'.');
-      // Verifica primeiro o pacote realmente ativo. Um APK novo pode continuar
-      // executando um bundle OTA antigo; nesse caso, o ID do APK não pode
-      // impedir a atualização do bundle que está em uso.
+      // Compara o pacote ativo com o conteúdo embarcado no APK.
+      // Se o APK instalado já contém exatamente o build publicado, mas o
+      // Android ainda serve um bundle OTA antigo, volta ao pacote nativo.
       const current = await live.getCurrentBundle();
-      if(current && current.bundleId === manifest.bundleId) return;
       const localBuildResponse = await fetch('ota-build.json?ts=' + Date.now(), {cache:'no-store'});
+      let localBuild = null;
       if(localBuildResponse.ok){
-        const localBuild = await localBuildResponse.json();
-        // Só considera o APK atualizado quando ele está usando o bundle nativo
-        // (current.bundleId nulo) e o build local já corresponde ao manifesto.
-        if((!current || !current.bundleId) && localBuild && localBuild.bundleId === manifest.bundleId) return;
+        try { localBuild = await localBuildResponse.json(); } catch (_) {}
       }
+      if(localBuild && localBuild.bundleId === manifest.bundleId){
+        if(current && current.bundleId && current.bundleId !== manifest.bundleId){
+          if(typeof live.reset !== 'function') throw new Error('Esta versão não permite recuperar o pacote nativo. Atualize o APK.');
+          storageSet(PENDING_KEY,'__native__');
+          await live.reset();
+          await live.reload();
+          return;
+        }
+        if(!current || !current.bundleId || current.bundleId === manifest.bundleId) return;
+      }
+      if(current && current.bundleId === manifest.bundleId) return;
       const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;
       const minimum = Number(manifest.minimumNativeVersionCode || 1);
       if(versionCode && minimum > versionCode) throw new Error('Esta atualização exige uma versão mais recente do aplicativo Android.');
