@@ -19,7 +19,7 @@ import java.io.OutputStream;
 public class EriMaxExportPlugin extends Plugin {
     @PluginMethod
     public void stopIncomingAlert(PluginCall call) {
-        IncomingCallMessagingService.stopAlert();
+        IncomingCallMessagingService.stopAlert(getContext());
         call.resolve();
     }
 
