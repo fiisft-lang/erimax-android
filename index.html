@@ -3767,12 +3767,19 @@ navigator.serviceWorker?.addEventListener('message',event=>{
   }
 });
 window.onload=async function(){
-  if(window.erimaxOTA)await window.erimaxOTA.ready();
+  // A verificação OTA não pode depender da resposta de autenticação.
+  if(window.erimaxOTA){
+    window.erimaxOTA.ready().catch(e=>console.warn('[EriMax] Preparação OTA:',e));
+    setTimeout(()=>window.erimaxOTA.checkForUpdate(),1800);
+  }
   const mesConsulta=document.getElementById('consultaMes');
   if(mesConsulta){const agora=new Date();mesConsulta.value=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0')}
-  const {data:{session}}=await _supabase.auth.getSession();
-  if(session)iniciarApp(session.user);
-  if(window.erimaxOTA)setTimeout(()=>window.erimaxOTA.checkForUpdate(),1800);
+  try{
+    const {data:{session}}=await _supabase.auth.getSession();
+    if(session)iniciarApp(session.user);
+  }catch(e){
+    console.error('[EriMax] Não foi possível recuperar a sessão:',e);
+  }
 };
 </script>
  <script src="export-bridge.js"></script>
