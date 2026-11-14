@@ -50,8 +50,9 @@ public class IncomingCallActivity extends Activity {
     TextView title = label(transferencia ? "Transferência de O.S." : "Nova ordem de serviço", 23, Color.rgb(15, 23, 42));
     title.setTypeface(null, Typeface.BOLD);
     TextView detail = label((number == null ? "Nova O.S." : number)
-      + "\nSetor: " + (sector == null ? "Não informado" : sector)
-      + "\nMáquina: " + (machine == null ? "Não informada" : machine), 20, Color.WHITE);
+      + "\n\nSETOR\n" + (sector == null ? "Não informado" : sector)
+      + "\n\nMÁQUINA\n" + (machine == null ? "Não informada" : machine)
+      + "\n\nPROBLEMA DA MÁQUINA\n" + (problem == null || problem.trim().isEmpty() ? "Não informado" : problem.trim()), 16, Color.rgb(30, 41, 59));
     detail.setTypeface(null, Typeface.BOLD);
     root.addView(brand);
     root.addView(title);
