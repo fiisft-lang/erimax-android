@@ -428,7 +428,7 @@ const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
 let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
 let SETOR_MAQUINAS_EM_EDICAO=null;
-let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,intervaloStatusTecnicos=null,atualizacaoStatusEmCurso=false,ultimoIdOSRealtime=null;
+let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,intervaloStatusTecnicos=null,atualizacaoStatusEmCurso=false,ultimoIdOSRealtime=null,intervaloSincronizacaoFallback=null,sincronizacaoFallbackEmCurso=false;
 const idsOSAlertadas=new Set();
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
@@ -516,6 +516,7 @@ function iniciarAtualizacaoTempoParada(){
 iniciarAtualizacaoTempoParada();
 function iniciarTempoReal(){
   iniciarAtualizacaoAutomaticaStatusTecnicos();
+  iniciarSincronizacaoFallback();
   if(canalOSTempoReal)return;
   const canal=_supabase.channel('tabela-os-realtime')
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>alertarNovaOSRealtime(p.new))
@@ -580,6 +581,78 @@ function iniciarAtualizacaoAutomaticaStatusTecnicos(){
   atualizar();
   intervaloStatusTecnicos=setInterval(atualizar,8000);
 }
+function iniciarSincronizacaoFallback(){
+  if(intervaloSincronizacaoFallback)return;
+  const sincronizar=async()=>{
+    if(document.visibilityState==='hidden'||sincronizacaoFallbackEmCurso||!MEU_ID)return;
+    sincronizacaoFallbackEmCurso=true;
+    try{
+      // Confere os estados resumidos de todas as O.S. para recuperar alterações
+      // perdidas durante quedas do Realtime, sem baixar todo o histórico a cada ciclo.
+      const {data:resumo,error:resumoError}=await _supabase.from('os')
+        .select('id,status,tecnico,maquina,setor,prioridade,descricao');
+      if(resumoError)throw resumoError;
+      const locais=new Map((chamados||[]).map(os=>[Number(os.id),os]));
+      const idsServidor=new Set((resumo||[]).map(os=>Number(os.id)));
+      const idsLocais=new Set(locais.keys());
+      const haNovas=(resumo||[]).some(os=>!idsLocais.has(Number(os.id)));
+      const haExcluidas=(chamados||[]).some(os=>!idsServidor.has(Number(os.id)));
+      let mudou=false;
+      if(haNovas||haExcluidas){
+        await carregarDadosSupabase();
+        mudou=true;
+      }else{
+        const alteradas=(resumo||[]).filter(os=>{
+          const local=locais.get(Number(os.id));
+          return local&&(
+            local.status!==os.status||
+            local.tecnico!==os.tecnico||
+            local.maquina!==os.maquina||
+            normSetor(local.setor)!==normSetor(os.setor)||
+            local.prioridade!==os.prioridade||
+            local.descricao!==os.descricao
+          );
+        }).map(os=>Number(os.id));
+        if(alteradas.length){
+          const {data:completas,error:completasError}=await _supabase.from('os').select('*').in('id',alteradas);
+          if(completasError)throw completasError;
+          (completas||[]).forEach(os=>{
+            const i=chamados.findIndex(local=>Number(local.id)===Number(os.id));
+            if(i>=0)chamados[i]={...chamados[i],...os,setor:normSetor(os.setor)};
+          });
+          mudou=true;
+        }
+      }
+      const {data:status,error:statusError}=await _supabase.from('status_tecnicos')
+        .select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em');
+      if(statusError)throw statusError;
+      const assinatura=lista=>(lista||[]).map(x=>[x.user_id,x.status,x.turno_ativo,x.os_atual_id].join('|')).sort().join(';');
+      if(assinatura(status)!==assinatura(STATUS_TECNICOS)){
+        STATUS_TECNICOS=status||[];
+        mudou=true;
+      }
+      if(MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')await carregarPresencas();
+      if(mudou){
+        renderTecnicos();
+        renderStatusTurno();
+        renderPainelMaquinasSupervisor();
+        if(document.getElementById('tab-ordens-servico')?.classList.contains('active'))renderizarChamados();
+        if(document.getElementById('tab-ordens-abertas')?.classList.contains('active'))renderizarChamados('listaOSAbertas',true);
+        if(document.getElementById('tab-ordens-pausadas')?.classList.contains('active'))renderizarChamados('listaOSPausadas',false,true);
+        const badge=document.getElementById('badgePendentes');
+        if(badge)badge.innerText=chamados.filter(os=>os.status==='Aberta').length;
+        if(document.getElementById('tab-metricas')?.classList.contains('active'))atualizarMetricasReais();
+      }
+    }catch(e){console.error('Sincronização automática de segurança falhou:',e.message||e)}
+    finally{sincronizacaoFallbackEmCurso=false}
+  };
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')sincronizar();
+  });
+  sincronizar();
+  intervaloSincronizacaoFallback=setInterval(sincronizar,30000);
+}
+
 function dispararSireneEVibracao(){
   const a=document.getElementById('audioSirene');
   if(a){a.currentTime=0;a.play().catch(()=>console.log('Áudio bloqueado.'))}
@@ -2026,6 +2099,13 @@ async function iniciarPush(){
         mostrarToastOS('🔄 '+(e?.title||e?.notification?.title||'Você recebeu uma transferência de O.S.'));
         const audio=document.getElementById('audioSirene');
         if(audio){audio.pause();audio.currentTime=0;audio.loop=false;audio.play().catch(()=>{});audio.onended=()=>{audio.loop=true}}
+        if('vibrate' in navigator){try{navigator.vibrate([500,250,500])}catch(e){}}
+      }else if(dados.os_id||dados.osId){
+        const numero=dados.numero||dados.os_id||dados.osId;
+        const maquina=dados.maquina||'Máquina não informada';
+        mostrarToastOS('🚨 Nova O.S. '+numero+' • '+maquina);
+        const audio=document.getElementById('audioSirene');
+        if(audio){audio.pause();audio.currentTime=0;audio.loop=false;audio.play().catch(()=>{})}
         if('vibrate' in navigator){try{navigator.vibrate([500,250,500])}catch(e){}}
       }
     });
