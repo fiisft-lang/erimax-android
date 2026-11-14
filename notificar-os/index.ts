@@ -89,10 +89,16 @@ Deno.serve(async (req: Request) => {
       .select('user_id').in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
     if (statusError) throw statusError
     const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
+    // Gestores conectados ao app recebem chamados mesmo sem turno operacional.
+    // Técnicos continuam dependendo de ONLINE/EM SERVIÇO e turno ativo.
+    const gestorIds = (profiles || []).filter((p: { id: string; perfil: string }) => p.perfil === 'gestor').map((p: { id: string }) => p.id)
+    const { data: presencasGestores, error: presencasError } = gestorIds.length
+      ? await admin.from('erimax_presencas').select('user_id').in('user_id', gestorIds).gte('last_seen_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
+      : { data: [], error: null }
+    if (presencasError) throw presencasError
+    const gestoresConectados = new Set((presencasGestores || []).map((p: { user_id: string }) => p.user_id))
     const recipientIds = (profiles || [])
-      // Técnicos, gestores e operadores recebem o aviso quando estiverem
-      // ONLINE ou EM SERVIÇO, desde que o turno esteja ativo.
-      .filter((p: { id: string; perfil: string }) => onlineIds.has(p.id))
+      .filter((p: { id: string; perfil: string }) => onlineIds.has(p.id) || (p.perfil === 'gestor' && gestoresConectados.has(p.id)))
       .map((p: { id: string }) => p.id)
     if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE ou EM SERVIÇO para receber a nova O.S.' })
 
@@ -125,8 +131,14 @@ Deno.serve(async (req: Request) => {
     const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')
       .select('user_id').in('user_id', recipientIds).in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
     if (liveStatusError) throw liveStatusError
-    const liveIds = (liveStatuses || []).map((s: { user_id: string }) => s.user_id)
-    const liveDeviceResult = liveIds.length ? await admin.from('dispositivos').select('token').in('user_id', liveIds) : { data: [], error: null }
+    const liveIds = new Set((liveStatuses || []).map((s: { user_id: string }) => s.user_id))
+    const gestoresLiveIds = recipientIds.filter((id: string) => gestorIds.includes(id))
+    const { data: presencasGestoresLive, error: presencasLiveError } = gestoresLiveIds.length
+      ? await admin.from('erimax_presencas').select('user_id').in('user_id', gestoresLiveIds).gte('last_seen_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
+      : { data: [], error: null }
+    if (presencasLiveError) throw presencasLiveError
+    ;(presencasGestoresLive || []).forEach((p: { user_id: string }) => liveIds.add(p.user_id))
+    const liveDeviceResult = liveIds.size ? await admin.from('dispositivos').select('token').in('user_id', [...liveIds]) : { data: [], error: null }
     if (liveDeviceResult.error) throw liveDeviceResult.error
     const liveTokens = [...new Set((liveDeviceResult.data || []).map((d: { token: string }) => d.token).filter(Boolean))]
     if (!liveTokens.length) {
