@@ -70,8 +70,9 @@ public class IncomingCallActivity extends Activity {
     actions.setOrientation(0);
     actions.setGravity(Gravity.CENTER);
     actions.setPadding(0, dp(12), 0, 0);
-    addSwipeAction(actions, transferencia ? "ACEITAR TRANSFERÊNCIA" : "ACEITAR O.S.", "✓", Color.rgb(22, 163, 74), this::answerCall);
+    // Ordem visual: recusar/silenciar à esquerda e aceitar à direita.
     addSwipeAction(actions, transferencia ? "RECUSAR TRANSFERÊNCIA" : "SILENCIAR", transferencia ? "✕" : "🔕", Color.rgb(220, 38, 38), transferencia ? this::rejectTransfer : this::dismissCall);
+    addSwipeAction(actions, transferencia ? "ACEITAR TRANSFERÊNCIA" : "ACEITAR O.S.", "✓", Color.rgb(22, 163, 74), this::answerCall);
     root.addView(actions);
     setContentView(root);
   }
