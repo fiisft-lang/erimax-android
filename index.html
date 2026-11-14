@@ -915,6 +915,23 @@ header .hd{
 
 
 <style id="erimax-menu-lateral-metricas">
+/* Ajuste exclusivo do APK: afasta o botão do menu da borda superior e amplia a área de toque. */
+html.erimax-app-android header{
+  min-height:72px;
+  padding-top:18px;
+  padding-bottom:12px;
+}
+html.erimax-app-android #btnMenuLateral{
+  width:48px;
+  height:48px;
+  flex:0 0 48px;
+  margin-top:4px;
+  touch-action:manipulation;
+}
+@media(max-width:600px){
+  html.erimax-app-android header{min-height:72px;padding-top:18px;padding-bottom:12px}
+  html.erimax-app-android #btnMenuLateral{width:48px;height:48px;flex-basis:48px;margin-top:4px}
+}
 /* Navegação lateral compacta */
 header{position:sticky;top:0;z-index:1205;min-height:64px;gap:14px}
 header img.logo{height:44px;width:220px;max-width:min(58vw,220px);object-fit:contain;object-position:left center}
@@ -1222,6 +1239,7 @@ body.menu-lateral-aberto .nav-tabs{transform:translateX(0)}
 
 <script src="ota-update.js"></script>
 <script>
+if(window.Capacitor?.isNativePlatform?.())document.documentElement.classList.add('erimax-app-android');
 const LOGO='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 145" role="img" aria-label="ERIMAX Produtos para Sa&#xFA;de"><rect width="430" height="145" fill="none"/><text x="4" y="99" fill="#F28B00" font-family="Arial,Helvetica,sans-serif" font-size="100" font-weight="900" letter-spacing="-6">ERIMA</text><text x="298" y="99" fill="#1677C8" font-family="Arial,Helvetica,sans-serif" font-size="100" font-weight="900" letter-spacing="-6">X</text><text x="8" y="137" fill="#858585" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800" letter-spacing=".25">PRODUTOS PARA SA&#xDA;DE</text></svg>');
 document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO);
 const SUPABASE_URL='https://qzjbpvgedfpmfnxsvqhu.supabase.co';
