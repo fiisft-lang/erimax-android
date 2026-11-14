@@ -120,6 +120,7 @@ Deno.serve(async (req: Request) => {
       maquina: String(os.maquina || 'Manutenção'),
       setor: String(os.setor || 'Setor não informado'),
       numero: numero,
+      problema: String(os.descricao || "Não informado"),
     }
     // Última conferência antes de enviar: exige expediente ativo.
     const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')

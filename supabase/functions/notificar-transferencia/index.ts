@@ -66,7 +66,7 @@ Deno.serve(async (req: Request) => {
     if (!Number.isSafeInteger(osId) || osId <= 0) return json({ erro: "Informe uma O.S. válida." }, 400);
 
     const { data: os, error: osError } = await admin.from("os")
-      .select("id,numero_mes,setor,maquina,status,tecnico,transferencia_para,transferencia_solicitada_em")
+      .select("id,numero_mes,setor,maquina,descricao,status,tecnico,transferencia_para,transferencia_solicitada_em")
       .eq("id", osId).maybeSingle();
     if (osError) throw osError;
     if (!os || os.status !== "Em Atendimento" || !os.transferencia_para) {
@@ -136,6 +136,7 @@ Deno.serve(async (req: Request) => {
               destinatario_id: String(destinatario.id),
               maquina: String(os.maquina || "Máquina não informada"),
               setor: String(os.setor || "Setor não informado"),
+              problema: String(os.descricao || "Não informado"),
             },
           },
         }),
