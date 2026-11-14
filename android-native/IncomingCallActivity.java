@@ -55,8 +55,13 @@ public class IncomingCallActivity extends Activity {
     root.addView(title);
     root.addView(detail);
     root.addView(label("Deslize uma das opções para continuar", 14, Color.LTGRAY));
-    addSwipeAction(root, transferencia ? "DESLIZE PARA ACEITAR A TRANSFERÊNCIA" : "DESLIZE PARA ACEITAR A O.S.", "➜", Color.rgb(22, 163, 74), true, this::answerCall);
-    addSwipeAction(root, transferencia ? "DESLIZE PARA RECUSAR A TRANSFERÊNCIA" : "DESLIZE PARA SILENCIAR", "⬅", Color.rgb(220, 38, 38), false, transferencia ? this::rejectTransfer : this::dismissCall);
+    LinearLayout actions = new LinearLayout(this);
+    actions.setOrientation(0);
+    actions.setGravity(Gravity.CENTER);
+    actions.setPadding(0, dp(12), 0, 0);
+    addSwipeAction(actions, transferencia ? "ACEITAR TRANSFERÊNCIA" : "ACEITAR O.S.", "✓", Color.rgb(22, 163, 74), this::answerCall);
+    addSwipeAction(actions, transferencia ? "RECUSAR TRANSFERÊNCIA" : "SILENCIAR", transferencia ? "✕" : "🔕", Color.rgb(220, 38, 38), transferencia ? this::rejectTransfer : this::dismissCall);
+    root.addView(actions);
     setContentView(root);
   }
 
@@ -64,50 +69,73 @@ public class IncomingCallActivity extends Activity {
     return (int)(value * getResources().getDisplayMetrics().density + 0.5f);
   }
 
-  private void addSwipeAction(LinearLayout root, String hint, String arrow, int color, boolean leftToRight, Runnable action) {
-    FrameLayout track = new FrameLayout(this);
-    track.setBackgroundColor(leftToRight ? Color.rgb(15, 76, 42) : Color.rgb(112, 28, 34));
-    LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(-1, dp(68));
-    trackParams.setMargins(0, dp(18), 0, 0);
-    TextView hintView = label(hint, 13, Color.WHITE);
-    hintView.setTypeface(null, Typeface.BOLD);
-    track.addView(hintView, new FrameLayout.LayoutParams(-1, -1));
+  private void addSwipeAction(LinearLayout row, String hint, String symbol, int color, Runnable action) {
+    LinearLayout item = new LinearLayout(this);
+    item.setOrientation(1);
+    item.setGravity(Gravity.CENTER_HORIZONTAL);
+    LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(0, -2, 1f);
+    itemParams.setMargins(dp(7), 0, dp(7), 0);
 
-    TextView thumb = label(arrow, 25, Color.WHITE);
+    TextView title = label(hint, 12, Color.WHITE);
+    title.setTypeface(null, Typeface.BOLD);
+    item.addView(title, new LinearLayout.LayoutParams(-1, dp(48)));
+
+    FrameLayout track = new FrameLayout(this);
+    android.graphics.drawable.GradientDrawable trackBg = new android.graphics.drawable.GradientDrawable();
+    trackBg.setColor(Color.rgb(38, 43, 52));
+    trackBg.setCornerRadius(dp(34));
+    trackBg.setStroke(dp(1), Color.rgb(86, 96, 110));
+    track.setBackground(trackBg);
+    LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(dp(82), dp(148));
+    trackParams.gravity = Gravity.CENTER_HORIZONTAL;
+    trackParams.topMargin = dp(5);
+
+    TextView hintView = label("↑", 22, Color.LTGRAY);
+    hintView.setTypeface(null, Typeface.BOLD);
+    FrameLayout.LayoutParams hintParams = new FrameLayout.LayoutParams(-1, dp(48), Gravity.TOP);
+    track.addView(hintView, hintParams);
+
+    TextView thumb = label(symbol, 25, Color.WHITE);
     thumb.setTypeface(null, Typeface.BOLD);
-    thumb.setBackgroundColor(color);
-    FrameLayout.LayoutParams thumbParams = new FrameLayout.LayoutParams(dp(76), -1,
-      leftToRight ? Gravity.LEFT : Gravity.RIGHT);
+    android.graphics.drawable.GradientDrawable thumbBg = new android.graphics.drawable.GradientDrawable();
+    thumbBg.setColor(color);
+    thumbBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+    thumb.setBackground(thumbBg);
+    FrameLayout.LayoutParams thumbParams = new FrameLayout.LayoutParams(dp(66), dp(66), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+    thumbParams.bottomMargin = dp(5);
     track.addView(thumb, thumbParams);
 
-    final float[] downX = {0};
-    final float[] startX = {0};
+    final float[] downY = {0};
+    final float[] startY = {0};
     thumb.setOnTouchListener((View v, MotionEvent event) -> {
-      float max = Math.max(0, track.getWidth() - thumb.getWidth());
+      float max = Math.max(0, track.getHeight() - thumb.getHeight() - dp(10));
       switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:
-          downX[0] = event.getRawX();
-          startX[0] = thumb.getTranslationX();
+          downY[0] = event.getRawY();
+          startY[0] = thumb.getTranslationY();
           return true;
         case MotionEvent.ACTION_MOVE:
-          float dx = event.getRawX() - downX[0];
-          float next = startX[0] + dx;
-          next = Math.max(leftToRight ? 0 : -max, Math.min(leftToRight ? max : 0, next));
-          thumb.setTranslationX(next);
+          float dy = event.getRawY() - downY[0];
+          float next = startY[0] + dy;
+          next = Math.max(-max, Math.min(0, next));
+          thumb.setTranslationY(next);
           return true;
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_CANCEL:
-          float moved = Math.abs(thumb.getTranslationX() - startX[0]);
+          float moved = Math.abs(thumb.getTranslationY() - startY[0]);
           if (event.getAction() == MotionEvent.ACTION_UP && moved >= max * 0.62f) {
             action.run();
           } else {
-            thumb.animate().translationX(0).setDuration(160).start();
+            thumb.animate().translationY(0).setDuration(180).start();
           }
           return true;
       }
       return true;
     });
-    root.addView(track, trackParams);
+    item.addView(track, trackParams);
+    TextView instruction = label("ARRASTE PARA CIMA", 10, Color.LTGRAY);
+    item.addView(instruction, new LinearLayout.LayoutParams(-1, dp(34)));
+    row.addView(item, itemParams);
   }
   private void stopAlarm() {
     IncomingCallMessagingService.stopAlert();
