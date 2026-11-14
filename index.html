@@ -3074,10 +3074,31 @@ async function iniciarLinksOS(){
 
 /* ===== LOGIN, PERFIS E CADASTRO ===== */
 async function entrar(){
-  lgErro.innerText='';
-  const {data,error}=await _supabase.auth.signInWithPassword({email:lgEmail.value.trim().toLowerCase(),password:lgSenha.value});
-  if(error){const m=error.message||'';lgErro.innerText=/confirm/i.test(m)?'E-mail ainda não confirmado no Supabase.':/invalid/i.test(m)?'E-mail ou senha incorretos.':'Erro ao entrar: '+m;return}
-  iniciarApp(data.user).catch(e=>alert('Erro ao carregar o sistema: '+e.message));
+  const erro=document.getElementById('lgErro');
+  const email=document.getElementById('lgEmail');
+  const senha=document.getElementById('lgSenha');
+  const botao=document.querySelector('#login .btn-submit');
+  if(!erro||!email||!senha){console.error('EriMax: campos de login não encontrados.');return}
+  erro.innerText='';
+  if(botao){botao.disabled=true;botao.textContent='Entrando...'}
+  try{
+    const {data,error}=await _supabase.auth.signInWithPassword({
+      email:email.value.trim().toLowerCase(),
+      password:senha.value
+    });
+    if(error){
+      const m=error.message||'';
+      erro.innerText=/confirm/i.test(m)?'E-mail ainda não confirmado.':/invalid/i.test(m)?'E-mail ou senha incorretos.':'Não foi possível entrar: '+m;
+      return;
+    }
+    if(!data?.user){erro.innerText='O servidor não confirmou o acesso. Tente novamente.';return}
+    await iniciarApp(data.user);
+  }catch(e){
+    console.error('EriMax: falha no login ou ao iniciar o sistema:',e);
+    erro.innerText='Falha de conexão ou ao carregar o sistema. Verifique a internet e tente novamente.';
+  }finally{
+    if(botao){botao.disabled=false;botao.textContent='Entrar'}
+  }
 }
 async function sair(){
   try{const t=localStorage.getItem('push_token');if(t){await _supabase.rpc('desregistrar_dispositivo',{p_token:t});localStorage.removeItem('push_token')}}catch(e){}
