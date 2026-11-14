@@ -37,6 +37,7 @@ public class IncomingCallActivity extends Activity {
     String machine = getIntent().getStringExtra("maquina");
     String sector = getIntent().getStringExtra("setor");
     String number = getIntent().getStringExtra("numero");
+    String problem = getIntent().getStringExtra("problema");
     IncomingCallMessagingService.startAlertAlarm(this);
 
     LinearLayout root = new LinearLayout(this);
