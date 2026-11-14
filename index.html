@@ -1491,6 +1491,204 @@ html.erimax-app-android .os-card .os-vertical-action small{font-size:.65rem;colo
 html.erimax-app-android .os-card .os-vertical-hint{position:absolute;top:8px;left:0;right:0;text-align:center;color:#8a9aab;font-size:15px;font-weight:800;pointer-events:none}
 @media(max-width:360px){html.erimax-app-android .os-card .os-vertical-actions{gap:10px;padding:12px 8px}html.erimax-app-android .os-card .os-vertical-track{width:58px;height:90px}html.erimax-app-android .os-card .os-vertical-knob{width:48px;height:48px;min-width:48px;min-height:48px}}
 </style>
+
+<style id="erimax-modernizacao-integral-nov14">
+/* EriMax 2026 — modernização integral da experiência, sem alterar regras ou fluxos */
+:root{
+ --primary:#173f5f!important;--primary-dark:#102f49!important;
+ --secondary:#d99543!important;--accent:#2c9b91;
+ --bg:#eef2f5!important;--card:#fff!important;--text:#1c2d3b!important;
+ --border:#dbe4ea!important;--muted:#718292;
+ --erimax-line:#e4ebf0;--erimax-shadow:0 8px 24px rgba(17,43,63,.065);
+}
+html,body{min-height:100%;background:#eef2f5!important;color:#1c2d3b!important}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;letter-spacing:-.01em}
+header{background:linear-gradient(110deg,#102f49 0%,#174b66 72%,#1d626c 100%)!important;border:0!important;box-shadow:0 8px 24px rgba(13,43,64,.18)!important}
+header img.logo{height:47px!important;width:230px!important;max-width:min(58vw,230px)!important;filter:drop-shadow(0 2px 4px rgba(0,0,0,.1))}
+header .hd{color:#e4edf2!important;letter-spacing:.1em!important;font-size:.65rem!important}
+.user-bar{background:#fff!important;color:#38566b!important;border-bottom:1px solid #e3eaf0!important;box-shadow:0 3px 12px rgba(17,43,63,.035)}
+#barraAtivacaoAudio{background:linear-gradient(90deg,#b8782c,#d99543)!important}
+.nav-tabs{background:#f8fafb!important;border-right:1px solid #dce5eb!important}
+.nav-tabs .tab-btn{color:#526b7c!important;border-radius:11px!important;font-weight:750!important}
+.nav-tabs .tab-btn.active{background:#e8f2f2!important;color:#174b66!important;border-left:4px solid #2c9b91!important;border-bottom-color:transparent!important}
+.nav-tabs .tab-icon{color:#78909f!important}
+.nav-tabs .tab-btn.active .tab-icon{color:#23877f!important}
+.container{max-width:1320px!important;padding:clamp(13px,2.2vw,28px)!important}
+.tab-content{min-width:0}
+.tab-content.active{animation:erimaxScreenIn .22s ease both}
+@keyframes erimaxScreenIn{from{opacity:.65;transform:translateY(5px)}to{opacity:1;transform:none}}
+/* Cabeçalhos de seção e painéis */
+.tab-content>.card,.tab-content>div>.card,.tab-content>section.card{
+ background:linear-gradient(145deg,#fff 0%,#fbfcfd 100%)!important;
+ border:1px solid #dce5eb!important;border-radius:18px!important;
+ box-shadow:var(--erimax-shadow)!important;padding:clamp(16px,2.1vw,24px)!important;
+}
+.tab-content h2,.tab-content h3,.tab-content h4{color:#1c4b66!important;letter-spacing:-.025em!important}
+.tab-content p{line-height:1.55}
+.tab-content>.card>h2,.tab-content>.card>h3{display:flex;align-items:center;gap:10px}
+.tab-content>.card>h2:before,.tab-content>.card>h3:before{
+ content:"";width:4px;height:23px;flex:0 0 4px;border-radius:8px;
+ background:linear-gradient(180deg,#2c9b91,#d99543)
+}
+/* Formulários e campos em todas as abas */
+.form-group{min-width:0;margin-bottom:17px!important}
+.form-group>label,.tab-content label{
+ color:#4d6678!important;font-size:.69rem!important;font-weight:850!important;
+ letter-spacing:.065em!important;line-height:1.4
+}
+.tab-content input:not([type=checkbox]):not([type=radio]):not([type=file]),
+.tab-content select,.tab-content textarea{
+ box-sizing:border-box!important;width:100%;max-width:100%;
+ min-height:46px;padding:12px 14px!important;border:1px solid #d5e0e7!important;
+ border-radius:11px!important;background:#f8fafb!important;color:#203747!important;
+ box-shadow:inset 0 1px 2px rgba(18,44,64,.025)!important;
+ font:inherit;font-size:16px!important;transition:border-color .18s,box-shadow .18s,background .18s
+}
+.tab-content textarea{min-height:105px;line-height:1.55}
+.tab-content input:focus,.tab-content select:focus,.tab-content textarea:focus{
+ border-color:#48a49b!important;background:#fff!important;
+ box-shadow:0 0 0 3px rgba(44,155,145,.14)!important;outline:0!important
+}
+.tab-content input[type=checkbox],.tab-content input[type=radio]{accent-color:#23877f}
+.tab-content input[type=file]{max-width:100%;padding:10px;border:1px dashed #bdcbd5;border-radius:11px;background:#f8fafb}
+.tab-content button,.box button{border-radius:10px;transition:transform .16s,filter .16s,box-shadow .16s}
+.tab-content button:active,.box button:active{transform:translateY(1px)}
+.btn-submit{min-height:48px!important;border:0!important;border-radius:11px!important;background:linear-gradient(110deg,#174b66,#23877f)!important;color:#fff!important;font-weight:850!important;box-shadow:0 6px 15px rgba(24,94,105,.18)!important}
+.btn-action{min-height:40px!important;border-radius:10px!important;font-weight:800!important;box-shadow:0 2px 6px rgba(17,43,63,.07)}
+/* Ordens de serviço: cartões legíveis e hierarquia consistente */
+.os-card{
+ background:linear-gradient(145deg,#fff,#fbfcfd)!important;border:1px solid #dce5eb!important;
+ border-left:5px solid #397d91!important;border-radius:17px!important;
+ padding:17px!important;margin:0 0 14px!important;box-shadow:0 7px 20px rgba(17,43,63,.06)!important
+}
+.os-card.prioridade-Alta{border-left-color:#c94b4b!important}
+.os-card.prioridade-Média{border-left-color:#c58a2b!important}
+.os-card.prioridade-Baixa{border-left-color:#23856d!important}
+.os-card .os-id{color:#174b66!important;font-size:1rem!important;font-weight:900!important}
+.os-card .os-badge{border-radius:999px!important;padding:6px 10px!important;font-weight:850!important}
+.os-card .os-actions{border-top:1px solid #e7edf1!important;padding-top:13px!important;gap:8px!important}
+.os-card .os-problema{border-radius:13px!important}
+.os-card p{line-height:1.55}
+#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#resultadoConsulta{display:grid;gap:11px;min-width:0}
+.maq-row,.report-item{
+ padding:13px 14px!important;border:1px solid #e0e8ed!important;border-radius:12px!important;
+ background:#fff!important;box-shadow:0 3px 10px rgba(17,43,63,.035);gap:10px
+}
+.maq-row{align-items:center}
+.maq-row small{line-height:1.5}
+#boxTec,#boxTec2,#boxPrev,#boxStatusTurno{min-width:0}
+#boxTec>.card,#boxTec2>.card,#boxPrev>.card{border:1px solid #dce5eb!important;border-radius:16px!important;box-shadow:var(--erimax-shadow)!important}
+/* Supervisão e estrutura de setores/máquinas */
+#painelMaquinasSupervisor{gap:15px!important}
+#painelMaquinasSupervisor>.card,#painelMaquinasSupervisor>section{
+ border-radius:17px!important;box-shadow:var(--erimax-shadow)!important
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]{
+ overflow:hidden;border:1px solid #dce5eb!important;border-radius:16px!important;background:#fff!important;
+ box-shadow:0 5px 16px rgba(17,43,63,.045)!important
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary{
+ min-height:68px;padding:14px 16px!important;background:linear-gradient(100deg,#f1f6f7,#fff)!important;
+ color:#214b65!important;font-weight:800!important
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]{
+ margin:8px!important;border:1px solid #e1e9ed!important;border-radius:13px!important;background:#fff!important
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary{
+ min-height:62px;padding:12px!important;background:#fbfcfd!important
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>div{background:#f8fafb!important}
+#painelMaquinasSupervisor [role=button]{-webkit-tap-highlight-color:transparent}
+#painelMaquinasSupervisor [role=button]:focus-visible{outline:3px solid rgba(44,155,145,.3)!important;outline-offset:2px}
+/* Cadastro: setores, máquinas, usuários, turnos e preventivas */
+#tab-cadastro>.card{overflow:hidden}
+#tab-cadastro details,#tab-abrir details,#tab-ordens-servico details{
+ border:1px solid #e0e8ed!important;border-radius:13px!important;background:#fff!important;overflow:hidden
+}
+#tab-cadastro details>summary,#tab-abrir details>summary,#tab-ordens-servico details>summary{
+ padding:12px 13px!important;color:#24566f!important;font-weight:800!important;cursor:pointer
+}
+#tab-cadastro details[open]>summary,#tab-abrir details[open]>summary{background:#eef5f5!important;border-bottom:1px solid #e1e9ed}
+#tab-cadastro details>div,#tab-cadastro details>section{padding:12px!important}
+#tab-cadastro .maq-row{margin:7px 0}
+#tab-cadastro button{max-width:100%}
+/* Métricas e gráficos */
+#metricsDataContent{gap:15px!important;align-items:stretch}
+#metricsDataContent>.card{
+ min-width:0!important;overflow:hidden!important;border:1px solid #dce5eb!important;
+ border-radius:17px!important;background:#fff!important;box-shadow:var(--erimax-shadow)!important;
+ padding:clamp(15px,2vw,22px)!important
+}
+#metricsDataContent>.card h4{display:flex;align-items:center;text-align:left!important;color:#214b65!important;font-size:.93rem!important}
+#metricsDataContent>.card h4:before{content:"";width:4px;height:19px;flex:0 0 4px;margin-right:8px;border-radius:8px;background:#2c9b91}
+.metrics-grid{gap:11px!important}
+.metric-card{
+ min-width:0!important;border:1px solid #dce6eb!important;border-radius:15px!important;
+ background:linear-gradient(150deg,#fff,#f5f9fa)!important;text-align:left!important;
+ padding:15px!important;box-shadow:0 4px 13px rgba(17,43,63,.045)!important
+}
+.metric-card .title{font-size:.66rem!important;font-weight:850!important;letter-spacing:.06em!important;color:#718292!important}
+.metric-card .value{color:#1d6972!important;font-size:clamp(1.35rem,3vw,1.85rem)!important;font-weight:900!important}
+.metric-card .sub{font-size:.68rem!important;color:#82929e!important}
+.metric-card[role=button]{cursor:pointer;transition:transform .18s,box-shadow .18s}
+.metric-card[role=button]:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(17,43,63,.09)!important}
+.chart-wrapper{min-width:0!important;border:1px solid #e5ecef!important;border-radius:13px!important;background:linear-gradient(180deg,#f8fafb,#fff)!important;padding:12px!important}
+.tbl-wrap{max-width:100%;overflow:auto!important;border:1px solid #e0e8ed!important;border-radius:12px!important;background:#fff;-webkit-overflow-scrolling:touch}
+table{border-collapse:separate!important;border-spacing:0!important;color:#30495b!important}
+th{background:#edf3f5!important;color:#3d5b6c!important;font-weight:850!important;padding:11px 9px!important}
+td{padding:10px 9px!important;border-bottom:1px solid #edf1f3!important}
+tbody tr:nth-child(even){background:#f8fafb}
+tbody tr:hover{background:#eef6f5}
+/* Consultas, presença e listas */
+#tab-ia #resultadoConsulta>div,#tab-presenca #listaPresenca>div{border-radius:13px!important}
+#tab-ia .card,#tab-presenca .card,#tab-ordens-abertas .card,#tab-ordens-pausadas .card{box-shadow:var(--erimax-shadow)!important}
+#tab-ia button{min-height:47px}
+#tab-presenca .maq-row{padding:13px!important}
+/* Modais e caixas */
+#modal,#modalReabrirOS,#modalEfOS,#modalDetalheMetrica,#modalHor,#modalEditarEquipamentoOS{
+ backdrop-filter:blur(7px);background:rgba(8,27,42,.68)!important
+}
+.box{
+ border:1px solid #dce5eb!important;border-top:4px solid #2c9b91!important;
+ border-radius:19px!important;background:#fff!important;
+ box-shadow:0 24px 70px rgba(5,23,36,.25)!important;padding:clamp(18px,3vw,26px)!important
+}
+.box h2{color:#174b66!important;font-weight:850!important}
+#toastOS{border-radius:13px!important}
+#alertaPreventivaApp{border-radius:13px!important}
+/* Responsividade real: celular, tablet e monitor */
+@media(min-width:900px){
+ .tab-content#tab-abrir>.card{max-width:1040px;margin-inline:auto}
+ #formOS{column-gap:20px!important}
+ #formOS .form-group{min-width:0}
+ #formOS button[type=submit]{grid-column:1/-1}
+ #metricsDataContent{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ #metricsDataContent>.metrics-grid,#metricsDataContent>#printReportHeader,
+ #metricsDataContent>.noprint,#metricsDataContent>#cardHorarioEfGeral,
+ #metricsDataContent>#cardHorarioRanking{grid-column:1/-1}
+}
+@media(max-width:760px){
+ .container{padding:12px 10px 25px!important}
+ .tab-content>.card,.tab-content>div>.card{padding:14px!important;border-radius:15px!important}
+ .os-card{padding:13px!important;border-radius:14px!important}
+ .metric-card{padding:12px 10px!important}
+ .metric-card .value{font-size:1.35rem!important}
+ .chart-wrapper{padding:7px 4px!important}
+ .maq-row{align-items:flex-start;flex-wrap:wrap}
+ .maq-row>span{min-width:0;overflow-wrap:anywhere}
+ .tbl-wrap{margin-inline:-1px}
+}
+@media(max-width:390px){
+ .container{padding-inline:8px!important}
+ .tab-content>.card,.tab-content>div>.card{padding:12px!important}
+ .metric-card .title{font-size:.6rem!important}
+ .metric-card .value{font-size:1.2rem!important}
+ .os-card .os-actions .btn-action{flex:1 1 100%!important}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -1761,7 +1959,7 @@ html.erimax-app-android .os-card .os-vertical-hint{position:absolute;top:8px;lef
 <script src="ota-update.js"></script>
 <script>
 if(window.Capacitor?.isNativePlatform?.())document.documentElement.classList.add('erimax-app-android');
-const LOGO='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 145" role="img" aria-label="ERIMAX Produtos para Sa&#xFA;de"><rect width="430" height="145" fill="none"/><text x="4" y="99" fill="#F28B00" font-family="Arial,Helvetica,sans-serif" font-size="100" font-weight="900" letter-spacing="-6">ERIMA</text><text x="298" y="99" fill="#1677C8" font-family="Arial,Helvetica,sans-serif" font-size="100" font-weight="900" letter-spacing="-6">X</text><text x="8" y="137" fill="#858585" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800" letter-spacing=".25">PRODUTOS PARA SA&#xDA;DE</text></svg>');
+const LOGO='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 145" role="img" aria-label="ERIMAX Produtos para Sa&#xFA;de"><rect width="430" height="145" fill="none"/><text x="4" y="99" fill="#F28B00" font-family="Arial,Helvetica,sans-serif" font-size="100" font-weight="900" letter-spacing="-6">ERIMA</text><text x="267" y="99" fill="#1677C8" font-family="Arial,Helvetica,sans-serif" font-size="100" font-weight="900" letter-spacing="-6">X</text><text x="8" y="137" fill="#858585" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800" letter-spacing=".25">PRODUTOS PARA SA&#xDA;DE</text></svg>');
 document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO);
 const SUPABASE_URL='https://qzjbpvgedfpmfnxsvqhu.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
