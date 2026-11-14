@@ -1886,8 +1886,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Corrigir horários</button>';
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
-    let html='<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
-    html+='<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
+    let html='<div class="os-alert-head"><span class="os-alert-icon" aria-hidden="true">🔧</span><div class="os-alert-main"><div class="os-alert-title"><span class="os-id">O.S. '+escaparHtml(nOS(os))+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div><div class="os-alert-machine">'+escaparHtml(os.maquina||'Máquina não informada')+'</div></div></div>';
+    html+='<div class="os-alert-meta"><span class="os-alert-sector"><small>SETOR</small><b>'+escaparHtml(os.setor||'Não informado')+'</b></span><span><small>TURNO</small><b>'+escaparHtml(os.turno||'Não informado')+'</b></span><span><small>ABERTURA</small><b>'+escaparHtml(abertura)+'</b></span></div>';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
     html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
@@ -3407,6 +3407,20 @@ async function prepararPDF(){
 .os-swipe:active .os-swipe-knob{cursor:grabbing}
 .os-actions .btn-action{min-height:40px;border-radius:10px}
 @media(max-width:480px){.os-card{padding:13px;border-radius:14px}.os-problema{padding:11px}.os-swipe{min-height:56px}.os-swipe-knob{width:46px;height:46px}}
+
+/* Cartão de chamado moderno — exclusivo do APK Android */
+html.erimax-app-android .os-card .os-alert-head{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:2px 0}
+html.erimax-app-android .os-card .os-alert-icon{width:52px;height:52px;min-width:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#e8f2ff,#d6e8ff);border:1px solid #c7ddf7;box-shadow:0 3px 10px rgba(36,99,160,.12);font-size:25px}
+html.erimax-app-android .os-card .os-alert-main{min-width:0;flex:1}
+html.erimax-app-android .os-card .os-alert-title{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+html.erimax-app-android .os-card .os-alert-title .os-id{font-size:1rem;font-weight:850;color:#173b60;letter-spacing:-.02em}
+html.erimax-app-android .os-card .os-alert-machine{margin-top:4px;font-size:.93rem;font-weight:750;color:#263b50;line-height:1.35;overflow-wrap:anywhere}
+html.erimax-app-android .os-card .os-alert-meta{display:grid;grid-template-columns:1.2fr .8fr;gap:8px;margin:0 0 12px;padding:10px;border:1px solid #e3ebf4;border-radius:13px;background:linear-gradient(145deg,#f8fbff,#f2f6fb)}
+html.erimax-app-android .os-card .os-alert-meta>span{display:flex;flex-direction:column;gap:3px;min-width:0;color:#334b63;font-size:.77rem;overflow-wrap:anywhere}
+html.erimax-app-android .os-card .os-alert-meta>span:first-child{grid-column:1/-1;padding-bottom:7px;border-bottom:1px solid #e1eaf3}
+html.erimax-app-android .os-card .os-alert-meta small{font-size:.61rem;font-weight:850;letter-spacing:.08em;color:#71859a}
+html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:750;color:#29435d}
+@media(max-width:380px){html.erimax-app-android .os-card .os-alert-icon{width:46px;height:46px;min-width:46px;font-size:22px}html.erimax-app-android .os-card .os-alert-meta{gap:7px;padding:9px}}
 </style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main></body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
