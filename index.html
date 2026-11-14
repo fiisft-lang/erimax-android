@@ -913,9 +913,39 @@ header .hd{
 }
 </style>
 
+
+<style id="erimax-menu-lateral-metricas">
+/* Navegação lateral compacta */
+header{position:sticky;top:0;z-index:1205;min-height:64px;gap:14px}
+header img.logo{height:44px;width:220px;max-width:min(58vw,220px);object-fit:contain;object-position:left center}
+.menu-toggle{width:42px;height:42px;flex:0 0 42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #dce7f1;border-radius:12px;background:#fff;color:#245f91;box-shadow:0 2px 8px rgba(32,76,119,.07);cursor:pointer}
+.menu-toggle span{display:block;width:19px;height:2px;border-radius:3px;background:#2878b8;transition:transform .2s,opacity .2s}
+body.menu-lateral-aberto .menu-toggle span:first-child{transform:translateY(7px) rotate(45deg)}
+body.menu-lateral-aberto .menu-toggle span:nth-child(2){opacity:0}
+body.menu-lateral-aberto .menu-toggle span:last-child{transform:translateY(-7px) rotate(-45deg)}
+#menuBackdrop{position:fixed;inset:0;z-index:1200;background:rgba(14,34,55,.42);opacity:0;visibility:hidden;transition:opacity .22s,visibility .22s}
+body.menu-lateral-aberto #menuBackdrop{opacity:1;visibility:visible}
+.nav-tabs{position:fixed!important;top:0!important;bottom:0;left:0;width:min( min(86vw,330px), 330px);height:100dvh;max-height:100dvh;z-index:1202;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:6px;padding:88px 13px 22px!important;overflow-y:auto;overflow-x:hidden;transform:translateX(-105%);transition:transform .24s cubic-bezier(.2,.75,.25,1);border:0!important;border-radius:0 20px 20px 0;box-shadow:12px 0 34px rgba(15,42,70,.17)!important;background:linear-gradient(180deg,#fff 0%,#f7faff 100%)!important}
+body.menu-lateral-aberto .nav-tabs{transform:translateX(0)}
+.nav-tabs .tab-btn{flex:0 0 auto;width:100%;min-height:49px;display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:10px 13px!important;border:1px solid transparent;border-radius:11px;text-align:left;font-size:.84rem}
+.nav-tabs .tab-btn.active{border:1px solid #dceaf5;border-left:4px solid #f28b38;background:#edf6fd;box-shadow:none}
+.nav-tabs .tab-icon,.nav-tabs .tab-icon svg{width:21px;height:21px;flex:0 0 21px}
+#metricsDataContent .tbl-wrap{max-width:100%;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;overscroll-behavior-x:contain;scrollbar-width:thin}
+#metricsDataContent .tbl-wrap table{min-width:620px;width:max-content;max-width:none}
+#metricsDataContent .tbl-wrap th,#metricsDataContent .tbl-wrap td{white-space:nowrap}
+@media(max-width:600px){
+ header{min-height:58px;padding:7px 11px;gap:10px}
+ header img.logo{height:39px;width:190px;max-width:calc(100vw - 125px)}
+ header .hd{font-size:.55rem;white-space:nowrap}
+ .menu-toggle{width:39px;height:39px;flex-basis:39px}
+ .nav-tabs{padding-top:78px!important}
+ #metricsDataContent .tbl-wrap{margin-inline:-2px}
+}
+@media(prefers-reduced-motion:reduce){#menuBackdrop,.nav-tabs,.menu-toggle span{transition:none}}
+</style>
 </head>
 <body>
-<header><img class="logo" alt="Erimax"><div class="hd">Gestão de<br>Manutenção</div></header>
+<header><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
 
 <button id="alertaPreventivaApp" type="button" onclick="dispensarAlertaPreventiva()" aria-label="Dispensar aviso de manutenção preventiva"></button>
@@ -1182,7 +1212,7 @@ header .hd{
 
 <script src="ota-update.js"></script>
 <script>
-const LOGO='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MDAgMTkwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkVSSU1BWCBQcm9kdXRvcyBwYXJhIFNhdWRlIj4KPHJlY3Qgd2lkdGg9IjcwMCIgaGVpZ2h0PSIxOTAiIGZpbGw9Im5vbmUiLz4KPHRleHQgeD0iOCIgeT0iMTIyIiBmaWxsPSIjRjI4QjAwIiBmb250LWZhbWlseT0iQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTI2IiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iLTciPkVSSU1BPC90ZXh0Pgo8cGF0aCBkPSJNNTUyIDI4IEw2MjAgOTUgTDU1MiAxNjIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE2NzdDOCIgc3Ryb2tlLXdpZHRoPSIyOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02ODAgMjggTDYxMiA5NSBMNjgwIDE2MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjI4QjAwIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHRleHQgeD0iMTAiIHk9IjE3NCIgZmlsbD0iIzg1ODU4NSIgZm9udC1mYW1pbHk9IkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjMxIiBmb250LXdlaWdodD0iODAwIiBsZXR0ZXItc3BhY2luZz0iLjUiPlBST0RVVE9TIFBBUkEgU0EmI3hEQTtERTwvdGV4dD4KPC9zdmc+';
+const LOGO='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MzAgMTQ1IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkVSSU1BWCBQcm9kdXRvcyBwYXJhIFNh+mRlIj4KPHJlY3Qgd2lkdGg9IjQzMCIgaGVpZ2h0PSIxNDUiIGZpbGw9Im5vbmUiLz4KPHRleHQgeD0iNCIgeT0iOTkiIGZpbGw9IiNGMjhCMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMDAiIGZvbnQtd2VpZ2h0PSI5MDAiIGxldHRlci1zcGFjaW5nPSItNiI+RVJJTUE8L3RleHQ+Cjx0ZXh0IHg9IjI5OCIgeT0iOTkiIGZpbGw9IiMxNjc3QzgiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMDAiIGZvbnQtd2VpZ2h0PSI5MDAiIGxldHRlci1zcGFjaW5nPSItNiI+WDwvdGV4dD4KPHRleHQgeD0iOCIgeT0iMTM3IiBmaWxsPSIjODU4NTg1IiBmb250LWZhbWlseT0iQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI4MDAiIGxldHRlci1zcGFjaW5nPSIuMjUiPlBST0RVVE9TIFBBUkEgU0EmI3hEQTtERTwvdGV4dD4KPC9zdmc+';
 document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO);
 const SUPABASE_URL='https://qzjbpvgedfpmfnxsvqhu.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
@@ -1438,7 +1468,20 @@ function exibirBannerAlerta(os){
   dispararSireneEVibracao();
 }
 
+function alternarMenuLateral(){
+  const aberto=document.body.classList.contains('menu-lateral-aberto');
+  if(aberto)fecharMenuLateral();else{
+    document.body.classList.add('menu-lateral-aberto');
+    const b=document.getElementById('btnMenuLateral');if(b){b.setAttribute('aria-expanded','true');b.setAttribute('aria-label','Fechar menu')}
+  }
+}
+function fecharMenuLateral(){
+  document.body.classList.remove('menu-lateral-aberto');
+  const b=document.getElementById('btnMenuLateral');if(b){b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir menu')}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharMenuLateral()});
 function mudarAba(id,evt){
+  fecharMenuLateral();
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
