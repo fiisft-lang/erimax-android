@@ -915,22 +915,42 @@ header .hd{
 
 
 <style id="erimax-menu-lateral-metricas">
-/* Ajuste exclusivo do APK: afasta o botão do menu da borda superior e amplia a área de toque. */
+/* Ajuste exclusivo do APK: botão mais baixo, com legenda discreta e área de toque confortável. */
+.menu-control{display:contents}
+.menu-caption{display:none}
 html.erimax-app-android header{
-  min-height:72px;
-  padding-top:18px;
+  min-height:82px;
+  padding-top:26px;
   padding-bottom:12px;
+}
+html.erimax-app-android .menu-control{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  margin-top:6px;
+  flex:0 0 48px;
 }
 html.erimax-app-android #btnMenuLateral{
   width:48px;
   height:48px;
   flex:0 0 48px;
-  margin-top:4px;
+  margin-top:0;
   touch-action:manipulation;
 }
+html.erimax-app-android .menu-caption{
+  display:block;
+  color:#718096;
+  font-size:10px;
+  font-weight:600;
+  line-height:12px;
+  letter-spacing:.15px;
+}
 @media(max-width:600px){
-  html.erimax-app-android header{min-height:72px;padding-top:18px;padding-bottom:12px}
-  html.erimax-app-android #btnMenuLateral{width:48px;height:48px;flex-basis:48px;margin-top:4px}
+  html.erimax-app-android header{min-height:82px;padding-top:26px;padding-bottom:12px}
+  html.erimax-app-android .menu-control{margin-top:6px}
+  html.erimax-app-android #btnMenuLateral{width:48px;height:48px;flex-basis:48px;margin-top:0}
 }
 /* Navegação lateral compacta */
 header{position:sticky;top:0;z-index:1205;min-height:64px;gap:14px}
@@ -972,7 +992,7 @@ body.menu-lateral-aberto .nav-tabs{transform:translateX(0)}
 </style>
 </head>
 <body>
-<header><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
+<header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
 
 <button id="alertaPreventivaApp" type="button" onclick="dispensarAlertaPreventiva()" aria-label="Dispensar aviso de manutenção preventiva"></button>
