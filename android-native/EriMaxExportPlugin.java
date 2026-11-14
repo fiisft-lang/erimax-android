@@ -18,6 +18,12 @@ import java.io.OutputStream;
 @CapacitorPlugin(name = "EriMaxExport")
 public class EriMaxExportPlugin extends Plugin {
     @PluginMethod
+    public void stopIncomingAlert(PluginCall call) {
+        IncomingCallMessagingService.stopAlert();
+        call.resolve();
+    }
+
+    @PluginMethod
     public void saveFile(PluginCall call) {
         String filename = call.getString("filename");
         String mimeType = call.getString("mimeType");
