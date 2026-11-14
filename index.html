@@ -446,6 +446,171 @@ label{color:#52677c;letter-spacing:.025em}
 }
 
 </style>
+
+<style id="erimax-terceira-etapa">
+/* Terceira etapa: formulários, consultas e listas operacionais */
+#tab-abrir > .card,
+#tab-cadastro > .card,
+#tab-ia > .card,
+#tab-presenca > .card,
+#tab-ordens-abertas > .card,
+#tab-ordens-pausadas > .card {
+  border:1px solid #e2eaf2;
+  border-radius:17px;
+  box-shadow:0 5px 18px rgba(24,59,99,.055);
+}
+#tab-abrir > .card,
+#tab-cadastro > .card,
+#tab-ia > .card { padding:clamp(15px,2.5vw,22px); }
+#tab-abrir .form-group,
+#tab-cadastro .form-group,
+#tab-ia .form-group { margin-bottom:16px; }
+#tab-abrir .form-group > label,
+#tab-cadastro .form-group > label,
+#tab-ia .form-group > label,
+#tab-cadastro .card > .form-group > label {
+  display:block;
+  margin:0 0 7px;
+  color:#385873;
+  font-size:.7rem;
+  line-height:1.35;
+  font-weight:800;
+  letter-spacing:.045em;
+}
+#tab-abrir input:not([type="checkbox"]):not([type="radio"]),
+#tab-abrir select,
+#tab-abrir textarea,
+#tab-cadastro input:not([type="checkbox"]):not([type="radio"]),
+#tab-cadastro select,
+#tab-cadastro textarea,
+#tab-ia input,
+#tab-ia select,
+#tab-ia textarea {
+  box-sizing:border-box;
+  min-height:46px;
+  padding:12px 13px;
+  border:1px solid #d7e2ed;
+  border-radius:11px;
+  background:#f8fbfe;
+  color:#20364b;
+  font:inherit;
+  font-size:.92rem;
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+#tab-abrir textarea,#tab-cadastro textarea,#tab-ia textarea { min-height:100px; resize:vertical; }
+#tab-abrir input:focus,#tab-abrir select:focus,#tab-abrir textarea:focus,
+#tab-cadastro input:focus,#tab-cadastro select:focus,#tab-cadastro textarea:focus,
+#tab-ia input:focus,#tab-ia select:focus,#tab-ia textarea:focus {
+  outline:none;
+  border-color:#2878b8;
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(40,120,184,.13);
+}
+#tab-abrir .btn-submit,#tab-cadastro .btn-submit,#tab-ia .btn-submit {
+  min-height:48px;
+  border-radius:11px;
+  background:linear-gradient(105deg,#2878b8,#21679f);
+  box-shadow:0 5px 12px rgba(40,120,184,.17);
+  letter-spacing:.01em;
+}
+#tab-abrir .btn-submit:active,#tab-cadastro .btn-submit:active,#tab-ia .btn-submit:active {
+  transform:translateY(1px);
+  box-shadow:0 2px 6px rgba(40,120,184,.14);
+}
+#tab-cadastro .card > h3,
+#tab-ia .card > h2,
+#tab-ordens-abertas .card h3,
+#tab-ordens-pausadas .card h3,
+#tab-presenca .card h3 {
+  letter-spacing:-.02em;
+  line-height:1.3;
+}
+#tab-cadastro #listaCfg,
+#tab-cadastro #listaMaquinas,
+#tab-cadastro #listaPrev,
+#tab-cadastro #listaUsuarios,
+#tab-presenca #listaPresenca,
+#tab-ia #resultadoConsulta {
+  min-width:0;
+}
+#tab-ia #resultadoConsulta:empty { display:none; }
+#tab-ia #resultadoConsulta > * {
+  border-radius:12px;
+}
+#tab-abrir .os-card,
+#tab-ordens-abertas .os-card,
+#tab-ordens-pausadas .os-card {
+  background:linear-gradient(145deg,#fff 0%,#fbfdff 100%);
+}
+#tab-abrir .tbl-wrap,
+#tab-cadastro .tbl-wrap,
+#tab-ia .tbl-wrap {
+  overflow-x:auto;
+  border:1px solid #e3ebf3;
+  border-radius:12px;
+  background:#fff;
+  -webkit-overflow-scrolling:touch;
+}
+#tab-abrir table,
+#tab-cadastro table,
+#tab-ia table {
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:.78rem;
+}
+#tab-abrir th,#tab-cadastro th,#tab-ia th {
+  padding:11px 9px;
+  background:#edf4fa;
+  color:#385873;
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:.035em;
+}
+#tab-abrir td,#tab-cadastro td,#tab-ia td {
+  padding:10px 9px;
+  border-bottom:1px solid #edf2f7;
+  color:#334b60;
+}
+#tab-cadastro .report-item,
+#tab-ia .report-item {
+  border:1px solid #e2eaf2;
+  border-radius:12px;
+  background:#f8fbfe;
+  line-height:1.5;
+}
+#tab-cadastro details,
+#tab-abrir details {
+  border-color:#e1e9f1;
+  border-radius:12px;
+}
+#tab-cadastro details > summary,
+#tab-abrir details > summary {
+  color:#315d83;
+  font-weight:750;
+}
+#tab-cadastro button:not(.btn-submit),
+#tab-abrir button:not(.btn-submit),
+#tab-ia button:not(.btn-submit) {
+  -webkit-tap-highlight-color:transparent;
+}
+@media(max-width:600px) {
+  #tab-abrir > .card,#tab-cadastro > .card,#tab-ia > .card { padding:14px; border-radius:14px; }
+  #tab-abrir .form-group,#tab-cadastro .form-group,#tab-ia .form-group { margin-bottom:13px; }
+  #tab-abrir input:not([type="checkbox"]):not([type="radio"]),
+  #tab-abrir select,#tab-abrir textarea,
+  #tab-cadastro input:not([type="checkbox"]):not([type="radio"]),
+  #tab-cadastro select,#tab-cadastro textarea,
+  #tab-ia input,#tab-ia select,#tab-ia textarea { min-height:45px; font-size:16px; }
+  #tab-abrir th,#tab-cadastro th,#tab-ia th,
+  #tab-abrir td,#tab-cadastro td,#tab-ia td { padding:9px 8px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #tab-abrir input,#tab-abrir select,#tab-abrir textarea,
+  #tab-cadastro input,#tab-cadastro select,#tab-cadastro textarea,
+  #tab-ia input,#tab-ia select,#tab-ia textarea { transition:none; }
+}
+</style>
+
 </head>
 <body>
 <header><img class="logo" alt="Erimax"><div class="hd">Gestão de<br>Manutenção</div></header>
