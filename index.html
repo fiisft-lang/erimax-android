@@ -611,6 +611,165 @@ label{color:#52677c;letter-spacing:.025em}
 }
 </style>
 
+
+<style id="erimax-quarta-etapa">
+/* Quarta etapa: navegação e acabamento da experiência móvel */
+header{
+  min-height:62px;
+  padding:9px clamp(14px,3vw,28px);
+  background:linear-gradient(110deg,#fff 0%,#f8fbff 100%);
+  border-bottom:3px solid #f28b38;
+  box-shadow:0 4px 18px rgba(25,67,108,.075);
+}
+header img.logo{height:43px;max-width:min(52vw,205px)}
+header .hd{
+  color:#466783;
+  font-size:.66rem;
+  line-height:1.35;
+  letter-spacing:.085em;
+  font-weight:800;
+}
+.user-bar{
+  min-height:38px;
+  gap:10px;
+  padding:7px clamp(12px,3vw,26px);
+  background:linear-gradient(90deg,#edf5fc 0%,#f7faff 100%);
+  border-bottom:1px solid #dfe9f2;
+  color:#315d83;
+}
+#ubNome{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:.76rem;
+  font-weight:750;
+}
+.user-bar button{
+  min-height:30px;
+  padding:5px 11px;
+  border:1px solid #d8e4ef;
+  border-radius:999px;
+  background:#fff;
+  color:#315d83;
+  font-size:.72rem;
+  font-weight:800;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+.user-bar button:last-child{
+  border-color:#f4d5d2;
+  background:#fff8f7;
+  color:#b83e38;
+}
+.user-bar button:active{transform:translateY(1px)}
+.nav-tabs{
+  gap:3px;
+  padding:6px clamp(5px,1.2vw,12px);
+  border-bottom:1px solid #dce7f0;
+  box-shadow:0 7px 18px rgba(31,72,112,.065);
+  background:rgba(255,255,255,.97);
+}
+.tab-btn{
+  position:relative;
+  flex:1 1 20%;
+  min-height:51px;
+  gap:7px;
+  padding:8px 9px;
+  border:1px solid transparent;
+  border-bottom:3px solid transparent;
+  border-radius:11px 11px 7px 7px;
+  color:#5e7388;
+  font-size:.76rem;
+  font-weight:750;
+  transition:background .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.tab-btn:hover{background:#f5f9fd;color:#285f8e}
+.tab-btn.active{
+  color:#205f91;
+  background:linear-gradient(180deg,#edf6fd 0%,#fff 100%);
+  border-color:#dceaf5;
+  border-bottom:3px solid #f28b38;
+  box-shadow:0 3px 9px rgba(40,120,184,.07);
+}
+.tab-icon{
+  width:21px;height:21px;flex-basis:21px;
+  color:#7892a9;
+}
+.tab-icon svg{width:20px;height:20px}
+.tab-btn.active .tab-icon{color:#2878b8}
+.tab-btn .badge-count{
+  min-width:20px;
+  padding:3px 7px;
+  border:1px solid rgba(242,139,56,.18);
+  background:#f28b38;
+  color:#fff;
+  line-height:1.1;
+}
+.container{
+  width:100%;
+  max-width:1120px;
+  margin:0 auto;
+  padding:clamp(12px,2.2vw,22px);
+}
+.tab-content.active{animation:erimaxEntradaAba .2s ease-out}
+@keyframes erimaxEntradaAba{
+  from{opacity:.72;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+#alertaPreventivaApp{
+  border-color:#f1d28a;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(125,91,25,.07);
+}
+#barraAtivacaoAudio{
+  border-bottom:1px solid rgba(255,255,255,.22);
+  letter-spacing:.025em;
+  box-shadow:0 3px 10px rgba(112,67,18,.14);
+}
+#bannerAlerta{
+  border-bottom:3px solid #a91f2b;
+}
+#bannerAlerta button{
+  min-height:40px;
+  border-radius:10px;
+}
+#toastOS{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:14px;
+  box-shadow:0 12px 30px rgba(15,23,42,.2);
+}
+@media(max-width:600px){
+  header{min-height:57px;padding:8px 13px}
+  header img.logo{height:38px;max-width:53vw}
+  header .hd{font-size:.58rem;letter-spacing:.06em}
+  .user-bar{min-height:36px;padding:6px 11px;gap:7px}
+  #ubNome{font-size:.7rem}
+  .user-bar button{min-height:29px;padding:4px 9px;font-size:.68rem}
+  .nav-tabs{gap:3px;padding:5px 4px}
+  .tab-btn{
+    flex:1 1 30%;
+    min-height:49px;
+    gap:5px;
+    padding:7px 4px;
+    border-radius:9px 9px 6px 6px;
+    font-size:.69rem;
+    line-height:1.18;
+  }
+  .tab-icon,.tab-icon svg{width:18px;height:18px;flex-basis:18px}
+  .tab-btn .badge-count{min-width:18px;padding:2px 5px;font-size:.65rem}
+  .container{padding:11px 10px 20px}
+}
+@media(max-width:360px){
+  .tab-btn{font-size:.64rem;gap:3px;padding-inline:2px}
+  .tab-icon,.tab-icon svg{width:16px;height:16px;flex-basis:16px}
+  header .hd{font-size:.54rem}
+}
+@media(prefers-reduced-motion:reduce){
+  .tab-content.active{animation:none}
+  .user-bar button,.tab-btn{transition:none}
+}
+</style>
+
 </head>
 <body>
 <header><img class="logo" alt="Erimax"><div class="hd">Gestão de<br>Manutenção</div></header>
