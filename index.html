@@ -310,6 +310,15 @@ label{color:#52677c;letter-spacing:.025em}
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
 
+
+/* Navegação com ícones vetoriais consistentes */
+.nav-tabs{align-items:stretch;gap:2px;padding:4px clamp(4px,1vw,10px)}
+.tab-btn{display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;padding:9px 10px}
+.tab-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 19px;width:19px;height:19px;color:#6f8ba4}
+.tab-icon svg{display:block;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn.active .tab-icon{color:var(--primary)}
+.tab-btn .badge-count{margin-left:-3px}
+@media(max-width:600px){.nav-tabs{gap:1px;padding:3px}.tab-btn{gap:5px;padding:8px 4px;min-height:48px;font-size:.7rem}.tab-icon,.tab-icon svg{width:17px;height:17px;flex-basis:17px}}
 </style>
 </head>
 <body>
@@ -327,15 +336,15 @@ label{color:#52677c;letter-spacing:.025em}
 </div>
 
 <nav class="nav-tabs">
-<button class="tab-btn active" type="button" onclick="mudarAba('abrir',event)">📝 Abrir OS</button>
-<button id="tbOrdensServico" class="tab-btn" type="button" onclick="mudarAba('ordens-servico',event)">🛠️ Ordens de Serviço <span id="badgePendentes" class="badge-count">0</span></button>
-<button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)">🏭 Supervisão</button>
-<button id="tbOrdensAbertas" class="tab-btn" type="button" onclick="mudarAba('ordens-abertas',event)" style="display:none">📂 Ordens Abertas</button>
-<button id="tbOrdensPausadas" class="tab-btn" type="button" onclick="mudarAba('ordens-pausadas',event)" style="display:none">⏸️ Ordens Pausadas</button>
-<button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)">📊 Métricas</button>
-<button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)">⚙️ Cadastro</button>
-<button id="tbPresenca" class="tab-btn" type="button" onclick="mudarAba('presenca',event)" style="display:none">👥 Conectados</button>
-<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)">🔎 Consultas</button>
+<button class="tab-btn active" type="button" onclick="mudarAba('abrir',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8a2 2 0 0 1 2 2v14H6V6a2 2 0 0 1 2-2Z"/><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h3"/></svg></span><span>Abrir OS</span></button>
+<button id="tbOrdensServico" class="tab-btn" type="button" onclick="mudarAba('ordens-servico',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4l-3 3-3-3 3-3Z"/></svg></span><span>Ordens de Serviço</span> <span id="badgePendentes" class="badge-count">0</span></button>
+<button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l6 3V8l6 4V5h4v16H3Z"/><path d="M7 17h2m3 0h2m3 0h2M16 5V3h3v2"/></svg></span><span>Supervisão</span></button>
+<button id="tbOrdensAbertas" class="tab-btn" type="button" onclick="mudarAba('ordens-abertas',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></span><span>Ordens Abertas</span></button>
+<button id="tbOrdensPausadas" class="tab-btn" type="button" onclick="mudarAba('ordens-pausadas',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zM15 5h3v14h-3z"/></svg></span><span>Ordens Pausadas</span></button>
+<button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h17"/><path d="m7 15 4-4 3 2 5-6"/></svg></span><span>Métricas</span></button>
+<button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z"/></svg></span><span>Cadastro</span></button>
+<button id="tbPresenca" class="tab-btn" type="button" onclick="mudarAba('presenca',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1H3Zm13-9a3 3 0 1 0-1-5.8M17 14a5 5 0 0 1 4 5v1h-3"/></svg></span><span>Conectados</span></button>
+<button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><span>Consultas</span></button>
 </nav>
 
 <div class="container">
