@@ -106,7 +106,7 @@ jobs:
           i = matches[0]
           indent = lines[i][:len(lines[i]) - len(lines[i].lstrip())]
           lines[i] = f"{indent}versionCode {version_code}"
-          p.write_text("\\n".join(lines) + "\\n")
+          p.write_text("\n".join(lines) + "\n")
           print(f"Android versionCode definido como {version_code}")
           PY
           # Registrar o plugin customizado DEPOIS do cap sync, garantindo que a MainActivity final do APK o carregue.
