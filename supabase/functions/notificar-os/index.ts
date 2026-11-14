@@ -147,18 +147,11 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           message: {
             token: deviceToken,
-            notification: {
-              title: 'Nova O.S. ' + numero,
-              body: String(os.maquina || 'Máquina não informada') + ' • ' + String(os.setor || 'Setor não informado'),
-            },
+            // Data-only: obriga o FCM a entregar o evento ao serviço nativo
+            // personalizado mesmo com o app em segundo plano/tela bloqueada.
             android: {
               priority: 'HIGH',
               ttl: '15s',
-              notification: {
-                channel_id: 'chamados',
-                sound: 'alarme',
-                visibility: 'PUBLIC',
-              },
             },
             data,
           },
