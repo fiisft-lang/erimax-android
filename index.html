@@ -2625,6 +2625,13 @@ tbody tr:hover{background:#eef6f5}
  #tab-ordens-abertas .oa-stat span{font-size:.61rem}
  #tab-ordens-abertas .os-card .os-resumo-info{gap:5px}
 }
+
+#tab-ordens-abertas .oa-stat{appearance:none;width:100%;text-align:left;font:inherit;cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+#tab-ordens-abertas .oa-stat:focus-visible{outline:3px solid #91c9d4;outline-offset:3px}
+#tab-ordens-abertas .oa-stat:hover{transform:translateY(-2px);background:rgba(255,255,255,.16)}
+#tab-ordens-abertas .oa-stat.is-selected{border-color:#fff;background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+#tab-ordens-abertas .oa-list-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+#tab-ordens-abertas .oa-clear-filter{padding:6px 10px;border:1px solid #d6e2e8;border-radius:8px;background:#f2f7f9;color:#28566e;font-size:.66rem;font-weight:800;cursor:pointer}
 </style>
 
 </head>
@@ -2731,7 +2738,7 @@ tbody tr:hover{background:#eef6f5}
   <div class="oa-hero-top"><div><span class="oa-kicker">CENTRAL DE ATENDIMENTO</span><h2>Ordens abertas</h2><p>Acompanhe o que aguarda atendimento e o que já está em execução.</p></div><div class="oa-total"><span>O.S. ativas</span><b id="oaTotalAtivas">0</b></div></div>
   <div id="osAbertasResumo" class="oa-stats" aria-live="polite"></div>
 </section>
-<section class="oa-list-panel"><div class="oa-list-heading"><div><span class="oa-kicker">ACOMPANHAMENTO</span><h3>Ordens em aberto</h3></div><span class="oa-list-note">Toque em uma ordem para ver as ações disponíveis</span></div><div id="listaOSAbertas" class="oa-list"></div></section>
+<section class="oa-list-panel"><div class="oa-list-heading"><div><span class="oa-kicker">ACOMPANHAMENTO</span><h3 id="oaTituloLista">Todas as ordens ativas</h3></div><div class="oa-list-tools"><span class="oa-list-note">Selecione um indicador para filtrar</span><button type="button" id="oaLimparFiltro" class="oa-clear-filter" onclick="filtrarOSAbertasIndicador('Todas')" hidden>Limpar filtro ×</button></div></div><div id="listaOSAbertas" class="oa-list"></div></section>
 </div>
 <div id="tab-ordens-pausadas" class="tab-content">
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">⏸️ Ordens Pausadas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Ordens interrompidas por falta de peça, prioridade ou outro impedimento. Retome quando puder continuar.</p></div>
@@ -3582,6 +3589,13 @@ function atualizarResumoDashboardOS(){
   const selecionado=filtro?.value||'Todas';
   document.querySelectorAll('#osFiltrosRapidos [data-status]').forEach(btn=>btn.classList.toggle('active',btn.dataset.status===selecionado));
 }
+function filtrarOSAbertasIndicador(tipo){
+  const atual=window.__erimaxFiltroOSAbertas||'Todas';
+  window.__erimaxFiltroOSAbertas=(tipo==='Todas'||tipo===atual)?'Todas':tipo;
+  renderizarChamados('listaOSAbertas',true);
+  document.getElementById('tab-ordens-abertas')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas=false){renderTecnicos();renderStatusTurno();if(destino==='listaOS')atualizarResumoDashboardOS();
   const box=document.getElementById(destino),filtro=apenasAbertas?'Abertas':document.getElementById('filtroStatus').value;
   if(destino==='listaOSAbertas'){
@@ -3593,12 +3607,15 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const totalUrgentes=ativasAbertas.filter(os=>['Alta','Urgente','Crítica','Critica'].includes(String(os.prioridade||'').trim())).length;
     const total=document.getElementById('oaTotalAtivas');
     if(total)total.textContent=ativasAbertas.length;
+    const filtroCard=window.__erimaxFiltroOSAbertas||'Todas';
     if(resumoAbertas)resumoAbertas.innerHTML=[
-      ['Aguardando atendimento',totalAbertas,'Na fila de manutenção','#b7791f'],
-      ['Em execução',totalAtendimento,'Com atendimento iniciado','#2875a5'],
-      ['Máquinas paradas',totalParadas,'Condição informada na O.S.','#b54747'],
-      ['Prioridade alta',totalUrgentes,'Alta, urgente ou crítica','#a16207']
-    ].map(x=>'<div class="oa-stat" style="--oa-color:'+x[3]+'"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></div>').join('');
+      ['Aguardando atendimento',totalAbertas,'Na fila de manutenção','#b7791f','Aguardando'],
+      ['Em execução',totalAtendimento,'Com atendimento iniciado','#2875a5','Execucao'],
+      ['Máquinas paradas',totalParadas,'Condição informada na O.S.','#b54747','Paradas'],
+      ['Prioridade alta',totalUrgentes,'Alta, urgente ou crítica','#a16207','Prioridade']
+    ].map(x=>'<button type="button" class="oa-stat'+(filtroCard===x[4]?' is-selected':'')+'" style="--oa-color:'+x[3]+'" onclick="filtrarOSAbertasIndicador(\''+x[4]+'\')" aria-pressed="'+(filtroCard===x[4]?'true':'false')+'"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></button>').join('');
+    const limpar=document.getElementById('oaLimparFiltro');
+    if(limpar)limpar.hidden=filtroCard==='Todas';
   }
   const nome=localStorage.getItem('erimax_tecnico')||'';
   document.getElementById('nomeTecnico').value=nome;
@@ -3615,6 +3632,13 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
   const lista=chamados.filter(c=>{
     if(apenasPausadas&&c.status!=='Pausada')return false;
     if(apenasAbertas&&!['Aberta','Em Atendimento'].includes(c.status))return false;
+    if(destino==='listaOSAbertas'){
+      const filtroCard=window.__erimaxFiltroOSAbertas||'Todas';
+      if(filtroCard==='Aguardando'&&c.status!=='Aberta')return false;
+      if(filtroCard==='Execucao'&&c.status!=='Em Atendimento')return false;
+      if(filtroCard==='Paradas'&&String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return false;
+      if(filtroCard==='Prioridade'&&!['Alta','Urgente','Crítica','Critica'].includes(String(c.prioridade||'').trim()))return false;
+    }
     if(!apenasPausadas&&!apenasAbertas&&filtro!=='Todas'&&c.status!==filtro)return false;
     if(pf!=='Todas'&&c.prioridade!==pf)return false;
     if(sf!=='Todos'&&normSetor(c.setor)!==sf)return false;
@@ -3626,7 +3650,11 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
   });
   if(principal){const ordem=document.getElementById('ordenarOS')?.value||'recentes';const peso={Alta:3,'Média':2,Baixa:1};lista.sort((a,b)=>{if(ordem==='prioridade'){const d=(peso[b.prioridade]||0)-(peso[a.prioridade]||0);if(d)return d}const ta=a.created_at?new Date(a.created_at).getTime():0,tb=b.created_at?new Date(b.created_at).getTime():0;return ordem==='antigas'?ta-tb:tb-ta})}
   box.innerHTML='';
-  if(!lista.length){box.innerHTML='<div class="card" style="text-align:center;color:#64748b">Nenhum chamado encontrado.</div>';return}
+  if(destino==='listaOSAbertas'){
+    const titulos={Todas:'Todas as ordens ativas',Aguardando:'Aguardando atendimento',Execucao:'Em execução',Paradas:'Máquinas paradas',Prioridade:'Ordens de prioridade alta'};
+    const titulo=document.getElementById('oaTituloLista');if(titulo)titulo.textContent=titulos[window.__erimaxFiltroOSAbertas||'Todas'];
+  }
+  if(!lista.length){box.innerHTML='<div class="card" style="text-align:center;color:#64748b">'+(destino==='listaOSAbertas'?'Nenhuma ordem corresponde a este indicador.':'Nenhum chamado encontrado.')+'</div>';return}
   lista.forEach(os=>{
     const id=Number(os.id);
     if(!Number.isSafeInteger(id)||id<=0)return;
