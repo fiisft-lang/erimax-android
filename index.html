@@ -4227,6 +4227,44 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 .os-resumo-info .os-prioridade-baixa{color:#16765e}
 @media(max-width:480px){.os-resumo-info{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.os-resumo-info>span{padding:8px}.os-resumo-info>span:last-child{grid-column:1/-1}}
 
+
+/* ===== Legibilidade reforçada na aba de Supervisão ===== */
+#painelMaquinasSupervisor{color:#172b3d!important}
+#painelMaquinasSupervisor>section.card:first-child h3{color:#fff!important}
+#painelMaquinasSupervisor>section.card:first-child p{color:#f1f7fc!important;opacity:1!important;font-size:.84rem!important}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>div{
+ color:#344b60!important;font-size:.78rem!important;font-weight:700!important;line-height:1.4!important
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>b{
+ color:#102f49!important;font-weight:800!important
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary b{
+ color:#183b59!important;font-size:.98rem!important;font-weight:800!important
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary,
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary{color:#243b50!important}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary b{
+ color:#172f45!important;font-size:.94rem!important;font-weight:800!important
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina] small,
+#painelMaquinasSupervisor details[data-supervisor-maquina] p,
+#painelMaquinasSupervisor details[data-supervisor-maquina] label,
+#painelMaquinasSupervisor details[data-supervisor-maquina] span{
+ color:#40566b!important;opacity:1!important
+}
+#painelMaquinasSupervisor [role="button"][title*="abrir esta O.S."],
+#painelMaquinasSupervisor [role="button"][title*="histórico completo"]{
+ color:#203b52!important;font-weight:700!important
+}
+#painelMaquinasSupervisor small{color:#40566b!important;opacity:1!important;font-size:.78rem!important}
+#painelMaquinasSupervisor strong{color:#173f63!important}
+@media(max-width:600px){
+ #painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>div{font-size:.76rem!important}
+ #painelMaquinasSupervisor>details[data-supervisor-setor]>summary b,
+ #painelMaquinasSupervisor details[data-supervisor-maquina]>summary b{font-size:.92rem!important}
+ #painelMaquinasSupervisor small{font-size:.76rem!important}
+}
+
 </style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main></body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
