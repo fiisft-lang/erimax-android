@@ -6833,20 +6833,25 @@ async function executarLinkOS(id,action){
   if(ACOES_LINK_OS.has(chave))return;
   ACOES_LINK_OS.add(chave);
   try{
-    // Aguarda a sessão e os dados mais recentes antes de executar qualquer ação.
-    // A tela nativa pode abrir o app a frio ou enquanto ele já está em execução.
-    if(!PERFIL){localStorage.setItem('erimax_os_pendente',String(id));if(action)localStorage.setItem('erimax_os_acao_pendente',action);return}
+    if(!PERFIL){
+      localStorage.setItem('erimax_os_pendente',String(id));
+      if(action)localStorage.setItem('erimax_os_acao_pendente',action);
+      ACOES_LINK_OS.delete(chave);
+      return;
+    }
+    // Primeiro executa a decisão; só depois navega para a lista da O.S.
+    // Assim a ação não depende da renderização/rolagem do painel.
     await carregarDadosSupabase();
     const os=chamados.find(x=>Number(x.id)===Number(id));
-    if(!os){ACOES_LINK_OS.delete(chave);console.warn('A O.S. do alerta ainda não foi carregada:',id);return}
-    await abrirOSNoPainel(id);
+    if(!os)throw new Error('A O.S. '+id+' ainda não foi carregada.');
     if(action==='aceitar_transferencia')await aceitarTransferenciaOS(Number(id));
     else if(action==='recusar_transferencia')await recusarTransferenciaOS(Number(id));
     else if(action==='assumir')await assumirOS(Number(id));
+    await abrirOSNoPainel(id);
   }catch(e){
     ACOES_LINK_OS.delete(chave);
     console.error('Não foi possível executar a ação recebida pela notificação:',e);
-    alert('Não foi possível concluir a ação da notificação. Abra a O.S. e tente novamente.');
+    alert('Não foi possível concluir a ação da notificação: '+(e?.message||e));
   }
 }
 function tratarLinkOS(url){
@@ -6866,14 +6871,20 @@ async function abrirOSDaSupervisao(id){
   await abrirOSNoPainel(id);
   if(os.status==='Concluída')setTimeout(()=>verHistorico(id),350);
 }
+let linksOSListenerIniciado=false;
 async function iniciarLinksOS(){
+  if(linksOSListenerIniciado)return;
   try{
     const App=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;
     if(!App)return;
+    linksOSListenerIniciado=true;
     await App.addListener('appUrlOpen',e=>tratarLinkOS(e.url));
     const launch=await App.getLaunchUrl();
     if(launch&&launch.url)tratarLinkOS(launch.url);
-  }catch(e){console.error('Erro ao preparar abertura da O.S.:',e)}
+  }catch(e){
+    linksOSListenerIniciado=false;
+    console.error('Erro ao preparar abertura da O.S.:',e);
+  }
 }
 
 /* ===== LOGIN, PERFIS E CADASTRO ===== */
@@ -8118,6 +8129,9 @@ navigator.serviceWorker?.addEventListener('message',event=>{
   }
 });
 window.onload=async function(){
+  // Registra o recebimento dos links nativos antes da autenticação, para não perder
+  // uma ação quando o aplicativo é aberto a partir da tela bloqueada.
+  iniciarLinksOS();
   // A verificação OTA não pode depender da resposta de autenticação.
   if(window.erimaxOTA){
     window.erimaxOTA.ready().catch(e=>console.warn('[EriMax] Preparação OTA:',e));
