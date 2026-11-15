@@ -3035,6 +3035,252 @@ tbody tr:nth-child(even){background:#f8fafb!important}tbody tr:hover{background:
 }
 html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </style>
+<style id="erimax-metricas-layout-executivo-2026">
+/* Camada visual da aba Métricas: organização editorial, sem alterar cálculos ou regras de negócio. */
+#tab-metricas{padding-bottom:28px}
+#tab-metricas .metrics-hero{min-height:150px;align-items:center}
+#tab-metricas .metrics-hero-side{align-self:stretch;justify-content:center}
+#tab-metricas .metrics-filter-card{margin-bottom:16px}
+#tab-metricas .metrics-filter-card .form-group{display:flex;flex-direction:column;justify-content:flex-end;gap:5px}
+#tab-metricas .metrics-filter-card input:focus,#tab-metricas .metrics-filter-card select:focus{outline:3px solid rgba(45,112,151,.15);border-color:#4384a3}
+#metricsDataContent{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:14px}
+#metricsDataContent>*{min-width:0}
+#metricsDataContent>.metrics-report-toolbar,#metricsDataContent>.metrics-section-heading,#metricsDataContent>#printReportHeader,#metricsDataContent>.metrics-grid,#metricsDataContent>#cardHorarioEfGeral,#metricsDataContent>#cardHeatmapMaquinas,#metricsDataContent>#cardHorarioPareto,#metricsDataContent>#cardRankingReincidencia,#metricsDataContent>.metrics-ranking-card{grid-column:1/-1}
+#metricsDataContent>.metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0}
+#metricsDataContent>.card{height:100%;min-width:0}
+#metricsDataContent>.card:has(> .chart-wrapper > canvas#chEfSetor),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chEfMaq),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chCausas),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTendencia),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTendenciaMensal),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chDowntime),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTipos),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTecnico),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTurno),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chHora){grid-column:span 1}
+#metricsDataContent>.card:has(> .chart-wrapper > canvas#chPareto){grid-column:1/-1}
+#metricsDataContent>.metrics-section-heading{margin:5px 0 -1px;padding:11px 13px;border:1px solid #e2eaf1;border-radius:13px;background:linear-gradient(105deg,#f2f7fb,#fff)}
+#metricsDataContent>.metrics-section-heading h3{font-size:.98rem}
+#metricsDataContent>.metrics-section-heading p{font-size:.72rem}
+#metricsDataContent>.metrics-report-toolbar{padding:14px 16px;background:#f7fafc}
+#metricsDataContent>.metrics-report-toolbar strong{font-size:.78rem}
+#metricsDataContent>.card:has(> .chart-wrapper){display:flex;flex-direction:column}
+#metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{flex:1;min-height:245px}
+#metricsDataContent>#cardHorarioEfGeral>.chart-wrapper{min-height:250px}
+#metricsDataContent>#cardHorarioPareto>.chart-wrapper{min-height:340px}
+#metricsDataContent #cardHeatmapMaquinas{padding:18px}
+#metricsDataContent .metrics-heat-row{min-height:48px;transition:border-color .16s ease,background .16s ease,transform .16s ease}
+#metricsDataContent .metrics-heat-row:hover{border-color:#b8cbd8;background:#f8fbfd;transform:translateX(2px)}
+#metricsDataContent .metrics-ranking-card{align-self:stretch}
+#metricsDataContent .ranking-os-card-head h3{font-size:1rem}
+#metricsDataContent .ranking-os-card-head p{font-size:.75rem}
+#metricsDataContent .metrics-chart-note{font-size:.75rem}
+#metricsDataContent .metrics-export-actions .btn-submit{min-height:40px}
+@media(min-width:1100px){#metricsDataContent{column-gap:16px;row-gap:16px}#metricsDataContent>.metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:760px) and (max-width:1099px){#metricsDataContent>.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:759px){
+ #tab-metricas{padding-bottom:18px}
+ #metricsDataContent{grid-template-columns:minmax(0,1fr);gap:11px}
+ #metricsDataContent>*,#metricsDataContent>.metrics-report-toolbar,#metricsDataContent>.metrics-section-heading,#metricsDataContent>.metrics-grid,#metricsDataContent>.card:has(> .chart-wrapper),#metricsDataContent>.metrics-ranking-card{grid-column:1}
+ #metricsDataContent>.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #metricsDataContent>.metrics-section-heading{padding:10px 11px}
+ #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{min-height:230px}
+ #metricsDataContent>#cardHorarioPareto>.chart-wrapper{min-height:320px}
+ #metricsDataContent .metrics-heat-row{grid-template-columns:minmax(86px,1.05fr) minmax(48px,1.4fr) 42px;gap:7px;padding:9px 8px}
+ #metricsDataContent .metrics-heat-row small{grid-column:1/-1;padding-left:1px}
+ #metricsDataContent .metrics-report-toolbar{border-radius:12px}
+}
+@media(max-width:380px){#metricsDataContent>.metrics-grid{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){#metricsDataContent .metrics-heat-row{transition:none}#metricsDataContent .metrics-heat-row:hover{transform:none}}
+@media print{#metricsDataContent{display:block}#metricsDataContent>.card{margin-bottom:10px}}
+</style>
+<style id="erimax-metricas-polimento-profissional-2026">
+/* Polimento da experiência: filtros, hierarquia e consistência dos componentes. */
+#tab-metricas .metrics-hero{position:relative;overflow:hidden}
+#tab-metricas .metrics-hero:after{content:"";position:absolute;right:-48px;top:-88px;width:230px;height:230px;border:1px solid rgba(255,255,255,.10);border-radius:50%;box-shadow:0 0 0 22px rgba(255,255,255,.035),0 0 0 46px rgba(255,255,255,.025);pointer-events:none}
+#tab-metricas .metrics-hero>div{position:relative;z-index:1;min-width:0}
+#tab-metricas .metrics-hero-side{max-width:260px}
+#tab-metricas .metrics-filter-card{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:13px;row-gap:2px;padding:18px}
+#tab-metricas .metrics-filter-card h3,#tab-metricas .metrics-filter-card>p{grid-column:1/-1}
+#tab-metricas .metrics-filter-card .form-group{margin:0 0 10px;min-width:0}
+#tab-metricas .metrics-filter-card .form-group label{display:block;min-height:15px;font-size:.66rem;font-weight:800;letter-spacing:.055em;color:#5e7184}
+#tab-metricas .metrics-filter-card input,#tab-metricas .metrics-filter-card select{width:100%;min-height:42px;border:1px solid #d7e2eb;border-radius:10px;padding:9px 10px;background:#fbfdff;color:#263e52;font-size:.82rem;transition:border-color .16s ease,box-shadow .16s ease}
+#tab-metricas .metrics-filter-card .metrics-custom-period{grid-column:span 2;align-self:stretch;margin:0 0 10px!important;border-color:#dce6ee!important;border-radius:12px!important;background:#f8fbfd!important}
+#tab-metricas .metrics-filter-card .metrics-custom-period>div{align-items:end}
+#tab-metricas .metrics-filter-card .metrics-custom-period .form-group{margin:0}
+#tab-metricas .metrics-filter-card .metrics-custom-period .btn-action{min-height:34px;border-radius:9px}
+#tab-metricas .metrics-filter-card input:focus-visible,#tab-metricas .metrics-filter-card select:focus-visible{outline:3px solid rgba(45,112,151,.16);outline-offset:1px;border-color:#4384a3;box-shadow:0 0 0 2px rgba(67,132,163,.08)}
+#metricsDataContent>.metrics-report-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid #dfe8ef;border-radius:14px}
+#metricsDataContent>.metrics-report-toolbar>div:first-child{min-width:0}
+#metricsDataContent>.metrics-report-toolbar strong{display:block;line-height:1.45;color:#294a63}
+#metricsDataContent .metrics-export-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+#metricsDataContent .metrics-export-actions .btn-submit{margin:0;border-radius:10px;padding:9px 13px;font-size:.76rem}
+#metricsDataContent>.metrics-grid .metric-card{min-height:112px;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:15px 12px}
+#metricsDataContent>.metrics-grid .metric-card .title{line-height:1.35}
+#metricsDataContent>.metrics-grid .metric-card .value{font-variant-numeric:tabular-nums}
+#metricsDataContent>.card:has(> .chart-wrapper) h4{justify-content:flex-start;text-align:left;margin-bottom:8px}
+#metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{overflow:hidden}
+#metricsDataContent .metrics-section-heading{scroll-margin-top:16px}
+#metricsDataContent .metrics-section-heading>span{box-shadow:0 2px 6px rgba(36,90,145,.10)}
+#metricsDataContent>.metrics-ranking-card .ranking-os-card-head p{line-height:1.5}
+@media(min-width:760px) and (max-width:1099px){
+ #tab-metricas .metrics-filter-card{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-metricas .metrics-filter-card .metrics-custom-period{grid-column:1/-1}
+ #tab-metricas .metrics-hero{padding:20px}
+}
+@media(max-width:759px){
+ #tab-metricas .metrics-hero{display:block;padding:18px 16px;border-radius:15px}
+ #tab-metricas .metrics-hero-side{max-width:none;width:100%;margin-top:14px;padding:10px}
+ #tab-metricas .metrics-filter-card{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 9px;padding:14px}
+ #tab-metricas .metrics-filter-card h3,#tab-metricas .metrics-filter-card>p{grid-column:1/-1}
+ #tab-metricas .metrics-filter-card .form-group{margin-bottom:9px}
+ #tab-metricas .metrics-filter-card .metrics-custom-period{grid-column:1/-1}
+ #tab-metricas .metrics-filter-card .metrics-custom-period>div{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #metricsDataContent>.metrics-report-toolbar{align-items:stretch;flex-direction:column;padding:12px}
+ #metricsDataContent .metrics-export-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}
+ #metricsDataContent .metrics-export-actions .btn-submit{width:100%;min-width:0;padding:9px 6px;font-size:.72rem}
+ #metricsDataContent>.metrics-grid .metric-card{min-height:100px;padding:12px 8px}
+}
+@media(max-width:380px){
+ #tab-metricas .metrics-filter-card{grid-template-columns:minmax(0,1fr)}
+ #tab-metricas .metrics-filter-card h3,#tab-metricas .metrics-filter-card>p,#tab-metricas .metrics-filter-card .metrics-custom-period{grid-column:1}
+ #tab-metricas .metrics-filter-card .metrics-custom-period>div{grid-template-columns:minmax(0,1fr)!important}
+ #metricsDataContent .metrics-export-actions{grid-template-columns:minmax(0,1fr)}
+}
+@media(hover:hover){
+ #tab-metricas .metrics-filter-card .metrics-custom-period{transition:border-color .16s ease,box-shadow .16s ease}
+ #tab-metricas .metrics-filter-card .metrics-custom-period:focus-within{border-color:#a9c6d8!important;box-shadow:0 4px 14px rgba(31,83,116,.06)}
+}
+@media(prefers-reduced-motion:reduce){
+ #tab-metricas .metrics-hero:after{display:none}
+ #tab-metricas .metrics-filter-card input,#tab-metricas .metrics-filter-card select{transition:none}
+}
+</style>
+<style id="metrics-machine-ranking-modern">
+#cardHorarioRanking{overflow:hidden;border:1px solid #e2e8f0;background:#fff}
+#cardHorarioRanking>.ranking-os-card-head{margin-bottom:16px}
+.metrics-machine-ranking-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.metrics-machine-rank-item{min-width:0;padding:15px;border:1px solid #e3eaf1;border-radius:15px;background:linear-gradient(145deg,#fff,#f8fafc);cursor:pointer;transition:border-color .18s,box-shadow .18s,transform .18s;outline:none}
+.metrics-machine-rank-item:hover,.metrics-machine-rank-item:focus-visible{border-color:#8eb5d8;box-shadow:0 8px 22px rgba(30,64,100,.09);transform:translateY(-1px)}
+.metrics-machine-rank-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.metrics-machine-rank-name{display:flex;align-items:center;gap:10px;min-width:0}
+.metrics-machine-rank-number{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:#edf3f9;color:#52708c;font-size:.72rem;font-weight:800}
+.metrics-machine-rank-name h4{margin:0;color:#172b42;font-size:.91rem;font-weight:800;overflow-wrap:anywhere}
+.metrics-machine-rank-name span{display:block;margin-top:3px;color:#7a8998;font-size:.69rem}
+.metrics-machine-rank-downtime{text-align:right;flex:0 0 auto}
+.metrics-machine-rank-downtime strong{display:block;color:#c64d50;font-size:1.16rem;font-weight:850;font-variant-numeric:tabular-nums}
+.metrics-machine-rank-downtime small{display:block;color:#8794a2;font-size:.65rem}
+.metrics-machine-rank-progress{display:flex;overflow:hidden;height:8px;margin-top:15px;border-radius:99px;background:#edf1f5}
+.metrics-machine-rank-progress span{height:100%;display:block}
+.metrics-machine-rank-legend{display:flex;justify-content:space-between;gap:8px;margin-top:7px;color:#718092;font-size:.66rem}
+.metrics-machine-rank-legend span{display:flex;align-items:center;gap:5px}
+.metrics-machine-rank-legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.metrics-machine-rank-legend .is-stop{background:#d96a68}.metrics-machine-rank-legend .is-run{background:#15966b}
+.metrics-machine-rank-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px 8px;margin-top:15px;padding-top:12px;border-top:1px solid #e9eef3}
+.metrics-machine-rank-stats div{min-width:0}
+.metrics-machine-rank-stats small{display:block;margin-bottom:3px;color:#8492a0;font-size:.64rem}
+.metrics-machine-rank-stats b{display:block;color:#34485d;font-size:.78rem;font-weight:750;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.metrics-machine-rank-stats b.is-recurrent{color:#c64d50}
+.metrics-machine-rank-action{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:9px;border-top:1px solid #edf1f5;color:#3975a8;font-size:.72rem;font-weight:750}
+.metrics-machine-rank-action span{font-size:1.1rem}
+.metrics-machine-ranking-empty{padding:24px;text-align:center;color:#7b8998;border:1px dashed #d6e0e9;border-radius:13px}
+@media(max-width:760px){.metrics-machine-ranking-list{grid-template-columns:1fr;gap:10px}.metrics-machine-rank-item{padding:13px}.metrics-machine-rank-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.metrics-machine-rank-item{transition:none}}
+@media print{.metrics-machine-rank-item{break-inside:avoid;box-shadow:none;transform:none}}
+</style>
+<style id="metrics-machine-ranking-compact">
+@media(min-width:1100px){.metrics-machine-ranking-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}}
+@media(max-width:760px){
+#cardHorarioRanking>.ranking-os-card-head{margin-bottom:10px}
+.metrics-machine-ranking-list{grid-template-columns:1fr;gap:7px}
+.metrics-machine-rank-item{padding:9px 11px;border-radius:11px}
+.metrics-machine-rank-top{gap:7px}.metrics-machine-rank-name{gap:7px}
+.metrics-machine-rank-number{flex-basis:25px;width:25px;height:25px;border-radius:7px;font-size:.64rem}
+.metrics-machine-rank-name h4{font-size:.79rem;line-height:1.15}
+.metrics-machine-rank-name span{margin-top:1px;font-size:.61rem}
+.metrics-machine-rank-downtime strong{font-size:.98rem}.metrics-machine-rank-downtime small{font-size:.58rem}
+.metrics-machine-rank-progress{height:6px;margin-top:8px}
+.metrics-machine-rank-legend{margin-top:4px;font-size:.59rem}.metrics-machine-rank-legend i{width:6px;height:6px}
+.metrics-machine-rank-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px 7px;margin-top:8px;padding-top:7px}
+.metrics-machine-rank-stats small{margin-bottom:1px;font-size:.57rem}
+.metrics-machine-rank-stats b{font-size:.68rem;line-height:1.15}
+.metrics-machine-rank-action{margin-top:7px;padding-top:5px;font-size:.63rem}.metrics-machine-rank-action span{font-size:.95rem}
+}
+@media(max-width:380px){.metrics-machine-rank-item{padding:8px 9px}.metrics-machine-rank-stats{gap:4px 5px}.metrics-machine-rank-stats small{font-size:.53rem}.metrics-machine-rank-stats b{font-size:.63rem}}
+@media(prefers-reduced-motion:reduce){.metrics-machine-rank-item{transition:none}}
+</style><style id="erimax-metricas-grafico-estavel-2026">
+/* O gráfico principal mantém a mesma instância durante as sincronizações automáticas. */
+#cardHorarioEfGeral .chart-wrapper{height:225px;min-height:225px;contain:layout paint}
+#cardHorarioEfGeral canvas{display:block;max-width:100%}
+#cardHorarioEfGeral .chart-wrapper canvas{animation:none!important;transform:none!important}
+@media(max-width:600px){
+  #cardHorarioEfGeral .chart-wrapper{height:210px;min-height:210px}
+}
+@media(prefers-reduced-motion:reduce){
+  #cardHorarioEfGeral *,#cardHorarioRanking .metrics-machine-rank-item{animation:none!important;transition:none!important}
+}
+</style>
+<style id="erimax-metricas-layout-final-2026">
+/* Hierarquia visual final: disponibilidade e ranking em cartões independentes. */
+#metricsDataContent>#cardHorarioEfGeral{
+  padding:17px 18px 15px;
+  border:1px solid #dce6ee;
+  border-radius:16px;
+  background:linear-gradient(155deg,#fff 0%,#f8fbfd 100%);
+  box-shadow:0 4px 16px rgba(20,48,75,.055);
+}
+#cardHorarioEfGeral>h4{
+  margin:0 0 7px;
+  color:#193b54;
+  text-align:left;
+  font-size:.92rem;
+  letter-spacing:.015em;
+}
+#cardHorarioEfGeral>p{
+  text-align:left!important;
+  line-height:1.45!important;
+}
+#cardHorarioEfGeral>p:first-of-type{
+  margin:0 0 9px!important;
+  color:#607487!important;
+  font-size:.76rem!important;
+}
+#cardHorarioEfGeral>p:nth-of-type(2){
+  margin:0!important;
+  padding:9px 11px!important;
+  border:1px solid #f1dfb6;
+  border-radius:9px;
+  background:#fffaf0!important;
+  color:#795b27!important;
+  font-size:.7rem!important;
+}
+#cardHorarioEfGeral>.chart-wrapper{
+  width:min(100%,440px);
+  height:238px!important;
+  min-height:0;
+  margin:9px auto 0;
+}
+#cardHorarioEfGeral canvas{display:block;max-width:100%}
+#metricsDataContent>#cardHorarioRanking{
+  margin:0;
+  padding:15px;
+  border:1px solid #dce6ee;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 4px 16px rgba(20,48,75,.05);
+}
+#cardHorarioRanking>.ranking-os-card-head{align-items:center;margin-bottom:12px}
+#cardHorarioRanking>.ranking-os-card-head h3{color:#193b54;font-size:.92rem}
+#cardHorarioRanking>.ranking-os-card-head p{margin-top:3px;color:#6b7e90;font-size:.72rem;line-height:1.4}
+@media(min-width:1100px){
+  #cardHorarioRanking .metrics-machine-ranking-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+}
+@media(min-width:761px) and (max-width:1099px){
+  #cardHorarioRanking .metrics-machine-ranking-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+}
+@media(max-width:760px){
+  #metricsDataContent>#cardHorarioEfGeral{padding:13px 12px 11px;border-radius:13px}
+  #cardHorarioEfGeral>.chart-wrapper{height:218px!important;width:min(100%,360px);margin-top:6px}
+  #metricsDataContent>#cardHorarioRanking{padding:12px;border-radius:13px}
+  #cardHorarioRanking>.ranking-os-card-head{gap:8px}
+  #cardHorarioRanking>.ranking-os-card-head>span{width:32px;height:32px;flex-basis:32px}
+  #cardHorarioRanking .metrics-machine-ranking-list{grid-template-columns:1fr;gap:7px}
+}
+@media(prefers-reduced-motion:reduce){
+  #cardHorarioEfGeral *,#cardHorarioRanking *{scroll-behavior:auto!important;animation:none!important}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3235,7 +3481,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="card" style="border:1px solid #d7e5f5;background:linear-gradient(120deg,#f0f7ff,#f8fbff);padding:12px 14px;margin-bottom:12px;border-radius:12px"><p style="margin:0;color:#1e40af;font-size:.84rem;line-height:1.5;text-align:center"><b>👆 DICA: os gráficos são interativos!</b><br>Toque em uma barra, fatia colorida ou ponto do gráfico para abrir as O.S. e os detalhes relacionados ao item selecionado. Os resultados respeitam o período e os filtros aplicados.</p></div>
 <div class="metrics-section-heading"><span>02</span><div><h3>Disponibilidade e paradas</h3><p>Quanto tempo estava previsto, quanto foi perdido e onde a parada se concentra</p></div></div>
 <div class="card metricas-com-horario" id="cardHorarioEfGeral"><h4>Disponibilidade registrada</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Verde: tempo previsto sem parada registrada • vermelho: parada registrada em O.S. Toque no vermelho para ver os registros.</p><p style="font-size:.72rem;color:#92400e;background:#fffbeb;border-radius:7px;padding:8px;margin:8px 0 0">Este indicador considera somente paradas registradas em O.S. e os horários cadastrados. Paradas sem O.S. não entram no cálculo; portanto, ainda não representa a produção real da máquina.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div>
-<section class="card metrics-ranking-card metricas-com-horario" id="cardHorarioRanking"><div class="ranking-os-card-head"><span>⏱️</span><div><h3>Máquinas com maior tempo de parada</h3><p>Compare tempo previsto, parada, disponibilidade e falhas. Toque nos dados para consultar as ordens relacionadas.</p></div></div><div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></section></div>
+</div>
+<section class="card metrics-ranking-card metricas-com-horario" id="cardHorarioRanking"><div class="ranking-os-card-head"><span>⏱️</span><div><h3>Máquinas com maior tempo de parada</h3><p>Compare tempo previsto, parada, disponibilidade e falhas. Toque nos dados para consultar as ordens relacionadas.</p></div></div><div id="listaRankingMaquinas" class="metrics-machine-ranking-list" aria-live="polite"></div></section>
 
 
 <div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Disponibilidade por setor<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
@@ -4976,12 +5223,29 @@ function mk(id,cfg){
     if(scale.title)scale.title=Object.assign({color:'#64748b',font:{size:10,weight:'600'}},scale.title);
   });
   if(!cfg.options.onClick)cfg.options.onClick=(_evt,items)=>{const item=items&&items[0],resolver=DETALHES_GRAFICOS[id];if(item&&resolver){const r=resolver(item.datasetIndex,item.index);mostrarOSDetalhe(r.titulo,r.lista)}};
-  if(charts[id])charts[id].destroy();
   cfg.options=Object.assign({responsive:true,maintainAspectRatio:false},cfg.options||{});
+  // O gráfico de disponibilidade é atualizado muitas vezes pela sincronização.
+  // Reutilizar a instância evita destruir/recriar o canvas e elimina a animação repetida.
+  if(id==='chEfGeral'){
+    cfg.options.animation=false;
+    if(charts[id]){
+      const grafico=charts[id];
+      grafico.data=cfg.data;
+      grafico.config.options=cfg.options;
+      grafico.config.plugins=cfg.plugins||[];
+      grafico.update('none');
+      return;
+    }
+  }
+  if(charts[id])charts[id].destroy();
   charts[id]=new Chart(document.getElementById(id),cfg);
 }
 
 function escaparHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function abrirOSParadaMaquina(nome){
+  const lista=(OS_PARADA_ATUAL||[]).filter(x=>x&&x.os&&String(x.os.maquina||'')===String(nome));
+  mostrarOSParada(lista);
+}
 function mostrarOSParada(lista){
   modalEfOSTitulo.textContent='O.S. com tempo de parada';
   const itens=(lista||[]).slice().sort((a,b)=>b.parada-a.parada);
@@ -5277,7 +5541,7 @@ function atualizarMetricasReais(){
   const mtbf=f.length?Math.max(0,(base-parada)/f.length):0;
 
   // Gráfico de pizza: disponibilidade (verde) x parada (vermelho).
-  mk('chEfGeral',{type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9,padding:16,font:{size:11},generateLabels(chart){const labels=Chart.defaults.plugins.legend.labels.generateLabels(chart);const vals=chart.data.datasets[0].data||[];const total=vals.reduce((a,b)=>a+(Number(b)||0),0);return labels.map((item,i)=>({...item,text:item.text+' — '+(total?Math.round((Number(vals[i])||0)/total*100):0)+'%'}))}}},tooltip:{callbacks:{label(ctx){const vals=ctx.dataset.data||[],total=vals.reduce((a,b)=>a+(Number(b)||0),0),pct=total?Math.round((Number(ctx.raw)||0)/total*100):0;return ctx.label+': '+fmt(ctx.raw)+' ('+pct+'%)'}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('disp. registrada',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
+  mk('chEfGeral',{type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:0}]},options:{cutout:'68%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9,padding:16,font:{size:11},generateLabels(chart){const labels=Chart.defaults.plugins.legend.labels.generateLabels(chart);const vals=chart.data.datasets[0].data||[];const total=vals.reduce((a,b)=>a+(Number(b)||0),0);return labels.map((item,i)=>({...item,text:item.text+' — '+(total?Math.round((Number(vals[i])||0)/total*100):0)+'%'}))}}},tooltip:{callbacks:{label(ctx){const vals=ctx.dataset.data||[],total=vals.reduce((a,b)=>a+(Number(b)||0),0),pct=total?Math.round((Number(ctx.raw)||0)/total*100):0;return ctx.label+': '+fmt(ctx.raw)+' ('+pct+'%)'}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('disp. registrada',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
 
   // cards
   cDisp.innerText=horarioOKFiltro?(disp===null?'—':disp+'%'):'—';cDispSub.innerText=horarioOKFiltro?(base>0?'Previsto '+fmt(base)+' • sem parada '+fmt(Math.max(0,base-parada)):'Sem horas produtivas no período'):'Aguardando horários confirmados';cDisp.style.color=!horarioOKFiltro||disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
@@ -5291,11 +5555,18 @@ function atualizarMetricasReais(){
 
   // ranking de máquinas (por tempo parado)
   const rank=Object.entries(maq).sort((a,b)=>b[1].parada-a[1].parada);
-  tbRanking.innerHTML=rank.length?rank.slice(0,30).map(([n,m])=>{
+  const boxRankingMaquinas=document.getElementById('listaRankingMaquinas');
+  if(boxRankingMaquinas)boxRankingMaquinas.innerHTML=rank.length?rank.slice(0,30).map(([n,m],idx)=>{
     const bd=baseDe(m.setor),rodou=Math.max(0,bd-m.parada),pct=bd?Math.max(0,Math.min(100,Math.round(rodou/bd*100))):0;
-    const mt=m.falhas?(bd-m.parada)/m.falhas:0,cor=pct>=90?'#28a745':pct>=75?'#ff6b00':'#dc3545';
-    return`<tr><td>${n}</td><td>${fmt(bd)}</td><td>${fmt(m.parada)}</td><td>${fmt(rodou)}</td><td style="font-weight:800;color:${cor}">${bd?pct+'%':'—'}</td><td>${m.falhas}</td><td>${fmt(media(m.sRep,m.nRep))}</td><td>${fmt(Math.max(0,mt))}</td><td class="${m.reinc?'alerta':''}">${m.reinc}</td></tr>`;
-  }).join(''):'<tr><td colspan="9" style="text-align:center;color:#64748b">Sem dados no filtro.</td></tr>';
+    const mt=m.falhas?(bd-m.parada)/m.falhas:0,paradaPct=bd?Math.max(0,Math.min(100,100-pct)):0,reinc=Number(m.reinc)||0;
+    const acao='abrirOSParadaMaquina('+JSON.stringify(String(n))+')';
+    return`<article class="metrics-machine-rank-item" role="button" tabindex="0" onclick="${escaparHtml(acao)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${escaparHtml(acao)}}">
+      <div class="metrics-machine-rank-top"><div class="metrics-machine-rank-name"><span class="metrics-machine-rank-number">${String(idx+1).padStart(2,'0')}</span><div><h4>${escaparHtml(n)}</h4><span>${escaparHtml(m.setor||'Setor não informado')}</span></div></div><div class="metrics-machine-rank-downtime"><strong>${fmt(m.parada)}</strong><small>tempo parado</small></div></div>
+      <div class="metrics-machine-rank-progress" role="img" aria-label="Disponibilidade ${pct}% e parada ${paradaPct}%"><span style="width:${paradaPct}%;background:#d96a68"></span><span style="width:${pct}%;background:#15966b"></span></div>
+      <div class="metrics-machine-rank-legend"><span><i class="is-stop"></i>Parada ${paradaPct}%</span><span><i class="is-run"></i>Disponibilidade ${bd?pct+'%':'—'}</span></div>
+      <div class="metrics-machine-rank-stats"><div><small>Previsto</small><b>${fmt(bd)}</b></div><div><small>Rodou</small><b>${fmt(rodou)}</b></div><div><small>Falhas</small><b>${m.falhas}</b></div><div><small>MTTR</small><b>${fmt(media(m.sRep,m.nRep))}</b></div><div><small>MTBF</small><b>${fmt(Math.max(0,mt))}</b></div><div><small>Reincid.</small><b class="${reinc?'is-recurrent':''}">${reinc}</b></div></div>
+      <div class="metrics-machine-rank-action">Consultar O.S. relacionadas <span aria-hidden="true">›</span></div></article>`;
+  }).join(''):'<div class="metrics-machine-ranking-empty">Sem dados de máquinas para os filtros selecionados.</div>';
 
   // Ranking específico de reincidências para facilitar a cobrança de ações preventivas.
   const reincPorMaquina={};
