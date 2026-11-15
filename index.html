@@ -3369,7 +3369,32 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   #tab-cadastro *{scroll-behavior:auto!important;transition:none!important}
 }
 </style>
-</head>
+<style id="erimax-cadastro-hub-2026">
+#tab-cadastro.active{display:block!important}
+#tab-cadastro{padding:0 0 30px}
+#tab-cadastro .cadastro-hub-hero{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 17px;padding:clamp(20px,3vw,30px);border-radius:20px;background:linear-gradient(120deg,#102d43 0%,#174c63 58%,#187d7b 100%);color:#fff;box-shadow:0 12px 28px rgba(17,58,78,.16)}
+#tab-cadastro .cadastro-hub-kicker{display:block;margin-bottom:8px;color:#8dd5d0;font-size:.66rem;font-weight:850;letter-spacing:.14em}
+#tab-cadastro .cadastro-hub-hero h2{margin:0;color:#fff;font-size:clamp(1.35rem,3vw,1.9rem);font-weight:850;letter-spacing:-.04em}
+#tab-cadastro .cadastro-hub-hero p{max-width:620px;margin:8px 0 0;color:#d2e2e9;font-size:.86rem;line-height:1.55}
+#tab-cadastro .cadastro-hub-mark{display:grid;place-items:center;width:66px;height:66px;flex:0 0 66px;border:1px solid rgba(255,255,255,.2);border-radius:19px;background:rgba(255,255,255,.1);color:#b5e7df;font-size:2rem}
+#tab-cadastro .cadastro-hub-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:20px}
+#tab-cadastro .cadastro-hub-tile{display:flex;align-items:center;gap:11px;min-width:0;min-height:83px;padding:13px;border:1px solid #dce6ee;border-radius:15px;background:#fff;color:#23445b;text-align:left;box-shadow:0 4px 14px rgba(23,55,79,.045);cursor:pointer;transition:border-color .18s,background .18s,transform .18s,box-shadow .18s}
+#tab-cadastro .cadastro-hub-tile:hover{transform:translateY(-2px);border-color:#a8c8d4;box-shadow:0 8px 19px rgba(23,55,79,.09)}
+#tab-cadastro .cadastro-hub-tile.active{border-color:#258b88;background:linear-gradient(145deg,#effaf8,#fff);box-shadow:inset 0 0 0 1px rgba(37,139,136,.14),0 6px 16px rgba(23,99,100,.08)}
+#tab-cadastro .cadastro-hub-icon{display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;border-radius:12px;background:#edf4f8;color:#287c88;font-size:1.3rem}
+#tab-cadastro .cadastro-hub-tile.active .cadastro-hub-icon{background:#d9f0eb;color:#147c73}
+#tab-cadastro .cadastro-hub-copy{display:grid;gap:4px;min-width:0}
+#tab-cadastro .cadastro-hub-copy b{font-size:.84rem;font-weight:850}
+#tab-cadastro .cadastro-hub-copy small{color:#718294;font-size:.68rem;line-height:1.3}
+#tab-cadastro .cadastro-hub-arrow{margin-left:auto;color:#8ba0ae;font-size:1.35rem}
+#tab-cadastro .cadastro-area-panel{display:none;min-width:0}
+#tab-cadastro .cadastro-area-panel.active{display:block;animation:cadastroAreaIn .2s ease-out}
+#tab-cadastro .cadastro-area-panel>.card{margin:0 0 13px}
+@keyframes cadastroAreaIn{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:800px){#tab-cadastro .cadastro-hub-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){#tab-cadastro .cadastro-hub-hero{padding:18px;border-radius:16px}#tab-cadastro .cadastro-hub-mark{width:48px;height:48px;flex-basis:48px;border-radius:14px;font-size:1.5rem}#tab-cadastro .cadastro-hub-nav{gap:8px;margin-bottom:14px}#tab-cadastro .cadastro-hub-tile{min-height:74px;padding:10px;gap:8px;border-radius:12px}#tab-cadastro .cadastro-hub-icon{width:34px;height:34px;flex-basis:34px;font-size:1.1rem}#tab-cadastro .cadastro-hub-copy b{font-size:.78rem}#tab-cadastro .cadastro-hub-copy small{font-size:.62rem}#tab-cadastro .cadastro-hub-arrow{display:none}}
+@media(prefers-reduced-motion:reduce){#tab-cadastro .cadastro-area-panel.active{animation:none}#tab-cadastro .cadastro-hub-tile{transition:none}}
+</style></head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
@@ -3486,14 +3511,21 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 <!-- CADASTRO -->
 <div id="tab-cadastro" class="tab-content">
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Setores cadastrados da empresa</h3>
+<section class="cadastro-hub-hero"><div><span class="cadastro-hub-kicker">ADMINISTRAÇÃO DO SISTEMA</span><h2>Central de cadastros</h2><p>Gerencie a estrutura da fábrica, os equipamentos, as preventivas e os acessos em áreas independentes.</p></div><div class="cadastro-hub-mark" aria-hidden="true">⚙</div></section>
+<nav class="cadastro-hub-nav" aria-label="Áreas de cadastro">
+<button type="button" class="cadastro-hub-tile active" data-area="setores" aria-pressed="true" onclick="selecionarCadastroArea('setores')"><span class="cadastro-hub-icon">▦</span><span class="cadastro-hub-copy"><b>Setores</b><small>Estrutura e horários</small></span><span class="cadastro-hub-arrow">›</span></button>
+<button type="button" class="cadastro-hub-tile" data-area="maquinas" aria-pressed="false" onclick="selecionarCadastroArea('maquinas')"><span class="cadastro-hub-icon">⚙</span><span class="cadastro-hub-copy"><b>Máquinas</b><small>Equipamentos e códigos</small></span><span class="cadastro-hub-arrow">›</span></button>
+<button type="button" class="cadastro-hub-tile" data-area="preventivas" aria-pressed="false" onclick="selecionarCadastroArea('preventivas')"><span class="cadastro-hub-icon">◷</span><span class="cadastro-hub-copy"><b>Preventivas</b><small>Planos e programação</small></span><span class="cadastro-hub-arrow">›</span></button>
+<button type="button" class="cadastro-hub-tile" data-area="usuarios" aria-pressed="false" onclick="selecionarCadastroArea('usuarios')"><span class="cadastro-hub-icon">♙</span><span class="cadastro-hub-copy"><b>Usuários</b><small>Perfis e permissões</small></span><span class="cadastro-hub-arrow">›</span></button>
+</nav>
+<section id="cadastro-area-setores" class="cadastro-area-panel active"><div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Setores cadastrados da empresa</h3>
 <p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Adicione, visualize, configure horários ou exclua setores. Os setores também organizam as máquinas logo abaixo.</p>
 <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap"><input id="novoSetor" placeholder="Nome do novo setor" maxlength="60" style="flex:1;min-width:180px"><button class="btn-submit" style="width:auto;padding:0 14px;white-space:nowrap" onclick="adicionarSetor()">➕ Adicionar setor</button></div>
 <div id="listaCfg"></div></div>
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Máquinas por setor</h3>
+</section><section id="cadastro-area-maquinas" class="cadastro-area-panel"><div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Máquinas por setor</h3>
 <p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Cada setor fica recolhido. Toque na ferramenta para abrir a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
-<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><button id="pvAlternarForm" type="button" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="alternarFormPreventiva()">Fechar ✕</button></div><div id="pvFormConteudo">
+</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><button id="pvAlternarForm" type="button" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="alternarFormPreventiva()">Fechar ✕</button></div><div id="pvFormConteudo">
 <div class="form-group"><label>Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
 <div class="form-group"><label>Máquinas</label>
 <label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
@@ -3506,7 +3538,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button><button type="button" class="btn-action" style="margin-top:8px;width:auto" onclick="fecharFormPreventiva()">Fechar cadastro</button></div></div>
 <div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
+</section><section id="cadastro-area-usuarios" class="cadastro-area-panel"><div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
 <div class="form-group"><label>Novo usuário — e-mail</label><input id="nuEmail" type="email" autocomplete="off"></div>
 <div class="form-group"><label>Nome</label><input id="nuNome" autocomplete="off"></div>
 <div class="form-group"><label>Senha (mínimo 8 caracteres)</label><input id="nuSenha" type="text" autocomplete="off"></div>
@@ -3515,6 +3547,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <p style="font-size:.75rem;color:#64748b;margin:14px 0 8px">Usuários cadastrados — altere nome e perfil quando precisar:</p>
 <div id="listaUsuarios"></div>
 <button class="btn-submit" style="background:#94a3b8;margin-top:10px" onclick="carregarUsuarios()">🔄 Atualizar lista</button></div>
+</section>
 </div>
 <!-- MÉTRICAS -->
 <div id="tab-metricas" class="tab-content">
@@ -3943,11 +3976,21 @@ function fecharMenuLateral(){
   const b=document.getElementById('btnMenuLateral');if(b){b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir menu')}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharMenuLateral()});
+function selecionarCadastroArea(area){
+  const permitidas=['setores','maquinas','preventivas','usuarios'];
+  if(!permitidas.includes(area))return;
+  document.querySelectorAll('#tab-cadastro .cadastro-area-panel').forEach(el=>el.classList.toggle('active',el.id==='cadastro-area-'+area));
+  document.querySelectorAll('#tab-cadastro .cadastro-hub-tile').forEach(el=>{
+    const ativo=el.dataset.area===area;
+    el.classList.toggle('active',ativo);
+    el.setAttribute('aria-pressed',ativo?'true':'false');
+  });
+}
 function mudarAba(id,evt){
   fecharMenuLateral();
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
-  const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
+  const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');if(id==='cadastro')selecionarCadastroArea('setores');
   if(evt&&evt.currentTarget)evt.currentTarget.classList.add('active');
   const precisaAtualizar=['painel','ordens-servico','ordens-abertas','metricas','ranking-os'].includes(id);
   const carregamento=precisaAtualizar?carregarDadosSupabase():Promise.resolve();
