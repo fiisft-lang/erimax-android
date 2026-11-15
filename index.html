@@ -5202,6 +5202,60 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 #painelMaquinasSupervisor .sv-attention-clear b{color:#285c43;font-size:.72rem}
 #painelMaquinasSupervisor .sv-attention-clear small{color:#587766;font-size:.64rem;line-height:1.35}
 @media(max-width:480px){#painelMaquinasSupervisor .sv-attention{padding:13px}#painelMaquinasSupervisor .sv-attention-item{align-items:flex-start;padding:9px;gap:8px}#painelMaquinasSupervisor .sv-attention-open{font-size:.6rem}#painelMaquinasSupervisor .sv-attention-main b{font-size:.69rem}}
+
+/* Acabamento visual: supervisão integrada e leitura confortável */
+#painelMaquinasSupervisor .sv-page{gap:14px!important}
+#painelMaquinasSupervisor .sv-hero,
+#painelMaquinasSupervisor .sv-workspace,
+#painelMaquinasSupervisor .sv-attention{border-radius:16px!important;box-shadow:0 4px 16px rgba(25,48,68,.055)!important}
+#painelMaquinasSupervisor .sv-hero{border-color:#dce5eb!important;background:linear-gradient(125deg,#fff 0%,#f7fafc 100%)!important}
+#painelMaquinasSupervisor .sv-metric{border-color:#e4ebf0!important;background:#fff!important;transition:border-color .18s ease,transform .18s ease}
+#painelMaquinasSupervisor .sv-metric strong{color:#214d69!important}
+#painelMaquinasSupervisor .sv-attention{padding:17px 18px!important;border-color:#e4e9ed!important;border-top:3px solid #c18a48!important;background:#fff!important}
+#painelMaquinasSupervisor .sv-attention-head h3{color:#29485d!important;font-size:.98rem!important;letter-spacing:-.015em}
+#painelMaquinasSupervisor .sv-attention-head p{color:#607383!important;font-size:.72rem!important}
+#painelMaquinasSupervisor .sv-attention-head>strong{border-color:#eadfce!important;background:#fbf6ee!important;color:#8b622f!important}
+#painelMaquinasSupervisor .sv-attention-item{border-color:#e6ebef!important;border-radius:9px!important;background:#fbfcfd!important;transition:border-color .16s ease,background .16s ease}
+#painelMaquinasSupervisor .sv-attention-mark{background:#f7eee2!important;color:#94652e!important}
+#painelMaquinasSupervisor .sv-attention-main b{color:#29485d!important;font-size:.75rem!important}
+#painelMaquinasSupervisor .sv-attention-main small{color:#647786!important;font-size:.67rem!important}
+#painelMaquinasSupervisor .sv-attention-open{color:#35677f!important}
+#painelMaquinasSupervisor .sv-workspace{border-color:#dfe7ed!important}
+#painelMaquinasSupervisor .sv-filter{border-radius:9px!important;min-height:36px!important;background:#fff!important}
+#painelMaquinasSupervisor .sv-filter.active{border-color:#a9c0cc!important;background:#eef4f7!important;box-shadow:inset 0 0 0 1px rgba(54,103,127,.06)}
+#painelMaquinasSupervisor .sv-sector{border-color:#e0e7ec!important;border-radius:11px!important}
+#painelMaquinasSupervisor .sv-sector>summary{min-height:66px!important}
+#painelMaquinasSupervisor .sv-machine{border-color:#e5ebef!important;border-radius:9px!important}
+#painelMaquinasSupervisor .sv-machine>summary{min-height:60px!important}
+#painelMaquinasSupervisor .sv-os-card,#painelMaquinasSupervisor .sv-history-item{border-color:#e3e9ee!important;border-radius:9px!important;transition:border-color .16s ease,box-shadow .16s ease}
+#painelMaquinasSupervisor .sv-os-card:focus-visible,
+#painelMaquinasSupervisor .sv-history-item:focus-visible,
+#painelMaquinasSupervisor .sv-attention-item:focus-visible{outline:2px solid #7fa6ba!important;outline-offset:2px!important}
+@media(hover:hover){
+ #painelMaquinasSupervisor .sv-metric:hover{border-color:#cbdbe4!important;transform:translateY(-1px)}
+ #painelMaquinasSupervisor .sv-attention-item:hover{border-color:#cbd9e1!important;background:#fff!important}
+ #painelMaquinasSupervisor .sv-os-card:hover,#painelMaquinasSupervisor .sv-history-item:hover{border-color:#c5d6df!important;box-shadow:0 3px 10px rgba(25,48,68,.045)}
+}
+@media(max-width:480px){
+ #painelMaquinasSupervisor .sv-page{gap:12px!important}
+ #painelMaquinasSupervisor .sv-hero{padding:16px!important}
+ #painelMaquinasSupervisor .sv-metric{padding:10px!important}
+ #painelMaquinasSupervisor .sv-metric span{font-size:.67rem!important}
+ #painelMaquinasSupervisor .sv-metric small{font-size:.64rem!important}
+ #painelMaquinasSupervisor .sv-attention{padding:13px!important}
+ #painelMaquinasSupervisor .sv-attention-head{align-items:center!important}
+ #painelMaquinasSupervisor .sv-attention-main b{font-size:.72rem!important}
+ #painelMaquinasSupervisor .sv-attention-main small{font-size:.65rem!important}
+ #painelMaquinasSupervisor .sv-attention-open{font-size:.62rem!important}
+ #painelMaquinasSupervisor .sv-workspace{padding:13px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #painelMaquinasSupervisor .sv-metric,
+ #painelMaquinasSupervisor .sv-attention-item,
+ #painelMaquinasSupervisor .sv-os-card,
+ #painelMaquinasSupervisor .sv-history-item{transition:none!important}
+}
+
 </style>
 </head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
 <style id="erimax-supervisao-tipografia-final">
