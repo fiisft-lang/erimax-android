@@ -3518,6 +3518,32 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
  #tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group>label{font-size:.76rem!important}
 }
 </style>
+<style id="fix-preventiva-equipe-espacamento-2026">
+/* Evita que os títulos e instruções da equipe de manutenção se sobreponham */
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo #pvEquipeTecnicos{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:6px!important;width:100%;height:auto!important;min-height:0!important;
+ max-height:180px;overflow-y:auto;position:relative!important;
+}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group:has(#pvEquipeTecnicos){
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:8px!important;height:auto!important;min-height:0!important;
+ position:relative!important;overflow:visible!important;
+}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group:has(#pvEquipeTecnicos)>label,
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group:has(#pvEquipeTecnicos)>small{
+ position:static!important;inset:auto!important;transform:none!important;
+ display:block!important;float:none!important;width:100%!important;height:auto!important;
+ min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;
+ white-space:normal!important;overflow:visible!important;line-height:1.5!important;
+}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo #pvEquipeTecnicos label{
+ position:relative!important;display:flex!important;align-items:center!important;
+ flex:0 0 auto!important;width:100%!important;height:auto!important;min-height:38px!important;
+ margin:0!important;padding:8px 10px!important;line-height:1.4!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;
+}
+</style>
 <style id="fix-preventiva-cards-layout-2026">
 /* Mantém formulário e lista de preventivas em blocos independentes, sem sobreposição */
 #tab-cadastro #cadastro-area-preventivas{
