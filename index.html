@@ -2369,6 +2369,39 @@ tbody tr:hover{background:#eef6f5}
  #tab-ordens-servico .os-card,#tab-ordens-servico .os-modern-search,#tab-ordens-servico .os-quick{transition:none}
 }
 </style>
+
+<style id="erimax-os-historico-profissional-2026">
+.erimax-os-history-modal{display:none;position:fixed;inset:0;z-index:2200;background:rgba(9,25,40,.68);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:14px}
+.erimax-os-history-panel{width:min(760px,100%);max-height:min(92dvh,900px);display:flex;flex-direction:column;overflow:hidden;background:#f7f9fc;border:1px solid #dbe4ed;border-radius:19px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.erimax-os-history-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:19px 21px;background:linear-gradient(115deg,#153b59,#245b7b);color:#fff}
+.erimax-os-history-head small{font-size:.65rem;font-weight:800;letter-spacing:.12em;color:#c5d8e7}
+.erimax-os-history-head h2{margin:5px 0 0;font-size:1.08rem;line-height:1.3;color:#fff}
+.erimax-os-history-close{width:38px;height:38px;flex:0 0 38px;border:1px solid rgba(255,255,255,.35);border-radius:11px;background:rgba(255,255,255,.12);color:#fff;font-size:1.55rem;cursor:pointer}
+.erimax-os-history-content{overflow:auto;padding:18px 21px;overscroll-behavior:contain}
+.erimax-os-history-status{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-bottom:17px}
+.erimax-os-pause-total{font-size:.76rem;color:#52677a}
+.erimax-os-history-content h3{margin:17px 0 10px;color:#24465d;font-size:.88rem;font-weight:850}
+.erimax-os-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.erimax-os-detail-cell{min-width:0;padding:11px 12px;border:1px solid #e1e8ef;border-radius:11px;background:#fff}
+.erimax-os-detail-cell small{display:block;margin-bottom:5px;color:#728397;font-size:.62rem;font-weight:800;letter-spacing:.055em;text-transform:uppercase}
+.erimax-os-detail-cell b{display:block;color:#263f53;font-size:.8rem;line-height:1.4;overflow-wrap:anywhere}
+.erimax-os-history-section{margin-top:15px;padding:1px 14px 13px;border:1px solid #e1e8ef;border-radius:13px;background:#fff}
+.erimax-os-history-section>p{margin:0;color:#405568;font-size:.84rem;line-height:1.6;overflow-wrap:anywhere}
+.erimax-os-timeline{position:relative;margin:4px 0 0 5px;padding-left:22px}
+.erimax-os-timeline:before{content:"";position:absolute;top:8px;bottom:8px;left:5px;width:2px;background:#dbe5ed}
+.erimax-os-event{position:relative;padding:0 0 17px;display:flex;gap:12px}
+.erimax-os-event:last-child{padding-bottom:2px}
+.erimax-os-event-dot{position:absolute;left:-22px;top:4px;width:12px;height:12px;border:3px solid #fff;border-radius:50%;background:#3b82a0;box-shadow:0 0 0 1px #9ab7c8}
+.erimax-event-abertura .erimax-os-event-dot{background:#2877ad}.erimax-event-atendimento .erimax-os-event-dot,.erimax-event-retomada .erimax-os-event-dot{background:#16856b}.erimax-event-pausa .erimax-os-event-dot,.erimax-event-alerta .erimax-os-event-dot{background:#d18a27}.erimax-event-conclusao .erimax-os-event-dot{background:#16804f}
+.erimax-os-event small{display:block;margin-bottom:3px;color:#7a8b9a;font-size:.68rem;font-weight:650}
+.erimax-os-event b{display:block;color:#29465d;font-size:.83rem}
+.erimax-os-event p{margin:3px 0 0;color:#53687a;font-size:.77rem;line-height:1.5;overflow-wrap:anywhere}
+.erimax-os-empty{padding:14px;border-radius:10px;background:#f4f7fa;color:#718096;font-size:.82rem}
+.erimax-os-history-warning{margin-top:13px!important;padding:10px 12px;border:1px solid #f0d39c;border-radius:10px;background:#fff8e9;color:#8a5b12!important;font-size:.77rem!important}
+.erimax-os-history-panel>footer{display:flex;justify-content:flex-end;padding:12px 20px;border-top:1px solid #e2e9f0;background:#fff}
+@media(max-width:600px){.erimax-os-history-modal{padding:7px;align-items:flex-end}.erimax-os-history-panel{max-height:94dvh;border-radius:17px 17px 12px 12px}.erimax-os-history-head{padding:15px 16px}.erimax-os-history-content{padding:14px 13px}.erimax-os-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.erimax-os-detail-cell{padding:9px}.erimax-os-detail-cell b{font-size:.76rem}.erimax-os-history-section{padding-inline:11px}}
+@media(max-width:360px){.erimax-os-detail-grid{grid-template-columns:1fr}.erimax-os-history-status{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3795,39 +3828,74 @@ async function verHistorico(id){
   if(!os)return;
   const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).sort((a,b)=>new Date(a.pausada_em)-new Date(b.pausada_em));
   const transferencias=HISTORICO_TRANSFERENCIAS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.solicitada_em)-new Date(b.solicitada_em));
-  const {data:reaberturas,error:erroReaberturas}=await _supabase.from('historico_reaberturas_os').select('*').eq('os_id',id).order('reaberta_em',{ascending:true});
-  if(erroReaberturas)console.warn('Não foi possível carregar histórico de reaberturas:',erroReaberturas.message);
-
-  const agora=Date.now();
-  const minutosFmt=ms=>{
-    const total=Math.max(0,Math.floor(ms/60000)),dias=Math.floor(total/1440),horas=Math.floor((total%1440)/60),min=total%60;
-    if(dias)return dias+'d '+horas+'h '+min+'min';
-    if(horas)return horas+'h '+min+'min';
-    return min+' min';
-  };
-  let totalPausaMs=0;
-  const linhasPausa=pausas.map((p,i)=>{
-    const inicio=new Date(p.pausada_em).getTime();
-    const fim=p.retomada_em?new Date(p.retomada_em).getTime():agora;
-    const duracao=Number.isFinite(inicio)&&Number.isFinite(fim)?Math.max(0,fim-inicio):0;
-    totalPausaMs+=duracao;
-    return (i+1)+'. '+new Date(p.pausada_em).toLocaleString('pt-BR')+' — '+(p.motivo||'Motivo não informado')+
-      (p.retomada_em?'\n   Retomada: '+new Date(p.retomada_em).toLocaleString('pt-BR'):'\n   ⏸️ Pausa em andamento')+
-      '\n   Tempo parado: '+minutosFmt(duracao);
+  let reaberturas=[];
+  try{
+    const resposta=await _supabase.from('historico_reaberturas_os').select('*').eq('os_id',id).order('reaberta_em',{ascending:true});
+    if(resposta.error)throw resposta.error;
+    reaberturas=resposta.data||[];
+  }catch(e){console.warn('Não foi possível carregar histórico de reaberturas:',e?.message||e)}
+  const fmtData=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})};
+  const safe=v=>escaparHtml(v==null||v===''?'—':String(v));
+  const minutosFmt=ms=>{const total=Math.max(0,Math.floor(ms/60000)),dias=Math.floor(total/1440),horas=Math.floor((total%1440)/60),min=total%60;return dias?dias+'d '+horas+'h '+min+'min':horas?horas+'h '+min+'min':min+' min'};
+  const eventos=[];
+  const add=(data,titulo,descricao,tipo='normal')=>{const ts=data?new Date(data).getTime():NaN;if(Number.isFinite(ts))eventos.push({ts,titulo,descricao,tipo})};
+  add(os.created_at,'O.S. aberta','Aberta por '+(os.aberto_por||'—')+' • Equipamento: '+(os.situacao_equipamento||'—'),'abertura');
+  add(os.data_atendimento,'Atendimento iniciado','Responsável: '+(os.tecnico||'Não informado'),'atendimento');
+  pausas.forEach(p=>{
+    add(p.pausada_em,'Atendimento pausado',(p.tecnico||'Responsável não informado')+' • Motivo: '+(p.motivo||'Não informado'),'pausa');
+    if(p.retomada_em){
+      const dur=Math.max(0,new Date(p.retomada_em).getTime()-new Date(p.pausada_em).getTime());
+      add(p.retomada_em,'Atendimento retomado','Tempo pausado: '+minutosFmt(dur),'retomada');
+    }
   });
-  const historico=pausas.length?'\n\nPAUSAS:\n'+linhasPausa.join('\n')+
-    '\n\nTEMPO TOTAL PARADO: '+minutosFmt(totalPausaMs):'\n\nNenhuma pausa registrada.';
-  const linhasTransferencia=transferencias.map((t,i)=>{
-    const solicitada=new Date(t.solicitada_em).toLocaleString('pt-BR');
-    const aceita=t.aceita_em?new Date(t.aceita_em).toLocaleString('pt-BR'):'Aguardando aceite';
-    return (i+1)+'. '+solicitada+' — '+(t.solicitada_por||t.tecnico_anterior)+' solicitou transferência de '+t.tecnico_anterior+' para '+t.tecnico_novo+'\n   Motivo: '+(t.motivo||'Não informado')+'\n   '+(t.aceita_por?'Aceita por '+t.aceita_por+' em '+aceita:'Pendente de aceite');
+  transferencias.forEach(t=>{
+    add(t.solicitada_em,'Transferência solicitada',(t.solicitada_por||t.tecnico_anterior||'—')+' • De: '+(t.tecnico_anterior||'—')+' • Para: '+(t.tecnico_novo||'—')+' • Motivo: '+(t.motivo||'Não informado'),'transferencia');
+    if(t.aceita_em)add(t.aceita_em,'Transferência aceita','Aceita por '+(t.aceita_por||t.tecnico_novo||'—'),'retomada');
   });
-  const historicoTransferencias=transferencias.length?'\n\nTRANSFERÊNCIAS:\n'+linhasTransferencia.join('\n'):'\n\nNenhuma transferência registrada.';
-  const linhasReabertura=(reaberturas||[]).map((r,i)=>(i+1)+'. '+new Date(r.reaberta_em).toLocaleString('pt-BR')+' — reaberta por '+(r.tecnico_nome||'—')+'\n   Motivo: '+(r.motivo||'Não informado'));
-  const historicoReaberturas=linhasReabertura.length?'\n\nREABERTURAS:\n'+linhasReabertura.join('\n'):'\n\nNenhuma reabertura registrada.';
-  const transferenciaPendente=os.transferencia_para?'\n\nTRANSFERÊNCIA AGUARDANDO ACEITE:\nDestino: '+os.transferencia_para+'\nSolicitada por: '+(os.transferencia_solicitada_por||'—')+'\nEm: '+(os.transferencia_solicitada_em?new Date(os.transferencia_solicitada_em).toLocaleString('pt-BR'):'—')+'\nMotivo: '+(os.transferencia_motivo||'Não informado'):'';
-  const historicoAjuste=os.ajustado_em?'\n\n⚠️ HORÁRIO CORRIGIDO PELO GESTOR:\nPor: '+(os.ajustado_por||'Gestor')+'\nEm: '+new Date(os.ajustado_em).toLocaleString('pt-BR')+'\nMotivo: '+(os.ajuste_obs||'Não informado'):'\n\nNenhuma correção de horário registrada.';
-  alert(nOS(os)+' | '+os.turno+'\nStatus: '+(os.status||'—')+' • Tipo: '+(os.tipo||'—')+' • Prioridade: '+(os.prioridade||'—')+'\nSetor: '+os.setor+' | Máq: '+os.maquina+'\nAberta em: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—')+'\nAberta por: '+(os.aberto_por||'—')+'\nEquipamento: '+(os.situacao_equipamento||'—')+'\nInício do atendimento: '+(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não registrado')+'\nConclusão: '+(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Ainda não concluída')+'\nProblema: '+(os.descricao||'—')+'\nCausa: '+(os.causa||'Não informada')+'\nPeça: '+(os.peca||'Não informada')+'\nSolução/serviço: '+(os.servico_executado||'Não registrado')+'\nTécnico: '+(os.tecnico||'Nenhum')+historico+historicoTransferencias+historicoReaberturas+transferenciaPendente+historicoAjuste);
+  (reaberturas||[]).forEach(r=>add(r.reaberta_em,'O.S. reaberta','Por: '+(r.tecnico_nome||'—')+' • Motivo: '+(r.motivo||'Não informado'),'alerta'));
+  add(os.data_conclusao,'O.S. concluída','Serviço: '+(os.servico_executado||'Não informado')+' • Técnico: '+(os.tecnico||'—'),'conclusao');
+  add(os.ajustado_em,'Horário corrigido pelo gestor','Por: '+(os.ajustado_por||'Gestor')+' • Motivo: '+(os.ajuste_obs||'Não informado'),'alerta');
+  eventos.sort((a,b)=>a.ts-b.ts);
+  let totalPausa=0;
+  pausas.forEach(p=>{const ini=new Date(p.pausada_em).getTime(),fim=p.retomada_em?new Date(p.retomada_em).getTime():Date.now();if(Number.isFinite(ini)&&Number.isFinite(fim))totalPausa+=Math.max(0,fim-ini)});
+  if(os.transferencia_para&&os.transferencia_solicitada_em&&!transferencias.some(t=>t.solicitada_em===os.transferencia_solicitada_em))
+    add(os.transferencia_solicitada_em,'Transferência aguardando aceite','Destino: '+os.transferencia_para+' • Motivo: '+(os.transferencia_motivo||'Não informado'),'alerta');
+  eventos.sort((a,b)=>a.ts-b.ts);
+  const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Não definida';
+  const detalhes=[
+    ['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],
+    ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],
+    ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Abertura',fmtData(os.created_at)],
+    ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
+  ];
+  const detalheHtml=detalhes.map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('');
+  const eventoHtml=eventos.length?eventos.map((e,i)=>'<article class="erimax-os-event erimax-event-'+e.tipo+'"><span class="erimax-os-event-dot"></span><div><small>'+fmtData(e.ts)+'</small><b>'+safe(e.titulo)+'</b><p>'+safe(e.descricao)+'</p></div></article>').join(''):'<p class="erimax-os-empty">Ainda não há eventos registrados para esta O.S.</p>';
+  let modal=document.getElementById('modalHistoricoOS');
+  if(!modal){
+    modal=document.createElement('div');modal.id='modalHistoricoOS';modal.className='erimax-os-history-modal';
+    modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','tituloHistoricoOS');
+    modal.innerHTML='<section class="erimax-os-history-panel"><header class="erimax-os-history-head"><div><small>DETALHES DA ORDEM DE SERVIÇO</small><h2 id="tituloHistoricoOS"></h2></div><button type="button" class="erimax-os-history-close" aria-label="Fechar" onclick="fecharHistoricoOS()">×</button></header><div id="conteudoHistoricoOS" class="erimax-os-history-content"></div><footer><button type="button" class="btn-action btn-historico" onclick="fecharHistoricoOS()">Fechar</button></footer></section>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click',e=>{if(e.target===modal)fecharHistoricoOS()});
+  }
+  const titulo=modal.querySelector('#tituloHistoricoOS');
+  if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada');
+  const conteudo=modal.querySelector('#conteudoHistoricoOS');
+  if(conteudo)conteudo.innerHTML=
+    '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
+    '<h3>Resumo da O.S.</h3><div class="erimax-os-detail-grid">'+detalheHtml+'</div>'+
+    '<section class="erimax-os-history-section"><h3>Problema relatado</h3><p>'+safe(os.problema||os.descricao||os.defeito||'Não informado')+'</p></section>'+
+    '<section class="erimax-os-history-section"><h3>Diagnóstico e execução</h3><div class="erimax-os-detail-grid">'+[['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado]].map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('')+'</div></section>'+
+    (os.ajustado_em?'<p class="erimax-os-history-warning">Horário corrigido por '+safe(os.ajustado_por||'Gestor')+' em '+fmtData(os.ajustado_em)+'. Motivo: '+safe(os.ajuste_obs||'Não informado')+'</p>':'')+
+    '<section class="erimax-os-history-section"><h3>Histórico de movimentações</h3><div class="erimax-os-timeline">'+eventoHtml+'</div></section>';
+  modal.style.display='flex';
+  document.body.style.overflow='hidden';
+  modal.querySelector('.erimax-os-history-close')?.focus();
+}
+function fecharHistoricoOS(){
+  const modal=document.getElementById('modalHistoricoOS');
+  if(modal)modal.style.display='none';
+  document.body.style.overflow='';
 }
 
 function atualizarMaquinasMetrica(){
