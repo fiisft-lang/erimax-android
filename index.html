@@ -3748,7 +3748,7 @@ function iniciarSincronizacaoFallback(){
         
         const badge=document.getElementById('badgePendentes');
         if(badge)badge.innerText=chamados.filter(os=>os.status==='Aberta').length;
-        if(document.getElementById('tab-metricas')?.classList.contains('active')||document.getElementById('tab-ranking-os')?.classList.contains('active'))atualizarMetricasReais();
+        // Métricas não são redesenhadas pela sincronização de fundo; isso evita movimento periódico dos gráficos.
       }
     }catch(e){console.error('Sincronização automática de segurança falhou:',e.message||e)}
     finally{sincronizacaoFallbackEmCurso=false}
@@ -3804,7 +3804,7 @@ function mudarAba(id,evt){
   if(id==='painel')renderPainelMaquinasSupervisor();
   if(id==='ordens-servico'&&!precisaAtualizar)renderizarChamados();
   if(id==='presenca'&&MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
-  return carregamento;
+  return carregamento.then(()=>{if(id==='metricas'){atualizarMaquinasMetrica();atualizarMetricasReais()}});
 }
 
 async function carregarDadosSupabase(){
@@ -3831,7 +3831,7 @@ async function carregarDadosSupabase(){
   if(document.getElementById('tab-ordens-servico').classList.contains('active'))renderizarChamados();
   if(document.getElementById('tab-ordens-abertas').classList.contains('active'))renderizarChamados('listaOSAbertas',true);
   if(document.getElementById('tab-ordens-pausadas').classList.contains('active'))renderizarChamados('listaOSPausadas',false,true);
-  if(document.getElementById('tab-metricas').classList.contains('active')||document.getElementById('tab-ranking-os')?.classList.contains('active')){atualizarMaquinasMetrica();atualizarMetricasReais()}
+  // A aba Métricas atualiza seus gráficos ao ser aberta ou quando os filtros mudam.
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
 }
 
