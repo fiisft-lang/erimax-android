@@ -281,11 +281,14 @@ public class IncomingCallActivity extends Activity {
       float max = Math.max(0, track.getHeight() - thumb.getHeight() - dp(10));
       switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:
+          // Impede que o ScrollView pai capture o gesto vertical do controle.
+          if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
           downY[0] = event.getRawY();
           startY[0] = thumb.getTranslationY();
           thumb.animate().scaleX(1.06f).scaleY(1.06f).setDuration(100).start();
           return true;
         case MotionEvent.ACTION_MOVE:
+          if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
           float dy = event.getRawY() - downY[0];
           float next = startY[0] + dy;
           next = Math.max(-max, Math.min(0, next));
@@ -293,9 +296,10 @@ public class IncomingCallActivity extends Activity {
           return true;
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_CANCEL:
+          if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
           float moved = Math.abs(thumb.getTranslationY() - startY[0]);
           thumb.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
-          if (event.getAction() == MotionEvent.ACTION_UP && moved >= max * 0.62f) {
+          if (event.getAction() == MotionEvent.ACTION_UP && max > 0 && moved >= max * 0.62f) {
             action.run();
           } else {
             thumb.animate().translationY(0).setDuration(190).start();
