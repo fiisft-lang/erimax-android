@@ -3313,6 +3313,61 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   #metricsDataContent>.metrics-grid .metric-card{min-height:118px}
 }
 </style>
+<style id="erimax-cadastro-modern-2026">
+/* Modernização visual da página Cadastro; mantém IDs, eventos, dados e regras atuais. */
+#tab-cadastro{display:grid;grid-template-columns:minmax(0,1fr);gap:15px;padding-bottom:28px}
+#tab-cadastro>.card{position:relative;min-width:0;margin:0;padding:19px;border:1px solid #dce6ee;border-radius:16px;background:linear-gradient(155deg,#fff 0%,#fbfdff 100%);box-shadow:0 5px 17px rgba(20,48,75,.055);overflow:hidden}
+#tab-cadastro>.card>h3,
+#tab-cadastro>.card>h4{display:flex;align-items:center;gap:9px;margin:0 0 7px!important;color:#1d435c!important;font-size:1rem!important;font-weight:850;letter-spacing:-.02em;line-height:1.35}
+#tab-cadastro>.card>h3:before,
+#tab-cadastro>.card>h4:before{content:"";width:4px;height:21px;flex:0 0 4px;border-radius:8px;background:linear-gradient(180deg,#36a69a,#2878b8)}
+#tab-cadastro>.card>p{color:#718294;line-height:1.5}
+#tab-cadastro #novoSetor{min-width:0;flex:1 1 220px}
+#tab-cadastro #listaCfg,
+#tab-cadastro #listaMaquinas,
+#tab-cadastro #listaPrev,
+#tab-cadastro #listaUsuarios{display:grid;gap:10px;margin-top:12px}
+#tab-cadastro #listaCfg>.card,
+#tab-cadastro #listaMaquinas>.card{margin:0!important;padding:14px!important;border:1px solid #e3ebf2!important;border-radius:13px!important;background:#f9fbfd!important;box-shadow:none!important}
+#tab-cadastro .maq-row{min-width:0;gap:9px;padding:10px;border:1px solid #e5edf3;border-radius:11px;background:#fff}
+#tab-cadastro details{margin:9px 0;border:1px solid #e1e9f1;border-radius:12px;background:#fff;overflow:hidden}
+#tab-cadastro details>summary{padding:12px 14px;cursor:pointer}
+#tab-cadastro details[open]>summary{background:#f2f7fa!important}
+#tab-cadastro details>div,#tab-cadastro details>section{padding:13px!important}
+#tab-cadastro .form-group{min-width:0}
+#tab-cadastro .btn-submit{min-height:44px;border-radius:10px;font-weight:800}
+#tab-cadastro .btn-action{min-height:38px;border-radius:9px}
+#tab-cadastro #pvEquipeTecnicos{border-color:#dce6ee!important;border-radius:11px!important;background:#f9fbfd}
+#tab-cadastro #listaUsuarios .maq-row input,
+#tab-cadastro #listaUsuarios .maq-row select{min-width:0}
+@media(min-width:1100px){
+  #tab-cadastro{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+  #tab-cadastro>.card{padding:21px}
+  #tab-cadastro>.card:nth-child(1),
+  #tab-cadastro>.card:nth-child(2),
+  #tab-cadastro>.card:nth-child(3),
+  #tab-cadastro>.card:nth-child(4){align-self:start}
+  #tab-cadastro>.card:nth-child(3),
+  #tab-cadastro>.card:nth-child(4){margin-top:0}
+  #tab-cadastro #listaCfg,
+  #tab-cadastro #listaMaquinas,
+  #tab-cadastro #listaPrev,
+  #tab-cadastro #listaUsuarios{gap:11px}
+}
+@media(min-width:760px) and (max-width:1099px){
+  #tab-cadastro>.card{padding:17px}
+}
+@media(max-width:600px){
+  #tab-cadastro{gap:11px;padding-bottom:18px}
+  #tab-cadastro>.card{padding:14px;border-radius:14px}
+  #tab-cadastro>.card>h3,#tab-cadastro>.card>h4{font-size:.94rem!important}
+  #tab-cadastro .maq-row{padding:9px;gap:7px}
+  #tab-cadastro #novoSetor{flex-basis:100%;width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  #tab-cadastro *{scroll-behavior:auto!important;transition:none!important}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
