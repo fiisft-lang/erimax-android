@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.graphics.Color;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Vibrator;
@@ -41,6 +42,9 @@ public class IncomingCallMessagingService extends MessagingService {
         .setSound(null)
         .setVibrate(null)
         .setSmallIcon(getApplicationInfo().icon)
+        .setColor(Color.rgb(16, 43, 58))
+        .setColorized(true)
+        .setSubText("ERIMAX • MANUTENÇÃO")
         .setContentTitle(transferencia ? "O.S. aguardando seu aceite" : "Nova ordem de serviço")
         .setContentText(transferencia ? number + " • " + machine + " • " + sector : machine + " • " + sector)
         .setCategory(NotificationCompat.CATEGORY_CALL)
