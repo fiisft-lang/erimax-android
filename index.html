@@ -2781,6 +2781,17 @@ tbody tr:hover{background:#eef6f5}
  #painelMaquinasSupervisor .sv-metric-detail-item{align-items:flex-start}
 }
 </style>
+<style id="erimax-os-indicadores-interativos-2026">
+#tab-ordens-servico .os-stat{appearance:none;width:100%;min-height:112px;text-align:left;font:inherit;cursor:pointer;position:relative;transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease}
+#tab-ordens-servico .os-stat:hover{transform:translateY(-2px);background:#f5fafc;border-color:#b8cbd5;box-shadow:0 7px 16px rgba(12,43,63,.09)}
+#tab-ordens-servico .os-stat:active{transform:scale(.985)}
+#tab-ordens-servico .os-stat:focus-visible{outline:3px solid #86b8ca;outline-offset:3px}
+#tab-ordens-servico .os-stat.is-selected{background:#eaf3f7;border-color:#8eafbf;box-shadow:inset 0 0 0 1px rgba(40,92,120,.12)}
+#tab-ordens-servico .os-stat em{display:block;margin-top:7px;color:#28627b;font-size:.6rem;font-style:normal;font-weight:800}
+#tab-ordens-servico #listaOS{scroll-margin-top:18px}
+@media(max-width:680px){#tab-ordens-servico .os-stat{min-height:105px;padding:10px!important}#tab-ordens-servico .os-stat em{font-size:.57rem}}
+@media(prefers-reduced-motion:reduce){#tab-ordens-servico .os-stat{transition:none}}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3752,6 +3763,17 @@ function filtrarOSRapido(status){
   botoes.forEach(btn=>btn.classList.toggle('active',btn.dataset.status===status));
   renderizarChamados();
 }
+function abrirDetalheIndicadorOS(status){
+  const filtro=document.getElementById('filtroStatus');
+  if(!filtro)return;
+  const busca=document.getElementById('buscaOS');if(busca)busca.value='';
+  const prioridade=document.getElementById('filtroPrioridadeOS');if(prioridade)prioridade.value='Todas';
+  const setor=document.getElementById('filtroSetorOS');if(setor)setor.value='Todos';
+  const tecnico=document.getElementById('filtroTecnicoOS');if(tecnico)tecnico.value='Todos';
+  const transferencia=document.getElementById('filtroTransferenciaOS');if(transferencia)transferencia.value='Todas';
+  filtrarOSRapido(status);
+  document.getElementById('listaOS')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function atualizarResumoDashboardOS(){
   const total=chamados.length;
   const contar=status=>chamados.filter(os=>os.status===status).length;
@@ -3765,12 +3787,13 @@ function atualizarResumoDashboardOS(){
   const resumo=document.getElementById('osResumoDashboard');
   if(resumo){
     const cards=[
-      ['Em aberto',contar('Aberta'),'#b7791f','Aguardando responsável'],
-      ['Em atendimento',contar('Em Atendimento'),'#2875a5','Serviço em execução'],
-      ['Pausadas',contar('Pausada'),'#a16207','Aguardando retomada'],
-      ['Concluídas',contar('Concluída'),'#23856d','Serviços finalizados']
+      ['Em aberto','Aberta',contar('Aberta'),'#b7791f','Aguardando responsável'],
+      ['Em atendimento','Em Atendimento',contar('Em Atendimento'),'#2875a5','Serviço em execução'],
+      ['Pausadas','Pausada',contar('Pausada'),'#a16207','Aguardando retomada'],
+      ['Concluídas','Concluída',contar('Concluída'),'#23856d','Serviços finalizados']
     ];
-    resumo.innerHTML=cards.map(x=>'<div class="os-stat" style="--os-stat-color:'+x[2]+'"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[3]+'</small></div>').join('');
+    const statusAtual=filtro?.value||'Todas';
+    resumo.innerHTML=cards.map(x=>'<button type="button" class="os-stat'+(statusAtual===x[1]?' is-selected':'')+'" style="--os-stat-color:'+x[3]+'" onclick="abrirDetalheIndicadorOS(\''+x[1]+'\')" aria-pressed="'+(statusAtual===x[1]?'true':'false')+'"><span>'+x[0]+'</span><b>'+x[2]+'</b><small>'+x[4]+'</small><em>Toque para ver as ordens →</em></button>').join('');
   }
   const filtro=document.getElementById('filtroStatus');
   const selecionado=filtro?.value||'Todas';
