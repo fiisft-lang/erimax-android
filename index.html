@@ -2615,7 +2615,12 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     const androidApp=document.documentElement.classList.contains('erimax-app-android');
     let html=androidApp?'<div class="os-alert-head"><span class="os-alert-icon" aria-hidden="true">🔧</span><div class="os-alert-main"><div class="os-alert-title"><span class="os-id">O.S. '+escaparHtml(nOS(os))+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div><div class="os-alert-machine">'+escaparHtml(os.maquina||'Máquina não informada')+'</div></div></div>':'<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
-    html+=androidApp?'<div class="os-alert-meta"><span class="os-alert-sector"><small>SETOR</small><b>'+escaparHtml(os.setor||'Não informado')+'</b></span><span><small>TURNO</small><b>'+escaparHtml(os.turno||'Não informado')+'</b></span><span><small>ABERTURA</small><b>'+escaparHtml(abertura)+'</b></span></div>':'<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
+    html+=androidApp?'<div class="os-alert-meta"><span class="os-alert-sector"><small>SETOR</small><b>'+escaparHtml(os.setor||'Não informado')+'</b></span><span><small>TURNO</small><b>'+escaparHtml(os.turno||'Não informado')+'</b></span><span><small>ABERTURA</small><b>'+escaparHtml(abertura)+'</b></span></div>':'<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';
+    const inicioOS=os.created_at?new Date(os.created_at).getTime():NaN;
+    const fimOS=status==='Concluída'&&os.data_conclusao?new Date(os.data_conclusao).getTime():Date.now();
+    const duracaoOS=Number.isFinite(inicioOS)?fmt(Math.max(0,Math.floor((fimOS-inicioOS)/60000))):'—';
+    const responsavelOS=os.tecnico|| (os.transferencia_para?'Aguardando aceite de '+os.transferencia_para:'Aguardando técnico');
+    html+='<div class="os-resumo-info"><span><small>PRIORIDADE</small><b class="os-prioridade-'+prioridade.toLowerCase().replace('é','e')+'">'+escaparHtml(prioridade)+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
     html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
@@ -4211,6 +4216,16 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 .supervisor-status-titulo small{font-size:.65rem;font-weight:500;color:#718294}
 @media(max-width:600px){.supervisor-resumo{padding:13px!important}.supervisor-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.supervisor-kpi{min-height:91px;padding:10px}.supervisor-kpi b{font-size:1.55rem}.supervisor-total-maquinas{font-size:.64rem}}
 @media(max-width:360px){.supervisor-kpi small{font-size:.6rem}}
+
+/* Informações rápidas nos cartões de O.S. */
+.os-resumo-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.os-resumo-info>span{display:flex;flex-direction:column;gap:4px;min-width:0;padding:9px 10px;border:1px solid #e2eaf0;border-radius:11px;background:#f7fafc}
+.os-resumo-info small{font-size:.59rem;font-weight:850;letter-spacing:.065em;color:#718294}
+.os-resumo-info b{font-size:.75rem;line-height:1.35;color:#29435d;overflow-wrap:anywhere}
+.os-resumo-info .os-prioridade-alta{color:#b42318}
+.os-resumo-info .os-prioridade-media{color:#a16207}
+.os-resumo-info .os-prioridade-baixa{color:#16765e}
+@media(max-width:480px){.os-resumo-info{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.os-resumo-info>span{padding:8px}.os-resumo-info>span:last-child{grid-column:1/-1}}
 
 </style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main></body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
