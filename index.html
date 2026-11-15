@@ -3649,6 +3649,14 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 #tab-cadastro #cadastro-area-usuarios>.cadastro-usuario-form{order:1}
 #tab-cadastro #cadastro-area-usuarios>.cadastro-usuarios-list{order:2}
 </style>
+<style id="erimax-cadastro-corrige-paineis-2026">
+/* Cada área da central deve aparecer isoladamente ao tocar no respectivo cartão */
+#tab-cadastro #cadastro-area-preventivas:not(.active){display:none!important}
+#tab-cadastro #cadastro-area-preventivas.active{display:flex!important;flex-direction:column!important}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo{display:grid!important}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading{cursor:default!important;pointer-events:none}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading small{display:block}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3791,7 +3799,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="card cadastro-area-card cadastro-maquinas-card">
 <p class="cadastro-area-intro">Cada setor fica recolhido. Abra um setor para visualizar a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
-</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div class="pv-form-heading" role="button" tabindex="0" aria-controls="pvFormConteudo" aria-expanded="true" onclick="alternarFormPreventiva()"><div><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><small id="pvFormHint">Toque aqui para recolher o formulário</small></div><span class="pv-form-heading-icon" aria-hidden="true">⌄</span></div><div id="pvFormConteudo">
+</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div class="pv-form-heading"><div><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Cadastrar preventiva</h3><small>Preencha os dados para programar a manutenção</small></div></div><div id="pvFormConteudo">
 <div class="form-group"><label>Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
 <div class="form-group"><label>Máquinas</label>
 <label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
