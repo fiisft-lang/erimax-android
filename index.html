@@ -4205,6 +4205,70 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
  #tab-ordens-abertas .oa-card-meta>span:last-child,#tab-ordens-abertas .oa-card-facts>span:last-child{grid-column:1/-1}
 }
 </style>
+
+<style id="erimax-desktop-proporcoes-2026">
+/* Ajustes exclusivos para computadores; celulares e iPhones permanecem com o layout atual. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  html { font-size: 16px; }
+  body { font-size: 1rem; padding-bottom: 36px; }
+  header { height: 72px; padding: 0 clamp(24px, 3vw, 52px); }
+  header img.logo { height: 48px; max-width: 250px; }
+  header .hd { font-size: .82rem; line-height: 1.4; }
+  #barraAtivacaoAudio { font-size: 1rem; padding: 13px 18px; }
+  .nav-tabs { padding: 0 clamp(18px, 2vw, 34px); gap: 6px; }
+  .tab-btn { flex: 1 1 auto; min-height: 58px; padding: 13px 12px; font-size: .92rem; }
+  .badge-count { font-size: .78rem; padding: 2px 7px; }
+  .container { width: 100%; max-width: 1600px; padding: 28px clamp(24px, 3vw, 52px) 42px; }
+  .card { padding: 23px; border-radius: 16px; margin-bottom: 20px; }
+  .form-group { margin-bottom: 18px; }
+  label { font-size: .88rem; margin-bottom: 8px; }
+  select, input, textarea { padding: 14px 15px; font-size: 1rem; min-height: 48px; }
+  .btn-submit { padding: 15px 20px; font-size: 1rem; min-height: 50px; }
+  .os-card { padding: 19px; margin-bottom: 16px; border-radius: 14px; }
+  .os-id { font-size: 1.08rem; }
+  .os-badge { font-size: .82rem; padding: 4px 10px; }
+  .btn-action { padding: 10px 13px; font-size: .88rem; min-height: 40px; }
+  .os-actions { gap: 9px; }
+  .user-bar { font-size: .9rem; padding: 10px 28px; }
+  .maq-row { font-size: .98rem; padding: 11px 0; }
+  .box { max-width: 520px; padding: 28px; }
+  #login { padding: 36px; }
+  #login .box { width: min(520px, calc(100vw - 72px)); max-width: 520px; padding: 36px 38px; border-radius: 24px; }
+  #login .box img.logo { max-width: 290px; }
+  #login .box h2 { font-size: 1.7rem; margin-bottom: 20px; }
+  #login label { font-size: .86rem; }
+  #login input { min-height: 52px; padding: 15px 16px; font-size: 1.02rem; }
+  #login .btn-submit { min-height: 52px; padding: 15px 20px; font-size: 1.02rem; }
+  .metrics-filter-card { padding: 23px; column-gap: 18px; }
+  .metrics-filter-card label { font-size: .82rem; }
+  .metrics-filter-card input, .metrics-filter-card select { min-height: 48px; font-size: .96rem; }
+  .metrics-grid { gap: 15px; }
+  .metric-card { padding: 19px 16px; border-radius: 14px; }
+  .metric-card .title { font-size: .78rem; }
+  .metric-card .value { font-size: clamp(1.55rem, 1.7vw, 2rem); }
+  .metric-card .sub { font-size: .76rem; }
+  .chart-wrapper { height: 320px; }
+  #metricsDataContent { gap: 20px; }
+  #metricsDataContent > .card { padding: 23px; border-radius: 18px; }
+  #metricsDataContent > .card h4 { font-size: 1.08rem; }
+  #metricsDataContent .metrics-chart-note { font-size: .84rem; }
+  #metricsDataContent .chart-wrapper { min-height: 300px; }
+  #metricsDataContent .metrics-section-heading { padding: 18px 20px; }
+  #metricsDataContent .metrics-section-heading h3 { font-size: 1.18rem; }
+  #metricsDataContent .metrics-section-heading p { font-size: .84rem; }
+  table { font-size: .88rem; }
+  th { font-size: .78rem; }
+  th, td { padding: 9px 10px; }
+  .report-item { padding: 15px 17px; font-size: .9rem; }
+  #tab-abrir > .card, #tab-ordens-servico > .card:first-child { max-width: 1240px; }
+}
+@media (min-width: 1440px) and (hover: hover) and (pointer: fine) {
+  .container { max-width: 1760px; }
+  #metricsDataContent > .card { padding: 26px; }
+  #metricsDataContent .chart-wrapper { min-height: 340px; }
+}
+</style>
+
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
