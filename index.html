@@ -3004,6 +3004,28 @@ tbody tr:nth-child(even){background:#f8fafb!important}tbody tr:hover{background:
 .nav-tabs #tbAbrirOS>span:not(.tab-icon),
 .nav-tabs #tbOrdensServico>span:not(.tab-icon){display:inline!important;visibility:visible!important}
 </style>
+
+<style id="erimax-menu-os-final-guard-2026">
+/* Proteção final do menu operacional: não deixar as duas ações encolherem ou sumirem. */
+.nav-tabs #tbAbrirOS,
+.nav-tabs #tbOrdensServico{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:49px!important;
+  position:relative!important;
+  z-index:2!important;
+}
+.nav-tabs #tbAbrirOS>span:not(.tab-icon),
+.nav-tabs #tbOrdensServico>span:not(.tab-icon){
+  display:inline!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
