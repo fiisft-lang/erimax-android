@@ -20,7 +20,7 @@ header{background:var(--primary);color:#fff;padding:14px 16px;text-align:center;
 header h1{font-size:1.3rem;font-weight:800}
 header p{font-size:.75rem;opacity:.9;text-transform:uppercase}
 #barraAtivacaoAudio{background:var(--secondary);color:#fff;padding:10px;text-align:center;font-weight:bold;font-size:.85rem;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.2);position:sticky;top:59px;z-index:98}
-#bannerAlerta{display:none;background:var(--danger);color:#fff;padding:12px 16px;text-align:center;animation:pulseBanner 1s infinite alternate;box-shadow:0 4px 12px rgba(220,53,69,.5)}
+#bannerAlerta{display:none;position:fixed;top:0;left:0;right:0;z-index:10000;background:var(--danger);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;text-align:center;animation:pulseBanner 1s infinite alternate;box-shadow:0 4px 18px rgba(220,53,69,.55)}
 @keyframes pulseBanner{from{background:#dc3545}to{background:#922b21}}
 #bannerAlerta button{background:#fff;color:var(--danger);border:none;padding:8px 16px;font-weight:bold;border-radius:20px;margin-top:8px;cursor:pointer}
 #toastOS{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:1000;width:calc(100% - 32px);max-width:420px;padding:14px 18px;background:#166534;color:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22);font-weight:700;text-align:center;opacity:0;visibility:hidden;transition:opacity .2s ease,transform .2s ease,visibility .2s}
@@ -6992,7 +6992,11 @@ async function iniciarApp(user){
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
   await carregarMaquinas();await carregarCfg();await carregarPreventivas();if(p==='gestor')carregarUsuarios();
-  await carregarDadosSupabase();iniciarTempoReal();iniciarPush();iniciarLinksOS();configurarWebPush();
+  await carregarDadosSupabase();
+  // Usa o último ID já carregado como ponto inicial antes de conectar o Realtime;
+  // evita perder uma O.S. criada na janela entre o login e a primeira consulta de polling.
+  ultimoIdOSRealtime=chamados.reduce((maior,os)=>Math.max(maior,Number(os.id)||0),0);
+  iniciarTempoReal();iniciarPush();iniciarLinksOS();configurarWebPush();
   const osDaNotificacao=new URLSearchParams(location.search).get('os');
   if(osDaNotificacao)await abrirOSNoPainel(osDaNotificacao);
   const osPendente=localStorage.getItem('erimax_os_pendente');
