@@ -45,10 +45,17 @@
     return result;
   }
 
-  async function checkForUpdate(){
-    if(checking || !isAndroid()) return;
+  async function checkForUpdate(manual = false){
+    if(checking) return;
+    if(!isAndroid()){
+      if(manual) alert('A verificação manual de OTA está disponível no aplicativo Android do EriMax.');
+      return;
+    }
     const live = PLUGIN();
-    if(!live || typeof live.getCurrentBundle !== 'function') return;
+    if(!live || typeof live.getCurrentBundle !== 'function'){
+      if(manual) alert('O recurso de atualização não está disponível nesta versão do EriMax. Atualize o APK para habilitá-lo.');
+      return;
+    }
     checking = true;
     try{
       await ready();
@@ -64,15 +71,15 @@
       const bundleUrl = new URL(manifest.url);
       const allowedPath = '/fiisft-lang/erimax-android/' + branch + '/ota/';
       if(bundleUrl.origin !== 'https://raw.githubusercontent.com' || !bundleUrl.pathname.startsWith(allowedPath)) throw new Error('Endereço do pacote não corresponde ao canal '+channel+'.');
-      // Compara o pacote ativo com o conteúdo embarcado no APK.
-      // Se o APK instalado já contém exatamente o build publicado, mas o
-      // Android ainda serve um bundle OTA antigo, volta ao pacote nativo.
+
       const current = await live.getCurrentBundle();
+      const next = typeof live.getNextBundle === 'function' ? await live.getNextBundle().catch(()=>null) : null;
       const localBuildResponse = await fetch('ota-build.json?ts=' + Date.now(), {cache:'no-store'});
       let localBuild = null;
-      if(localBuildResponse.ok){
-        try { localBuild = await localBuildResponse.json(); } catch (_) {}
-      }
+      if(localBuildResponse.ok){ try { localBuild = await localBuildResponse.json(); } catch (_) {} }
+
+      // Se o APK instalado já contém o build publicado, recupera o pacote nativo
+      // quando um bundle OTA antigo ainda está ativo.
       if(localBuild && localBuild.bundleId === manifest.bundleId){
         if(current && current.bundleId && current.bundleId !== manifest.bundleId){
           if(typeof live.reset !== 'function') throw new Error('Esta versão não permite recuperar o pacote nativo. Atualize o APK.');
@@ -81,25 +88,41 @@
           await live.reload();
           return;
         }
-        if(!current || !current.bundleId || current.bundleId === manifest.bundleId) return;
+        if(!current || !current.bundleId || current.bundleId === manifest.bundleId){
+          if(manual) alert('Seu EriMax já está atualizado.');
+          return;
+        }
       }
-      if(current && current.bundleId === manifest.bundleId) return;
-      const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;
-      const minimum = Number(manifest.minimumNativeVersionCode || 1);
-      if(versionCode && minimum > versionCode) throw new Error('Esta atualização exige uma versão mais recente do aplicativo Android.');
-      await live.downloadBundle({url:bundleUrl.toString(),bundleId:manifest.bundleId,checksum:manifest.checksum});
-      await live.setNextBundle({bundleId:manifest.bundleId});
-      const next = typeof live.getNextBundle === 'function' ? await live.getNextBundle() : null;
-      if(!next || next.bundleId !== manifest.bundleId) throw new Error('O pacote foi baixado, mas o Android não confirmou a seleção para atualização.');
-      const notes = typeof manifest.message === 'string' && manifest.message.trim() ? '\n\n' + manifest.message.trim() : '';
-      const applyNow = window.confirm('Nova atualização do EriMax disponível!' + notes + '\n\nDeseja atualizar agora? Se estiver preenchendo uma O.S., escolha “Cancelar” e a atualização será aplicada na próxima abertura do aplicativo.');
+
+      if(current && current.bundleId === manifest.bundleId){
+        if(manual) alert('Seu EriMax já está atualizado.');
+        return;
+      }
+
+      // Se o usuário adiou uma atualização, reutiliza o pacote já baixado.
+      let pacotePronto = !!(next && next.bundleId === manifest.bundleId);
+      if(!pacotePronto){
+        const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;
+        const minimum = Number(manifest.minimumNativeVersionCode || 1);
+        if(versionCode && minimum > versionCode) throw new Error('Esta atualização exige uma versão mais recente do aplicativo Android.');
+        await live.downloadBundle({url:bundleUrl.toString(),bundleId:manifest.bundleId,checksum:manifest.checksum});
+        await live.setNextBundle({bundleId:manifest.bundleId});
+        const confirmado = typeof live.getNextBundle === 'function' ? await live.getNextBundle() : null;
+        if(!confirmado || confirmado.bundleId !== manifest.bundleId) throw new Error('O pacote foi baixado, mas o Android não confirmou a seleção para atualização.');
+      }
+
+      const notes = typeof manifest.message === 'string' && manifest.message.trim() ? '\\n\\n' + manifest.message.trim() : '';
+      const origem = pacotePronto ? 'A atualização já está baixada e aguardando aplicação.' : 'Nova atualização do EriMax disponível!';
+      const applyNow = window.confirm(origem + notes + '\\n\\nDeseja atualizar agora? Se estiver preenchendo uma O.S., escolha “Cancelar” e poderá aplicar depois em Menu > Verificar atualizações.');
       if(applyNow){
         storageSet(PENDING_KEY,manifest.bundleId);
         await live.reload();
+      } else if(manual && pacotePronto){
+        alert('A atualização continua baixada e poderá ser aplicada depois pelo menu.');
       }
     }catch(error){
       console.error('[EriMax OTA] Verificação/instalação não concluída:',error);
-      alert('Não foi possível concluir a atualização do EriMax.\n\nMotivo: '+(error && error.message ? error.message : String(error))+'\n\nNenhum dado das ordens de serviço foi apagado.');
+      alert('Não foi possível concluir a atualização do EriMax.\\n\\nMotivo: '+(error && error.message ? error.message : String(error))+'\\n\\nNenhum dado das ordens de serviço foi apagado.');
     }finally{
       checking = false;
     }
