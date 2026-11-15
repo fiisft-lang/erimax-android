@@ -23,6 +23,7 @@ public class IncomingCallActivity extends Activity {
   private static final int PANEL = Color.rgb(17, 43, 58);
   private static final int PANEL_LIGHT = Color.rgb(23, 55, 72);
   private static final int BORDER = Color.rgb(47, 83, 101);
+  private static final int SOFT_BORDER = Color.rgb(34, 66, 82);
   private static final int MUTED = Color.rgb(169, 194, 205);
   private static final int ACCENT = Color.rgb(255, 164, 66);
   private String osId = "";
@@ -66,7 +67,8 @@ public class IncomingCallActivity extends Activity {
     brandRow.setGravity(Gravity.CENTER_VERTICAL);
     GradientDrawable brandBg = rounded(Color.rgb(19, 49, 65), dp(22), Color.rgb(47, 83, 101));
     brandRow.setBackground(brandBg);
-    brandRow.setPadding(dp(13), dp(4), dp(13), dp(4));
+    brandRow.setPadding(dp(14), dp(6), dp(15), dp(6));
+    brandRow.setElevation(dp(3));
     TextView brandMark = label("E", 15, NAVY);
     brandMark.setTypeface(null, Typeface.BOLD);
     GradientDrawable markBg = new GradientDrawable();
@@ -74,6 +76,7 @@ public class IncomingCallActivity extends Activity {
     markBg.setShape(GradientDrawable.OVAL);
     brandMark.setBackground(markBg);
     brandMark.setPadding(0, 0, 0, 0);
+    brandMark.setElevation(dp(2));
     brandRow.addView(brandMark, new LinearLayout.LayoutParams(dp(27), dp(27)));
     TextView brand = label("ERIMAX  /  MANUTENÇÃO", 11, Color.WHITE);
     brand.setTypeface(null, Typeface.BOLD);
@@ -92,20 +95,22 @@ public class IncomingCallActivity extends Activity {
     TextView title = label(transferencia ? "Transferência de O.S." : "Nova ordem de serviço", 25, Color.WHITE);
     title.setTypeface(null, Typeface.BOLD);
     title.setGravity(Gravity.CENTER);
-    title.setPadding(dp(2), dp(5), dp(2), dp(3));
+    title.setPadding(dp(2), dp(7), dp(2), dp(4));
+    title.setLetterSpacing(-0.02f);
     root.addView(title, new LinearLayout.LayoutParams(-1, -2));
 
     TextView subtitle = label(transferencia
       ? "Uma ordem de serviço foi direcionada para você."
       : "Uma nova ocorrência precisa da sua atenção.", 13, MUTED);
-    subtitle.setPadding(dp(4), dp(2), dp(4), dp(18));
+    subtitle.setGravity(Gravity.CENTER);
+    subtitle.setPadding(dp(8), dp(3), dp(8), dp(20));
     root.addView(subtitle, new LinearLayout.LayoutParams(-1, -2));
 
     LinearLayout infoCard = new LinearLayout(this);
     infoCard.setOrientation(LinearLayout.VERTICAL);
-    infoCard.setPadding(dp(17), dp(15), dp(17), dp(14));
+    infoCard.setPadding(dp(17), dp(16), dp(17), dp(12));
     infoCard.setBackground(rounded(PANEL, dp(19), BORDER));
-    infoCard.setElevation(dp(5));
+    infoCard.setElevation(dp(7));
 
     TextView osLabel = label("ORDEM DE SERVIÇO", 10, MUTED);
     osLabel.setTypeface(null, Typeface.BOLD);
@@ -115,8 +120,12 @@ public class IncomingCallActivity extends Activity {
     TextView osNumber = label(number, 21, Color.WHITE);
     osNumber.setTypeface(null, Typeface.BOLD);
     osNumber.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
-    osNumber.setPadding(0, dp(3), 0, dp(12));
-    infoCard.addView(osNumber);
+    osNumber.setPadding(dp(11), dp(7), dp(11), dp(7));
+    osNumber.setBackground(rounded(PANEL_LIGHT, dp(11), SOFT_BORDER));
+    LinearLayout.LayoutParams numberParams = new LinearLayout.LayoutParams(-1, -2);
+    numberParams.topMargin = dp(5);
+    numberParams.bottomMargin = dp(8);
+    infoCard.addView(osNumber, numberParams);
 
     addInfoRow(infoCard, "SETOR", sector, "▦");
     addInfoRow(infoCard, "MÁQUINA", machine, "⚙");
@@ -125,7 +134,7 @@ public class IncomingCallActivity extends Activity {
     cardParams.setMargins(0, 0, 0, dp(16));
     root.addView(infoCard, cardParams);
 
-    TextView instruction = label("DESLIZE UMA DAS AÇÕES PARA CIMA", 10, MUTED);
+    TextView instruction = label("ESCOLHA UMA AÇÃO", 10, MUTED);
     instruction.setTypeface(null, Typeface.BOLD);
     instruction.setLetterSpacing(0.08f);
     root.addView(instruction, new LinearLayout.LayoutParams(-1, dp(30)));
@@ -141,8 +150,9 @@ public class IncomingCallActivity extends Activity {
       "✓", Color.rgb(25, 171, 111), this::answerCall);
     root.addView(actions, new LinearLayout.LayoutParams(-1, -2));
 
-    TextView footer = label("O alerta será encerrado após sua escolha.", 11, Color.rgb(132, 161, 174));
-    footer.setPadding(0, dp(16), 0, 0);
+    TextView footer = label("Deslize o controle para cima para confirmar.", 11, Color.rgb(150, 177, 190));
+    footer.setGravity(Gravity.CENTER);
+    footer.setPadding(dp(8), dp(16), dp(8), 0);
     root.addView(footer, new LinearLayout.LayoutParams(-1, -2));
 
     ScrollView scroll = new ScrollView(this);
@@ -183,7 +193,7 @@ public class IncomingCallActivity extends Activity {
     LinearLayout row = new LinearLayout(this);
     row.setOrientation(LinearLayout.HORIZONTAL);
     row.setGravity(Gravity.CENTER_VERTICAL);
-    row.setPadding(0, dp(9), 0, dp(9));
+    row.setPadding(0, dp(10), 0, dp(10));
 
     TextView icon = label(symbol, 17, ACCENT);
     icon.setTypeface(null, Typeface.BOLD);
@@ -206,6 +216,13 @@ public class IncomingCallActivity extends Activity {
     texts.addView(content);
     row.addView(texts, new LinearLayout.LayoutParams(0, -2, 1f));
     card.addView(row);
+    if (!"PROBLEMA INFORMADO".equals(caption)) {
+      View divider = new View(this);
+      divider.setBackgroundColor(SOFT_BORDER);
+      LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(-1, dp(1));
+      dividerParams.leftMargin = dp(50);
+      card.addView(divider, dividerParams);
+    }
   }
 
   private int dp(int value) {
@@ -218,25 +235,31 @@ public class IncomingCallActivity extends Activity {
     item.setGravity(Gravity.CENTER_HORIZONTAL);
     GradientDrawable itemBg = rounded(Color.rgb(15, 39, 53), dp(20), BORDER);
     item.setBackground(itemBg);
-    item.setPadding(dp(7), dp(12), dp(7), dp(10));
+    item.setPadding(dp(8), dp(13), dp(8), dp(11));
+    item.setElevation(dp(2));
     LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(0, -2, 1f);
     itemParams.setMargins(dp(6), 0, dp(6), 0);
 
     TextView title = label(hint, 11, Color.WHITE);
     title.setTypeface(null, Typeface.BOLD);
     title.setMaxLines(1);
+    title.setLetterSpacing(0.025f);
     item.addView(title, new LinearLayout.LayoutParams(-1, dp(28)));
 
     FrameLayout track = new FrameLayout(this);
-    GradientDrawable trackBg = rounded(Color.rgb(21, 52, 68), dp(34), Color.rgb(59, 94, 111));
+    GradientDrawable trackBg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+      new int[]{Color.rgb(29, 66, 84), Color.rgb(15, 40, 55)});
+    trackBg.setCornerRadius(dp(34));
+    trackBg.setStroke(dp(1), Color.rgb(66, 104, 122));
     track.setBackground(trackBg);
     LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(dp(82), dp(132));
     trackParams.gravity = Gravity.CENTER_HORIZONTAL;
-    trackParams.topMargin = dp(4);
+    trackParams.topMargin = dp(6);
 
     TextView hintView = label("↑", 20, ACCENT);
     hintView.setTypeface(null, Typeface.BOLD);
     FrameLayout.LayoutParams hintParams = new FrameLayout.LayoutParams(-1, dp(43), Gravity.TOP);
+    hintView.setAlpha(0.9f);
     track.addView(hintView, hintParams);
 
     TextView thumb = label(symbol, 25, Color.WHITE);
@@ -244,7 +267,7 @@ public class IncomingCallActivity extends Activity {
     GradientDrawable thumbBg = new GradientDrawable();
     thumbBg.setColor(color);
     thumbBg.setShape(GradientDrawable.OVAL);
-    thumbBg.setStroke(dp(3), Color.rgb(39, 70, 85));
+    thumbBg.setStroke(dp(3), Color.rgb(219, 235, 240));
     thumb.setBackground(thumbBg);
     thumb.setElevation(dp(5));
     FrameLayout.LayoutParams thumbParams = new FrameLayout.LayoutParams(dp(62), dp(62), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
