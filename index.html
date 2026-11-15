@@ -4832,11 +4832,18 @@ async function carregarDadosSupabase(){
   if(MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
   renderPainelMaquinasSupervisor();
   renderTecnicos();renderStatusTurno();renderRankingOperadores();
-  if(document.getElementById('tab-ordens-servico').classList.contains('active'))renderizarChamados();
-  if(document.getElementById('tab-ordens-abertas').classList.contains('active'))renderizarChamados('listaOSAbertas',true);
-  if(document.getElementById('tab-ordens-pausadas').classList.contains('active'))renderizarChamados('listaOSPausadas',false,true);
+  // A Activity de alerta pode chamar esta rotina antes de todos os painéis
+  // estarem montados no WebView. A atualização dos dados não deve falhar
+  // apenas porque uma aba ou badge não existe nesta tela.
+  const abaOS=document.getElementById('tab-ordens-servico');
+  const abaAbertas=document.getElementById('tab-ordens-abertas');
+  const abaPausadas=document.getElementById('tab-ordens-pausadas');
+  if(abaOS?.classList.contains('active'))renderizarChamados();
+  if(abaAbertas?.classList.contains('active'))renderizarChamados('listaOSAbertas',true);
+  if(abaPausadas?.classList.contains('active'))renderizarChamados('listaOSPausadas',false,true);
   // A aba Métricas atualiza seus gráficos ao ser aberta ou quando os filtros mudam.
-  document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
+  const badgePendentes=document.getElementById('badgePendentes');
+  if(badgePendentes)badgePendentes.innerText=chamados.filter(c=>c.status==='Aberta').length;
 }
 
 function mostrarToastOS(mensagem){
