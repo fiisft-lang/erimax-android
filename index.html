@@ -8508,5 +8508,127 @@ window.onload=async function(){
   #cardHorarioRanking .downtime-ranking-list { grid-template-columns:repeat(3,minmax(0,1fr))!important; }
 }
 </style>
+
+<style id="erimax-padrao-profissional-desktop-2026">
+/* Sistema visual consistente para todas as páginas do menu — somente desktop com mouse/trackpad. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+  :root { --erimax-desk-text:#263746; --erimax-desk-muted:#607181; --erimax-desk-line:#dfe7ed; }
+  body { color:var(--erimax-desk-text); }
+  .tab-content { color:var(--erimax-desk-text); font-size:1rem; line-height:1.55; }
+  .tab-content h2 { font-size:1.5rem!important; line-height:1.28!important; letter-spacing:-.025em; font-weight:750!important; }
+  .tab-content h3 { font-size:1.16rem; line-height:1.35; font-weight:700; }
+  .tab-content p { font-size:.94rem; line-height:1.6; color:var(--erimax-desk-muted); }
+  .tab-content label { font-size:.84rem!important; line-height:1.45; letter-spacing:.015em; font-weight:700; }
+  .tab-content input,.tab-content select,.tab-content textarea { font-size:.98rem!important; line-height:1.45; }
+  .tab-content button { font-weight:650; letter-spacing:.005em; }
+  .tab-content .card { border:1px solid var(--erimax-desk-line); box-shadow:0 5px 18px rgba(31,55,75,.055); }
+  .tab-content small { line-height:1.45; }
+
+  /* Abrir O.S. */
+  #tab-abrir>.card { max-width:1240px; padding:30px!important; }
+  #tab-abrir>.card h2 { font-size:1.55rem!important; }
+  #tab-abrir>.card>p { font-size:.94rem!important; margin-bottom:20px!important; }
+  #tab-abrir .form-group { margin-bottom:20px; }
+  #tab-abrir .form-group label { margin-bottom:8px; }
+  #tab-abrir .btn-submit { min-height:52px; font-size:1rem!important; }
+
+  /* Painel de supervisão */
+  #tab-painel #painelMaquinasSupervisor { max-width:100%; }
+  #tab-painel #painelMaquinasSupervisor>section { margin-bottom:22px; }
+  #tab-painel #painelMaquinasSupervisor .supervisor-intro { font-size:.94rem!important; }
+  #tab-painel #painelMaquinasSupervisor .supervisor-kpi { padding:17px!important; }
+  #tab-painel #painelMaquinasSupervisor .supervisor-kpi>b { font-size:1.4rem!important; }
+
+  /* Central de O.S. */
+  #tab-ordens-servico .os-modern-hero,
+  #tab-ordens-abertas .oa-hero { padding:28px!important; border-radius:20px!important; }
+  #tab-ordens-servico .os-modern-heading h2,
+  #tab-ordens-abertas .oa-hero h2 { font-size:1.65rem!important; }
+  #tab-ordens-servico .os-modern-heading p,
+  #tab-ordens-abertas .oa-hero p { font-size:.96rem!important; }
+  #tab-ordens-servico .os-modern-kicker,
+  #tab-ordens-abertas .oa-kicker { font-size:.76rem!important; letter-spacing:.13em; }
+  #tab-ordens-servico .os-modern-total,
+  #tab-ordens-abertas .oa-total { padding:15px 20px!important; }
+  #tab-ordens-servico .os-modern-total b,
+  #tab-ordens-abertas .oa-total b { font-size:1.8rem!important; }
+  #tab-ordens-servico .os-modern-controls,
+  #tab-ordens-abertas .oa-list-panel { padding:24px!important; border-radius:18px!important; }
+  #tab-ordens-servico .os-modern-control-head h3,
+  #tab-ordens-abertas .oa-list-heading h3 { font-size:1.2rem!important; }
+  #tab-ordens-servico .os-modern-hint,
+  #tab-ordens-abertas .oa-list-note { font-size:.84rem!important; }
+  #tab-ordens-servico .os-modern-field label,
+  #tab-ordens-servico .os-advanced-filters label { font-size:.82rem!important; }
+  #tab-ordens-servico .os-modern-list,
+  #tab-ordens-abertas .oa-list { gap:16px!important; }
+
+  /* Presença de usuários */
+  #tab-presenca>.card { padding:24px!important; }
+  #tab-presenca>.card h3 { font-size:1.2rem!important; }
+  #tab-presenca>.card p { font-size:.9rem!important; }
+  #tab-presenca #listaPresenca { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+  #tab-presenca #listaPresenca>.card,
+  #tab-presenca #listaPresenca>div { min-width:0; }
+
+  /* Central de cadastros e suas áreas */
+  #tab-cadastro .cadastro-hub-hero { padding:28px!important; border-radius:20px!important; }
+  #tab-cadastro .cadastro-hub-hero h2 { font-size:1.6rem!important; }
+  #tab-cadastro .cadastro-hub-hero p { font-size:.94rem!important; max-width:850px; }
+  #tab-cadastro .cadastro-hub-kicker,
+  #tab-cadastro .cadastro-setores-eyebrow,
+  #tab-cadastro .cadastro-area-eyebrow { font-size:.76rem!important; letter-spacing:.12em; }
+  #tab-cadastro .cadastro-hub-nav { gap:14px!important; margin:20px 0!important; }
+  #tab-cadastro .cadastro-hub-tile { min-height:112px!important; padding:18px!important; border-radius:15px!important; }
+  #tab-cadastro .cadastro-hub-icon { font-size:1.45rem!important; }
+  #tab-cadastro .cadastro-hub-copy b { font-size:1rem!important; }
+  #tab-cadastro .cadastro-hub-copy small { font-size:.82rem!important; line-height:1.45!important; }
+  #tab-cadastro .cadastro-area-panel,
+  #tab-cadastro .cadastro-area-card,
+  #tab-cadastro .cadastro-setores-shell { padding:24px!important; border-radius:18px!important; }
+  #tab-cadastro .cadastro-area-intro { font-size:.92rem!important; line-height:1.6!important; }
+  #tab-cadastro .cadastro-area-card-heading h3,
+  #tab-cadastro .cadastro-setores-heading h3 { font-size:1.12rem!important; }
+  #tab-cadastro .cadastro-usuario-form,
+  #tab-cadastro .cadastro-setor-create { gap:16px!important; }
+
+  /* Indicadores e gráficos */
+  #tab-metricas .metrics-hero { padding:28px!important; border-radius:20px!important; }
+  #tab-metricas .metrics-hero h2 { font-size:1.65rem!important; }
+  #tab-metricas .metrics-hero p { font-size:.96rem!important; max-width:920px; }
+  #tab-metricas .metrics-hero-kicker,
+  #tab-metricas .metrics-report-kicker { font-size:.76rem!important; letter-spacing:.12em; }
+  #tab-metricas .metrics-filter-card { padding:24px!important; }
+  #tab-metricas .metrics-filter-card h3 { font-size:1.12rem!important; }
+  #tab-metricas .metrics-filter-card p { font-size:.86rem!important; }
+  #tab-metricas .metric-card .title { font-size:.82rem!important; }
+  #tab-metricas .metric-card .value { font-size:clamp(1.7rem,1.9vw,2.2rem)!important; }
+  #tab-metricas .metric-card .sub { font-size:.8rem!important; }
+  #tab-metricas .metrics-section-heading h3 { font-size:1.25rem!important; }
+
+  /* Ranking de técnicos */
+  #tab-ranking-os .ranking-os-hero { padding:28px!important; border-radius:20px!important; }
+  #tab-ranking-os .ranking-os-hero h2 { font-size:1.65rem!important; }
+  #tab-ranking-os .ranking-os-hero p { font-size:.96rem!important; }
+  #tab-ranking-os .ranking-os-kicker { font-size:.76rem!important; letter-spacing:.12em; }
+  #tab-ranking-os .ranking-os-card { padding:24px!important; }
+  #tab-ranking-os .ranking-os-card-head h3 { font-size:1.18rem!important; }
+  #tab-ranking-os .ranking-os-card-head p { font-size:.88rem!important; }
+
+  /* Consultas do histórico */
+  #tab-ia>.card { padding:28px!important; }
+  #tab-ia>.card h2 { font-size:1.45rem!important; }
+  #tab-ia>.card>p { font-size:.92rem!important; }
+  #tab-ia .sv-hero { padding:28px!important; border-radius:20px!important; }
+  #tab-ia .sv-hero h2 { font-size:1.6rem!important; }
+  #tab-ia .sv-hero p { font-size:.94rem!important; }
+  #tab-ia .sv-kicker { font-size:.76rem!important; letter-spacing:.12em; }
+  #tab-ia .sv-metric { padding:17px!important; }
+  #tab-ia .sv-metric b { font-size:1.35rem!important; }
+  #tab-ia .sv-section-head h3 { font-size:1.16rem!important; }
+  #tab-ia .sv-os-card,#tab-ia .sv-sector,#tab-ia .sv-machine { padding:17px!important; }
+  #tab-ia .sv-os-description,#tab-ia .sv-os-meta { font-size:.88rem!important; line-height:1.55!important; }
+}
+</style>
 </body>
 </html>
