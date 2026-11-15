@@ -1767,6 +1767,16 @@ tbody tr:hover{background:#eef6f5}
  #painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]{padding:8px!important}
 }
 </style>
+<style id="erimax-os-status-legibilidade">
+/* Estados da O.S. com leitura consistente, sem competir com a prioridade */
+.os-card .os-badge.status-Aberta{background:#fff0ef!important;color:#a8322a!important;border:1px solid #f4c7c3!important}
+.os-card .os-badge.status-EmAtendimento{background:#fff7df!important;color:#8a5b08!important;border:1px solid #f0dda6!important}
+.os-card .os-badge.status-Pausada{background:#fff4df!important;color:#8a5b08!important;border:1px solid #efd49a!important}
+.os-card .os-badge.status-Concluída{background:#e8f5ec!important;color:#216b3b!important;border:1px solid #c7e5d0!important}
+.os-card .os-badge.status-Cancelada{background:#eef1f4!important;color:#536273!important;border:1px solid #d9e0e6!important}
+.os-card .os-badge{min-height:26px;padding:5px 11px;font-size:.69rem;line-height:1.2;white-space:nowrap}
+@media(max-width:380px){.os-card .os-alert-title{align-items:flex-start}.os-card .os-alert-title .os-badge{margin-left:auto}}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
