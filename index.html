@@ -2566,6 +2566,67 @@ tbody tr:hover{background:#eef6f5}
 }
 </style>
 
+
+<style id="erimax-ordens-abertas-redesign-2026">
+#tab-ordens-abertas{display:grid!important;gap:14px!important;color:#203d52}
+#tab-ordens-abertas .oa-hero{position:relative;overflow:hidden;padding:22px;border:0;border-radius:17px;background:linear-gradient(125deg,#102f45 0%,#174b65 58%,#226b78 100%);box-shadow:0 9px 25px rgba(17,51,72,.16);color:#fff}
+#tab-ordens-abertas .oa-hero:after{content:"";position:absolute;right:-58px;top:-115px;width:280px;height:280px;border:1px solid rgba(255,255,255,.15);border-radius:50%;box-shadow:0 0 0 28px rgba(255,255,255,.04),0 0 0 60px rgba(255,255,255,.025);pointer-events:none}
+#tab-ordens-abertas .oa-hero-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#tab-ordens-abertas .oa-kicker{display:block;color:#9fc4d2;font-size:.63rem;font-weight:850;letter-spacing:.15em}
+#tab-ordens-abertas .oa-hero h2{margin:5px 0 4px;color:#fff;font-size:clamp(1.55rem,3.4vw,1.95rem);font-weight:830;letter-spacing:-.04em}
+#tab-ordens-abertas .oa-hero p{margin:0;color:#d6e5eb;font-size:.83rem;line-height:1.45}
+#tab-ordens-abertas .oa-total{display:grid;gap:3px;min-width:100px;padding:10px 13px;border:1px solid rgba(255,255,255,.2);border-radius:11px;background:rgba(255,255,255,.1)}
+#tab-ordens-abertas .oa-total span{color:#c4dce5;font-size:.65rem;font-weight:750}
+#tab-ordens-abertas .oa-total b{color:#fff;font-size:1.55rem;line-height:1.1;font-variant-numeric:tabular-nums}
+#tab-ordens-abertas .oa-stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:19px}
+#tab-ordens-abertas .oa-stat{min-width:0;padding:12px;border:1px solid rgba(255,255,255,.19);border-left:3px solid var(--oa-color);border-radius:10px;background:rgba(255,255,255,.095)}
+#tab-ordens-abertas .oa-stat span{display:block;color:#d5e5eb;font-size:.66rem;font-weight:750}
+#tab-ordens-abertas .oa-stat b{display:block;margin:5px 0 2px;color:#fff;font-size:1.55rem;line-height:1.1;font-weight:850;font-variant-numeric:tabular-nums}
+#tab-ordens-abertas .oa-stat small{display:block;color:#c1d4dc;font-size:.61rem;line-height:1.35}
+#tab-ordens-abertas .oa-list-panel{min-width:0;padding:19px;border:1px solid #dce5eb;border-radius:16px;background:#fff;box-shadow:0 6px 21px rgba(21,48,67,.05)}
+#tab-ordens-abertas .oa-list-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:13px}
+#tab-ordens-abertas .oa-list-heading .oa-kicker{color:#438091}
+#tab-ordens-abertas .oa-list-heading h3{margin:4px 0 0;color:#173f59;font-size:1.08rem;font-weight:820}
+#tab-ordens-abertas .oa-list-note{color:#718492;font-size:.65rem}
+#tab-ordens-abertas .oa-list{display:grid;gap:11px;min-width:0}
+#tab-ordens-abertas .os-card{position:relative;margin:0!important;padding:15px!important;border:1px solid #dce6eb!important;border-left:4px solid #b7791f!important;border-radius:12px!important;background:#fff!important;box-shadow:0 3px 12px rgba(20,49,68,.045)!important}
+#tab-ordens-abertas .os-card.prioridade-Alta{border-left-color:#c44d4d!important}
+#tab-ordens-abertas .os-card.prioridade-Média{border-left-color:#c58a35!important}
+#tab-ordens-abertas .os-card.prioridade-Baixa{border-left-color:#398b77!important}
+#tab-ordens-abertas .os-card .os-header{padding-bottom:11px;border-color:#e8eef1}
+#tab-ordens-abertas .os-card .os-id{color:#1c4963;font-size:.9rem;font-weight:850}
+#tab-ordens-abertas .os-card .os-badge{padding:5px 9px;border-radius:7px;font-size:.64rem;font-weight:850}
+#tab-ordens-abertas .os-card .status-Aberta{background:#fff4df!important;color:#956018!important}
+#tab-ordens-abertas .os-card .status-EmAtendimento{background:#e8f2f8!important;color:#28688a!important}
+#tab-ordens-abertas .os-card .os-resumo-info{gap:8px;margin:11px 0}
+#tab-ordens-abertas .os-card .os-resumo-info>span{padding:9px;border:1px solid #e8eef1;border-radius:8px;background:#f7f9fa}
+#tab-ordens-abertas .os-card .os-resumo-info small{color:#718492;font-size:.58rem;font-weight:800}
+#tab-ordens-abertas .os-card .os-resumo-info b{color:#294a60;font-size:.72rem;overflow-wrap:anywhere}
+#tab-ordens-abertas .os-card .os-problema{padding:11px 12px;border:1px solid #e5ebef;border-radius:9px;background:#f7f9fa}
+#tab-ordens-abertas .os-card .os-problema-titulo{color:#536d7e;font-size:.66rem;font-weight:850}
+#tab-ordens-abertas .os-card .os-problema p{color:#314c60;font-size:.78rem;line-height:1.5}
+#tab-ordens-abertas .os-card .os-actions{gap:7px;margin-top:12px;padding-top:10px;border-color:#e8eef1}
+#tab-ordens-abertas .os-card .btn-action{min-height:38px;border-radius:8px;font-size:.68rem;font-weight:750}
+#tab-ordens-abertas #listaOSAbertas>.card{padding:20px!important;border:1px dashed #cbdbe3!important;border-radius:12px!important;background:#f7fafb!important;color:#587080!important;box-shadow:none!important;text-align:center}
+@media(max-width:680px){
+ #tab-ordens-abertas .oa-hero{padding:16px!important;border-radius:14px!important}
+ #tab-ordens-abertas .oa-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:15px}
+ #tab-ordens-abertas .oa-stat{padding:10px}
+ #tab-ordens-abertas .oa-stat b{font-size:1.35rem}
+ #tab-ordens-abertas .oa-total{min-width:85px}
+ #tab-ordens-abertas .oa-list-panel{padding:13px!important;border-radius:13px!important}
+ #tab-ordens-abertas .oa-list-heading{align-items:flex-start}
+ #tab-ordens-abertas .oa-list-note{max-width:145px;text-align:right}
+ #tab-ordens-abertas .os-card{padding:12px!important}
+ #tab-ordens-abertas .os-card .os-resumo-info>span{padding:8px 7px}
+}
+@media(max-width:360px){
+ #tab-ordens-abertas .oa-stat{padding:8px}
+ #tab-ordens-abertas .oa-stat span{font-size:.61rem}
+ #tab-ordens-abertas .os-card .os-resumo-info{gap:5px}
+}
+</style>
+
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -2666,8 +2727,11 @@ tbody tr:hover{background:#eef6f5}
 </div>
 <!-- ORDENS ABERTAS -->
 <div id="tab-ordens-abertas" class="tab-content">
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">📂 Ordens Abertas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Ordens aguardando atendimento ou em execução.</p></div>
-<div id="listaOSAbertas"></div>
+<section class="oa-hero">
+  <div class="oa-hero-top"><div><span class="oa-kicker">CENTRAL DE ATENDIMENTO</span><h2>Ordens abertas</h2><p>Acompanhe o que aguarda atendimento e o que já está em execução.</p></div><div class="oa-total"><span>O.S. ativas</span><b id="oaTotalAtivas">0</b></div></div>
+  <div id="osAbertasResumo" class="oa-stats" aria-live="polite"></div>
+</section>
+<section class="oa-list-panel"><div class="oa-list-heading"><div><span class="oa-kicker">ACOMPANHAMENTO</span><h3>Ordens em aberto</h3></div><span class="oa-list-note">Toque em uma ordem para ver as ações disponíveis</span></div><div id="listaOSAbertas" class="oa-list"></div></section>
 </div>
 <div id="tab-ordens-pausadas" class="tab-content">
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">⏸️ Ordens Pausadas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Ordens interrompidas por falta de peça, prioridade ou outro impedimento. Retome quando puder continuar.</p></div>
@@ -3520,6 +3584,22 @@ function atualizarResumoDashboardOS(){
 }
 function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas=false){renderTecnicos();renderStatusTurno();if(destino==='listaOS')atualizarResumoDashboardOS();
   const box=document.getElementById(destino),filtro=apenasAbertas?'Abertas':document.getElementById('filtroStatus').value;
+  if(destino==='listaOSAbertas'){
+    const ativasAbertas=chamados.filter(os=>['Aberta','Em Atendimento'].includes(String(os.status||'')));
+    const resumoAbertas=document.getElementById('osAbertasResumo');
+    const totalAbertas=ativasAbertas.filter(os=>os.status==='Aberta').length;
+    const totalAtendimento=ativasAbertas.filter(os=>os.status==='Em Atendimento').length;
+    const totalParadas=ativasAbertas.filter(os=>String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')==='parado').length;
+    const totalUrgentes=ativasAbertas.filter(os=>['Alta','Urgente','Crítica','Critica'].includes(String(os.prioridade||'').trim())).length;
+    const total=document.getElementById('oaTotalAtivas');
+    if(total)total.textContent=ativasAbertas.length;
+    if(resumoAbertas)resumoAbertas.innerHTML=[
+      ['Aguardando atendimento',totalAbertas,'Na fila de manutenção','#b7791f'],
+      ['Em execução',totalAtendimento,'Com atendimento iniciado','#2875a5'],
+      ['Máquinas paradas',totalParadas,'Condição informada na O.S.','#b54747'],
+      ['Prioridade alta',totalUrgentes,'Alta, urgente ou crítica','#a16207']
+    ].map(x=>'<div class="oa-stat" style="--oa-color:'+x[3]+'"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></div>').join('');
+  }
   const nome=localStorage.getItem('erimax_tecnico')||'';
   document.getElementById('nomeTecnico').value=nome;
   document.getElementById('badgePendentes').innerText=chamados.filter(c=>c.status==='Aberta').length;
