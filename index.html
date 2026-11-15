@@ -3431,7 +3431,65 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
  #tab-cadastro .cadastro-hub-tile.active:after{right:7px;top:5px;font-size:.48rem}
 }
 @media(prefers-reduced-motion:reduce){#tab-cadastro .cadastro-hub-tile,#tab-cadastro .cadastro-area-panel *{transition:none!important}}
-</style></head>
+</style><style id="erimax-global-hierarchy-2026">
+/* ===== SISTEMA DE HIERARQUIA VISUAL ERIMAX • 2026 ===== */
+:root{
+ --erimax-ink:#17324d;
+ --erimax-muted:#5d7186;
+ --erimax-blue:#236fa8;
+ --erimax-blue-soft:#edf5fb;
+ --erimax-orange:#e88736;
+}
+body{color:var(--erimax-ink);background:#f3f6fa}
+header{min-height:68px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #dfe8f0;box-shadow:0 3px 14px rgba(23,50,77,.06)}
+header img.logo{height:40px;max-width:min(44vw,184px)}
+header .hd{font-size:.68rem;line-height:1.25;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#526d86;border-left:1px solid #dce5ed;padding-left:12px}
+.user-bar{min-height:38px;display:flex;align-items:center;justify-content:flex-end;gap:10px;font-size:.78rem}
+.nav-tabs{border-bottom:1px solid #dce6ef;box-shadow:0 5px 16px rgba(23,50,77,.055)}
+.tab-btn{color:#60758a;font-weight:650}
+.tab-btn.active{color:#1d659c;background:#edf5fb;border-bottom-color:var(--erimax-orange)}
+.tab-content{padding:18px clamp(12px,2.2vw,28px) 28px;max-width:1480px;margin-inline:auto}
+.erimax-page-intro,.os-modern-hero,.oa-hero,.metrics-hero,.cadastro-hub-hero,.ranking-os-hero{
+ position:relative;overflow:hidden;border:1px solid #dce8f2!important;border-radius:17px!important;
+ background:linear-gradient(112deg,#fff 0%,#f2f7fc 100%)!important;
+ box-shadow:0 7px 22px rgba(27,63,94,.055)!important;
+ color:var(--erimax-ink);margin:0 0 17px!important;padding:clamp(17px,2.3vw,26px)!important;
+}
+.erimax-page-intro:before,.os-modern-hero:before,.oa-hero:before,.metrics-hero:before,.cadastro-hub-hero:before,.ranking-os-hero:before{
+ content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--erimax-orange)
+}
+.erimax-page-kicker,.os-modern-kicker,.oa-kicker,.metrics-hero-kicker,.cadastro-hub-kicker,.ranking-os-kicker{
+ display:block;color:#b66a2c!important;font-size:.65rem!important;font-weight:800!important;letter-spacing:.12em!important;text-transform:uppercase;margin-bottom:7px
+}
+.erimax-page-intro h2,.os-modern-hero h2,.oa-hero h2,.metrics-hero h2,.cadastro-hub-hero h2,.ranking-os-hero h2{
+ color:#173b5b!important;font-size:clamp(1.12rem,2vw,1.48rem)!important;font-weight:760!important;letter-spacing:-.025em;line-height:1.2;margin:0 0 6px!important
+}
+.erimax-page-intro p,.os-modern-hero p,.oa-hero p,.metrics-hero p,.cadastro-hub-hero p,.ranking-os-hero p{
+ color:#5b7186!important;font-size:.82rem!important;line-height:1.5;margin:0!important;max-width:760px
+}
+.tab-content>.card,.tab-content>.card-like,.tab-content .cadastro-area-panel{
+ border:1px solid #e0e8f0;border-radius:14px;box-shadow:0 3px 13px rgba(25,55,82,.045)
+}
+.tab-content h3{color:#234966}
+.tab-content label{color:#425c73;font-size:.72rem;letter-spacing:.035em}
+.tab-content input,.tab-content select,.tab-content textarea{
+ border-color:#d6e1eb;background:#fbfdff;color:#243c52;border-radius:9px;min-height:42px
+}
+.tab-content input:focus,.tab-content select:focus,.tab-content textarea:focus{
+ outline:2px solid rgba(35,111,168,.14);border-color:#4389ba
+}
+.tab-content button{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
+@media(max-width:600px){
+ .tab-content{padding:12px 11px 22px}
+ header{gap:8px;padding-inline:10px}
+ header img.logo{height:34px;max-width:42vw}
+ header .hd{font-size:.58rem;padding-left:8px;letter-spacing:.07em}
+ .erimax-page-intro,.os-modern-hero,.oa-hero,.metrics-hero,.cadastro-hub-hero,.ranking-os-hero{border-radius:13px!important;padding:16px!important;margin-bottom:12px!important}
+ .erimax-page-intro p,.os-modern-hero p,.oa-hero p,.metrics-hero p,.cadastro-hub-hero p,.ranking-os-hero p{font-size:.76rem!important}
+}
+@media(prefers-reduced-motion:reduce){.tab-content button,.tab-btn{transition:none!important}}
+</style>
+</head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
@@ -3464,6 +3522,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="container">
 <!-- ABRIR OS -->
 <div id="tab-abrir" class="tab-content active">
+<section class="erimax-page-intro"><span class="erimax-page-kicker">MANUTENÇÃO • REGISTRO</span><h2>Abrir Ordem de Serviço</h2><p>Registre uma ocorrência e informe a situação atual do equipamento.</p></section>
 <div id="boxStatusTurno"></div>
 <div id="boxTec2"></div>
 <div class="card">
@@ -3493,6 +3552,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 <!-- PAINEL -->
 <div id="tab-painel" class="tab-content">
+<section class="erimax-page-intro"><span class="erimax-page-kicker">ACOMPANHAMENTO OPERACIONAL</span><h2>Supervisão</h2><p>Visualize a situação das máquinas e acompanhe as ocorrências dos setores.</p></section>
 <div id="painelMaquinasSupervisor"></div>
 </div>
 
@@ -3542,6 +3602,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 <!-- PRESENÇA DOS USUÁRIOS (SOMENTE FII) -->
 <div id="tab-presenca" class="tab-content">
+<section class="erimax-page-intro"><span class="erimax-page-kicker">ADMINISTRAÇÃO • ACESSOS</span><h2>Usuários conectados</h2><p>Acompanhe quem está com o EriMax aberto no momento.</p></section>
 <div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">👥 Usuários no sistema</h3><p style="font-size:.78rem;color:#64748b;margin:0">Mostra quem está com o EriMax aberto, independentemente do expediente.</p></div>
 <div id="listaPresenca"></div>
 </div>
@@ -3677,6 +3738,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </div>
 
 <div id="tab-ia" class="tab-content">
+<section class="erimax-page-intro"><span class="erimax-page-kicker">INTELIGÊNCIA DE MANUTENÇÃO</span><h2>Consultas do histórico</h2><p>Encontre informações nas ordens de serviço e identifique ocorrências recorrentes.</p></section>
   <div class="card">
     <h2 style="font-size:1.12rem;color:var(--primary);margin-bottom:5px">Consultas do histórico de manutenção</h2>
     <p style="font-size:.78rem;color:#64748b;margin:0 0 14px">Pesquise diretamente nas ordens de serviço registradas. Esta ferramenta não usa IA externa nem serviços pagos.</p>
