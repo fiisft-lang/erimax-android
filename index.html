@@ -106,6 +106,19 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 #metricsDataContent>.card h4{color:#183b63;letter-spacing:.025em;line-height:1.35}
 #metricsDataContent>.card>p{line-height:1.5}
 #metricsDataContent canvas{max-width:100%}
+/* Acabamento profissional dos gráficos e cartões de métricas */
+#metricsDataContent>.card{position:relative;border:1px solid #e5ebf2;border-radius:15px;background:linear-gradient(180deg,#fff 0%,#fcfdff 100%);box-shadow:0 5px 18px rgba(20,45,75,.055);padding:16px}
+#metricsDataContent>.card h4{display:flex;align-items:center;gap:8px;margin:0;color:#173b5e;font-size:.91rem;font-weight:750;letter-spacing:-.012em}
+#metricsDataContent>.card h4:before{content:"";display:block;width:4px;min-width:4px;height:19px;border-radius:5px;background:linear-gradient(180deg,#2878b8,#55a6d8)}
+#metricsDataContent .metrics-chart-note{margin:8px 0 0;color:#718096;font-size:.73rem;line-height:1.5}
+#metricsDataContent .chart-wrapper{position:relative;width:100%;min-width:0;margin-top:13px;padding:10px 5px 2px;border:1px solid #edf2f7;border-radius:11px;background:linear-gradient(180deg,#fbfdff 0%,#fff 100%)}
+#metricsDataContent .chart-wrapper canvas{display:block}
+#metricsDataContent .metrics-section-heading{padding:13px 15px;border:1px solid #e3ebf3;border-radius:13px;background:linear-gradient(110deg,#f1f7fc 0%,#fff 78%)}
+#metricsDataContent .metrics-section-heading h3{color:#173b5e;letter-spacing:-.02em}
+#metricsDataContent .metrics-section-heading p{color:#718096}
+#metricsDataContent .metrics-machine-heatmap{margin-top:12px}
+#metricsDataContent #cardHeatmapMaquinas{background:linear-gradient(145deg,#fff 0%,#f8fbff 100%)}
+@media(max-width:600px){#metricsDataContent>.card{padding:13px;border-radius:13px}#metricsDataContent>.card h4{font-size:.84rem}#metricsDataContent .chart-wrapper{padding:7px 2px 1px;border-radius:9px}#metricsDataContent .metrics-section-heading{padding:11px 12px}}
 #cardHorarioEfGeral{background:linear-gradient(150deg,#fff 0%,#f7fbff 100%)}
 #cardHorarioEfGeral .chart-wrapper{height:250px}
 #cardHorarioEfSetor .chart-wrapper,#cardHorarioEfMaq .chart-wrapper{height:280px}
@@ -4805,7 +4818,7 @@ function paradaProd(c,tn,periodoInicio,periodoFim){
 const charts={};
 const DETALHES_GRAFICOS={};
 let OS_PARADA_ATUAL=[];
-const COR=['#0056b3','#ff6b00','#ffc107','#28a745','#6f42c1','#17a2b8','#dc3545','#6c757d'];
+const COR=['#2878b8','#18a999','#f29e4c','#7c6fd0','#e16b75','#4f91c7','#8b9aa9','#c4a35a'];
 const diaLocal=d=>new Date(d).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
 const min=(a,b)=>(new Date(b)-new Date(a))/60000;
 const fmt=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+'h'+String(m%60).padStart(2,'0')};
@@ -4820,28 +4833,38 @@ function mk(id,cfg){
     Chart.defaults.plugins.legend.labels.pointStyle='circle';
     Chart.defaults.plugins.legend.labels.boxWidth=8;
     Chart.defaults.plugins.legend.labels.boxHeight=8;
-    Chart.defaults.plugins.legend.labels.padding=14;
-    Chart.defaults.plugins.tooltip.backgroundColor='rgba(17,39,59,.96)';
-    Chart.defaults.plugins.tooltip.borderColor='#36536d';
+    Chart.defaults.plugins.legend.labels.padding=16;
+    Chart.defaults.plugins.legend.labels.font={family:"'Inter','Segoe UI',sans-serif",size:11,weight:'600'};
+    Chart.defaults.plugins.tooltip.backgroundColor='rgba(15,35,56,.97)';
+    Chart.defaults.plugins.tooltip.titleColor='#ffffff';
+    Chart.defaults.plugins.tooltip.bodyColor='#e7eef6';
+    Chart.defaults.plugins.tooltip.titleFont={family:"'Inter','Segoe UI',sans-serif",size:12,weight:'700'};
+    Chart.defaults.plugins.tooltip.bodyFont={family:"'Inter','Segoe UI',sans-serif",size:11,weight:'500'};
+    Chart.defaults.plugins.tooltip.borderColor='rgba(148,173,199,.35)';
     Chart.defaults.plugins.tooltip.borderWidth=1;
-    Chart.defaults.plugins.tooltip.cornerRadius=9;
-    Chart.defaults.plugins.tooltip.padding=11;
-    Chart.defaults.elements.line.borderWidth=2.5;
-    Chart.defaults.elements.line.tension=.28;
-    Chart.defaults.elements.point.radius=2.5;
-    Chart.defaults.elements.point.hoverRadius=5;
-    Chart.defaults.elements.bar.borderRadius=6;
+    Chart.defaults.plugins.tooltip.cornerRadius=10;
+    Chart.defaults.plugins.tooltip.displayColors=true;
+    Chart.defaults.plugins.tooltip.boxPadding=4;
+    Chart.defaults.plugins.tooltip.padding=12;
+    Chart.defaults.elements.line.borderWidth=2.8;
+    Chart.defaults.elements.line.tension=.32;
+    Chart.defaults.elements.line.capBezierPoints=true;
+    Chart.defaults.elements.point.radius=3;
+    Chart.defaults.elements.point.hoverRadius=6;
+    Chart.defaults.elements.point.borderWidth=2;
+    Chart.defaults.elements.bar.borderRadius=7;
     Chart.defaults.elements.bar.borderSkipped=false;
-    Chart.defaults.animation.duration=420;
+    Chart.defaults.animation.duration=500;
     Chart.__erimaxMetricsTheme=true;
   }
   cfg.options=cfg.options||{};
   cfg.options.scales=cfg.options.scales||{};
   Object.values(cfg.options.scales).forEach(scale=>{
     if(!scale||typeof scale!=='object')return;
-    scale.grid=Object.assign({color:'#edf1f5',drawBorder:false},scale.grid||{});
-    scale.ticks=Object.assign({color:'#718096',font:{size:10}},scale.ticks||{});
+    scale.grid=Object.assign({color:'rgba(148,163,184,.16)',drawBorder:false,drawTicks:false},scale.grid||{});
+    scale.ticks=Object.assign({color:'#718096',padding:8,font:{family:"'Inter','Segoe UI',sans-serif",size:10,weight:'500'}},scale.ticks||{});
     scale.border=Object.assign({display:false},scale.border||{});
+    if(scale.title)scale.title=Object.assign({color:'#64748b',font:{size:10,weight:'600'}},scale.title);
   });
   if(!cfg.options.onClick)cfg.options.onClick=(_evt,items)=>{const item=items&&items[0],resolver=DETALHES_GRAFICOS[id];if(item&&resolver){const r=resolver(item.datasetIndex,item.index);mostrarOSDetalhe(r.titulo,r.lista)}};
   if(charts[id])charts[id].destroy();
