@@ -2423,7 +2423,7 @@ function renderPainelMaquinasSupervisor(){
     ['Situação não informada na O.S.',qtd('Situação não informada na O.S.'),'#64748b'],
     ['Sem O.S. ativa • situação não confirmada',qtd('Sem O.S. ativa • situação não confirmada'),'#64748b']
   ];
-  const maquinasParadas=qtd('Parada registrada');
+  const maquinasParadas=qtd('Parada informada na O.S.');
   const maquinasEmManutencao=qtd('Manutenção em andamento');
   const osAtivas=ativas.length;
   let html='<section class="card supervisor-resumo" style="margin-bottom:12px"><div class="supervisor-resumo-cabecalho"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Resumo das máquinas e ordens de serviço</h3><p class="supervisor-intro">Consulte as ordens ativas e a condição do equipamento informada na abertura. Abra um setor para ver os detalhes de cada máquina.</p></div><span class="supervisor-total-maquinas">'+itens.length+' máquina(s) no painel</span></div>';
