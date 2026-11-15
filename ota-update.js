@@ -96,9 +96,15 @@
           await live.reload();
           return;
         }
-        if(!current || !current.bundleId || current.bundleId === manifest.bundleId) return;
+        if(!current || !current.bundleId || current.bundleId === manifest.bundleId){
+          if(manual) alert('O EriMax já está atualizado. Você está usando a versão mais recente disponível.');
+          return;
+        }
       }
-      if(current && current.bundleId === manifest.bundleId) return;
+      if(current && current.bundleId === manifest.bundleId){
+        if(manual) alert('O EriMax já está atualizado. Você está usando a versão mais recente disponível.');
+        return;
+      }
       const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;
       const minimum = Number(manifest.minimumNativeVersionCode || 1);
       if(versionCode && minimum > versionCode) throw new Error('Esta atualização exige uma versão mais recente do aplicativo Android.');
