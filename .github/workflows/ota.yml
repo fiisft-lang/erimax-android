@@ -49,6 +49,10 @@ jobs:
             export ERIMAX_BUILD_ID="$MAIN_SHA"
             npm install
             npm run build
+            # A etapa seguinte roda novamente na pasta original do checkout.
+            # Copia o build principal para lá para que o ZIP não use www antigo.
+            mkdir -p "$GITHUB_WORKSPACE/www"
+            cp -a www/. "$GITHUB_WORKSPACE/www/"
             echo "OTA_BUNDLE_ID=$MAIN_SHA" >> "$GITHUB_ENV"
           fi
           test -s www/index.html
@@ -61,6 +65,11 @@ jobs:
           mkdir -p ota
           BUNDLE_ID="${OTA_BUNDLE_ID:-$(git rev-parse HEAD)}"
           zip -j -q ota/latest.zip www/*
+          PACKAGED_BUILD_ID="$(unzip -p ota/latest.zip ota-build.json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{process.stdout.write(JSON.parse(s).bundleId||'')}catch(e){process.exit(1)}})")"
+          if [ "$PACKAGED_BUILD_ID" != "$BUNDLE_ID" ]; then
+            echo "ERRO: o pacote contém build $PACKAGED_BUILD_ID, mas o manifesto anunciaria $BUNDLE_ID."
+            exit 1
+          fi
           CHECKSUM="$(sha256sum ota/latest.zip | awk '{print $1}')"
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
             CHANNEL="production"
