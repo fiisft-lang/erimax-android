@@ -3489,120 +3489,6 @@ header .hd{font-size:.68rem;line-height:1.25;font-weight:700;letter-spacing:.09e
 }
 @media(prefers-reduced-motion:reduce){.tab-content button,.tab-btn{transition:none!important}}
 </style>
-<style id="erimax-redesign-nav-abrir-os">
-/* ===== REDESENHO ESTRUTURAL • NAVEGAÇÃO E ABRIR O.S. ===== */
-:root{
- --erx-navy:#102f4a;--erx-blue:#176b9f;--erx-blue2:#2587bd;
- --erx-orange:#ee8a38;--erx-line:#dce6ef;--erx-surface:#f4f7fa;
-}
-body{background:#f1f5f9;color:#19364e}
-header{
- background:linear-gradient(105deg,#102f4a 0%,#174b70 68%,#1b638d 100%)!important;
- border:0!important;box-shadow:0 5px 18px rgba(12,39,62,.2)!important;
- padding-inline:clamp(13px,2.5vw,30px)!important;
-}
-header img.logo{filter:brightness(0) invert(1);height:43px!important;width:210px!important;max-width:min(48vw,210px)!important}
-header .hd{color:#d8e8f3!important;border-left:1px solid rgba(255,255,255,.25)!important;font-size:.67rem!important;letter-spacing:.11em!important}
-.menu-toggle{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.25)!important;box-shadow:none!important}
-.menu-toggle span{background:#fff!important}
-.user-bar{
- background:#fff!important;color:#35536c!important;border-bottom:1px solid #e0e8ef!important;
- min-height:43px;padding:7px clamp(13px,2.5vw,30px)!important;
-}
-.user-bar #ubNome{font-weight:750;letter-spacing:.01em}
-.user-bar button{border:1px solid #d9e4ed!important;border-radius:9px!important;padding:7px 12px!important;background:#f7fafc!important;color:#34556f!important;font-weight:700}
-#barraAtivacaoAudio{border-radius:0!important;background:#fff6e9!important;color:#94551e!important;border:0!important;border-bottom:1px solid #f2dfc6!important;font-weight:750;letter-spacing:.025em}
-.nav-tabs{
- background:linear-gradient(180deg,#fff 0%,#f7faff 100%)!important;
- border:1px solid #dce6ef!important;border-radius:0 20px 20px 0!important;
- box-shadow:14px 0 38px rgba(10,35,57,.2)!important;
- padding:100px 14px 24px!important;gap:7px!important
-}
-.nav-tabs:before{
- content:"ERIMAX";display:block;color:#173f5e;font-size:1.02rem;font-weight:900;
- letter-spacing:.18em;padding:0 14px 3px
-}
-.nav-tabs:after{
- content:"GESTÃO DE MANUTENÇÃO";display:block;order:99;margin:12px 10px 0;padding-top:15px;
- border-top:1px solid #e2eaf1;color:#8295a6;font-size:.61rem;font-weight:800;letter-spacing:.12em
-}
-.nav-tabs .tab-btn{
- min-height:50px!important;border-radius:12px!important;padding:10px 13px!important;
- color:#526b80!important;font-size:.83rem!important;font-weight:700!important;
- transition:background .16s,border-color .16s,color .16s,transform .16s!important
-}
-.nav-tabs .tab-btn:hover{background:#edf4f9!important}
-.nav-tabs .tab-btn.active{
- background:linear-gradient(100deg,#e8f2fa,#f3f8fc)!important;
- color:#145b88!important;border:1px solid #d4e5f2!important;border-left:4px solid var(--erx-orange)!important;
- box-shadow:0 3px 10px rgba(27,83,124,.07)!important
-}
-.nav-tabs .tab-btn.active .tab-icon{color:#176b9f!important}
-.nav-tabs .tab-icon,.nav-tabs .tab-icon svg{width:20px;height:20px;flex-basis:20px}
-.container{max-width:1440px!important;width:100%;box-sizing:border-box;padding:24px clamp(14px,2.4vw,34px) 42px!important}
-#tab-abrir{max-width:1180px;margin:0 auto}
-#tab-abrir>.erimax-page-intro{
- min-height:118px;display:flex;flex-direction:column;justify-content:center;
- background:linear-gradient(115deg,#102f4a 0%,#174d73 70%,#236e96 100%)!important;
- border:0!important;border-radius:18px!important;padding:24px 28px!important;
- box-shadow:0 10px 25px rgba(17,54,81,.16)!important
-}
-#tab-abrir>.erimax-page-intro:before{width:5px;background:var(--erx-orange)}
-#tab-abrir>.erimax-page-intro .erimax-page-kicker{color:#f6b779!important}
-#tab-abrir>.erimax-page-intro h2{color:#fff!important;font-size:1.55rem!important}
-#tab-abrir>.erimax-page-intro p{color:#d5e5f0!important;font-size:.86rem!important}
-#tab-abrir>.card{
- max-width:100%;margin:0 auto!important;padding:clamp(18px,2.5vw,30px)!important;
- border:1px solid #dce6ef!important;border-radius:18px!important;
- box-shadow:0 8px 26px rgba(20,54,80,.065)!important;background:#fff!important
-}
-.erimax-form-heading{margin:0 0 23px;padding:0 0 17px;border-bottom:1px solid #e7edf3}
-.erimax-form-step{display:inline-flex;align-items:center;padding:5px 9px;border-radius:6px;background:#fff1e4;color:#a75d23;font-size:.62rem;font-weight:850;letter-spacing:.12em}
-.erimax-form-heading h3{margin:9px 0 4px!important;color:#173d5a!important;font-size:1.14rem!important;font-weight:800;letter-spacing:-.02em}
-.erimax-form-heading p{margin:0!important;color:#6c8092;font-size:.8rem;line-height:1.45}
-#formOS{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
-#formOS .form-group{min-width:0;margin:0 0 17px!important;padding:0!important}
-#formOS .form-group>label{color:#3c5b73!important;font-size:.68rem!important;font-weight:850!important;letter-spacing:.055em!important;margin-bottom:7px!important}
-#formOS input:not([type=file]),#formOS select,#formOS textarea{
- min-height:47px!important;padding:12px 14px!important;border:1px solid #d7e2ec!important;
- border-radius:10px!important;background:#f8fafc!important;color:#19364e!important;
- box-shadow:inset 0 1px 1px rgba(15,40,60,.025)!important;font-size:.91rem!important
-}
-#formOS textarea{min-height:100px!important;resize:vertical}
-#formOS input:focus,#formOS select:focus,#formOS textarea:focus{
- background:#fff!important;border-color:#4d91bd!important;box-shadow:0 0 0 3px rgba(39,126,178,.12)!important;outline:0!important
-}
-#formOS #grupoSituacaoEquipamento,#formOS .form-group:has(#descricao),#formOS .form-group:has(#foto){grid-column:1/-1}
-#formOS .form-group:has(#descricao) textarea{min-height:112px}
-#formOS .form-group:has(#foto){padding:12px 14px!important;border:1px dashed #cbd9e5!important;border-radius:11px!important;background:#f8fbfd!important}
-#formOS button[type=submit]{
- grid-column:1/-1;min-height:52px!important;border:0!important;border-radius:11px!important;
- background:linear-gradient(100deg,#e77f2e,#f09a49)!important;color:#fff!important;
- font-size:.9rem!important;font-weight:850!important;letter-spacing:.015em;
- box-shadow:0 6px 14px rgba(214,116,43,.2)!important
-}
-#formOS button[type=submit]:active{transform:translateY(1px);box-shadow:0 2px 7px rgba(214,116,43,.2)!important}
-#boxStatusTurno,#boxTec2{max-width:100%;margin-bottom:12px}
-@media(min-width:900px){
- #formOS{grid-template-columns:repeat(2,minmax(0,1fr))!important}
- #tab-abrir>.card{max-width:100%!important}
-}
-@media(max-width:760px){
- header{min-height:64px!important;padding:8px 11px!important}
- header img.logo{height:36px!important;width:170px!important;max-width:calc(100vw - 135px)!important}
- header .hd{font-size:.56rem!important}
- .container{padding:15px 11px 30px!important}
- #tab-abrir>.erimax-page-intro{min-height:104px;padding:18px!important;border-radius:14px!important}
- #tab-abrir>.erimax-page-intro h2{font-size:1.25rem!important}
- #tab-abrir>.card{padding:17px 14px!important;border-radius:14px!important}
- #formOS{grid-template-columns:minmax(0,1fr)!important;gap:0!important}
- #formOS .form-group,#formOS #grupoSituacaoEquipamento,#formOS .form-group:has(#descricao),#formOS .form-group:has(#foto){grid-column:1}
- #formOS .form-group{margin-bottom:14px!important}
- #formOS input:not([type=file]),#formOS select{min-height:48px!important}
- .nav-tabs{width:min(88vw,330px)!important}
-}
-@media(prefers-reduced-motion:reduce){.nav-tabs .tab-btn,#formOS button{transition:none!important}}
-</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3640,7 +3526,8 @@ header .hd{color:#d8e8f3!important;border-left:1px solid rgba(255,255,255,.25)!i
 <div id="boxStatusTurno"></div>
 <div id="boxTec2"></div>
 <div class="card">
-<div class="erimax-form-heading"><span class="erimax-form-step">NOVA SOLICITAÇÃO</span><h3>Dados da ocorrência</h3><p>Preencha os campos abaixo para registrar o chamado de manutenção.</p></div>
+<h2 style="margin-bottom:4px;font-size:1.1rem;color:var(--primary)">Abrir Ordem de Serviço</h2>
+<p style="font-size:.8rem;color:#64748b;margin-bottom:14px">Registre o defeito da máquina informando o turno atual.</p>
 <form id="formOS" onsubmit="salvarOS(event)">
 <div class="form-group"><label for="abertoPor">NOME DE QUEM ESTÁ ABRINDO A O.S. *</label><input type="text" id="abertoPor" maxlength="100" placeholder="Digite seu nome" autocomplete="name" required></div>
 <div class="form-group" id="grupoSituacaoEquipamento"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
