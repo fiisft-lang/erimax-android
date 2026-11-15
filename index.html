@@ -5259,16 +5259,17 @@ function atualizarMetricasReais(){
   // Tendência mensal dentro do mesmo recorte aplicado aos indicadores.
   const porMes={};
   f.forEach(os=>{
-    const mesOS=diaLocal(os.created_at).slice(0,7);
-    if(!mesOS)return;
-    if(!porMes[mesOS])porMes[mesOS]={abertas:0,concluidas:0};
-    porMes[mesOS].abertas++;
-    if(os.status==='Concluída')porMes[mesOS].concluidas++;
+    const mesAbertura=diaLocal(os.created_at).slice(0,7);
+    if(mesAbertura){if(!porMes[mesAbertura])porMes[mesAbertura]={abertas:0,concluidas:0};porMes[mesAbertura].abertas++}
+    if(os.status==='Concluída'&&os.data_conclusao){
+      const mesConclusao=diaLocal(os.data_conclusao).slice(0,7);
+      if(mesConclusao){if(!porMes[mesConclusao])porMes[mesConclusao]={abertas:0,concluidas:0};porMes[mesConclusao].concluidas++}
+    }
   });
   const mesesGrafico=Object.keys(porMes).sort();
   DETALHES_GRAFICOS.chTendenciaMensal=(ds,i)=>{
     const mesOS=mesesGrafico[i];
-    return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+mesOS,lista:f.filter(os=>diaLocal(os.created_at).slice(0,7)===mesOS&&(ds===0||os.status==='Concluída'))};
+    return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+mesOS,lista:f.filter(os=>ds===0?diaLocal(os.created_at).slice(0,7)===mesOS:os.status==='Concluída'&&diaLocal(os.data_conclusao||'').slice(0,7)===mesOS)};
   };
   mk('chTendenciaMensal',{type:'line',data:{labels:mesesGrafico.map(m=>m.split('-').reverse().join('/')),datasets:[
     {label:'Abertas',data:mesesGrafico.map(m=>porMes[m].abertas),borderColor:'#2563eb',backgroundColor:'#2563eb22',fill:true},
