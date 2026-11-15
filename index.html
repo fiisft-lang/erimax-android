@@ -3271,6 +3271,48 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </style>
 
 
+<style id="erimax-metricas-desktop-premium-2026">
+/* Desktop amplo: mais área útil, sem alterar a disposição compacta do celular. */
+@media(min-width:1400px){
+  #tab-metricas{padding-inline:clamp(18px,2vw,34px);padding-bottom:34px}
+  #tab-metricas .metrics-hero{min-height:172px;padding:26px 30px}
+  #tab-metricas .metrics-hero h1,#tab-metricas .metrics-hero h2{letter-spacing:-.025em}
+  #tab-metricas .metrics-filter-card{padding:21px 23px;column-gap:16px}
+  #tab-metricas .metrics-filter-card input,#tab-metricas .metrics-filter-card select{min-height:45px;font-size:.86rem}
+  #metricsDataContent{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:19px;row-gap:19px}
+  #metricsDataContent>.metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+  #metricsDataContent>.metrics-grid .metric-card{min-height:124px;padding:17px 15px}
+  #metricsDataContent>.metrics-grid .metric-card .title{font-size:.68rem}
+  #metricsDataContent>.metrics-grid .metric-card .value{font-size:clamp(1.45rem,1.5vw,1.9rem)}
+  #metricsDataContent>.card{padding:20px;border-radius:17px}
+  #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{height:310px}
+  #metricsDataContent>#cardHorarioPareto>.chart-wrapper{height:370px}
+  #metricsDataContent>#cardHorarioEfSetor>.chart-wrapper,
+  #metricsDataContent>#cardHorarioEfMaq>.chart-wrapper{height:325px}
+  #metricsDataContent>#cardHorarioDowntime>.chart-wrapper{height:335px}
+  #metricsDataContent>#cardHorarioEfGeral,
+  #metricsDataContent>#cardHeatmapMaquinas,
+  #metricsDataContent>#cardHorarioPareto,
+  #metricsDataContent>#cardRankingReincidencia,
+  #metricsDataContent>.metrics-ranking-card,
+  #metricsDataContent>.metrics-report-toolbar,
+  #metricsDataContent>.metrics-section-heading,
+  #metricsDataContent>#printReportHeader,
+  #metricsDataContent>.metrics-grid{grid-column:1/-1}
+  #metricsDataContent>.card:has(> .chart-wrapper > canvas#chPareto){grid-column:1/-1}
+  #metricsDataContent>.metrics-section-heading{padding:14px 17px}
+  #metricsDataContent>.metrics-section-heading h3{font-size:1.08rem}
+  #metricsDataContent>.metrics-section-heading p{font-size:.78rem}
+  #cardHorarioRanking .metrics-machine-ranking-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  #cardHorarioEfGeral>.chart-wrapper{width:min(100%,520px)}
+}
+@media(min-width:1100px) and (max-width:1399px){
+  #tab-metricas{padding-inline:18px}
+  #metricsDataContent{column-gap:17px;row-gap:17px}
+  #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{height:295px}
+  #metricsDataContent>.metrics-grid .metric-card{min-height:118px}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
