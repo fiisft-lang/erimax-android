@@ -106,19 +106,21 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 #metricsDataContent>.card h4{color:#183b63;letter-spacing:.025em;line-height:1.35}
 #metricsDataContent>.card>p{line-height:1.5}
 #metricsDataContent canvas{max-width:100%}
-/* Acabamento profissional dos gráficos e cartões de métricas */
-#metricsDataContent>.card{position:relative;border:1px solid #e5ebf2;border-radius:15px;background:linear-gradient(180deg,#fff 0%,#fcfdff 100%);box-shadow:0 5px 18px rgba(20,45,75,.055);padding:16px}
-#metricsDataContent>.card h4{display:flex;align-items:center;gap:8px;margin:0;color:#173b5e;font-size:.91rem;font-weight:750;letter-spacing:-.012em}
-#metricsDataContent>.card h4:before{content:"";display:block;width:4px;min-width:4px;height:19px;border-radius:5px;background:linear-gradient(180deg,#2878b8,#55a6d8)}
-#metricsDataContent .metrics-chart-note{margin:8px 0 0;color:#718096;font-size:.73rem;line-height:1.5}
-#metricsDataContent .chart-wrapper{position:relative;width:100%;min-width:0;margin-top:13px;padding:10px 5px 2px;border:1px solid #edf2f7;border-radius:11px;background:linear-gradient(180deg,#fbfdff 0%,#fff 100%)}
+/* Identidade visual refinada: cartões, eixos e gráficos */
+#metricsDataContent>.card{position:relative;border:1px solid #e4eaf1;border-radius:16px;background:#fff;box-shadow:0 3px 14px rgba(15,38,65,.045);padding:17px;transition:box-shadow .2s ease,border-color .2s ease}
+#metricsDataContent>.card h4{display:flex;align-items:center;gap:9px;margin:0;color:#183653;font-size:.92rem;font-weight:750;letter-spacing:-.018em}
+#metricsDataContent>.card h4:before{content:"";display:block;width:4px;min-width:4px;height:20px;border-radius:5px;background:linear-gradient(180deg,#2563eb,#0f9d8a)}
+#metricsDataContent .metrics-chart-note{margin:8px 0 0;color:#687b90;font-size:.74rem;line-height:1.55}
+#metricsDataContent .chart-wrapper{position:relative;width:100%;min-width:0;margin-top:14px;padding:12px 8px 4px;border:1px solid #edf1f6;border-radius:12px;background:#fbfcfe}
 #metricsDataContent .chart-wrapper canvas{display:block}
-#metricsDataContent .metrics-section-heading{padding:13px 15px;border:1px solid #e3ebf3;border-radius:13px;background:linear-gradient(110deg,#f1f7fc 0%,#fff 78%)}
-#metricsDataContent .metrics-section-heading h3{color:#173b5e;letter-spacing:-.02em}
-#metricsDataContent .metrics-section-heading p{color:#718096}
+#metricsDataContent .metrics-section-heading{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid #e2eaf2;border-radius:14px;background:linear-gradient(105deg,#f3f7fc 0%,#fff 85%)}
+#metricsDataContent .metrics-section-heading>span{display:grid;place-items:center;width:32px;height:32px;flex:0 0 32px;border-radius:10px;background:#e7effb;color:#245a91;font-size:.76rem;font-weight:800}
+#metricsDataContent .metrics-section-heading h3{margin:0;color:#183653;letter-spacing:-.02em}
+#metricsDataContent .metrics-section-heading p{margin:3px 0 0;color:#687b90;font-size:.74rem;line-height:1.45}
 #metricsDataContent .metrics-machine-heatmap{margin-top:12px}
 #metricsDataContent #cardHeatmapMaquinas{background:linear-gradient(145deg,#fff 0%,#f8fbff 100%)}
-@media(max-width:600px){#metricsDataContent>.card{padding:13px;border-radius:13px}#metricsDataContent>.card h4{font-size:.84rem}#metricsDataContent .chart-wrapper{padding:7px 2px 1px;border-radius:9px}#metricsDataContent .metrics-section-heading{padding:11px 12px}}
+@media(hover:hover){#metricsDataContent>.card:hover{border-color:#d5e1ed;box-shadow:0 7px 20px rgba(15,38,65,.07)}}
+@media(max-width:600px){#metricsDataContent>.card{padding:13px;border-radius:13px}#metricsDataContent>.card h4{font-size:.85rem}#metricsDataContent .chart-wrapper{padding:8px 3px 2px;border-radius:10px}#metricsDataContent .metrics-section-heading{padding:11px 12px;gap:9px}#metricsDataContent .metrics-section-heading>span{width:29px;height:29px;flex-basis:29px}}
 #cardHorarioEfGeral{background:linear-gradient(150deg,#fff 0%,#f7fbff 100%)}
 #cardHorarioEfGeral .chart-wrapper{height:250px}
 #cardHorarioEfSetor .chart-wrapper,#cardHorarioEfMaq .chart-wrapper{height:280px}
@@ -4818,7 +4820,7 @@ function paradaProd(c,tn,periodoInicio,periodoFim){
 const charts={};
 const DETALHES_GRAFICOS={};
 let OS_PARADA_ATUAL=[];
-const COR=['#2878b8','#18a999','#f29e4c','#7c6fd0','#e16b75','#4f91c7','#8b9aa9','#c4a35a'];
+const COR=['#2563eb','#0f9d8a','#d97706','#7c3aed','#e05b70','#0891b2','#64748b','#b08a3e'];
 const diaLocal=d=>new Date(d).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
 const min=(a,b)=>(new Date(b)-new Date(a))/60000;
 const fmt=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+'h'+String(m%60).padStart(2,'0')};
@@ -4828,7 +4830,7 @@ function mk(id,cfg){
   if(!Chart.__erimaxMetricsTheme){
     Chart.defaults.font.family="'Inter','Segoe UI',sans-serif";
     Chart.defaults.font.size=11;
-    Chart.defaults.color='#64748b';
+    Chart.defaults.color='#526579';
     Chart.defaults.plugins.legend.labels.usePointStyle=true;
     Chart.defaults.plugins.legend.labels.pointStyle='circle';
     Chart.defaults.plugins.legend.labels.boxWidth=8;
@@ -4861,8 +4863,8 @@ function mk(id,cfg){
   cfg.options.scales=cfg.options.scales||{};
   Object.values(cfg.options.scales).forEach(scale=>{
     if(!scale||typeof scale!=='object')return;
-    scale.grid=Object.assign({color:'rgba(148,163,184,.16)',drawBorder:false,drawTicks:false},scale.grid||{});
-    scale.ticks=Object.assign({color:'#718096',padding:8,font:{family:"'Inter','Segoe UI',sans-serif",size:10,weight:'500'}},scale.ticks||{});
+    scale.grid=Object.assign({color:'rgba(100,116,139,.13)',drawBorder:false,drawTicks:false},scale.grid||{});
+    scale.ticks=Object.assign({color:'#64748b',padding:9,font:{family:"'Inter','Segoe UI',sans-serif",size:10,weight:'600'}},scale.ticks||{});
     scale.border=Object.assign({display:false},scale.border||{});
     if(scale.title)scale.title=Object.assign({color:'#64748b',font:{size:10,weight:'600'}},scale.title);
   });
