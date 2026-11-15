@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -50,77 +51,38 @@ public class IncomingCallActivity extends Activity {
     root.setOrientation(1);
     root.setGravity(Gravity.CENTER_HORIZONTAL);
     root.setPadding(dp(20), dp(28), dp(20), dp(24));
-    android.graphics.drawable.GradientDrawable pageBg = new android.graphics.drawable.GradientDrawable(
-      android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-      new int[]{Color.rgb(11, 31, 42), Color.rgb(16, 43, 58), Color.rgb(10, 27, 38)});
-    root.setBackground(pageBg);
+    root.setBackgroundColor(Color.rgb(248, 250, 252));
 
-    TextView brand = label("ERIMAX  •  MANUTENÇÃO", 13, Color.rgb(242, 139, 0));
-    brand.setTypeface(null, Typeface.BOLD);
-    root.addView(brand, new LinearLayout.LayoutParams(-1, -2));
-
-    TextView title = label(transferencia ? "Transferência de O.S." : "Nova ordem de serviço", 24, Color.WHITE);
+    TextView brand = label("ERIMAX  •  MANUTENÇÃO", 13, Color.rgb(100, 116, 139));
+    TextView title = label(transferencia ? "Transferência de O.S." : "Nova ordem de serviço", 23, Color.rgb(15, 23, 42));
     title.setTypeface(null, Typeface.BOLD);
-    LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-1, -2);
-    titleParams.topMargin = dp(7);
-    root.addView(title, titleParams);
-
-    TextView status = label("AGUARDANDO SUA DECISÃO", 11, Color.rgb(255, 205, 128));
-    status.setTypeface(null, Typeface.BOLD);
-    android.graphics.drawable.GradientDrawable statusBg = new android.graphics.drawable.GradientDrawable();
-    statusBg.setColor(Color.rgb(68, 54, 36));
-    statusBg.setCornerRadius(dp(30));
-    status.setBackground(statusBg);
-    LinearLayout.LayoutParams statusParams = new LinearLayout.LayoutParams(-2, -2);
-    statusParams.topMargin = dp(10);
-    root.addView(status, statusParams);
-
-    TextView intro = label(transferencia
-      ? "Revise os dados antes de aceitar ou recusar a transferência."
-      : "Uma nova solicitação de manutenção precisa da sua atenção.", 14, Color.rgb(190, 208, 216));
-    LinearLayout.LayoutParams introParams = new LinearLayout.LayoutParams(-1, -2);
-    introParams.topMargin = dp(10);
-    root.addView(intro, introParams);
-
-    LinearLayout infoCard = new LinearLayout(this);
-    infoCard.setOrientation(1);
-    infoCard.setPadding(dp(17), dp(8), dp(17), dp(8));
+    TextView detail = label((number == null ? "Nova O.S." : number)
+      + "\n\nSETOR\n" + (sector == null ? "Não informado" : sector)
+      + "\n\nMÁQUINA\n" + (machine == null ? "Não informada" : machine)
+      + "\n\nPROBLEMA DA MÁQUINA\n" + (problem == null || problem.trim().isEmpty() ? "Não informado" : problem.trim()), 16, Color.rgb(30, 41, 59));
+    detail.setTypeface(null, Typeface.BOLD);
+    root.addView(brand);
+    root.addView(title);
     android.graphics.drawable.GradientDrawable infoBg = new android.graphics.drawable.GradientDrawable();
-    infoBg.setColor(Color.rgb(23, 57, 72));
-    infoBg.setCornerRadius(dp(20));
-    infoBg.setStroke(dp(1), Color.rgb(49, 86, 101));
-    infoCard.setBackground(infoBg);
-    LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(-1, -2);
-    infoParams.setMargins(0, dp(20), 0, dp(12));
-    root.addView(infoCard, infoParams);
-
-    addInfoRow(infoCard, "ORDEM DE SERVIÇO", number == null ? "Nova O.S." : number);
-    addInfoRow(infoCard, "SETOR", sector == null ? "Não informado" : sector);
-    addInfoRow(infoCard, "MÁQUINA", machine == null ? "Não informada" : machine);
-    addInfoRow(infoCard, "PROBLEMA INFORMADO",
-      problem == null || problem.trim().isEmpty() ? "Não informado" : problem.trim());
-
-    TextView actionHeading = label("TOQUE OU ARRASTE PARA CIMA PARA CONFIRMAR", 12, Color.rgb(190, 208, 216));
-    actionHeading.setTypeface(null, Typeface.BOLD);
-    LinearLayout.LayoutParams actionHeadingParams = new LinearLayout.LayoutParams(-1, -2);
-    actionHeadingParams.topMargin = dp(8);
-    root.addView(actionHeading, actionHeadingParams);
+    infoBg.setColor(Color.WHITE);
+    infoBg.setCornerRadius(dp(18));
+    infoBg.setStroke(dp(1), Color.rgb(226, 232, 240));
+    detail.setBackground(infoBg);
+    detail.setPadding(dp(18), dp(18), dp(18), dp(18));
+    LinearLayout.LayoutParams detailParams = new LinearLayout.LayoutParams(-1, -2);
+    detailParams.setMargins(0, dp(18), 0, dp(12));
+    root.addView(detail, detailParams);
+    root.addView(label("Arraste o botão para cima para escolher", 14, Color.rgb(100, 116, 139)));
     LinearLayout actions = new LinearLayout(this);
     actions.setOrientation(0);
     actions.setGravity(Gravity.CENTER);
-    actions.setPadding(0, dp(10), 0, 0);
-    // Botões de toque direto: preservam exatamente os comandos já existentes.
-    addActionButton(actions, transferencia ? "RECUSAR\nTRANSFERÊNCIA" : "SILENCIAR AVISO",
-      Color.rgb(190, 65, 70), transferencia ? this::rejectTransfer : this::dismissCall);
-    addActionButton(actions, transferencia ? "ACEITAR\nTRANSFERÊNCIA" : "ACEITAR O.S.",
-      Color.rgb(22, 145, 94), this::answerCall);
+    actions.setPadding(0, dp(12), 0, 0);
+    // Ordem visual: recusar/silenciar à esquerda e aceitar à direita.
+    addSwipeAction(actions, transferencia ? "RECUSAR TRANSFERÊNCIA" : "SILENCIAR", transferencia ? "✕" : "🔕", Color.rgb(220, 38, 38), transferencia ? this::rejectTransfer : this::dismissCall);
+    addSwipeAction(actions, transferencia ? "ACEITAR TRANSFERÊNCIA" : "ACEITAR O.S.", "✓", Color.rgb(22, 163, 74), this::answerCall);
     root.addView(actions);
-    // A descrição pode ser longa e a altura útil muda conforme o aparelho.
-    // ScrollView impede que os controles fiquem fora da tela ou sejam cortados.
     ScrollView scroll = new ScrollView(this);
     scroll.setFillViewport(true);
-    scroll.setBackgroundColor(Color.rgb(11, 31, 42));
-    scroll.setClipToPadding(false);
     scroll.addView(root, new ScrollView.LayoutParams(-1, -2));
     setContentView(scroll);
   }
@@ -143,39 +105,74 @@ public class IncomingCallActivity extends Activity {
     return (int)(value * getResources().getDisplayMetrics().density + 0.5f);
   }
 
-  private void addActionButton(LinearLayout row, String text, int color, Runnable action) {
-    TextView button = label(text, 14, Color.WHITE);
-    button.setTypeface(null, Typeface.BOLD);
-    button.setGravity(Gravity.CENTER);
-    button.setMinHeight(dp(64));
-    button.setPadding(dp(10), dp(14), dp(10), dp(14));
-    android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
-    bg.setColor(color);
-    bg.setCornerRadius(dp(16));
-    bg.setStroke(dp(1), Color.argb(65, 255, 255, 255));
-    button.setBackground(bg);
-    button.setClickable(true);
-    button.setFocusable(true);
-    // Na tela bloqueada, tanto o toque quanto o gesto de arrastar para cima
-    // disparam a mesma ação nativa. O comando segue para o app via deep link.
-    final float[] inicioY = new float[]{0f};
-    button.setOnTouchListener((v, event) -> {
-      if (event.getAction() == MotionEvent.ACTION_DOWN) {
-        inicioY[0] = event.getRawY();
-        return true;
-      }
-      if (event.getAction() == MotionEvent.ACTION_UP) {
-        action.run();
-        return true;
-      }
-      return event.getAction() == MotionEvent.ACTION_MOVE;
-    });
-    button.setOnClickListener(v -> action.run());
-    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -2, 1f);
-    params.setMargins(dp(6), dp(4), dp(6), dp(4));
-    row.addView(button, params);
-  }
+  private void addSwipeAction(LinearLayout row, String hint, String symbol, int color, Runnable action) {
+    LinearLayout item = new LinearLayout(this);
+    item.setOrientation(1);
+    item.setGravity(Gravity.CENTER_HORIZONTAL);
+    LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(0, -2, 1f);
+    itemParams.setMargins(dp(7), 0, dp(7), 0);
 
+    TextView title = label(hint, 12, Color.rgb(51, 65, 85));
+    title.setTypeface(null, Typeface.BOLD);
+    item.addView(title, new LinearLayout.LayoutParams(-1, dp(48)));
+
+    FrameLayout track = new FrameLayout(this);
+    android.graphics.drawable.GradientDrawable trackBg = new android.graphics.drawable.GradientDrawable();
+    trackBg.setColor(Color.rgb(241, 245, 249));
+    trackBg.setCornerRadius(dp(34));
+    trackBg.setStroke(dp(1), Color.rgb(203, 213, 225));
+    track.setBackground(trackBg);
+    LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(dp(82), dp(148));
+    trackParams.gravity = Gravity.CENTER_HORIZONTAL;
+    trackParams.topMargin = dp(5);
+
+    TextView hintView = label("↑", 22, Color.rgb(100, 116, 139));
+    hintView.setTypeface(null, Typeface.BOLD);
+    FrameLayout.LayoutParams hintParams = new FrameLayout.LayoutParams(-1, dp(48), Gravity.TOP);
+    track.addView(hintView, hintParams);
+
+    TextView thumb = label(symbol, 25, Color.WHITE);
+    thumb.setTypeface(null, Typeface.BOLD);
+    android.graphics.drawable.GradientDrawable thumbBg = new android.graphics.drawable.GradientDrawable();
+    thumbBg.setColor(color);
+    thumbBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+    thumb.setBackground(thumbBg);
+    FrameLayout.LayoutParams thumbParams = new FrameLayout.LayoutParams(dp(66), dp(66), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+    thumbParams.bottomMargin = dp(5);
+    track.addView(thumb, thumbParams);
+
+    final float[] downY = {0};
+    final float[] startY = {0};
+    thumb.setOnTouchListener((View v, MotionEvent event) -> {
+      float max = Math.max(0, track.getHeight() - thumb.getHeight() - dp(10));
+      switch (event.getAction()) {
+        case MotionEvent.ACTION_DOWN:
+          downY[0] = event.getRawY();
+          startY[0] = thumb.getTranslationY();
+          return true;
+        case MotionEvent.ACTION_MOVE:
+          float dy = event.getRawY() - downY[0];
+          float next = startY[0] + dy;
+          next = Math.max(-max, Math.min(0, next));
+          thumb.setTranslationY(next);
+          return true;
+        case MotionEvent.ACTION_UP:
+        case MotionEvent.ACTION_CANCEL:
+          float moved = Math.abs(thumb.getTranslationY() - startY[0]);
+          if (event.getAction() == MotionEvent.ACTION_UP && moved >= max * 0.62f) {
+            action.run();
+          } else {
+            thumb.animate().translationY(0).setDuration(180).start();
+          }
+          return true;
+      }
+      return true;
+    });
+    item.addView(track, trackParams);
+    TextView instruction = label("ARRASTE PARA CIMA", 10, Color.rgb(100, 116, 139));
+    item.addView(instruction, new LinearLayout.LayoutParams(-1, dp(34)));
+    row.addView(item, itemParams);
+  }
   private void stopAlarm() {
     IncomingCallMessagingService.stopAlert(this);
   }
