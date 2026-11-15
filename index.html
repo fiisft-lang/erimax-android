@@ -4161,6 +4161,50 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 }
 </style>
 
+<style id="erimax-ordens-abertas-limpa-2026">
+/* Cartões compactos na página Ordens Abertas; demais telas de O.S. permanecem inalteradas. */
+#tab-ordens-abertas .os-card{padding:15px!important;border:1px solid #dce6eb!important;border-left:4px solid #397d91!important;border-radius:13px!important;background:#fff!important;box-shadow:0 4px 13px rgba(20,49,68,.045)!important}
+#tab-ordens-abertas .oa-card-header{display:grid;gap:7px;padding-bottom:11px;border-bottom:1px solid #e9eef1}
+#tab-ordens-abertas .oa-card-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+#tab-ordens-abertas .oa-card-top .os-id{color:#1c4963;font-size:.9rem;font-weight:850}
+#tab-ordens-abertas .oa-card-top .os-badge{padding:5px 9px;border-radius:7px;font-size:.64rem;font-weight:850}
+#tab-ordens-abertas .oa-card-priority{padding:5px 8px;border-radius:7px;background:#f3f6f8;color:#526b7b;font-size:.62rem;font-weight:800}
+#tab-ordens-abertas .oa-card-priority.prioridade-Alta{background:#fff0ef;color:#a33d3d}
+#tab-ordens-abertas .oa-card-priority.prioridade-Média{background:#fff6e8;color:#94621e}
+#tab-ordens-abertas .oa-card-priority.prioridade-Baixa{background:#edf7f2;color:#28765e}
+#tab-ordens-abertas .oa-card-machine{color:#173f59;font-size:1rem;font-weight:850;line-height:1.3;overflow-wrap:anywhere}
+#tab-ordens-abertas .oa-card-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+#tab-ordens-abertas .oa-card-meta>span,#tab-ordens-abertas .oa-card-facts>span{display:grid;align-content:start;gap:4px;min-width:0;padding:8px 9px;border:1px solid #e8eef1;border-radius:9px;background:#f8fafb}
+#tab-ordens-abertas .oa-card-meta small,#tab-ordens-abertas .oa-card-facts small{color:#718492;font-size:.58rem;font-weight:850;letter-spacing:.035em}
+#tab-ordens-abertas .oa-card-meta b,#tab-ordens-abertas .oa-card-facts b{color:#294a60;font-size:.72rem;font-weight:750;line-height:1.35;overflow-wrap:anywhere}
+#tab-ordens-abertas .oa-card-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px}
+#tab-ordens-abertas .oa-card-facts .oa-machine-stopped{color:#a33d3d}
+#tab-ordens-abertas .oa-card-problem{padding:10px 12px;border:1px solid #e5ebef;border-radius:9px;background:#f7f9fa}
+#tab-ordens-abertas .oa-card-problem>span{color:#536d7e;font-size:.62rem;font-weight:850;letter-spacing:.04em}
+#tab-ordens-abertas .oa-card-problem p{margin:4px 0 0;color:#314c60;font-size:.77rem;line-height:1.45;overflow-wrap:anywhere}
+#tab-ordens-abertas .oa-more{margin-top:9px;border:1px solid #e5ebef;border-radius:9px;background:#fbfcfd;overflow:hidden}
+#tab-ordens-abertas .oa-more>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 11px;color:#28566e;font-size:.7rem;font-weight:800;cursor:pointer;list-style:none}
+#tab-ordens-abertas .oa-more>summary::-webkit-details-marker{display:none}
+#tab-ordens-abertas .oa-more>summary:after{content:"＋";font-size:.95rem;color:#638092}
+#tab-ordens-abertas .oa-more[open]>summary:after{content:"−"}
+#tab-ordens-abertas .oa-more-content{display:grid;gap:7px;padding:0 10px 10px;border-top:1px solid #e9eef1}
+#tab-ordens-abertas .oa-more-content>p{margin:4px 0!important;color:#40596b!important;font-size:.73rem!important;line-height:1.45}
+#tab-ordens-abertas .oa-more-content>div:not(.os-actions){font-size:.73rem}
+#tab-ordens-abertas .oa-more-content img{max-width:100%;object-fit:contain}
+#tab-ordens-abertas .os-card .os-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid #e8eef1}
+#tab-ordens-abertas .os-card .btn-action{min-height:36px;padding:7px 10px;border-radius:8px;font-size:.67rem;font-weight:750}
+@media(max-width:520px){
+ #tab-ordens-abertas .os-card{padding:12px!important}
+ #tab-ordens-abertas .oa-card-meta,#tab-ordens-abertas .oa-card-facts{gap:6px}
+ #tab-ordens-abertas .oa-card-meta>span,#tab-ordens-abertas .oa-card-facts>span{padding:7px 6px}
+ #tab-ordens-abertas .oa-card-meta small,#tab-ordens-abertas .oa-card-facts small{font-size:.54rem}
+ #tab-ordens-abertas .oa-card-meta b,#tab-ordens-abertas .oa-card-facts b{font-size:.68rem}
+}
+@media(max-width:360px){
+ #tab-ordens-abertas .oa-card-meta,#tab-ordens-abertas .oa-card-facts{grid-template-columns:1fr 1fr}
+ #tab-ordens-abertas .oa-card-meta>span:last-child,#tab-ordens-abertas .oa-card-facts>span:last-child{grid-column:1/-1}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -5374,17 +5418,19 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     const androidApp=document.documentElement.classList.contains('erimax-app-android');
-    let html=androidApp?'<div class="os-alert-head"><span class="os-alert-icon" aria-hidden="true">🔧</span><div class="os-alert-main"><div class="os-alert-title"><span class="os-id">O.S. '+escaparHtml(nOS(os))+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div><div class="os-alert-machine">'+escaparHtml(os.maquina||'Máquina não informada')+'</div></div></div>':'<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
-    html+=androidApp?'<div class="os-alert-meta"><span class="os-alert-sector"><small>SETOR</small><b>'+escaparHtml(os.setor||'Não informado')+'</b></span><span><small>TURNO</small><b>'+escaparHtml(os.turno||'Não informado')+'</b></span><span><small>ABERTURA</small><b>'+escaparHtml(abertura)+'</b></span></div>':'<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';
+    const listaAbertasCompacta=destino==='listaOSAbertas';
+    let html=listaAbertasCompacta?'<div class="oa-card-header"><div class="oa-card-top"><span class="os-id">O.S. '+escaparHtml(nOS(os))+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span><span class="oa-card-priority prioridade-'+escaparHtml(prioridade)+'">Prioridade '+escaparHtml(prioridade)+'</span></div><div class="oa-card-machine">'+escaparHtml(os.maquina||'Máquina não informada')+'</div></div>':androidApp?'<div class="os-alert-head"><span class="os-alert-icon" aria-hidden="true">🔧</span><div class="os-alert-main"><div class="os-alert-title"><span class="os-id">O.S. '+escaparHtml(nOS(os))+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div><div class="os-alert-machine">'+escaparHtml(os.maquina||'Máquina não informada')+'</div></div></div>':'<div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(statusClasse)+'">'+escaparHtml(status)+'</span></div>';
+    html+=listaAbertasCompacta?'<div class="oa-card-meta"><span><small>SETOR</small><b>'+escaparHtml(os.setor||'Não informado')+'</b></span><span><small>TURNO</small><b>'+escaparHtml(os.turno||'Não informado')+'</b></span><span><small>ABERTURA</small><b>'+escaparHtml(abertura)+'</b></span></div>':androidApp?'<div class="os-alert-meta"><span class="os-alert-sector"><small>SETOR</small><b>'+escaparHtml(os.setor||'Não informado')+'</b></span><span><small>TURNO</small><b>'+escaparHtml(os.turno||'Não informado')+'</b></span><span><small>ABERTURA</small><b>'+escaparHtml(abertura)+'</b></span></div>':'<p style="font-size:.75rem;color:#64748b"><b>'+escaparHtml(os.turno)+'</b> • '+escaparHtml(os.setor)+' • '+escaparHtml(abertura)+'</p>';
     const inicioOS=os.created_at?new Date(os.created_at).getTime():NaN;
     const fimOS=status==='Concluída'&&os.data_conclusao?new Date(os.data_conclusao).getTime():Date.now();
     const duracaoOS=Number.isFinite(inicioOS)?fmt(Math.max(0,Math.floor((fimOS-inicioOS)/60000))):'—';
     const responsavelOS=os.tecnico|| (os.transferencia_para?'Aguardando aceite de '+os.transferencia_para:'Aguardando técnico');
-    html+='<div class="os-resumo-info"><span><small>PRIORIDADE</small><b class="os-prioridade-'+prioridade.toLowerCase().replace('é','e')+'">'+escaparHtml(prioridade)+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
+    html+=listaAbertasCompacta?'<div class="oa-card-facts"><span><small>SITUAÇÃO DA MÁQUINA</small><b class="'+(String(os.situacao_equipamento||'').toLowerCase()==='parado'?'oa-machine-stopped':'')+'">'+escaparHtml(os.situacao_equipamento||'Não informada')+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>':'<div class="os-resumo-info"><span><small>PRIORIDADE</small><b class="os-prioridade-'+prioridade.toLowerCase().replace('é','e')+'">'+escaparHtml(prioridade)+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>';
+    if(listaAbertasCompacta)html+='<div class="oa-card-problem"><span>PROBLEMA RELATADO</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div><details class="oa-more"><summary>Ver detalhes da O.S.</summary><div class="oa-more-content">';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
     html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
     html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
-    html+='<div class="os-problema"><span class="os-problema-titulo">⚠️ Problema relatado pelo operador</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div>';
+    if(!listaAbertasCompacta)html+='<div class="os-problema"><span class="os-problema-titulo">⚠️ Problema relatado pelo operador</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div>';
     const execucao=Array.isArray(os.maquinas_execucao)?os.maquinas_execucao:[];
     if(execucao.length){
       const feitas=execucao.filter(m=>m.concluida).length;
@@ -5398,6 +5444,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
     if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
+    if(listaAbertasCompacta)html+='</div></details>';
     html+='<div class="os-actions">'+b+'</div>';
     card.innerHTML=html;
     box.appendChild(card);
