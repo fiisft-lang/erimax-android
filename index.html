@@ -119,6 +119,16 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 #metricsDataContent .metrics-section-heading p{margin:3px 0 0;color:#687b90;font-size:.74rem;line-height:1.45}
 #metricsDataContent .metrics-machine-heatmap{margin-top:12px}
 #metricsDataContent #cardHeatmapMaquinas{background:linear-gradient(145deg,#fff 0%,#f8fbff 100%)}
+#metricsDataContent>.metrics-ranking-card{min-width:0;padding:16px;border:1px solid #e4eaf1;border-radius:15px;background:#fff;box-shadow:0 3px 14px rgba(15,38,65,.045);overflow:hidden}
+#metricsDataContent>.metrics-ranking-card .tbl-wrap{border:1px solid #e8eef4;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#metricsDataContent>.metrics-ranking-card table{font-size:.72rem;min-width:720px}
+#metricsDataContent>.metrics-ranking-card th{background:#f2f6fa;color:#526579}
+#metricsDataContent>.metrics-ranking-card .ranking-os-card-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:12px}
+#metricsDataContent>.metrics-ranking-card .ranking-os-card-head>span{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:11px;background:#edf4f8;font-size:1.1rem}
+#metricsDataContent>.metrics-ranking-card .ranking-os-card-head h3{margin:0;color:#1d4059;font-size:.94rem;font-weight:850}
+#metricsDataContent>.metrics-ranking-card .ranking-os-card-head p{margin:4px 0 0;color:#718294;font-size:.72rem;line-height:1.45}
+#metricsDataContent>.metrics-ranking-card .ranking-os-report{max-height:460px;overflow:auto;padding-right:3px}
+#metricsDataContent>.metrics-ranking-card .report-item{padding:11px 12px;margin:8px 0;border:1px solid #e5ebf1;border-radius:10px;background:#fbfdff;font-size:.76rem;line-height:1.55;overflow-wrap:anywhere}
 @media(hover:hover){#metricsDataContent>.card:hover{border-color:#d5e1ed;box-shadow:0 7px 20px rgba(15,38,65,.07)}}
 @media(max-width:600px){#metricsDataContent>.card{padding:13px;border-radius:13px}#metricsDataContent>.card h4{font-size:.85rem}#metricsDataContent .chart-wrapper{padding:8px 3px 2px;border-radius:10px}#metricsDataContent .metrics-section-heading{padding:11px 12px;gap:9px}#metricsDataContent .metrics-section-heading>span{width:29px;height:29px;flex-basis:29px}}
 #cardHorarioEfGeral{background:linear-gradient(150deg,#fff 0%,#f7fbff 100%)}
@@ -151,7 +161,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
  .container{max-width:1080px}
  .metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
  #metricsDataContent{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
- #metricsDataContent>.metrics-grid,#metricsDataContent>#printReportHeader,#metricsDataContent>.noprint,#metricsDataContent>#cardHorarioEfGeral,#metricsDataContent>.card:last-child{grid-column:1/-1}
+ #metricsDataContent>.metrics-grid,#metricsDataContent>#printReportHeader,#metricsDataContent>.noprint,#metricsDataContent>#cardHorarioEfGeral,#metricsDataContent>.metrics-section-heading,#metricsDataContent>.metrics-ranking-card{grid-column:1/-1}
  #metricsDataContent>.card{margin-bottom:0}
  #cardHorarioEfGeral .chart-wrapper{height:280px}
 }
@@ -3140,21 +3150,22 @@ tbody tr:hover{background:#eef6f5}
 <div class="card"><h4>Chamados por turno</h4><div class="chart-wrapper"><canvas id="chTurno"></canvas></div></div>
 <div class="card"><h4>Horários com mais abertura de O.S.</h4><div class="chart-wrapper"><canvas id="chHora"></canvas></div></div>
 
+<div class="metrics-section-heading"><span>05</span><div><h3>Ranking e histórico de máquinas</h3><p>Consulte máquinas com maior tempo de parada, reincidências e diagnósticos concluídos no período filtrado</p></div></div>
+<section class="card metrics-ranking-card metricas-com-horario" id="cardHorarioRanking"><div class="ranking-os-card-head"><span>⏱️</span><div><h3>Máquinas com maior tempo de parada</h3><p>Compare tempo previsto, parada, disponibilidade e falhas. Toque nos dados para consultar as ordens relacionadas.</p></div></div><div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></section>
+    <section class="card metrics-ranking-card" id="cardRankingReincidencia"><div class="ranking-os-card-head"><span>🔁</span><div><h3>Máquinas com mais reincidências</h3><p>Defeitos que voltaram na mesma máquina, mesmo quando a descrição foi escrita de outra forma. Toque para abrir o histórico.</p></div></div><div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Setor</th><th>Reincidências</th><th>Problemas repetidos</th></tr></thead><tbody id="tbRankingReincidencia"><tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr></tbody></table></div></section>
+    <section class="card metrics-ranking-card"><div class="ranking-os-card-head"><span>📋</span><div><h3>Diagnósticos e fechamentos</h3><p>Histórico do que foi executado nas máquinas, conforme os filtros da página Métricas.</p></div></div><div id="listaRelatorioProblemas" class="ranking-os-report"></div></section>
+  </div>
+
 </div>
 </div>
 <div id="tab-ranking-os" class="tab-content">
   <section class="ranking-os-hero">
-    <div><span class="ranking-os-kicker">DESEMPENHO E HISTÓRICO</span><h2>Ranking de O.S.</h2><p>Classificações de atendimento, paradas e reincidências. Os rankings de máquinas e o histórico respeitam os filtros aplicados na página Métricas.</p></div>
+    <div><span class="ranking-os-kicker">DESEMPENHO DA EQUIPE</span><h2>Ranking de O.S. por técnico</h2><p>Acompanhe a quantidade de ordens concluídas por cada técnico no mês selecionado.</p></div>
     <div class="ranking-os-periodo"><label for="rankingMes">MÊS DO RANKING DE TÉCNICOS</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div>
   </section>
   <div id="rankingDataContent">
     <section class="card ranking-os-card"><div class="ranking-os-card-head"><span>🏆</span><div><h3>O.S. concluídas por técnico</h3><p>Quantidade de ordens concluídas por cada técnico no mês selecionado.</p></div></div><div id="boxRankingOperadores"></div></section>
-    <section class="card ranking-os-card"><div class="ranking-os-card-head"><span>⚠️</span><div><h3>Correções de horário por operador</h3><p>Registros classificados como esquecimento do operador. É um indicador de acompanhamento, não uma prova de má-fé.</p></div></div><div id="boxAjustesHorarioOperadores"></div></section>
-    <section class="card ranking-os-card metricas-com-horario" id="cardHorarioRanking"><div class="ranking-os-card-head"><span>⏱️</span><div><h3>Máquinas com maior tempo de parada</h3><p>Compare tempo previsto, parada, disponibilidade e falhas. Toque nos dados para consultar as ordens relacionadas.</p></div></div><div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Previsto</th><th>Parada</th><th>Rodou</th><th>Disp.</th><th>Falhas</th><th>MTTR</th><th>MTBF</th><th>Reinc.</th></tr></thead><tbody id="tbRanking"></tbody></table></div></section>
-    <section class="card ranking-os-card" id="cardRankingReincidencia"><div class="ranking-os-card-head"><span>🔁</span><div><h3>Máquinas com mais reincidências</h3><p>Defeitos que voltaram na mesma máquina, mesmo quando a descrição foi escrita de outra forma. Toque para abrir o histórico.</p></div></div><div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Setor</th><th>Reincidências</th><th>Problemas repetidos</th></tr></thead><tbody id="tbRankingReincidencia"><tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr></tbody></table></div></section>
-    <section class="card ranking-os-card"><div class="ranking-os-card-head"><span>📋</span><div><h3>Diagnósticos e fechamentos</h3><p>Histórico do que foi executado nas máquinas, conforme os filtros da página Métricas.</p></div></div><div id="listaRelatorioProblemas" class="ranking-os-report"></div></section>
   </div>
-  <p class="ranking-os-footnote">Para alterar o período, turno, setor ou máquina das classificações de máquinas e do histórico, ajuste os filtros na página Métricas.</p>
 </div>
 
 <div id="tab-ia" class="tab-content">
@@ -3607,15 +3618,8 @@ function renderRankingOperadores(){
   const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
   if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
   box.innerHTML=lista.map(([nome,total],i)=>{const seguro=String(nome).replace(/[&<>\"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]));return `<div class="maq-row" style="display:flex;align-items:center;gap:10px"><b style="min-width:30px;font-size:1.05rem">${medalhas[i]||(i+1)+"º"}</b><span style="flex:1"><b>${seguro}</b></span><strong style="color:var(--primary);font-size:1.05rem">${total} <small style="font-size:.68rem;color:#64748b;font-weight:500">O.S.</small></strong></div>`}).join("");
-  const boxAjustes=document.getElementById("boxAjustesHorarioOperadores");
-  if(boxAjustes){
-    const ajustes=chamados.filter(c=>c.ajustado_em&&String(c.ajuste_obs||"").toLocaleLowerCase("pt-BR").includes("esquecimento do operador")&&(!mes||String(c.ajustado_em).slice(0,7)===mes));
-    const porOperador={};
-    ajustes.forEach(c=>{const nome=c.aberto_por||"Operador não identificado";if(!porOperador[nome])porOperador[nome]=[];porOperador[nome].push(c)});
-    const grupos=Object.entries(porOperador).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"pt-BR"));
-    boxAjustes.innerHTML=ajustes.length?'<p style="font-size:.82rem;color:#92400e;margin:0 0 8px"><b>'+ajustes.length+'</b> correção(ões) por esquecimento no período.</p>'+grupos.map(([nome,itens])=>'<div class="maq-row" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+escaparHtml(nome)+'</b><strong style="color:#b45309">'+itens.length+' ocorrência(s)</strong></div><small style="color:#64748b">'+itens.map(c=>escaparHtml(nOS(c)+' • '+c.maquina+' • '+new Date(c.ajustado_em).toLocaleDateString("pt-BR"))).join('<br>')+'</small></div>').join(""):'<p style="font-size:.8rem;color:#64748b;text-align:center">Nenhuma correção classificada como esquecimento do operador neste mês.</p>';
-  }
 }
+
 function renderPainelMaquinasSupervisor(){
   const box=document.getElementById('painelMaquinasSupervisor');
   if(!box)return;
