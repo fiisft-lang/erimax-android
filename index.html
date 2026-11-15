@@ -2895,6 +2895,21 @@ tbody tr:hover{background:#eef6f5}
 #chCausas{min-height:260px}
 @media(max-width:600px){#cardHorarioPareto .chart-wrapper{height:330px}.metrics-chart-note{font-size:.73rem}}
 </style>
+<style id="erimax-metricas-heatmap-tendencia-2026">
+.metrics-machine-heatmap{display:grid;gap:7px}
+.metrics-heat-row{display:grid;grid-template-columns:minmax(105px,1.1fr) minmax(70px,2fr) 48px minmax(82px,.8fr);align-items:center;gap:9px;width:100%;padding:9px 10px;border:1px solid #e5ebf2;border-radius:10px;background:#fff;text-align:left;color:#334155;cursor:pointer}
+.metrics-heat-row:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+.metrics-heat-name{font-size:.76rem;font-weight:750;overflow-wrap:anywhere}
+.metrics-heat-track{height:11px;border-radius:999px;background:#edf2f7;overflow:hidden}
+.metrics-heat-fill{display:block;height:100%;border-radius:999px}
+.metrics-heat-fill.alta{background:#16a34a}
+.metrics-heat-fill.media{background:#eab308}
+.metrics-heat-fill.baixa{background:#dc5656}
+.metrics-heat-row>b{font-size:.78rem;text-align:right;font-variant-numeric:tabular-nums}
+.metrics-heat-row>small{font-size:.68rem;color:#64748b;text-align:right}
+.metrics-heat-empty{margin:0;padding:18px;text-align:center;color:#64748b;font-size:.8rem}
+@media(max-width:520px){.metrics-heat-row{grid-template-columns:minmax(85px,1fr) minmax(50px,1.3fr) 42px;gap:6px;padding:8px}.metrics-heat-row>small{grid-column:1/-1;text-align:left;margin-top:-3px}.metrics-heat-name{font-size:.7rem}}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3097,9 +3112,11 @@ tbody tr:hover{background:#eef6f5}
 
 <div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Disponibilidade por setor<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
 <div class="card metricas-com-horario" id="cardHorarioEfMaq"><h4>Disponibilidade por máquina<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHeatmapMaquinas"><h4>Mapa de calor — disponibilidade das máquinas</h4><p class="metrics-chart-note">As máquinas com menor disponibilidade registrada aparecem primeiro. Toque em uma máquina para consultar as O.S. do filtro atual.</p><div id="metricsHeatmapMaquinas" class="metrics-machine-heatmap"></div></div>
 <div class="metrics-section-heading"><span>03</span><div><h3>Causas e evolução das O.S.</h3><p>Identifique os motivos mais frequentes e acompanhe a evolução ao longo do tempo</p></div></div>
 <div class="card"><h4>Principais causas das falhas</h4><p class="metrics-chart-note">Frequência de O.S. por causa. Use junto ao Pareto de parada para diferenciar problemas frequentes dos que mais tiram tempo das máquinas.</p><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
 <div class="card"><h4>Evolução diária das O.S.</h4><div class="chart-wrapper"><canvas id="chTendencia"></canvas></div></div>
+<div class="card"><h4>Evolução mensal das O.S.</h4><p class="metrics-chart-note">Ajuda a identificar tendências de aumento ou redução das ordens ao longo do período filtrado.</p><div class="chart-wrapper"><canvas id="chTendenciaMensal"></canvas></div></div>
 <div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Parada por causa (Pareto)</h4><p class="metrics-chart-note">Mostra quais causas acumulam mais tempo de máquina parada, ajudando a priorizar ações corretivas.</p><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
 <div class="card metricas-com-horario" id="cardHorarioDowntime"><h4>Máquinas com maior tempo de parada</h4><div class="chart-wrapper" style="height:300px"><canvas id="chDowntime"></canvas></div></div>
 <div class="metrics-section-heading"><span>04</span><div><h3>Perfil do atendimento</h3><p>Compare tipos de problema, tempo de resposta, reparo e comportamento por turno</p></div></div>
@@ -5224,6 +5241,40 @@ function atualizarMetricasReais(){
   }
   efChart('chEfMaq',efM,avisosMaq);
   efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})),setoresSemHorario);
+
+  // Mapa de calor acessível: intensidade baseada na disponibilidade registrada.
+  const heatmap=document.getElementById('metricsHeatmapMaquinas');
+  if(heatmap){
+    const heat=efM.slice().sort((a,b)=>a.pct-b.pct);
+    heatmap.innerHTML=heat.length?heat.map(m=>{
+      const nivel=m.pct>=95?'alta':m.pct>=85?'media':'baixa';
+      return '<button type="button" class="metrics-heat-row" data-machine="'+escaparHtml(m.n)+'"><span class="metrics-heat-name">'+escaparHtml(m.n)+'</span><span class="metrics-heat-track"><i class="metrics-heat-fill '+nivel+'" style="width:'+Math.max(0,Math.min(100,m.pct))+'%"></i></span><b>'+m.pct+'%</b><small>'+fmt(m.par)+' parado</small></button>';
+    }).join(''):'<p class="metrics-heat-empty">Sem máquinas com horário de produção confirmado neste filtro.</p>';
+    heatmap.querySelectorAll('[data-machine]').forEach(btn=>btn.addEventListener('click',()=>{
+      const nome=btn.getAttribute('data-machine');
+      mostrarOSDetalhe('O.S. da máquina '+nome,(FILTRADAS||[]).filter(os=>os.maquina===nome));
+    }));
+  }
+
+  // Tendência mensal dentro do mesmo recorte aplicado aos indicadores.
+  const porMes={};
+  f.forEach(os=>{
+    const mesOS=diaLocal(os.created_at).slice(0,7);
+    if(!mesOS)return;
+    if(!porMes[mesOS])porMes[mesOS]={abertas:0,concluidas:0};
+    porMes[mesOS].abertas++;
+    if(os.status==='Concluída')porMes[mesOS].concluidas++;
+  });
+  const mesesGrafico=Object.keys(porMes).sort();
+  DETALHES_GRAFICOS.chTendenciaMensal=(ds,i)=>{
+    const mesOS=mesesGrafico[i];
+    return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+mesOS,lista:f.filter(os=>diaLocal(os.created_at).slice(0,7)===mesOS&&(ds===0||os.status==='Concluída'))};
+  };
+  mk('chTendenciaMensal',{type:'line',data:{labels:mesesGrafico.map(m=>m.split('-').reverse().join('/')),datasets:[
+    {label:'Abertas',data:mesesGrafico.map(m=>porMes[m].abertas),borderColor:'#2563eb',backgroundColor:'#2563eb22',fill:true},
+    {label:'Concluídas',data:mesesGrafico.map(m=>porMes[m].concluidas),borderColor:'#16a34a',backgroundColor:'#16a34a22',fill:true}]},
+    options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+
   const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]);
   DETALHES_GRAFICOS.chCausas=(_ds,i)=>{const nome=cs[i]?.[0];return{titulo:'O.S. com causa: '+nome,lista:f.filter(c=>(c.causa||'Não informada')===nome)}};
   mk('chCausas',{type:'bar',data:{labels:cs.map(x=>x[0]),datasets:[{label:'O.S. registradas',data:cs.map(x=>x[1]),backgroundColor:'#326b9b',hoverBackgroundColor:'#1e4e75',barThickness:'flex',maxBarThickness:26}]},options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' O.S.'}}},scales:{x:{beginAtZero:true,ticks:{precision:0},title:{display:true,text:'quantidade de O.S.'}},y:{ticks:{autoSkip:false}}}}});
