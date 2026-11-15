@@ -3026,6 +3026,15 @@ tbody tr:nth-child(even){background:#f8fafb!important}tbody tr:hover{background:
   opacity:1!important;
 }
 </style>
+
+<style id="erimax-menu-top-spacing-final-2026">
+/* Mantém os primeiros itens do menu abaixo do cabeçalho em telas pequenas e no APK. */
+.nav-tabs{padding-top:88px!important}
+@media(max-width:600px){
+  .nav-tabs{padding-top:78px!important}
+}
+html.erimax-app-android .nav-tabs{padding-top:88px!important}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
