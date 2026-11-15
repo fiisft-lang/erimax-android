@@ -2387,8 +2387,17 @@ function renderPainelMaquinasSupervisor(){
     ['O.S. aguardando',qtd('O.S. aguardando'),'#64748b'],
     ['Sem O.S. ativa',qtd('Sem O.S. ativa'),'#15803d']
   ];
-  let html='<section class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Supervisão das máquinas</h3><p style="font-size:.76rem;color:#64748b;margin:4px 0 0">Abra um setor e toque na máquina para consultar suas ordens e seu histórico</p></div><span style="font-size:.72rem;color:#64748b">'+itens.length+' máquina(s)</span></div>';
-  html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:12px">';
+  const maquinasParadas=qtd('Parada registrada');
+  const maquinasEmManutencao=qtd('Manutenção em andamento');
+  const osAtivas=ativas.length;
+  let html='<section class="card supervisor-resumo" style="margin-bottom:12px"><div class="supervisor-resumo-cabecalho"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Visão geral da supervisão</h3><p style="font-size:.76rem;color:#64748b;margin:4px 0 0">Acompanhe os pontos que precisam de atenção e abra os setores para ver cada máquina</p></div><span class="supervisor-total-maquinas">'+itens.length+' máquina(s) cadastrada(s)</span></div>';
+  html+='<div class="supervisor-kpis">'
+    +'<div class="supervisor-kpi supervisor-kpi-alerta"><span>O.S. ativas</span><b>'+osAtivas+'</b><small>Aberta, em atendimento ou pausada</small></div>'
+    +'<div class="supervisor-kpi supervisor-kpi-parada"><span>Máquinas com parada</span><b>'+maquinasParadas+'</b><small>Parada informada na abertura da O.S.</small></div>'
+    +'<div class="supervisor-kpi supervisor-kpi-manutencao"><span>Em manutenção</span><b>'+maquinasEmManutencao+'</b><small>Máquinas com atendimento em andamento</small></div>'
+    +'<div class="supervisor-kpi supervisor-kpi-total"><span>Total de máquinas</span><b>'+itens.length+'</b><small>Cadastro e ordens encontradas</small></div>'
+    +'</div><div class="supervisor-status-titulo">Situação das máquinas <small>Toque em um indicador para filtrar os setores</small></div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:9px">';
   resumo.forEach(r=>{html+='<div role="button" tabindex="0" aria-label="Filtrar máquinas: '+escaparHtml(r[0])+'" onclick="filtrarMaquinasSupervisor(\''+r[0]+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();filtrarMaquinasSupervisor(\''+r[0]+'\')}" style="border:1px solid #e2e8f0;border-left:4px solid '+r[2]+';border-radius:9px;padding:9px;min-width:0;cursor:pointer;background:#fff;transition:background .15s,box-shadow .15s" onmouseover="this.style.background=\'#f8fafc\';this.style.boxShadow=\'0 2px 8px #0f172a14\'" onmouseout="this.style.background=\'#fff\';this.style.boxShadow=\'none\'"><div style="font-size:.7rem;color:#64748b">'+r[0]+'</div><b style="font-size:1.35rem;color:'+r[2]+'">'+r[1]+'</b><small style="display:block;color:#64748b;font-size:.65rem;margin-top:2px">Toque para ver máquinas ›</small></div>'});
   html+='</div><p style="font-size:.7rem;color:#64748b;margin:10px 0 0">“Sem O.S. ativa” não confirma que a máquina está rodando. O sistema ainda não recebe sinal de sensores ou CLP.</p><div id="filtroMaquinasSupervisorAtivo" style="display:none;margin-top:12px"></div></section>';
   if(!itens.length)html+='<div class="card" style="color:#64748b;text-align:center">Nenhuma máquina cadastrada ou O.S. encontrada.</div>';
@@ -4184,6 +4193,25 @@ html.erimax-app-android .os-card .os-alert-meta>span:first-child{grid-column:1/-
 html.erimax-app-android .os-card .os-alert-meta small{font-size:.61rem;font-weight:850;letter-spacing:.08em;color:#71859a}
 html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:750;color:#29435d}
 @media(max-width:380px){html.erimax-app-android .os-card .os-alert-icon{width:46px;height:46px;min-width:46px;font-size:22px}html.erimax-app-android .os-card .os-alert-meta{gap:7px;padding:9px}}
+/* Painel principal do supervisor — resumo operacional */
+.supervisor-resumo{padding:16px!important;border-radius:18px!important}
+.supervisor-resumo-cabecalho{display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap}
+.supervisor-total-maquinas{font-size:.7rem;color:#64748b;background:#f1f6fa;border:1px solid #e0e9ef;border-radius:999px;padding:6px 9px}
+.supervisor-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:14px}
+.supervisor-kpi{min-width:0;min-height:100px;padding:12px;border:1px solid #e1e9ef;border-radius:13px;background:#fff;display:flex;flex-direction:column;justify-content:space-between;gap:5px}
+.supervisor-kpi span{font-size:.72rem;font-weight:750;color:#526779}
+.supervisor-kpi b{font-size:1.75rem;line-height:1.1;letter-spacing:-.04em;color:#234c70}
+.supervisor-kpi small{font-size:.64rem;line-height:1.35;color:#718294}
+.supervisor-kpi-alerta{border-top:3px solid #2878b8}
+.supervisor-kpi-parada{border-top:3px solid #c2413b}
+.supervisor-kpi-parada b{color:#b42318}
+.supervisor-kpi-manutencao{border-top:3px solid #2780a8}
+.supervisor-kpi-total{border-top:3px solid #23877f}
+.supervisor-status-titulo{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:17px;color:#294c66;font-size:.82rem;font-weight:800}
+.supervisor-status-titulo small{font-size:.65rem;font-weight:500;color:#718294}
+@media(max-width:600px){.supervisor-resumo{padding:13px!important}.supervisor-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.supervisor-kpi{min-height:91px;padding:10px}.supervisor-kpi b{font-size:1.55rem}.supervisor-total-maquinas{font-size:.64rem}}
+@media(max-width:360px){.supervisor-kpi small{font-size:.6rem}}
+
 </style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main></body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
