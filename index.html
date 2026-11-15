@@ -2442,18 +2442,18 @@ function renderPainelMaquinasSupervisor(){
       const qtdConcluidas=item.concluidas.length;
       html+='<details data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" style="border:1px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff"><summary style="display:flex;align-items:center;gap:8px;padding:11px;cursor:pointer;list-style:none"><span style="width:9px;height:9px;border-radius:50%;background:'+item.cor+';flex:none"></span><span style="flex:1;min-width:0"><b style="font-size:.84rem;overflow-wrap:anywhere">'+escaparHtml(item.maquina)+'</b><small style="display:block;font-size:.7rem;color:'+item.cor+';margin-top:3px;font-weight:700">'+item.estado+'</small></span><span style="font-size:.68rem;color:#64748b;text-align:right;white-space:nowrap">'+item.ativas.length+' ativa(s)<br>'+qtdConcluidas+' concluída(s)</span></summary><div style="padding:0 10px 10px;border-top:1px solid #f1f5f9">';
       if(item.ativas.length){
-        html+='<div style="font-size:.75rem;font-weight:800;color:var(--primary);margin:9px 0 5px">O.S. em andamento</div>';
+        html+='<div class="supervisor-bloco-titulo" style="font-size:.78rem;font-weight:800;color:var(--primary);margin:10px 0 6px">O.S. em andamento</div>';
         item.ativas.forEach(os=>{
-          html+='<div role="button" tabindex="0" title="Toque para abrir esta O.S. e acessar as ações" onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:7px;padding:9px;margin-top:6px;font-size:.73rem;color:#475569;cursor:pointer"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.status)+'</b><div style="margin-top:4px">'+escaparHtml(os.descricao||'Descrição não informada')+'</div><div style="margin-top:4px">Abertura: '+(os.created_at?escaparHtml(new Date(os.created_at).toLocaleString('pt-BR')):'—')+'<br>'+ (os.tecnico?'Técnico: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • Equipamento informado: '+escaparHtml(os.situacao_equipamento):'')+'</div><small style="display:block;margin-top:6px;color:var(--primary);font-weight:700">Toque para abrir a O.S. e acessar as ações ›</small></div>';
+          html+='<div class="supervisor-os-item supervisor-os-ativa" role="button" tabindex="0" title="Toque para abrir esta O.S. e acessar as ações" onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:7px;padding:9px;margin-top:6px;font-size:.73rem;color:#475569;cursor:pointer"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.status)+'</b><div style="margin-top:4px">'+escaparHtml(os.descricao||'Descrição não informada')+'</div><div style="margin-top:4px">Abertura: '+(os.created_at?escaparHtml(new Date(os.created_at).toLocaleString('pt-BR')):'—')+'<br>'+ (os.tecnico?'Técnico: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • Equipamento informado: '+escaparHtml(os.situacao_equipamento):'')+'</div><small style="display:block;margin-top:6px;color:var(--primary);font-weight:700">Toque para abrir a O.S. e acessar as ações ›</small></div>';
         });
-      }else html+='<p style="font-size:.72rem;color:#64748b;margin:9px 0 5px">Nenhuma O.S. ativa nesta máquina.</p>';
+      }else html+='<p class="supervisor-mensagem-vazia" style="font-size:.76rem;color:#64748b;margin:9px 0 5px">Nenhuma O.S. ativa nesta máquina.</p>';
       if(qtdConcluidas){
-        html+='<div style="font-size:.75rem;font-weight:800;color:var(--primary);margin:12px 0 5px">Histórico de O.S. concluídas ('+qtdConcluidas+')</div>';
+        html+='<div class="supervisor-bloco-titulo" style="font-size:.78rem;font-weight:800;color:var(--primary);margin:12px 0 6px">Histórico de O.S. concluídas ('+qtdConcluidas+')</div>';
         item.concluidas.slice(0,8).forEach(os=>{
-          html+='<div role="button" tabindex="0" title="Toque para consultar o histórico completo desta O.S." onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="border-top:1px solid #f1f5f9;padding:8px 6px;font-size:.72rem;color:#64748b;cursor:pointer;border-radius:6px"><b style="color:#15803d">'+escaparHtml(nOS(os))+' • Concluída</b><br>'+(os.data_conclusao?'Conclusão: '+escaparHtml(new Date(os.data_conclusao).toLocaleString('pt-BR')):'Data de conclusão não informada')+(os.tecnico?'<br>Técnico: '+escaparHtml(os.tecnico):'')+(os.causa?'<br>Causa: '+escaparHtml(os.causa):'')+(os.servico_executado?'<br>Serviço: '+escaparHtml(os.servico_executado):'')+'<small style="display:block;margin-top:5px;color:#15803d;font-weight:700">Toque para ver o histórico completo ›</small></div>';
+          html+='<div class="supervisor-os-item supervisor-os-concluida" role="button" tabindex="0" title="Toque para consultar o histórico completo desta O.S." onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="border-top:1px solid #f1f5f9;padding:8px 6px;font-size:.72rem;color:#64748b;cursor:pointer;border-radius:6px"><b style="color:#15803d">'+escaparHtml(nOS(os))+' • Concluída</b><br>'+(os.data_conclusao?'Conclusão: '+escaparHtml(new Date(os.data_conclusao).toLocaleString('pt-BR')):'Data de conclusão não informada')+(os.tecnico?'<br>Técnico: '+escaparHtml(os.tecnico):'')+(os.causa?'<br>Causa: '+escaparHtml(os.causa):'')+(os.servico_executado?'<br>Serviço: '+escaparHtml(os.servico_executado):'')+'<small style="display:block;margin-top:5px;color:#15803d;font-weight:700">Toque para ver o histórico completo ›</small></div>';
         });
         if(qtdConcluidas>8)html+='<small style="display:block;color:#64748b;margin-top:5px">Mostrando as 8 mais recentes de '+qtdConcluidas+' ordens concluídas.</small>';
-      }else html+='<p style="font-size:.72rem;color:#64748b;margin:9px 0 0">Ainda não há O.S. concluída registrada para esta máquina.</p>';
+      }else html+='<p class="supervisor-mensagem-vazia" style="font-size:.76rem;color:#64748b;margin:9px 0 0">Ainda não há O.S. concluída registrada para esta máquina.</p>';
       html+='</div></details>';
     });
     html+='</div></details>';
@@ -4296,6 +4296,77 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
  #painelMaquinasSupervisor>details[data-supervisor-setor]>summary b,
  #painelMaquinasSupervisor details[data-supervisor-maquina]>summary b{font-size:.92rem!important}
  #painelMaquinasSupervisor small{font-size:.76rem!important}
+}
+
+
+/* Supervisão: padronização dos relatórios dentro de cada máquina */
+#painelMaquinasSupervisor details[data-supervisor-maquina]>div{
+  color:#344b5e!important;
+}
+#painelMaquinasSupervisor .supervisor-bloco-titulo{
+  color:#1d526c!important;
+  font-size:.8rem!important;
+  font-weight:800!important;
+  line-height:1.4!important;
+}
+#painelMaquinasSupervisor .supervisor-os-item{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  color:#344b5e!important;
+  font-size:.78rem!important;
+  font-weight:500!important;
+  line-height:1.55!important;
+  opacity:1!important;
+  text-align:left!important;
+}
+#painelMaquinasSupervisor .supervisor-os-item b{
+  font-size:.82rem!important;
+  font-weight:800!important;
+  color:#173f59!important;
+}
+#painelMaquinasSupervisor .supervisor-os-item>div{
+  color:#40576a!important;
+  font-size:.76rem!important;
+  font-weight:500!important;
+  line-height:1.55!important;
+}
+#painelMaquinasSupervisor .supervisor-os-item small{
+  display:block!important;
+  color:#236b72!important;
+  font-size:.74rem!important;
+  font-weight:750!important;
+  line-height:1.45!important;
+  opacity:1!important;
+}
+#painelMaquinasSupervisor .supervisor-os-concluida{
+  border-top:1px solid #dce5eb!important;
+  background:#fff!important;
+}
+#painelMaquinasSupervisor .supervisor-os-concluida b{
+  color:#18734f!important;
+}
+#painelMaquinasSupervisor .supervisor-os-concluida small{
+  color:#18734f!important;
+}
+#painelMaquinasSupervisor .supervisor-mensagem-vazia{
+  color:#526779!important;
+  font-size:.76rem!important;
+  font-weight:550!important;
+  line-height:1.5!important;
+  opacity:1!important;
+}
+#painelMaquinasSupervisor [data-supervisor-maquina]>div>small{
+  color:#526779!important;
+  font-size:.74rem!important;
+  font-weight:600!important;
+  opacity:1!important;
+}
+@media(max-width:600px){
+  #painelMaquinasSupervisor .supervisor-os-item{font-size:.77rem!important;line-height:1.55!important}
+  #painelMaquinasSupervisor .supervisor-os-item b{font-size:.81rem!important}
+  #painelMaquinasSupervisor .supervisor-os-item>div{font-size:.75rem!important}
+  #painelMaquinasSupervisor .supervisor-os-item small{font-size:.73rem!important}
 }
 
 </style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main></body></html>`;
