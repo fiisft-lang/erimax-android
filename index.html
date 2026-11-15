@@ -6327,6 +6327,54 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 
 </style>
+
+<style id="erimax-metricas-rolagem-maquinas-compacta-2026">
+/* Mais máquinas visíveis por tela, preservando todos os indicadores e o acesso ao histórico. */
+#metricsDataContent #cardHorarioRanking .metrics-machine-ranking-list{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-item{
+  padding:11px;
+  border-radius:12px;
+}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-number{
+  width:28px;height:28px;flex-basis:28px;border-radius:8px;
+}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-name{gap:7px}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-name h4{font-size:.82rem;line-height:1.25}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-name span{font-size:.64rem}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-downtime strong{font-size:1rem}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-progress{height:7px;margin-top:10px}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-legend{font-size:.61rem;margin-top:5px}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-stats{
+  gap:7px 5px;margin-top:9px;padding-top:8px;
+}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-stats small{font-size:.59rem;margin-bottom:2px}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-stats b{font-size:.7rem}
+#metricsDataContent #cardHorarioRanking .metrics-machine-rank-action{margin-top:8px;padding-top:7px;font-size:.65rem}
+@media(max-width:760px){
+  #metricsDataContent #cardHorarioRanking .metrics-machine-ranking-list{
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+  }
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-item{padding:9px}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-top{align-items:flex-start;gap:6px}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-name{gap:6px}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-number{width:25px;height:25px;flex-basis:25px;font-size:.65rem}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-name h4{font-size:.74rem}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-name span{font-size:.59rem}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-downtime strong{font-size:.88rem}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-downtime small{font-size:.57rem}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-legend{font-size:.56rem;gap:4px}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 4px}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-stats small{font-size:.55rem}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-stats b{font-size:.64rem}
+  #metricsDataContent #cardHorarioRanking .metrics-machine-rank-action{font-size:.59rem}
+}
+@media(max-width:340px){
+  #metricsDataContent #cardHorarioRanking .metrics-machine-ranking-list{grid-template-columns:minmax(0,1fr)}
+}
+</style>
 </head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
 <style id="erimax-supervisao-tipografia-final">
 /* Supervisão: hierarquia discreta, com contraste suficiente para leitura */
