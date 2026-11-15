@@ -3865,6 +3865,97 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 }
 </style>
 
+
+<style id="erimax-presenca-modernizacao-premium-2026">
+/* Central de usuários conectados — modernização visual sem alterar presença ou permissões */
+#tab-presenca{min-width:0}
+#tab-presenca>.card:first-child{
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:clamp(18px,3vw,25px)!important;
+  margin-bottom:15px!important;
+  border:1px solid #dce8ed!important;border-radius:19px!important;
+  background:linear-gradient(120deg,#f4fafb 0%,#fff 68%)!important;
+  box-shadow:0 8px 24px rgba(25,65,82,.07)!important
+}
+#tab-presenca>.card:first-child:after{
+  content:"";position:absolute;z-index:-1;right:-24px;top:-42px;
+  width:155px;height:155px;border-radius:50%;
+  background:radial-gradient(circle,rgba(35,145,137,.13),rgba(35,145,137,0) 70%)
+}
+#tab-presenca>.card:first-child h3{
+  display:flex;align-items:center;gap:10px;
+  margin:0 0 7px!important;color:#183e50!important;
+  font-size:1.12rem!important;font-weight:850!important;letter-spacing:-.025em
+}
+#tab-presenca>.card:first-child h3:before{
+  content:"";display:block;width:9px;height:9px;flex:none;border-radius:50%;
+  background:#19a875;box-shadow:0 0 0 5px rgba(25,168,117,.12)
+}
+#tab-presenca>.card:first-child p{
+  max-width:580px!important;color:#617887!important;
+  font-size:.82rem!important;line-height:1.55!important
+}
+#tab-presenca #listaPresenca>.card{
+  padding:clamp(14px,2.5vw,20px)!important;
+  border:1px solid #dfe9ed!important;border-radius:18px!important;
+  background:#fff!important;box-shadow:0 7px 22px rgba(24,58,75,.055)!important
+}
+#tab-presenca #listaPresenca>.card>h4{
+  display:flex;align-items:center;gap:8px;
+  margin:0 0 14px!important;padding:0 0 13px!important;
+  border-bottom:1px solid #edf2f4!important;
+  color:#244b5b!important;font-size:.94rem!important;font-weight:850!important;
+  letter-spacing:-.015em
+}
+#tab-presenca #listaPresenca .maq-row{
+  display:flex!important;align-items:center!important;gap:12px!important;
+  min-width:0!important;margin:0 0 9px!important;padding:13px 14px!important;
+  border:1px solid #e5edf0!important;border-radius:14px!important;
+  border-bottom:1px solid #e5edf0!important;
+  background:linear-gradient(110deg,#fbfdfe,#fff)!important;
+  box-shadow:0 2px 7px rgba(23,57,74,.035)!important;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease
+}
+#tab-presenca #listaPresenca .maq-row:last-of-type{margin-bottom:0!important}
+#tab-presenca #listaPresenca .maq-row>div{min-width:0!important}
+#tab-presenca #listaPresenca .maq-row>div>b{
+  display:block;margin-bottom:5px;color:#24485a!important;
+  font-size:.9rem!important;font-weight:800!important;line-height:1.3!important;
+  overflow-wrap:anywhere
+}
+#tab-presenca #listaPresenca .maq-row>div>small{
+  font-size:.73rem!important;line-height:1.5!important
+}
+#tab-presenca #listaPresenca .maq-row>strong{
+  flex:none!important;max-width:44%;padding:7px 9px!important;
+  border:1px solid #dfe9e5;border-radius:999px;
+  background:#f1f8f4;font-size:.65rem!important;font-weight:850!important;
+  letter-spacing:.015em;text-align:center;line-height:1.3
+}
+#tab-presenca #listaPresenca .maq-row>strong[style*="#16a34a"]{
+  border-color:#ccebd9;background:#edf9f2;color:#16834e!important
+}
+#tab-presenca #listaPresenca .maq-row>strong[style*="#64748b"]{
+  border-color:#e1e8ed;background:#f3f6f8;color:#64748b!important
+}
+#tab-presenca #listaPresenca .card>p{
+  margin:14px 0 0!important;padding:11px 12px!important;
+  border-radius:11px;background:#f6f9fa;color:#748793!important;
+  font-size:.7rem!important;line-height:1.5!important
+}
+@media(max-width:520px){
+  #tab-presenca>.card:first-child{padding:16px!important;border-radius:16px!important}
+  #tab-presenca #listaPresenca>.card{padding:12px!important;border-radius:15px!important}
+  #tab-presenca #listaPresenca .maq-row{padding:11px!important;gap:8px!important}
+  #tab-presenca #listaPresenca .maq-row>div>b{font-size:.84rem!important}
+  #tab-presenca #listaPresenca .maq-row>div>small{font-size:.69rem!important}
+  #tab-presenca #listaPresenca .maq-row>strong{max-width:42%;padding:6px 7px!important;font-size:.59rem!important}
+}
+@media(prefers-reduced-motion:no-preference){
+  #tab-presenca #listaPresenca .maq-row:active{transform:scale(.995)}
+}
+</style>
+
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
