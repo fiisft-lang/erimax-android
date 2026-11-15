@@ -46,6 +46,11 @@ jobs:
           mkdir -p ota
           BUNDLE_ID="$(git rev-parse HEAD)"
           zip -j -q ota/latest.zip www/*
+          PACKAGED_BUILD_ID="$(unzip -p ota/latest.zip ota-build.json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{process.stdout.write(JSON.parse(s).bundleId||'')}catch(e){process.exit(1)}})")"
+          if [ "$PACKAGED_BUILD_ID" != "$BUNDLE_ID" ]; then
+            echo "ERRO: o pacote contém build $PACKAGED_BUILD_ID, mas o manifesto anunciaria $BUNDLE_ID."
+            exit 1
+          fi
           CHECKSUM="$(sha256sum ota/latest.zip | awk '{print $1}')"
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
             CHANNEL="production"
