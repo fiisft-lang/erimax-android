@@ -51,28 +51,32 @@ public class IncomingCallActivity extends Activity {
     root.setOrientation(1);
     root.setGravity(Gravity.CENTER_HORIZONTAL);
     root.setPadding(dp(20), dp(28), dp(20), dp(24));
-    root.setBackgroundColor(Color.rgb(248, 250, 252));
+    android.graphics.drawable.GradientDrawable rootBg = new android.graphics.drawable.GradientDrawable(
+      android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+      new int[]{Color.rgb(10, 31, 43), Color.rgb(16, 48, 64), Color.rgb(12, 38, 52)});
+    root.setBackground(rootBg);
 
-    TextView brand = label("ERIMAX  •  MANUTENÇÃO", 13, Color.rgb(100, 116, 139));
-    TextView title = label(transferencia ? "Transferência de O.S." : "Nova ordem de serviço", 23, Color.rgb(15, 23, 42));
+    TextView brand = label("ERIMAX  •  MANUTENÇÃO", 13, Color.rgb(255, 153, 51));
+    brand.setTypeface(null, Typeface.BOLD);
+    TextView title = label(transferencia ? "Transferência de O.S." : "Nova ordem de serviço", 23, Color.WHITE);
     title.setTypeface(null, Typeface.BOLD);
     TextView detail = label((number == null ? "Nova O.S." : number)
       + "\n\nSETOR\n" + (sector == null ? "Não informado" : sector)
       + "\n\nMÁQUINA\n" + (machine == null ? "Não informada" : machine)
-      + "\n\nPROBLEMA DA MÁQUINA\n" + (problem == null || problem.trim().isEmpty() ? "Não informado" : problem.trim()), 16, Color.rgb(30, 41, 59));
+      + "\n\nPROBLEMA DA MÁQUINA\n" + (problem == null || problem.trim().isEmpty() ? "Não informado" : problem.trim()), 16, Color.WHITE);
     detail.setTypeface(null, Typeface.BOLD);
     root.addView(brand);
     root.addView(title);
     android.graphics.drawable.GradientDrawable infoBg = new android.graphics.drawable.GradientDrawable();
-    infoBg.setColor(Color.WHITE);
+    infoBg.setColor(Color.rgb(21, 54, 70));
     infoBg.setCornerRadius(dp(18));
-    infoBg.setStroke(dp(1), Color.rgb(226, 232, 240));
+    infoBg.setStroke(dp(1), Color.rgb(55, 103, 123));
     detail.setBackground(infoBg);
     detail.setPadding(dp(18), dp(18), dp(18), dp(18));
     LinearLayout.LayoutParams detailParams = new LinearLayout.LayoutParams(-1, -2);
     detailParams.setMargins(0, dp(18), 0, dp(12));
     root.addView(detail, detailParams);
-    root.addView(label("Arraste o botão para cima para escolher", 14, Color.rgb(100, 116, 139)));
+    root.addView(label("Arraste o botão para cima para escolher", 14, Color.rgb(190, 211, 220)));
     LinearLayout actions = new LinearLayout(this);
     actions.setOrientation(0);
     actions.setGravity(Gravity.CENTER);
@@ -128,21 +132,21 @@ public class IncomingCallActivity extends Activity {
     LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(0, -2, 1f);
     itemParams.setMargins(dp(7), 0, dp(7), 0);
 
-    TextView title = label(hint, 12, Color.rgb(51, 65, 85));
+    TextView title = label(hint, 12, Color.rgb(226, 237, 242));
     title.setTypeface(null, Typeface.BOLD);
     item.addView(title, new LinearLayout.LayoutParams(-1, dp(48)));
 
     FrameLayout track = new FrameLayout(this);
     android.graphics.drawable.GradientDrawable trackBg = new android.graphics.drawable.GradientDrawable();
-    trackBg.setColor(Color.rgb(241, 245, 249));
+    trackBg.setColor(Color.rgb(21, 54, 70));
     trackBg.setCornerRadius(dp(34));
-    trackBg.setStroke(dp(1), Color.rgb(203, 213, 225));
+    trackBg.setStroke(dp(1), Color.rgb(55, 103, 123));
     track.setBackground(trackBg);
     LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(dp(82), dp(148));
     trackParams.gravity = Gravity.CENTER_HORIZONTAL;
     trackParams.topMargin = dp(5);
 
-    TextView hintView = label("↑", 22, Color.rgb(100, 116, 139));
+    TextView hintView = label("↑", 22, Color.rgb(255, 153, 51));
     hintView.setTypeface(null, Typeface.BOLD);
     FrameLayout.LayoutParams hintParams = new FrameLayout.LayoutParams(-1, dp(48), Gravity.TOP);
     track.addView(hintView, hintParams);
@@ -185,7 +189,7 @@ public class IncomingCallActivity extends Activity {
       return true;
     });
     item.addView(track, trackParams);
-    TextView instruction = label("ARRASTE PARA CIMA", 10, Color.rgb(100, 116, 139));
+    TextView instruction = label("ARRASTE PARA CIMA", 10, Color.rgb(190, 211, 220));
     item.addView(instruction, new LinearLayout.LayoutParams(-1, dp(34)));
     row.addView(item, itemParams);
   }
