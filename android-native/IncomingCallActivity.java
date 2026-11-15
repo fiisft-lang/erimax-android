@@ -9,10 +9,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -101,14 +99,20 @@ public class IncomingCallActivity extends Activity {
     addInfoRow(infoCard, "PROBLEMA INFORMADO",
       problem == null || problem.trim().isEmpty() ? "Não informado" : problem.trim());
 
-    root.addView(label("DESLIZE UMA AÇÃO PARA CIMA", 12, Color.rgb(190, 208, 216)));
+    TextView actionHeading = label("ESCOLHA UMA AÇÃO", 12, Color.rgb(190, 208, 216));
+    actionHeading.setTypeface(null, Typeface.BOLD);
+    LinearLayout.LayoutParams actionHeadingParams = new LinearLayout.LayoutParams(-1, -2);
+    actionHeadingParams.topMargin = dp(8);
+    root.addView(actionHeading, actionHeadingParams);
     LinearLayout actions = new LinearLayout(this);
     actions.setOrientation(0);
     actions.setGravity(Gravity.CENTER);
     actions.setPadding(0, dp(10), 0, 0);
-    // Mantém a ordem e os mesmos comandos de ação já usados na versão atual.
-    addSwipeAction(actions, transferencia ? "RECUSAR TRANSFERÊNCIA" : "SILENCIAR", transferencia ? "✕" : "🔕", Color.rgb(190, 65, 70), transferencia ? this::rejectTransfer : this::dismissCall);
-    addSwipeAction(actions, transferencia ? "ACEITAR TRANSFERÊNCIA" : "ACEITAR O.S.", "✓", Color.rgb(22, 145, 94), this::answerCall);
+    // Botões de toque direto: preservam exatamente os comandos já existentes.
+    addActionButton(actions, transferencia ? "RECUSAR\nTRANSFERÊNCIA" : "SILENCIAR AVISO",
+      Color.rgb(190, 65, 70), transferencia ? this::rejectTransfer : this::dismissCall);
+    addActionButton(actions, transferencia ? "ACEITAR\nTRANSFERÊNCIA" : "ACEITAR O.S.",
+      Color.rgb(22, 145, 94), this::answerCall);
     root.addView(actions);
     // A descrição pode ser longa e a altura útil muda conforme o aparelho.
     // ScrollView impede que os controles fiquem fora da tela ou sejam cortados.
@@ -138,74 +142,25 @@ public class IncomingCallActivity extends Activity {
     return (int)(value * getResources().getDisplayMetrics().density + 0.5f);
   }
 
-  private void addSwipeAction(LinearLayout row, String hint, String symbol, int color, Runnable action) {
-    LinearLayout item = new LinearLayout(this);
-    item.setOrientation(1);
-    item.setGravity(Gravity.CENTER_HORIZONTAL);
-    LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(0, -2, 1f);
-    itemParams.setMargins(dp(7), 0, dp(7), 0);
-
-    TextView title = label(hint, 11, Color.rgb(222, 235, 240));
-    title.setTypeface(null, Typeface.BOLD);
-    item.addView(title, new LinearLayout.LayoutParams(-1, dp(48)));
-
-    FrameLayout track = new FrameLayout(this);
-    android.graphics.drawable.GradientDrawable trackBg = new android.graphics.drawable.GradientDrawable();
-    trackBg.setColor(Color.rgb(27, 60, 75));
-    trackBg.setCornerRadius(dp(34));
-    trackBg.setStroke(dp(1), Color.rgb(65, 97, 112));
-    track.setBackground(trackBg);
-    LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(dp(82), dp(148));
-    trackParams.gravity = Gravity.CENTER_HORIZONTAL;
-    trackParams.topMargin = dp(5);
-
-    TextView hintView = label("↑", 22, Color.rgb(242, 139, 0));
-    hintView.setTypeface(null, Typeface.BOLD);
-    FrameLayout.LayoutParams hintParams = new FrameLayout.LayoutParams(-1, dp(48), Gravity.TOP);
-    track.addView(hintView, hintParams);
-
-    TextView thumb = label(symbol, 25, Color.WHITE);
-    thumb.setTypeface(null, Typeface.BOLD);
-    android.graphics.drawable.GradientDrawable thumbBg = new android.graphics.drawable.GradientDrawable();
-    thumbBg.setColor(color);
-    thumbBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-    thumb.setBackground(thumbBg);
-    FrameLayout.LayoutParams thumbParams = new FrameLayout.LayoutParams(dp(66), dp(66), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-    thumbParams.bottomMargin = dp(5);
-    track.addView(thumb, thumbParams);
-
-    final float[] downY = {0};
-    final float[] startY = {0};
-    thumb.setOnTouchListener((View v, MotionEvent event) -> {
-      float max = Math.max(0, track.getHeight() - thumb.getHeight() - dp(10));
-      switch (event.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-          downY[0] = event.getRawY();
-          startY[0] = thumb.getTranslationY();
-          return true;
-        case MotionEvent.ACTION_MOVE:
-          float dy = event.getRawY() - downY[0];
-          float next = startY[0] + dy;
-          next = Math.max(-max, Math.min(0, next));
-          thumb.setTranslationY(next);
-          return true;
-        case MotionEvent.ACTION_UP:
-        case MotionEvent.ACTION_CANCEL:
-          float moved = Math.abs(thumb.getTranslationY() - startY[0]);
-          if (event.getAction() == MotionEvent.ACTION_UP && moved >= max * 0.62f) {
-            action.run();
-          } else {
-            thumb.animate().translationY(0).setDuration(180).start();
-          }
-          return true;
-      }
-      return true;
-    });
-    item.addView(track, trackParams);
-    TextView instruction = label("ARRASTE PARA CIMA", 10, Color.rgb(160, 188, 199));
-    item.addView(instruction, new LinearLayout.LayoutParams(-1, dp(34)));
-    row.addView(item, itemParams);
+  private void addActionButton(LinearLayout row, String text, int color, Runnable action) {
+    TextView button = label(text, 14, Color.WHITE);
+    button.setTypeface(null, Typeface.BOLD);
+    button.setGravity(Gravity.CENTER);
+    button.setMinHeight(dp(64));
+    button.setPadding(dp(10), dp(14), dp(10), dp(14));
+    android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+    bg.setColor(color);
+    bg.setCornerRadius(dp(16));
+    bg.setStroke(dp(1), Color.argb(65, 255, 255, 255));
+    button.setBackground(bg);
+    button.setClickable(true);
+    button.setFocusable(true);
+    button.setOnClickListener(v -> action.run());
+    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -2, 1f);
+    params.setMargins(dp(6), dp(4), dp(6), dp(4));
+    row.addView(button, params);
   }
+
   private void stopAlarm() {
     IncomingCallMessagingService.stopAlert(this);
   }
