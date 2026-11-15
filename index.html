@@ -2155,6 +2155,88 @@ tbody tr:hover{background:#eef6f5}
   #painelMaquinasSupervisor .supervisor-filtro-card>div{font-size:.7rem!important}
 }
 </style>
+<style id="erimax-supervisao-estrutura-2026">
+#painelMaquinasSupervisor .sv-page{display:grid;gap:18px;color:#1d3445}
+#painelMaquinasSupervisor .sv-hero{position:relative;overflow:hidden;padding:clamp(18px,3vw,28px);border:1px solid #dbe5eb;border-radius:19px;background:linear-gradient(120deg,#fff 0%,#f7fafb 72%,#eef5f5 100%);box-shadow:0 8px 26px rgba(21,48,67,.055)}
+#painelMaquinasSupervisor .sv-hero:after{content:"";position:absolute;right:-65px;top:-105px;width:260px;height:260px;border:1px solid rgba(38,119,126,.12);border-radius:50%;box-shadow:0 0 0 25px rgba(38,119,126,.035),0 0 0 55px rgba(38,119,126,.025);pointer-events:none}
+#painelMaquinasSupervisor .sv-hero-top{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#painelMaquinasSupervisor .sv-kicker{display:block;color:#668092;font-size:.63rem;font-weight:850;letter-spacing:.14em}
+#painelMaquinasSupervisor .sv-hero h2{margin:5px 0 4px;color:#173f5f;font-size:clamp(1.45rem,3vw,1.9rem);font-weight:820;letter-spacing:-.045em}
+#painelMaquinasSupervisor .sv-hero p{margin:0;color:#263f52;font-size:.9rem;font-weight:650}
+#painelMaquinasSupervisor .sv-live{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #dce8e7;border-radius:20px;background:#fff;color:#4c6877;font-size:.68rem;font-weight:750}
+#painelMaquinasSupervisor .sv-live span{width:7px;height:7px;border-radius:50%;background:#23856d;box-shadow:0 0 0 4px rgba(35,133,109,.1)}
+#painelMaquinasSupervisor .sv-metrics{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:22px}
+#painelMaquinasSupervisor .sv-metric{min-width:0;padding:13px 14px;border:1px solid #e1e9ee;border-radius:12px;background:rgba(255,255,255,.9)}
+#painelMaquinasSupervisor .sv-metric span{display:block;color:#60788a;font-size:.68rem;font-weight:750}
+#painelMaquinasSupervisor .sv-metric strong{display:block;margin:4px 0 2px;color:#173f5f;font-size:1.65rem;line-height:1.1;font-weight:850;font-variant-numeric:tabular-nums}
+#painelMaquinasSupervisor .sv-metric small{display:block;color:#788a97;font-size:.62rem;line-height:1.35}
+#painelMaquinasSupervisor .sv-workspace{padding:clamp(15px,2.5vw,23px);border:1px solid #dce5eb;border-radius:18px;background:#fff;box-shadow:0 6px 22px rgba(21,48,67,.045)}
+#painelMaquinasSupervisor .sv-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+#painelMaquinasSupervisor .sv-section-head h3{margin:4px 0 2px;color:#173f5f;font-size:1.12rem;font-weight:820;letter-spacing:-.025em}
+#painelMaquinasSupervisor .sv-section-head p{margin:0;color:#748797;font-size:.72rem}
+#painelMaquinasSupervisor .sv-search{display:flex;align-items:center;gap:8px;width:min(100%,285px);min-height:42px;padding:0 11px;border:1px solid #dce5eb;border-radius:10px;background:#f9fbfc;color:#668092}
+#painelMaquinasSupervisor .sv-search span{font-size:1.3rem}
+#painelMaquinasSupervisor .sv-search input{width:100%;min-height:38px;padding:7px 0;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;font-size:.78rem}
+#painelMaquinasSupervisor .sv-filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+#painelMaquinasSupervisor .sv-filter{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:6px 9px;border:1px solid #e0e7ec;border-radius:8px;background:#fff;color:#536b7c;font-size:.68rem;font-weight:700}
+#painelMaquinasSupervisor .sv-filter>span{width:7px;height:7px;border-radius:50%;background:var(--sv-dot)}
+#painelMaquinasSupervisor .sv-filter b{color:#173f5f;font-size:.72rem}
+#painelMaquinasSupervisor .sv-filter.active{border-color:#9db8c4;background:#edf4f6;color:#173f5f}
+#painelMaquinasSupervisor .sv-note{margin:0 0 16px;padding:9px 11px;border-left:3px solid #8ba7b5;border-radius:0 7px 7px 0;background:#f5f8fa;color:#425c6e;font-size:.7rem;font-weight:600;line-height:1.45}
+#painelMaquinasSupervisor .sv-sector{margin:9px 0;border:1px solid #dfe7ec;border-radius:12px;background:#fff;overflow:hidden}
+#painelMaquinasSupervisor .sv-sector>summary{display:flex;align-items:center;gap:11px;min-height:68px;padding:12px 15px;cursor:pointer;list-style:none}
+#painelMaquinasSupervisor .sv-sector>summary::-webkit-details-marker,#painelMaquinasSupervisor .sv-machine>summary::-webkit-details-marker{display:none}
+#painelMaquinasSupervisor .sv-folder{display:grid;place-items:center;width:35px;height:35px;border-radius:10px;background:#edf4f5;color:#286c78;font-size:1.1rem}
+#painelMaquinasSupervisor .sv-sector-name{flex:1;min-width:0}
+#painelMaquinasSupervisor .sv-sector-name b{display:block;color:#1b4059;font-size:.88rem;font-weight:820}
+#painelMaquinasSupervisor .sv-sector-name small{display:block;margin-top:3px;color:#788a97;font-size:.68rem}
+#painelMaquinasSupervisor .sv-sector-side{display:flex;align-items:center;gap:12px;color:#718493;font-size:.68rem}
+#painelMaquinasSupervisor .sv-sector-side em{font-style:normal;color:#b54747;font-weight:750}
+#painelMaquinasSupervisor .sv-chevron{display:inline-block;color:#8193a0;font-size:1rem;transition:transform .18s}
+#painelMaquinasSupervisor details[open]>summary .sv-chevron{transform:rotate(180deg)}
+#painelMaquinasSupervisor .sv-machine-list{display:grid;gap:7px;padding:0 10px 10px;background:#f8fafb}
+#painelMaquinasSupervisor .sv-machine{border:1px solid #e3e9ee;border-radius:10px;background:#fff;overflow:hidden}
+#painelMaquinasSupervisor .sv-machine>summary{display:flex;align-items:center;gap:10px;min-height:58px;padding:10px 12px;cursor:pointer;list-style:none}
+#painelMaquinasSupervisor .sv-machine-dot{width:9px;height:9px;flex:none;border-radius:50%;background:var(--sv-state);box-shadow:0 0 0 4px color-mix(in srgb,var(--sv-state) 12%,white)}
+#painelMaquinasSupervisor .sv-machine-main{flex:1;min-width:0}
+#painelMaquinasSupervisor .sv-machine-main b{display:block;color:#203e53;font-size:.79rem;font-weight:800;overflow-wrap:anywhere}
+#painelMaquinasSupervisor .sv-machine-main small{display:block;margin-top:3px;font-size:.65rem;font-weight:750}
+#painelMaquinasSupervisor .sv-machine-count{text-align:center;min-width:43px}
+#painelMaquinasSupervisor .sv-machine-count b{display:block;color:#294d64;font-size:.8rem;font-variant-numeric:tabular-nums}
+#painelMaquinasSupervisor .sv-machine-count small{display:block;color:#81909b;font-size:.58rem}
+#painelMaquinasSupervisor .sv-machine-detail{padding:12px;border-top:1px solid #edf1f4;background:#fbfcfd}
+#painelMaquinasSupervisor .sv-detail-title{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:#274b63;font-size:.73rem;font-weight:850}
+#painelMaquinasSupervisor .sv-detail-title span,.sv-history summary span{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#eaf1f4;color:#315d73;font-size:.64rem}
+#painelMaquinasSupervisor .sv-os-card{display:block;width:100%;margin:7px 0;padding:11px;border:1px solid #dfe7ec;border-radius:9px;background:#fff;text-align:left;color:#3c5668}
+#painelMaquinasSupervisor .sv-os-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#painelMaquinasSupervisor .sv-os-top>b{color:#1e4964;font-size:.73rem}
+#painelMaquinasSupervisor .sv-os-status{padding:4px 7px;border-radius:6px;background:#edf3f6;color:#3e6278;font-size:.61rem;font-style:normal;font-weight:800}
+#painelMaquinasSupervisor .sv-os-description{display:block;margin-top:7px;color:#354f60;font-size:.72rem;line-height:1.4}
+#painelMaquinasSupervisor .sv-os-meta{display:block;margin-top:5px;color:#718392;font-size:.63rem;line-height:1.4}
+#painelMaquinasSupervisor .sv-os-link{display:block;margin-top:8px;color:#1d6b78;font-size:.66rem;font-weight:800}
+#painelMaquinasSupervisor .sv-no-os,#painelMaquinasSupervisor .sv-no-history{padding:9px;color:#788995;font-size:.68rem}
+#painelMaquinasSupervisor .sv-history{margin-top:9px;border-top:1px solid #e9eef2;padding-top:9px}
+#painelMaquinasSupervisor .sv-history>summary{display:flex;align-items:center;gap:8px;cursor:pointer;color:#476477;font-size:.69rem;font-weight:800;list-style:none}
+#painelMaquinasSupervisor .sv-history-item{display:block;width:100%;margin-top:6px;padding:9px;border:1px solid #e4eaee;border-radius:8px;background:#fff;text-align:left}
+#painelMaquinasSupervisor .sv-history-item b{display:block;color:#23856d;font-size:.68rem}
+#painelMaquinasSupervisor .sv-history-item small{display:block;margin-top:4px;color:#738592;font-size:.62rem;line-height:1.4}
+#painelMaquinasSupervisor .sv-history-more{display:block;margin-top:7px;color:#788995;font-size:.62rem}
+#painelMaquinasSupervisor .sv-empty{display:grid;gap:5px;padding:25px 12px;text-align:center;border:1px dashed #d8e2e8;border-radius:11px;color:#476477}
+#painelMaquinasSupervisor .sv-empty span{color:#82919c;font-size:.72rem}
+@media(max-width:680px){
+ #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:17px}
+ #painelMaquinasSupervisor .sv-metric{padding:11px}
+ #painelMaquinasSupervisor .sv-metric strong{font-size:1.45rem}
+ #painelMaquinasSupervisor .sv-search{width:100%}
+ #painelMaquinasSupervisor .sv-section-head{align-items:stretch}
+ #painelMaquinasSupervisor .sv-sector>summary{min-height:64px;padding:10px}
+ #painelMaquinasSupervisor .sv-machine>summary{gap:7px;padding:9px}
+ #painelMaquinasSupervisor .sv-machine-count{min-width:35px}
+ #painelMaquinasSupervisor .sv-machine-count small{font-size:.55rem}
+ #painelMaquinasSupervisor .sv-filter{font-size:.63rem}
+}
+@media(prefers-reduced-motion:reduce){#painelMaquinasSupervisor .sv-chevron{transition:none}}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -2837,93 +2919,114 @@ function renderPainelMaquinasSupervisor(){
     item.ordens.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
     item.ativas=item.ordens.filter(o=>['Aberta','Em Atendimento','Pausada'].includes(String(o.status||'')));
     item.concluidas=item.ordens.filter(o=>o.status==='Concluída');
+    const situacoes=item.ativas.filter(o=>o.status==='Aberta').map(o=>String(o.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR'));
+    const parada=situacoes.includes('parado'),rodando=situacoes.includes('rodando');
+    const semSituacao=situacoes.some(s=>s!=='parado'&&s!=='rodando');
     const pausada=item.ativas.some(o=>o.status==='Pausada');
     const atendimento=item.ativas.some(o=>o.status==='Em Atendimento');
-    const situacoesAbertas=item.ativas.filter(o=>o.status==='Aberta').map(o=>String(o.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR'));
-    const abertaParada=situacoesAbertas.includes('parado');
-    const abertaRodando=situacoesAbertas.includes('rodando');
-    const abertaSemSituacao=situacoesAbertas.some(s=>s!=='parado'&&s!=='rodando');
-    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':abertaParada?'Parada informada na O.S.':abertaSemSituacao?'Situação não informada na O.S.':abertaRodando?'Rodando informado na O.S.':'Sem O.S. ativa • situação não confirmada';
-    item.cor=pausada?'#a16207':atendimento?'#1d4ed8':abertaParada?'#b91c1c':abertaRodando?'#15803d':'#64748b';
+    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':parada?'Parada informada na O.S.':semSituacao?'Situação não informada na O.S.':rodando?'Rodando informado na O.S.':'Sem O.S. ativa • situação não confirmada';
+    item.cor=pausada?'#a16207':atendimento?'#2563a6':parada?'#b54747':rodando?'#23856d':'#748494';
     return item;
   }).sort((a,b)=>a.setor.localeCompare(b.setor,'pt-BR')||a.maquina.localeCompare(b.maquina,'pt-BR'));
   const grupos=[...new Set(itens.map(x=>x.setor))];
   const qtd=estado=>itens.filter(x=>x.estado===estado).length;
-  const resumo=[
-    ['Parada informada na O.S.',qtd('Parada informada na O.S.'),'#b91c1c'],
-    ['Rodando informado na O.S.',qtd('Rodando informado na O.S.'),'#15803d'],
-    ['Manutenção em andamento',qtd('Manutenção em andamento'),'#1d4ed8'],
+  const filtros=[
+    ['Todas',itens.length,'#244f6b'],
+    ['Parada informada na O.S.',qtd('Parada informada na O.S.'),'#b54747'],
+    ['Rodando informado na O.S.',qtd('Rodando informado na O.S.'),'#23856d'],
+    ['Manutenção em andamento',qtd('Manutenção em andamento'),'#2563a6'],
     ['O.S. pausada',qtd('O.S. pausada'),'#a16207'],
-    ['Situação não informada na O.S.',qtd('Situação não informada na O.S.'),'#64748b'],
-    ['Sem O.S. ativa • situação não confirmada',qtd('Sem O.S. ativa • situação não confirmada'),'#64748b']
+    ['Sem O.S. ativa • situação não confirmada',qtd('Sem O.S. ativa • situação não confirmada'),'#748494'],
+    ['Situação não informada na O.S.',qtd('Situação não informada na O.S.'),'#748494']
   ];
-  const maquinasParadas=qtd('Parada informada na O.S.');
-  const maquinasEmManutencao=qtd('Manutenção em andamento');
   const osAtivas=ativas.length;
-  let html='<section class="card supervisor-resumo" style="margin-bottom:12px"><div class="supervisor-resumo-cabecalho"><div><span class="supervisor-eyebrow">VISÃO GERAL</span><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Supervisão de manutenção</h3><p class="supervisor-intro">Acompanhamento das máquinas e ordens de serviço.</p></div><span class="supervisor-total-maquinas">'+itens.length+' máquina(s) no painel</span></div>';
-  html+='<div class="supervisor-kpis">'
-    +'<div class="supervisor-kpi supervisor-kpi-alerta"><span>O.S. ativas</span><b>'+osAtivas+'</b><small>Aberta, em atendimento ou pausada</small></div>'
-    +'<div class="supervisor-kpi supervisor-kpi-parada"><span>Parada informada</span><b>'+maquinasParadas+'</b><small>Condição registrada na abertura da O.S.</small></div>'
-    +'<div class="supervisor-kpi supervisor-kpi-manutencao"><span>Em manutenção</span><b>'+maquinasEmManutencao+'</b><small>Máquinas com atendimento em andamento</small></div>'
-    +'<div class="supervisor-kpi supervisor-kpi-total"><span>Máquinas no painel</span><b>'+itens.length+'</b><small>Máquinas cadastradas ou citadas em O.S.</small></div>'
-    +'</div><div class="supervisor-status-titulo">Condição das máquinas <small>Selecione uma condição para filtrar os equipamentos</small></div>';
-  html+='<div class="supervisor-classificacao-grid">';
-  resumo.forEach(r=>{html+='<div class="supervisor-filtro-card" style="--supervisor-status-cor:'+r[2]+'" role="button" tabindex="0" aria-label="Filtrar máquinas: '+escaparHtml(r[0])+'" onclick="filtrarMaquinasSupervisor(\''+r[0]+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();filtrarMaquinasSupervisor(\''+r[0]+'\')}"><div>'+r[0]+'</div><b>'+r[1]+'</b><small>Ver máquinas</small></div>'});
-  html+='</div><p class="supervisor-aviso-status">A condição “Parado” ou “Rodando” corresponde ao que foi informado na abertura da O.S. Quando não existe O.S. ativa, o painel não presume que a máquina esteja rodando ou parada.</p><div id="filtroMaquinasSupervisorAtivo" style="display:none;margin-top:12px"></div></section>';
-  html+='<div class="supervisor-setores-cabecalho"><div><span class="supervisor-eyebrow">EQUIPAMENTOS</span><h4>Setores e máquinas</h4></div><span>'+grupos.length+' setor(es)</span></div>';
-  if(!itens.length)html+='<div class="card" style="color:#64748b;text-align:center">Nenhuma máquina cadastrada ou O.S. encontrada.</div>';
-  grupos.forEach(setor=>{
+  const maquinasComOS=itens.filter(x=>x.ativas.length).length;
+  let html='<div class="sv-page">';
+  html+='<section class="sv-hero"><div class="sv-hero-top"><div><span class="sv-kicker">CENTRO DE CONTROLE</span><h2>Supervisão</h2><p>Acompanhamento das máquinas e ordens de serviço.</p></div><div class="sv-live"><span></span> Dados do sistema</div></div>';
+  html+='<div class="sv-metrics">'
+    +'<div class="sv-metric"><span>Ordens ativas</span><strong>'+osAtivas+'</strong><small>Em aberto, atendimento ou pausadas</small></div>'
+    +'<div class="sv-metric"><span>Máquinas com O.S.</span><strong>'+maquinasComOS+'</strong><small>Com ordem ainda não concluída</small></div>'
+    +'<div class="sv-metric"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Condição registrada na abertura</small></div>'
+    +'<div class="sv-metric"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Atendimento em andamento</small></div>'
+    +'</div></section>';
+  html+='<section class="sv-workspace"><div class="sv-section-head"><div><span class="sv-kicker">ACOMPANHAMENTO</span><h3>Máquinas por setor</h3><p>'+itens.length+' equipamento(s) • '+grupos.length+' setor(es)</p></div><div class="sv-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Buscar máquina ou setor..." aria-label="Buscar máquina ou setor" oninput="filtrarTextoMaquinasSupervisor(this.value)"></div></div>';
+  html+='<div class="sv-filter-row" aria-label="Filtros de condição">';
+  filtros.forEach((f,i)=>{html+='<button type="button" class="sv-filter '+(i===0?'active':'')+'" data-sv-filter="'+escaparHtml(f[0])+'" onclick="filtrarMaquinasSupervisor(\''+f[0]+'\')"><span style="--sv-dot:'+f[2]+'"></span>'+escaparHtml(f[0]==='Todas'?'Todas':f[0].replace(' informada na O.S.','').replace(' • situação não confirmada',''))+' <b>'+f[1]+'</b></button>'});
+  html+='</div>';
+  html+='<p class="sv-note">“Parado” ou “Rodando” reflete o que foi informado na abertura da O.S. Sem O.S. ativa, a Supervisão não presume a condição da máquina.</p>';
+  if(!itens.length)html+='<div class="sv-empty"><b>Nenhuma máquina cadastrada</b><span>Quando houver máquinas ou ordens de serviço, elas aparecerão organizadas por setor.</span></div>';
+  grupos.forEach((setor,idx)=>{
     const lista=itens.filter(x=>x.setor===setor);
-    const ativasSetor=lista.reduce((n,x)=>n+x.ativas.length,0);
-    html+='<details data-supervisor-setor="1" class="card" style="margin:8px 0;padding:0;overflow:hidden;border:1px solid #e2e8f0"><summary style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;list-style:none"><span class="supervisor-setor-marcador" aria-hidden="true"></span><span style="flex:1;min-width:0"><b style="color:var(--primary)">'+escaparHtml(setor)+'</b><small style="display:block;color:#64748b;font-size:.7rem;margin-top:2px">'+lista.length+' máquina(s) • '+ativasSetor+' O.S. ativa(s)</small></span><span style="font-size:.75rem;color:#64748b">Abrir ▾</span></summary><div style="padding:0 10px 10px;display:grid;gap:7px">';
+    const totalOS=lista.reduce((n,x)=>n+x.ativas.length,0);
+    const paradas=lista.filter(x=>x.estado==='Parada informada na O.S.').length;
+    html+='<details class="sv-sector" data-supervisor-setor="1" data-sv-sector-name="'+escaparHtml(setor.toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-folder">▰</span><span class="sv-sector-name"><b>'+escaparHtml(setor)+'</b><small>'+lista.length+' máquina(s) • '+totalOS+' O.S. ativa(s)</small></span><span class="sv-sector-side">'+(paradas?'<em>'+paradas+' parada(s)</em>':'')+'<span class="sv-chevron">⌄</span></span></summary><div class="sv-machine-list">';
     lista.forEach(item=>{
-      const qtdConcluidas=item.concluidas.length;
-      html+='<details data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" style="border:1px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff"><summary style="display:flex;align-items:center;gap:8px;padding:11px;cursor:pointer;list-style:none"><span style="width:9px;height:9px;border-radius:50%;background:'+item.cor+';flex:none"></span><span style="flex:1;min-width:0"><b style="font-size:.84rem;overflow-wrap:anywhere">'+escaparHtml(item.maquina)+'</b><small style="display:block;font-size:.7rem;color:'+item.cor+';margin-top:3px;font-weight:700">'+item.estado+'</small></span><span style="font-size:.68rem;color:#64748b;text-align:right;white-space:nowrap">'+item.ativas.length+' O.S. ativa(s)<br>'+qtdConcluidas+' O.S. concluída(s)</span></summary><div style="padding:0 10px 10px;border-top:1px solid #f1f5f9">';
+      const estadoLabel=item.estado==='Sem O.S. ativa • situação não confirmada'?'Sem O.S. ativa':item.estado;
+      html+='<details class="sv-machine" data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" data-sv-search="'+escaparHtml((item.maquina+' '+item.setor).toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-machine-dot" style="--sv-state:'+item.cor+'"></span><span class="sv-machine-main"><b>'+escaparHtml(item.maquina)+'</b><small style="color:'+item.cor+'">'+escaparHtml(estadoLabel)+'</small></span><span class="sv-machine-count"><b>'+item.ativas.length+'</b><small>ativas</small></span><span class="sv-machine-count"><b>'+item.concluidas.length+'</b><small>concluídas</small></span><span class="sv-chevron">⌄</span></summary><div class="sv-machine-detail">';
       if(item.ativas.length){
-        html+='<div class="supervisor-bloco-titulo" style="font-size:.78rem;font-weight:800;color:var(--primary);margin:10px 0 6px">Ordens de serviço ativas</div>';
+        html+='<div class="sv-detail-title">Ordens em andamento <span>'+item.ativas.length+'</span></div>';
         item.ativas.forEach(os=>{
-          html+='<div class="supervisor-os-item supervisor-os-ativa" role="button" tabindex="0" title="Toque para abrir esta O.S. e acessar as ações" onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:7px;padding:9px;margin-top:6px;font-size:.73rem;color:#475569;cursor:pointer"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.status)+'</b><div style="margin-top:4px">'+escaparHtml(os.descricao||'Descrição não informada')+'</div><div style="margin-top:4px">Abertura: '+(os.created_at?escaparHtml(new Date(os.created_at).toLocaleString('pt-BR')):'—')+'<br>'+ (os.tecnico?'Técnico responsável: '+escaparHtml(os.tecnico):'Técnico ainda não atribuído')+(os.situacao_equipamento?' • Equipamento informado: '+escaparHtml(os.situacao_equipamento):'')+'</div><small style="display:block;margin-top:6px;color:var(--primary);font-weight:700">Toque para abrir a O.S. e acessar as ações ›</small></div>';
+          const prioridade=os.prioridade||'Prioridade não informada';
+          html+='<button type="button" class="sv-os-card" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><span class="sv-os-top"><b>'+escaparHtml(nOS(os))+'</b><em class="sv-os-status">'+escaparHtml(os.status)+'</em></span><span class="sv-os-description">'+escaparHtml(os.descricao||'Descrição não informada')+'</span><span class="sv-os-meta">'+escaparHtml(prioridade)+' • '+(os.created_at?escaparHtml(new Date(os.created_at).toLocaleString('pt-BR')):'Data não informada')+'</span><span class="sv-os-meta">'+(os.tecnico?'Responsável: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • Equipamento: '+escaparHtml(os.situacao_equipamento):'')+'</span><span class="sv-os-link">Abrir ordem de serviço →</span></button>';
         });
-      }else html+='<p class="supervisor-mensagem-vazia" style="font-size:.76rem;color:#64748b;margin:9px 0 5px">Nenhuma ordem de serviço ativa para esta máquina.</p>';
-      if(qtdConcluidas){
-        html+='<div class="supervisor-bloco-titulo" style="font-size:.78rem;font-weight:800;color:var(--primary);margin:12px 0 6px">Histórico de O.S. concluídas ('+qtdConcluidas+')</div>';
+      }else html+='<div class="sv-no-os">Nenhuma O.S. ativa para esta máquina.</div>';
+      if(item.concluidas.length){
+        html+='<details class="sv-history"><summary>Histórico de concluídas <span>'+item.concluidas.length+'</span></summary>';
         item.concluidas.slice(0,8).forEach(os=>{
-          html+='<div class="supervisor-os-item supervisor-os-concluida" role="button" tabindex="0" title="Toque para consultar o histórico completo desta O.S." onclick="abrirOSDaSupervisao('+Number(os.id)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();abrirOSDaSupervisao('+Number(os.id)+')}" style="border-top:1px solid #f1f5f9;padding:8px 6px;font-size:.72rem;color:#64748b;cursor:pointer;border-radius:6px"><b style="color:#15803d">'+escaparHtml(nOS(os))+' • Concluída</b><br>'+(os.data_conclusao?'Conclusão: '+escaparHtml(new Date(os.data_conclusao).toLocaleString('pt-BR')):'Data de conclusão não informada')+(os.tecnico?'<br>Técnico: '+escaparHtml(os.tecnico):'')+(os.causa?'<br>Causa: '+escaparHtml(os.causa):'')+(os.servico_executado?'<br>Serviço: '+escaparHtml(os.servico_executado):'')+'<small style="display:block;margin-top:5px;color:#15803d;font-weight:700">Toque para ver o histórico completo ›</small></div>';
+          html+='<button type="button" class="sv-history-item" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><b>'+escaparHtml(nOS(os))+' • Concluída</b><small>'+(os.data_conclusao?'Conclusão: '+escaparHtml(new Date(os.data_conclusao).toLocaleString('pt-BR')):'Data de conclusão não informada')+(os.tecnico?' • '+escaparHtml(os.tecnico):'')+'</small>'+(os.causa?'<small>Causa: '+escaparHtml(os.causa)+'</small>':'')+(os.servico_executado?'<small>Serviço: '+escaparHtml(os.servico_executado)+'</small>':'')+'</button>';
         });
-        if(qtdConcluidas>8)html+='<small style="display:block;color:#64748b;margin-top:5px">Mostrando as 8 mais recentes de '+qtdConcluidas+' ordens concluídas.</small>';
-      }else html+='<p class="supervisor-mensagem-vazia" style="font-size:.76rem;color:#64748b;margin:9px 0 0">Ainda não há O.S. concluída registrada para esta máquina.</p>';
+        if(item.concluidas.length>8)html+='<small class="sv-history-more">Exibindo as 8 mais recentes de '+item.concluidas.length+'.</small>';
+        html+='</details>';
+      }else html+='<div class="sv-no-history">Ainda não há O.S. concluída.</div>';
       html+='</div></details>';
     });
     html+='</div></details>';
   });
+  html+='</section></div>';
   box.innerHTML=html;
+  const busca=box.querySelector('.sv-search input');
+  if(busca&&window.__erimaxSvBusca)busca.value=window.__erimaxSvBusca;
+  if(busca&&busca.value)filtrarTextoMaquinasSupervisor(busca.value);
 }
-
 function filtrarMaquinasSupervisor(estado){
   const box=document.getElementById('painelMaquinasSupervisor');
   if(!box)return;
-  const painel=box.querySelector('#filtroMaquinasSupervisorAtivo');
-  if(!painel)return;
-  const atual=painel.dataset.estado||'';
-  if(atual===estado){
-    painel.style.display='none';painel.innerHTML='';painel.dataset.estado='';
-    box.querySelectorAll('[data-supervisor-maquina]').forEach(el=>el.style.display='');
-    box.querySelectorAll('[data-supervisor-setor]').forEach(el=>el.style.display='');
-    return;
-  }
-  painel.dataset.estado=estado;
-  const maquinas=[...box.querySelectorAll('[data-supervisor-maquina]')];
-  let total=0;
-  maquinas.forEach(el=>{const mostrar=el.dataset.supervisorEstado===estado;el.style.display=mostrar?'':'none';if(mostrar)total++});
-  box.querySelectorAll('[data-supervisor-setor]').forEach(setor=>{
-    const tem=[...setor.querySelectorAll('[data-supervisor-maquina]')].some(el=>el.dataset.supervisorEstado===estado);
-    setor.style.display=tem?'':'none';
-    if(tem)setor.open=true;
+  const filtros=[...box.querySelectorAll('[data-sv-filter]')];
+  const atual=box.dataset.estadoFiltro||'Todas';
+  const proximo=atual===estado?'Todas':estado;
+  box.dataset.estadoFiltro=proximo;
+  filtros.forEach(btn=>btn.classList.toggle('active',btn.dataset.svFilter===proximo));
+  box.querySelectorAll('[data-supervisor-maquina]').forEach(el=>{
+    const bate=proximo==='Todas'||el.dataset.supervisorEstado===proximo;
+    el.dataset.svStatusMatch=bate?'1':'0';
+    const texto=el.dataset.svTextMatch!=='0';
+    el.style.display=bate&&texto?'':'none';
   });
-  painel.style.display='flex';painel.style.alignItems='center';painel.style.justifyContent='space-between';painel.style.gap='10px';painel.style.flexWrap='wrap';
-  painel.innerHTML='<div><b style="color:var(--primary);font-size:.9rem">'+escaparHtml(estado)+'</b><small style="display:block;color:#64748b;font-size:.72rem">'+total+' máquina(s) encontrada(s). Os setores correspondentes foram abertos abaixo.</small></div><button type="button" class="btn-secundario" style="width:auto;margin:0;padding:7px 10px" onclick="filtrarMaquinasSupervisor(\''+estado+'\')">Limpar filtro ✕</button>';
-  painel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  box.querySelectorAll('[data-supervisor-setor]').forEach(setor=>{
+    const maquinas=[...setor.querySelectorAll('[data-supervisor-maquina]')];
+    const tem=maquinas.some(el=>el.style.display!=='none');
+    setor.style.display=tem?'':'none';
+    if(proximo!=='Todas'&&tem)setor.open=true;
+  });
 }
+function filtrarTextoMaquinasSupervisor(valor){
+  const box=document.getElementById('painelMaquinasSupervisor');
+  if(!box)return;
+  const termo=String(valor||'').trim().toLocaleLowerCase('pt-BR');
+  window.__erimaxSvBusca=String(valor||'');
+  box.querySelectorAll('[data-supervisor-maquina]').forEach(el=>{
+    const bate=!termo||el.dataset.svSearch.includes(termo);
+    el.dataset.svTextMatch=bate?'1':'0';
+    const status=el.dataset.svStatusMatch!=='0';
+    el.style.display=bate&&status?'':'none';
+  });
+  box.querySelectorAll('[data-supervisor-setor]').forEach(setor=>{
+    const tem=[...setor.querySelectorAll('[data-supervisor-maquina]')].some(el=>el.style.display!=='none');
+    setor.style.display=tem?'':'none';
+    if(termo&&tem)setor.open=true;
+  });
+}
+
 function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento'),ag=chamados.filter(c=>c.status==='Aberta').length;
   const equipe=USUARIOS_STATUS.length?USUARIOS_STATUS:TECNICOS;
