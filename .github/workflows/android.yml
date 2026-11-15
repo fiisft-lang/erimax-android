@@ -21,6 +21,19 @@ jobs:
       - name: Baixar projeto
         uses: actions/checkout@v4
 
+      - name: Usar código atualizado da versão principal
+        if: github.ref_name == 'ota-atualizacao-android-staging-20261109'
+        run: |
+          set -euo pipefail
+          git fetch origin main --depth=1
+          MAIN_SHA="$(git rev-parse FETCH_HEAD)"
+          mkdir -p /tmp/erimax-main
+          git archive "$MAIN_SHA" | tar -x -C /tmp/erimax-main
+          rsync -a --delete --exclude='.git' /tmp/erimax-main/ "$GITHUB_WORKSPACE/"
+          echo "Código do aplicativo sincronizado com main: $MAIN_SHA"
+          grep -q 'id="tbAbrirOS"' index.html
+          echo "A aba Abrir OS está presente no código que será compilado."
+
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
