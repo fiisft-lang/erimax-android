@@ -5360,7 +5360,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
         b+='<button type="button" class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>';
         b+='<button type="button" class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';
-      }else if(status==='Pausada'){
+      }
+    }else if(status==='Pausada'){
       const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
       if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
