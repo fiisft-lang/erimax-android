@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -99,7 +100,7 @@ public class IncomingCallActivity extends Activity {
     addInfoRow(infoCard, "PROBLEMA INFORMADO",
       problem == null || problem.trim().isEmpty() ? "Não informado" : problem.trim());
 
-    TextView actionHeading = label("ESCOLHA UMA AÇÃO", 12, Color.rgb(190, 208, 216));
+    TextView actionHeading = label("TOQUE OU ARRASTE PARA CIMA PARA CONFIRMAR", 12, Color.rgb(190, 208, 216));
     actionHeading.setTypeface(null, Typeface.BOLD);
     LinearLayout.LayoutParams actionHeadingParams = new LinearLayout.LayoutParams(-1, -2);
     actionHeadingParams.topMargin = dp(8);
@@ -155,6 +156,21 @@ public class IncomingCallActivity extends Activity {
     button.setBackground(bg);
     button.setClickable(true);
     button.setFocusable(true);
+    // Na tela bloqueada, tanto o toque quanto o gesto de arrastar para cima
+    // disparam a mesma ação nativa. O comando segue para o app via deep link.
+    final float[] inicioY = new float[]{0f};
+    button.setOnTouchListener((v, event) -> {
+      if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        inicioY[0] = event.getRawY();
+        return true;
+      }
+      if (event.getAction() == MotionEvent.ACTION_UP) {
+        float deslocamento = inicioY[0] - event.getRawY();
+        if (deslocamento > dp(28) || deslocamento <= dp(28)) action.run();
+        return true;
+      }
+      return event.getAction() == MotionEvent.ACTION_MOVE;
+    });
     button.setOnClickListener(v -> action.run());
     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -2, 1f);
     params.setMargins(dp(6), dp(4), dp(6), dp(4));
