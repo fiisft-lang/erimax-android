@@ -3179,7 +3179,27 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 @media(prefers-reduced-motion:reduce){.metrics-machine-rank-item{transition:none}}
 @media print{.metrics-machine-rank-item{break-inside:avoid;box-shadow:none;transform:none}}
 </style>
-</head>
+<style id="metrics-machine-ranking-compact">
+@media(min-width:1100px){.metrics-machine-ranking-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}}
+@media(max-width:760px){
+#cardHorarioRanking>.ranking-os-card-head{margin-bottom:10px}
+.metrics-machine-ranking-list{grid-template-columns:1fr;gap:7px}
+.metrics-machine-rank-item{padding:9px 11px;border-radius:11px}
+.metrics-machine-rank-top{gap:7px}.metrics-machine-rank-name{gap:7px}
+.metrics-machine-rank-number{flex-basis:25px;width:25px;height:25px;border-radius:7px;font-size:.64rem}
+.metrics-machine-rank-name h4{font-size:.79rem;line-height:1.15}
+.metrics-machine-rank-name span{margin-top:1px;font-size:.61rem}
+.metrics-machine-rank-downtime strong{font-size:.98rem}.metrics-machine-rank-downtime small{font-size:.58rem}
+.metrics-machine-rank-progress{height:6px;margin-top:8px}
+.metrics-machine-rank-legend{margin-top:4px;font-size:.59rem}.metrics-machine-rank-legend i{width:6px;height:6px}
+.metrics-machine-rank-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px 7px;margin-top:8px;padding-top:7px}
+.metrics-machine-rank-stats small{margin-bottom:1px;font-size:.57rem}
+.metrics-machine-rank-stats b{font-size:.68rem;line-height:1.15}
+.metrics-machine-rank-action{margin-top:7px;padding-top:5px;font-size:.63rem}.metrics-machine-rank-action span{font-size:.95rem}
+}
+@media(max-width:380px){.metrics-machine-rank-item{padding:8px 9px}.metrics-machine-rank-stats{gap:4px 5px}.metrics-machine-rank-stats small{font-size:.53rem}.metrics-machine-rank-stats b{font-size:.63rem}}
+@media(prefers-reduced-motion:reduce){.metrics-machine-rank-item{transition:none}}
+</style></head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
