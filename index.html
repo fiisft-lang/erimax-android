@@ -3784,6 +3784,7 @@ function atualizarResumoDashboardOS(){
   ];
   valores.forEach(([id,n])=>{const el=document.getElementById(id);if(el)el.textContent=n});
   const totalEl=document.getElementById('osTotalRegistradas');if(totalEl)totalEl.textContent=total;
+  const filtro=document.getElementById('filtroStatus');
   const resumo=document.getElementById('osResumoDashboard');
   if(resumo){
     const cards=[
@@ -3795,7 +3796,6 @@ function atualizarResumoDashboardOS(){
     const statusAtual=filtro?.value||'Todas';
     resumo.innerHTML=cards.map(x=>'<button type="button" class="os-stat'+(statusAtual===x[1]?' is-selected':'')+'" style="--os-stat-color:'+x[3]+'" onclick="abrirDetalheIndicadorOS(\''+x[1]+'\')" aria-pressed="'+(statusAtual===x[1]?'true':'false')+'"><span>'+x[0]+'</span><b>'+x[2]+'</b><small>'+x[4]+'</small><em>Toque para ver as ordens →</em></button>').join('');
   }
-  const filtro=document.getElementById('filtroStatus');
   const selecionado=filtro?.value||'Todas';
   document.querySelectorAll('#osFiltrosRapidos [data-status]').forEach(btn=>btn.classList.toggle('active',btn.dataset.status===selecionado));
 }
