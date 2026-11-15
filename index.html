@@ -3199,7 +3199,19 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 }
 @media(max-width:380px){.metrics-machine-rank-item{padding:8px 9px}.metrics-machine-rank-stats{gap:4px 5px}.metrics-machine-rank-stats small{font-size:.53rem}.metrics-machine-rank-stats b{font-size:.63rem}}
 @media(prefers-reduced-motion:reduce){.metrics-machine-rank-item{transition:none}}
-</style></head>
+</style><style id="erimax-metricas-grafico-estavel-2026">
+/* O gráfico principal mantém a mesma instância durante as sincronizações automáticas. */
+#cardHorarioEfGeral .chart-wrapper{height:225px;min-height:225px;contain:layout paint}
+#cardHorarioEfGeral canvas{display:block;max-width:100%}
+#cardHorarioEfGeral .chart-wrapper canvas{animation:none!important;transform:none!important}
+@media(max-width:600px){
+  #cardHorarioEfGeral .chart-wrapper{height:210px;min-height:210px}
+}
+@media(prefers-reduced-motion:reduce){
+  #cardHorarioEfGeral *,#cardHorarioRanking .metrics-machine-rank-item{animation:none!important;transition:none!important}
+}
+</style>
+</head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
@@ -5140,8 +5152,21 @@ function mk(id,cfg){
     if(scale.title)scale.title=Object.assign({color:'#64748b',font:{size:10,weight:'600'}},scale.title);
   });
   if(!cfg.options.onClick)cfg.options.onClick=(_evt,items)=>{const item=items&&items[0],resolver=DETALHES_GRAFICOS[id];if(item&&resolver){const r=resolver(item.datasetIndex,item.index);mostrarOSDetalhe(r.titulo,r.lista)}};
-  if(charts[id])charts[id].destroy();
   cfg.options=Object.assign({responsive:true,maintainAspectRatio:false},cfg.options||{});
+  // O gráfico de disponibilidade é atualizado muitas vezes pela sincronização.
+  // Reutilizar a instância evita destruir/recriar o canvas e elimina a animação repetida.
+  if(id==='chEfGeral'){
+    cfg.options.animation=false;
+    if(charts[id]){
+      const grafico=charts[id];
+      grafico.data=cfg.data;
+      grafico.config.options=cfg.options;
+      grafico.config.plugins=cfg.plugins||[];
+      grafico.update('none');
+      return;
+    }
+  }
+  if(charts[id])charts[id].destroy();
   charts[id]=new Chart(document.getElementById(id),cfg);
 }
 
@@ -5445,7 +5470,7 @@ function atualizarMetricasReais(){
   const mtbf=f.length?Math.max(0,(base-parada)/f.length):0;
 
   // Gráfico de pizza: disponibilidade (verde) x parada (vermelho).
-  mk('chEfGeral',{type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{cutout:'68%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9,padding:16,font:{size:11},generateLabels(chart){const labels=Chart.defaults.plugins.legend.labels.generateLabels(chart);const vals=chart.data.datasets[0].data||[];const total=vals.reduce((a,b)=>a+(Number(b)||0),0);return labels.map((item,i)=>({...item,text:item.text+' — '+(total?Math.round((Number(vals[i])||0)/total*100):0)+'%'}))}}},tooltip:{callbacks:{label(ctx){const vals=ctx.dataset.data||[],total=vals.reduce((a,b)=>a+(Number(b)||0),0),pct=total?Math.round((Number(ctx.raw)||0)/total*100):0;return ctx.label+': '+fmt(ctx.raw)+' ('+pct+'%)'}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('disp. registrada',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
+  mk('chEfGeral',{type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:0}]},options:{cutout:'68%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9,padding:16,font:{size:11},generateLabels(chart){const labels=Chart.defaults.plugins.legend.labels.generateLabels(chart);const vals=chart.data.datasets[0].data||[];const total=vals.reduce((a,b)=>a+(Number(b)||0),0);return labels.map((item,i)=>({...item,text:item.text+' — '+(total?Math.round((Number(vals[i])||0)/total*100):0)+'%'}))}}},tooltip:{callbacks:{label(ctx){const vals=ctx.dataset.data||[],total=vals.reduce((a,b)=>a+(Number(b)||0),0),pct=total?Math.round((Number(ctx.raw)||0)/total*100):0;return ctx.label+': '+fmt(ctx.raw)+' ('+pct+'%)'}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBase.map(m=>{const previsto=baseDe(m.setor),par=Math.min(previsto,(maq[m.nome]&&maq[m.nome].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome,setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('disp. registrada',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
 
   // cards
   cDisp.innerText=horarioOKFiltro?(disp===null?'—':disp+'%'):'—';cDispSub.innerText=horarioOKFiltro?(base>0?'Previsto '+fmt(base)+' • sem parada '+fmt(Math.max(0,base-parada)):'Sem horas produtivas no período'):'Aguardando horários confirmados';cDisp.style.color=!horarioOKFiltro||disp===null?'#64748b':disp>=90?'#28a745':disp>=75?'#ff6b00':'#dc3545';
