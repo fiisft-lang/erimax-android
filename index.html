@@ -6827,6 +6827,28 @@ async function abrirOSNoPainel(id){
     }
   },250);
 }
+const ACOES_LINK_OS=new Set();
+async function executarLinkOS(id,action){
+  const chave=String(id)+':'+String(action||'abrir');
+  if(ACOES_LINK_OS.has(chave))return;
+  ACOES_LINK_OS.add(chave);
+  try{
+    // Aguarda a sessão e os dados mais recentes antes de executar qualquer ação.
+    // A tela nativa pode abrir o app a frio ou enquanto ele já está em execução.
+    if(!PERFIL){localStorage.setItem('erimax_os_pendente',String(id));if(action)localStorage.setItem('erimax_os_acao_pendente',action);return}
+    await carregarDadosSupabase();
+    const os=chamados.find(x=>Number(x.id)===Number(id));
+    if(!os){ACOES_LINK_OS.delete(chave);console.warn('A O.S. do alerta ainda não foi carregada:',id);return}
+    await abrirOSNoPainel(id);
+    if(action==='aceitar_transferencia')await aceitarTransferenciaOS(Number(id));
+    else if(action==='recusar_transferencia')await recusarTransferenciaOS(Number(id));
+    else if(action==='assumir')await assumirOS(Number(id));
+  }catch(e){
+    ACOES_LINK_OS.delete(chave);
+    console.error('Não foi possível executar a ação recebida pela notificação:',e);
+    alert('Não foi possível concluir a ação da notificação. Abra a O.S. e tente novamente.');
+  }
+}
 function tratarLinkOS(url){
   try{
     const u=new URL(url);
@@ -6834,8 +6856,8 @@ function tratarLinkOS(url){
     if(u.protocol!=='erimax:'||!m)return;
     const id=decodeURIComponent(m[1]);
     const action=u.searchParams.get('action')||'';
-    if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);if(['assumir','aceitar_transferencia','recusar_transferencia'].includes(action))localStorage.setItem('erimax_os_acao_pendente',action);return}
-    setTimeout(async()=>{await abrirOSNoPainel(id);if(action==='aceitar_transferencia')await aceitarTransferenciaOS(Number(id));else if(action==='recusar_transferencia')await recusarTransferenciaOS(Number(id));else if(action==='assumir')await assumirOS(Number(id));},900);
+    if(!PERFIL){localStorage.setItem('erimax_os_pendente',id);if(action)localStorage.setItem('erimax_os_acao_pendente',action);return}
+    executarLinkOS(id,action);
   }catch(e){console.error('Link de O.S. inválido:',e)}
 }
 async function abrirOSDaSupervisao(id){
@@ -6959,15 +6981,15 @@ async function iniciarApp(user){
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
   await carregarMaquinas();await carregarCfg();await carregarPreventivas();if(p==='gestor')carregarUsuarios();
-  carregarDadosSupabase();iniciarTempoReal();iniciarPush();iniciarLinksOS();configurarWebPush();
+  await carregarDadosSupabase();iniciarTempoReal();iniciarPush();iniciarLinksOS();configurarWebPush();
   const osDaNotificacao=new URLSearchParams(location.search).get('os');
-  if(osDaNotificacao)setTimeout(()=>abrirOSNoPainel(osDaNotificacao),1500);
+  if(osDaNotificacao)await abrirOSNoPainel(osDaNotificacao);
   const osPendente=localStorage.getItem('erimax_os_pendente');
   if(osPendente){
     const acaoPendente=localStorage.getItem('erimax_os_acao_pendente');
     localStorage.removeItem('erimax_os_pendente');
     localStorage.removeItem('erimax_os_acao_pendente');
-    setTimeout(async()=>{await abrirOSNoPainel(osPendente);if(acaoPendente==='aceitar_transferencia')await aceitarTransferenciaOS(Number(osPendente));else if(acaoPendente==='recusar_transferencia')await recusarTransferenciaOS(Number(osPendente));else if(acaoPendente==='assumir')await assumirOS(Number(osPendente));},1400);
+    await executarLinkOS(osPendente,acaoPendente||'');
   }
 }
 
