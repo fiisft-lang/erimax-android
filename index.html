@@ -3179,6 +3179,17 @@ function renderPainelMaquinasSupervisor(){
   ];
   const osAtivas=ativas.length;
   const maquinasComOS=itens.filter(x=>x.ativas.length).length;
+  const alertasSupervisor=ativas.map(os=>{
+    const prioridade=String(os.prioridade||'').trim().toLocaleLowerCase('pt-BR');
+    const situacao=String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR');
+    const motivos=[];
+    let nivel=0;
+    if(os.status==='Pausada'){motivos.push('O.S. pausada');nivel=Math.max(nivel,4)}
+    if(['urgente','crítica','critica','alta'].includes(prioridade)){motivos.push('Prioridade '+(os.prioridade||'alta'));nivel=Math.max(nivel,3)}
+    if(situacao==='parado'){motivos.push('Máquina informada como parada');nivel=Math.max(nivel,3)}
+    if(os.status==='Aberta'&&!String(os.tecnico||'').trim()){motivos.push('Aguardando técnico');nivel=Math.max(nivel,2)}
+    return motivos.length?{os,motivos,nivel}:null;
+  }).filter(Boolean).sort((a,b)=>b.nivel-a.nivel||new Date(a.os.created_at||0)-new Date(b.os.created_at||0));
   let html='<div class="sv-page">';
   html+='<section class="sv-hero"><div class="sv-hero-top"><div><span class="sv-kicker">CENTRO DE CONTROLE</span><h2>Supervisão</h2><p>Acompanhamento das máquinas e ordens de serviço.</p></div><div class="sv-live"><span></span> Dados do sistema</div></div>';
   html+='<div class="sv-metrics">'
@@ -3187,6 +3198,18 @@ function renderPainelMaquinasSupervisor(){
     +'<div class="sv-metric"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Condição registrada na abertura</small></div>'
     +'<div class="sv-metric"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Atendimento em andamento</small></div>'
     +'</div></section>';
+  html+='<section class="sv-attention"><div class="sv-attention-head"><div><span class="sv-kicker">AÇÃO DO SUPERVISOR</span><h3>O.S. que precisam de atenção</h3><p>Prioridades, máquinas paradas, ordens pausadas e ordens aguardando técnico.</p></div><strong>'+alertasSupervisor.length+'</strong></div>';
+  if(alertasSupervisor.length){
+    html+='<div class="sv-attention-list">';
+    alertasSupervisor.slice(0,5).forEach(({os,motivos})=>{
+      html+='<button type="button" class="sv-attention-item" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><span class="sv-attention-mark">!</span><span class="sv-attention-main"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><small>'+escaparHtml(os.setor||'Setor não informado')+' • '+escaparHtml(os.status)+'</small><small>'+escaparHtml(motivos.join(' · '))+'</small></span><span class="sv-attention-open">Ver O.S. →</span></button>';
+    });
+    html+='</div>';
+    if(alertasSupervisor.length>5)html+='<small class="sv-attention-more">Mostrando as 5 mais importantes de '+alertasSupervisor.length+' O.S. sinalizadas. Use a busca ou os filtros abaixo para localizar as demais.</small>';
+  }else{
+    html+='<div class="sv-attention-clear"><span>✓</span><div><b>Nenhuma pendência prioritária identificada</b><small>As O.S. ativas não apresentam os critérios de atenção deste painel.</small></div></div>';
+  }
+  html+='</section>';
   html+='<section class="sv-workspace"><div class="sv-section-head"><div><span class="sv-kicker">ACOMPANHAMENTO</span><h3>Máquinas por setor</h3><p>'+itens.length+' equipamento(s) • '+grupos.length+' setor(es)</p></div><div class="sv-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Buscar máquina ou setor..." aria-label="Buscar máquina ou setor" oninput="filtrarTextoMaquinasSupervisor(this.value)"></div></div>';
   html+='<div class="sv-filter-row" aria-label="Filtros de condição">';
   filtros.forEach((f,i)=>{html+='<button type="button" class="sv-filter '+(i===0?'active':'')+'" data-sv-filter="'+escaparHtml(f[0])+'" onclick="filtrarMaquinasSupervisor(\''+f[0]+'\')"><span style="--sv-dot:'+f[2]+'"></span>'+escaparHtml(f[0]==='Todas'?'Todas':f[0].replace(' informada na O.S.','').replace(' • situação não confirmada',''))+' <b>'+f[1]+'</b></button>'});
@@ -5159,7 +5182,28 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
  #painelMaquinasSupervisor .supervisor-kpi>small{font-size:.74rem!important}
  #painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]{padding:9px!important}
 }
-</style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
+</style><style id="erimax-supervisao-atencao-2026">
+#painelMaquinasSupervisor .sv-attention{padding:16px 18px;border:1px solid #e5d8c8;border-radius:15px;background:linear-gradient(120deg,#fffdf9,#fff);box-shadow:0 4px 15px rgba(67,51,29,.045)}
+#painelMaquinasSupervisor .sv-attention-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
+#painelMaquinasSupervisor .sv-attention-head h3{margin:4px 0;color:#684a28;font-size:1rem;font-weight:820}
+#painelMaquinasSupervisor .sv-attention-head p{margin:0;color:#776b5d;font-size:.7rem;line-height:1.45}
+#painelMaquinasSupervisor .sv-attention-head>strong{display:grid;place-items:center;flex:none;min-width:38px;height:38px;padding:0 9px;border:1px solid #ecd9c0;border-radius:11px;background:#fff5e8;color:#98601f;font-size:1.05rem;font-variant-numeric:tabular-nums}
+#painelMaquinasSupervisor .sv-attention-list{display:grid;gap:7px}
+#painelMaquinasSupervisor .sv-attention-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 11px;border:1px solid #eee6dc;border-radius:10px;background:#fff;text-align:left;color:#594a39}
+#painelMaquinasSupervisor .sv-attention-mark{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:8px;background:#fff0df;color:#a45e17;font-size:.8rem;font-weight:900}
+#painelMaquinasSupervisor .sv-attention-main{display:grid;gap:3px;flex:1;min-width:0}
+#painelMaquinasSupervisor .sv-attention-main b{color:#34495a;font-size:.73rem;overflow-wrap:anywhere}
+#painelMaquinasSupervisor .sv-attention-main small{color:#6d7780;font-size:.64rem;line-height:1.35}
+#painelMaquinasSupervisor .sv-attention-open{flex:none;color:#38647a;font-size:.65rem;font-weight:800}
+#painelMaquinasSupervisor .sv-attention-more{display:block;margin-top:9px;color:#746b60;font-size:.64rem;line-height:1.4}
+#painelMaquinasSupervisor .sv-attention-clear{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #dcebe3;border-radius:10px;background:#f5faf7}
+#painelMaquinasSupervisor .sv-attention-clear>span{display:grid;place-items:center;flex:none;width:27px;height:27px;border-radius:50%;background:#e2f2e8;color:#28744b;font-weight:900}
+#painelMaquinasSupervisor .sv-attention-clear div{display:grid;gap:3px}
+#painelMaquinasSupervisor .sv-attention-clear b{color:#285c43;font-size:.72rem}
+#painelMaquinasSupervisor .sv-attention-clear small{color:#587766;font-size:.64rem;line-height:1.35}
+@media(max-width:480px){#painelMaquinasSupervisor .sv-attention{padding:13px}#painelMaquinasSupervisor .sv-attention-item{align-items:flex-start;padding:9px;gap:8px}#painelMaquinasSupervisor .sv-attention-open{font-size:.6rem}#painelMaquinasSupervisor .sv-attention-main b{font-size:.69rem}}
+</style>
+</head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
 <style id="erimax-supervisao-tipografia-final">
 /* Supervisão: hierarquia discreta, com contraste suficiente para leitura */
 #painelMaquinasSupervisor{color:#293b49!important}
