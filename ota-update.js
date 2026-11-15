@@ -108,7 +108,15 @@
       const versionCode = typeof live.getVersionCode === 'function' ? Number((await live.getVersionCode()).versionCode) : 0;
       const minimum = Number(manifest.minimumNativeVersionCode || 1);
       if(versionCode && minimum > versionCode) throw new Error('Esta atualização exige uma versão mais recente do aplicativo Android.');
-      await live.downloadBundle({url:bundleUrl.toString(),bundleId:manifest.bundleId,checksum:manifest.checksum});
+      try{
+        await live.downloadBundle({url:bundleUrl.toString(),bundleId:manifest.bundleId,checksum:manifest.checksum});
+      }catch(downloadError){
+        // O LiveUpdate pode manter um pacote já baixado mesmo que ele ainda
+        // não esteja selecionado. Nesse caso, reutiliza o bundle existente.
+        const message = downloadError && downloadError.message ? downloadError.message : String(downloadError);
+        if(!/bundle already exists/i.test(message)) throw downloadError;
+        console.info('[EriMax OTA] Pacote já existe localmente; reutilizando:',manifest.bundleId);
+      }
       await live.setNextBundle({bundleId:manifest.bundleId});
       const next = typeof live.getNextBundle === 'function' ? await live.getNextBundle() : null;
       if(!next || next.bundleId !== manifest.bundleId) throw new Error('O pacote foi baixado, mas o Android não confirmou a seleção para atualização.');
