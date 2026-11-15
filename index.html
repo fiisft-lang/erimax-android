@@ -2407,7 +2407,7 @@ function renderPainelMaquinasSupervisor(){
     const atendimento=item.ativas.some(o=>o.status==='Em Atendimento');
     const abertaParada=item.ativas.some(o=>o.status==='Aberta'&&String(o.situacao_equipamento||'').toLocaleLowerCase('pt-BR')==='parado');
     const abertaAguardando=item.ativas.some(o=>o.status==='Aberta'&&String(o.situacao_equipamento||'').toLocaleLowerCase('pt-BR')!=='parado');
-    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':abertaParada?'Parada registrada':abertaAguardando?'O.S. aguardando':'Sem O.S. ativa';
+    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':abertaParada?'Parada registrada':abertaAguardando?'O.S. aguardando':'Sem O.S. ativa • funcionamento não confirmado';
     item.cor=pausada?'#a16207':atendimento?'#1d4ed8':abertaParada?'#b91c1c':abertaAguardando?'#64748b':'#15803d';
     return item;
   }).sort((a,b)=>a.setor.localeCompare(b.setor,'pt-BR')||a.maquina.localeCompare(b.maquina,'pt-BR'));
@@ -2418,12 +2418,12 @@ function renderPainelMaquinasSupervisor(){
     ['Manutenção em andamento',qtd('Manutenção em andamento'),'#1d4ed8'],
     ['O.S. pausada',qtd('O.S. pausada'),'#a16207'],
     ['O.S. aguardando',qtd('O.S. aguardando'),'#64748b'],
-    ['Sem O.S. ativa',qtd('Sem O.S. ativa'),'#15803d']
+    ['Sem O.S. ativa',qtd('Sem O.S. ativa'),'#64748b']
   ];
   const maquinasParadas=qtd('Parada registrada');
   const maquinasEmManutencao=qtd('Manutenção em andamento');
   const osAtivas=ativas.length;
-  let html='<section class="card supervisor-resumo" style="margin-bottom:12px"><div class="supervisor-resumo-cabecalho"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Visão geral da supervisão</h3><p style="font-size:.76rem;color:#64748b;margin:4px 0 0">Acompanhe os pontos que precisam de atenção e abra os setores para ver cada máquina</p></div><span class="supervisor-total-maquinas">'+itens.length+' máquina(s) cadastrada(s)</span></div>';
+  let html='<section class="card supervisor-resumo" style="margin-bottom:12px"><div class="supervisor-resumo-cabecalho"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Visão geral da supervisão</h3><p class="supervisor-intro">Acompanhe os pontos que precisam de atenção e abra os setores para ver cada máquina</p></div><span class="supervisor-total-maquinas">'+itens.length+' máquina(s) cadastrada(s)</span></div>';
   html+='<div class="supervisor-kpis">'
     +'<div class="supervisor-kpi supervisor-kpi-alerta"><span>O.S. ativas</span><b>'+osAtivas+'</b><small>Aberta, em atendimento ou pausada</small></div>'
     +'<div class="supervisor-kpi supervisor-kpi-parada"><span>Máquinas com parada</span><b>'+maquinasParadas+'</b><small>Parada informada na abertura da O.S.</small></div>'
@@ -2432,7 +2432,7 @@ function renderPainelMaquinasSupervisor(){
     +'</div><div class="supervisor-status-titulo">Situação das máquinas <small>Toque em um indicador para filtrar os setores</small></div>';
   html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:9px">';
   resumo.forEach(r=>{html+='<div role="button" tabindex="0" aria-label="Filtrar máquinas: '+escaparHtml(r[0])+'" onclick="filtrarMaquinasSupervisor(\''+r[0]+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();filtrarMaquinasSupervisor(\''+r[0]+'\')}" style="border:1px solid #e2e8f0;border-left:4px solid '+r[2]+';border-radius:9px;padding:9px;min-width:0;cursor:pointer;background:#fff;transition:background .15s,box-shadow .15s" onmouseover="this.style.background=\'#f8fafc\';this.style.boxShadow=\'0 2px 8px #0f172a14\'" onmouseout="this.style.background=\'#fff\';this.style.boxShadow=\'none\'"><div style="font-size:.7rem;color:#64748b">'+r[0]+'</div><b style="font-size:1.35rem;color:'+r[2]+'">'+r[1]+'</b><small style="display:block;color:#64748b;font-size:.65rem;margin-top:2px">Toque para ver máquinas ›</small></div>'});
-  html+='</div><p style="font-size:.7rem;color:#64748b;margin:10px 0 0">“Sem O.S. ativa” não confirma que a máquina está rodando. O sistema ainda não recebe sinal de sensores ou CLP.</p><div id="filtroMaquinasSupervisorAtivo" style="display:none;margin-top:12px"></div></section>';
+  html+='</div><p class="supervisor-aviso-status">Atenção: “Sem O.S. ativa” significa apenas que não existe uma O.S. em aberto. Não confirma que a máquina está rodando ou parada; essa condição precisa ser informada pelo operador.</p><div id="filtroMaquinasSupervisorAtivo" style="display:none;margin-top:12px"></div></section>';
   if(!itens.length)html+='<div class="card" style="color:#64748b;text-align:center">Nenhuma máquina cadastrada ou O.S. encontrada.</div>';
   grupos.forEach(setor=>{
     const lista=itens.filter(x=>x.setor===setor);
@@ -4367,6 +4367,83 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
   #painelMaquinasSupervisor .supervisor-os-item b{font-size:.81rem!important}
   #painelMaquinasSupervisor .supervisor-os-item>div{font-size:.75rem!important}
   #painelMaquinasSupervisor .supervisor-os-item small{font-size:.73rem!important}
+}
+
+
+/* Supervisão: hierarquia visual e leitura dos indicadores */
+#painelMaquinasSupervisor>section.card:first-child .supervisor-resumo-cabecalho h3{
+  font-size:1.02rem!important;font-weight:700!important;letter-spacing:0!important;
+  line-height:1.35!important;color:#24445f!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-intro{
+  margin:5px 0 0!important;color:#40566b!important;opacity:1!important;
+  font-size:.82rem!important;font-weight:500!important;line-height:1.5!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-total-maquinas{
+  font-size:.72rem!important;font-weight:600!important;color:#52677b!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-kpis{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;margin-top:13px!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-kpi{
+  min-width:0!important;padding:10px 11px!important;border:1px solid #e1e8ef!important;
+  border-radius:11px!important;background:#fff!important;box-shadow:none!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-kpi>span{
+  display:block!important;font-size:.74rem!important;font-weight:600!important;
+  line-height:1.35!important;color:#52677b!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-kpi>b{
+  display:block!important;margin:4px 0 2px!important;font-size:1.35rem!important;
+  line-height:1.15!important;font-weight:700!important;letter-spacing:0!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-kpi>small{
+  display:block!important;font-size:.67rem!important;font-weight:400!important;
+  line-height:1.35!important;color:#647789!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-status-titulo{
+  margin-top:14px!important;font-size:.86rem!important;font-weight:700!important;
+  line-height:1.4!important;color:#294b66!important;
+}
+#painelMaquinasSupervisor>section.card:first-child .supervisor-status-titulo small{
+  font-size:.68rem!important;font-weight:400!important;color:#647789!important;
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]{
+  padding:9px 10px!important;border:1px solid #e1e8ef!important;
+  border-left:3px solid #94a3b8!important;border-radius:9px!important;
+  box-shadow:none!important;
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>div{
+  font-size:.72rem!important;font-weight:600!important;line-height:1.35!important;
+  color:#52677b!important;
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>b{
+  font-size:1.18rem!important;font-weight:700!important;line-height:1.2!important;
+  margin-top:3px!important;
+}
+#painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>small{
+  font-size:.64rem!important;font-weight:400!important;color:#718096!important;
+}
+#painelMaquinasSupervisor .supervisor-aviso-status{
+  margin:10px 0 0!important;padding:8px 10px!important;border-radius:8px!important;
+  background:#f1f5f9!important;border:1px solid #dbe4ec!important;
+  color:#40566b!important;font-size:.72rem!important;font-weight:500!important;
+  line-height:1.45!important;
+}
+@media(max-width:600px){
+  #painelMaquinasSupervisor>section.card:first-child .supervisor-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;
+  }
+  #painelMaquinasSupervisor>section.card:first-child .supervisor-kpi{padding:9px!important}
+  #painelMaquinasSupervisor>section.card:first-child .supervisor-kpi>b{font-size:1.22rem!important}
+  #painelMaquinasSupervisor>section.card:first-child .supervisor-kpi>span{font-size:.7rem!important}
+  #painelMaquinasSupervisor>section.card:first-child .supervisor-kpi>small{font-size:.63rem!important}
+  #painelMaquinasSupervisor>section.card:first-child>div[style*="grid-template-columns"]>div[role="button"]>b{font-size:1.08rem!important}
+  #painelMaquinasSupervisor>section.card:first-child .supervisor-intro{font-size:.8rem!important}
+}
+@media(max-width:360px){
+  #painelMaquinasSupervisor>section.card:first-child .supervisor-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 
 </style></head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main></body></html>`;
