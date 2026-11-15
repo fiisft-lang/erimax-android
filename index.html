@@ -1751,6 +1751,7 @@ tbody tr:hover{background:#eef6f5}
 <button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z"/></svg></span><span>Cadastro</span></button>
 <button id="tbPresenca" class="tab-btn" type="button" onclick="mudarAba('presenca',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1H3Zm13-9a3 3 0 1 0-1-5.8M17 14a5 5 0 0 1 4 5v1h-3"/></svg></span><span>Conectados</span></button>
 <button id="tbIA" class="tab-btn" type="button" onclick="mudarAba('ia',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><span>Consultas</span></button>
+<button id="tbVerificarAtualizacoes" class="tab-btn" type="button" onclick="fecharMenuLateral();if(window.erimaxOTA)window.erimaxOTA.checkForUpdate(true);else alert('Atualização não disponível nesta versão.')"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4.9 16.5A8 8 0 1 0 4 12"/></svg></span><span>Verificar atualizações</span></button>
 </nav>
 
 <div class="container">
