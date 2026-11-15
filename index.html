@@ -2889,6 +2889,12 @@ tbody tr:hover{background:#eef6f5}
 }
 @media(prefers-reduced-motion:reduce){#metricsDataContent .metric-card{transition:none}}
 </style>
+<style id="erimax-metricas-graficos-analise-2026">
+.metrics-chart-note{margin:-3px 0 12px;color:#64748b;font-size:.76rem;line-height:1.5}
+#cardHorarioPareto .chart-wrapper{height:360px}
+#chCausas{min-height:260px}
+@media(max-width:600px){#cardHorarioPareto .chart-wrapper{height:330px}.metrics-chart-note{font-size:.73rem}}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3092,9 +3098,9 @@ tbody tr:hover{background:#eef6f5}
 <div class="card metricas-com-horario" id="cardHorarioEfSetor"><h4>Disponibilidade por setor<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfSetor"></canvas></div></div>
 <div class="card metricas-com-horario" id="cardHorarioEfMaq"><h4>Disponibilidade por máquina<br><small style="text-transform:none;color:#64748b">horas programadas − paradas registradas</small></h4><div class="chart-wrapper"><canvas id="chEfMaq"></canvas></div></div>
 <div class="metrics-section-heading"><span>03</span><div><h3>Causas e evolução das O.S.</h3><p>Identifique os motivos mais frequentes e acompanhe a evolução ao longo do tempo</p></div></div>
-<div class="card"><h4>Principais causas das falhas</h4><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
+<div class="card"><h4>Principais causas das falhas</h4><p class="metrics-chart-note">Frequência de O.S. por causa. Use junto ao Pareto de parada para diferenciar problemas frequentes dos que mais tiram tempo das máquinas.</p><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
 <div class="card"><h4>Evolução diária das O.S.</h4><div class="chart-wrapper"><canvas id="chTendencia"></canvas></div></div>
-<div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Parada por setor (Pareto)</h4><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Parada por causa (Pareto)</h4><p class="metrics-chart-note">Mostra quais causas acumulam mais tempo de máquina parada, ajudando a priorizar ações corretivas.</p><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
 <div class="card metricas-com-horario" id="cardHorarioDowntime"><h4>Máquinas com maior tempo de parada</h4><div class="chart-wrapper" style="height:300px"><canvas id="chDowntime"></canvas></div></div>
 <div class="metrics-section-heading"><span>04</span><div><h3>Perfil do atendimento</h3><p>Compare tipos de problema, tempo de resposta, reparo e comportamento por turno</p></div></div>
 <div class="card"><h4>Distribuição por tipo de problema</h4><div class="chart-wrapper"><canvas id="chTipos"></canvas></div></div>
@@ -5168,13 +5174,15 @@ function atualizarMetricasReais(){
     {label:'Concluídas',data:dias_.map(d=>conclDia[d]||0),borderColor:'#28a745',backgroundColor:'#28a74533',tension:.3,fill:true}]},
     options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
 
-  const sets=Object.entries(setor).sort((a,b)=>b[1]-a[1]),tot=sets.reduce((s,x)=>s+x[1],0)||1;
-  let acum=0;
-  DETALHES_GRAFICOS.chPareto=(_ds,i)=>{const nome=sets[i]?.[0];return{titulo:'O.S. com parada no setor '+nome,lista:OS_PARADA_ATUAL.filter(x=>x.os.setor===nome).map(x=>x.os)}};
-  mk('chPareto',{data:{labels:sets.map(s=>s[0]),datasets:[
-    {type:'bar',label:'Min parados',data:sets.map(s=>Math.round(s[1])),backgroundColor:'#ff6b00',yAxisID:'y'},
-    {type:'line',label:'% acumulado',data:sets.map(s=>Math.round((acum+=s[1])/tot*100)),borderColor:'#0056b3',yAxisID:'y1'}]},
-    options:{scales:{y:{beginAtZero:true},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false}}}}});
+  const paradasPorCausa={};
+  (OS_PARADA_ATUAL||[]).forEach(x=>{const nome=x.os.causa||'Não informada';paradasPorCausa[nome]=(paradasPorCausa[nome]||0)+x.parada});
+  const causasPareto=Object.entries(paradasPorCausa).sort((a,b)=>b[1]-a[1]),totalParadasCausa=causasPareto.reduce((s,x)=>s+x[1],0)||1;
+  let acumuladoCausa=0;
+  DETALHES_GRAFICOS.chPareto=(_ds,i)=>{const nome=causasPareto[i]?.[0];return{titulo:'O.S. paradas por causa: '+nome,lista:OS_PARADA_ATUAL.filter(x=>(x.os.causa||'Não informada')===nome).map(x=>x.os)}};
+  mk('chPareto',{data:{labels:causasPareto.map(x=>x[0]),datasets:[
+    {type:'bar',label:'Minutos parados',data:causasPareto.map(x=>Math.round(x[1])),backgroundColor:'#e87924',yAxisID:'y'},
+    {type:'line',label:'% acumulado',data:causasPareto.map(x=>Math.round((acumuladoCausa+=x[1])/totalParadasCausa*100)),borderColor:'#245b91',backgroundColor:'#245b91',pointRadius:3,yAxisID:'y1'}]},
+    options:{indexAxis:'y',scales:{x:{beginAtZero:true,title:{display:true,text:'minutos de parada'}},y:{ticks:{autoSkip:false}},y1:{position:'top',min:0,max:100,grid:{drawOnChartArea:false},ticks:{callback:v=>v+'%'}}}}});
 
   const top=rank.slice(0,10);
   DETALHES_GRAFICOS.chDowntime=(_ds,i)=>{const nome=top[i]?.[0];return{titulo:'O.S. da máquina '+nome,lista:f.filter(c=>c.maquina===nome)}};
@@ -5216,9 +5224,9 @@ function atualizarMetricasReais(){
   }
   efChart('chEfMaq',efM,avisosMaq);
   efChart('chEfSetor',Object.entries(efS).map(([n,v])=>({n,prev:v.prev,par:v.par,run:v.prev-v.par,pct:Math.round((v.prev-v.par)/v.prev*100)})),setoresSemHorario);
-  const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]),ct=cs.reduce((x,y)=>x+y[1],0)||1;let ac=0;
+  const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]);
   DETALHES_GRAFICOS.chCausas=(_ds,i)=>{const nome=cs[i]?.[0];return{titulo:'O.S. com causa: '+nome,lista:f.filter(c=>(c.causa||'Não informada')===nome)}};
-  mk('chCausas',{data:{labels:cs.map(x=>x[0]),datasets:[{type:'bar',label:'Ocorrências',data:cs.map(x=>x[1]),backgroundColor:'#0056b3',yAxisID:'y'},{type:'line',label:'% acumulado',data:cs.map(x=>Math.round((ac+=x[1])/ct*100)),borderColor:'#ff6b00',yAxisID:'y1'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false}}}}});
+  mk('chCausas',{type:'bar',data:{labels:cs.map(x=>x[0]),datasets:[{label:'O.S. registradas',data:cs.map(x=>x[1]),backgroundColor:'#326b9b',hoverBackgroundColor:'#1e4e75',barThickness:'flex',maxBarThickness:26}]},options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' O.S.'}}},scales:{x:{beginAtZero:true,ticks:{precision:0},title:{display:true,text:'quantidade de O.S.'}},y:{ticks:{autoSkip:false}}}}});
   const tt=Object.values(tipo).reduce((x,y)=>x+y,0)||1;
   const tiposGrafico=Object.keys(tipo);
   DETALHES_GRAFICOS.chTipos=(_ds,i)=>{const nome=tiposGrafico[i];return{titulo:'O.S. do tipo '+nome,lista:f.filter(c=>c.tipo===nome)}};
