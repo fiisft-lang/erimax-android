@@ -45,10 +45,25 @@
     return result;
   }
 
-  async function checkForUpdate(){
-    if(checking || !isAndroid()) return;
+  async function checkForUpdate(force){
+    const manual = force === true;
+    if(checking){
+      if(manual) alert('A verificação de atualização do EriMax já está em andamento. Aguarde alguns instantes.');
+      return;
+    }
+    if(!isAndroid()){
+      if(manual) alert('O site do EriMax não utiliza atualização OTA do aplicativo. Para carregar a versão mais recente, atualize a página do site. No aplicativo Android, use esta opção para procurar atualizações.');
+      return;
+    }
     const live = PLUGIN();
-    if(!live || typeof live.getCurrentBundle !== 'function') return;
+    if(!live){
+      if(manual) alert('O componente de atualização não está disponível nesta instalação. Verifique se está usando a versão mais recente do APK do EriMax.');
+      return;
+    }
+    if(typeof live.getCurrentBundle !== 'function' || typeof live.downloadBundle !== 'function' || typeof live.setNextBundle !== 'function'){
+      if(manual) alert('Esta instalação do EriMax não oferece suporte completo à atualização remota. É necessário atualizar o APK para uma versão compatível.');
+      return;
+    }
     checking = true;
     try{
       await ready();
