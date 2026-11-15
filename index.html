@@ -3636,6 +3636,19 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
  #tab-cadastro #cadastro-area-usuarios #listaUsuarios .maq-row button{width:34px!important;min-width:34px!important;height:34px!important}
 }
 </style>
+<style id="erimax-cadastro-preventiva-card-toggle-2026">
+#tab-cadastro #cadastro-area-preventivas{display:flex!important;flex-direction:column!important;align-items:stretch!important}
+#tab-cadastro #cadastro-area-preventivas>#pvFormCard{order:1!important}
+#tab-cadastro #cadastro-area-preventivas>#pvListaCard{order:2!important}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;margin:-2px -2px 14px;padding:10px 12px;border:1px solid #dce8ed;border-radius:12px;background:linear-gradient(115deg,#f5fafb,#fff);cursor:pointer}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading:focus-visible{outline:3px solid rgba(22,132,126,.25);outline-offset:2px}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading>div{display:grid;gap:4px;min-width:0}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading small{color:#718697;font-size:.7rem;line-height:1.35}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:10px;background:#e7f4f1;color:#167c75;font-size:1.2rem;font-weight:800}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo[style*="display: none"]{display:none!important}
+#tab-cadastro #cadastro-area-usuarios>.cadastro-usuario-form{order:1}
+#tab-cadastro #cadastro-area-usuarios>.cadastro-usuarios-list{order:2}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3778,7 +3791,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="card cadastro-area-card cadastro-maquinas-card">
 <p class="cadastro-area-intro">Cada setor fica recolhido. Abra um setor para visualizar a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
-</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><button id="pvAlternarForm" type="button" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="alternarFormPreventiva()">Fechar ✕</button></div><div id="pvFormConteudo">
+</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div class="pv-form-heading" role="button" tabindex="0" aria-controls="pvFormConteudo" aria-expanded="true" onclick="alternarFormPreventiva()"><div><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><small id="pvFormHint">Toque aqui para recolher o formulário</small></div><span class="pv-form-heading-icon" aria-hidden="true">⌄</span></div><div id="pvFormConteudo">
 <div class="form-group"><label>Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
 <div class="form-group"><label>Máquinas</label>
 <label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
@@ -3789,7 +3802,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="form-group"><label>Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
 <div class="form-group"><label>Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
-<button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button><button type="button" class="btn-action" style="margin-top:8px;width:auto" onclick="fecharFormPreventiva()">Fechar cadastro</button></div></div>
+<button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div></div>
 <div class="card" id="pvListaCard"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 </section><section id="cadastro-area-usuarios" class="cadastro-area-panel">
 <div class="cadastro-area-heading"><span class="cadastro-area-heading-icon" aria-hidden="true">👥</span><div><span class="cadastro-area-eyebrow">ACESSO E PERMISSÕES</span><h3>Gestão de usuários</h3><p>Cadastre pessoas, atualize perfis e administre o acesso ao EriMax.</p></div></div>
@@ -7282,20 +7295,31 @@ function dispensarAlertaPreventiva(){
 }
 
 /* ===== PREVENTIVAS ===== *//* ===== PREVENTIVAS ===== */
+function atualizarCabecalhoFormPreventiva(aberto){
+ const card=document.getElementById('pvFormCard');
+ const hint=document.getElementById('pvFormHint');
+ const icon=card&&card.querySelector('.pv-form-heading-icon');
+ const heading=card&&card.querySelector('.pv-form-heading');
+ if(heading)heading.setAttribute('aria-expanded',aberto?'true':'false');
+ if(hint)hint.textContent=aberto?'Toque aqui para recolher o formulário':'Toque aqui para abrir o cadastro';
+ if(icon)icon.textContent=aberto?'⌃':'⌄';
+}
 function alternarFormPreventiva(){
-  const box=document.getElementById('pvFormConteudo');
-  if(!box)return;
-  if(box.style.display==='none')abrirFormPreventiva();else fecharFormPreventiva();
+ const box=document.getElementById('pvFormConteudo');
+ if(!box)return;
+ const abrir=box.style.display==='none';
+ box.style.display=abrir?'':'none';
+ atualizarCabecalhoFormPreventiva(abrir);
 }
 function fecharFormPreventiva(){
-  const box=document.getElementById('pvFormConteudo'),btn=document.getElementById('pvAlternarForm');
-  if(box)box.style.display='none';
-  if(btn)btn.textContent='Abrir cadastro';
+ const box=document.getElementById('pvFormConteudo');
+ if(box)box.style.display='none';
+ atualizarCabecalhoFormPreventiva(false);
 }
 function abrirFormPreventiva(){
-  const box=document.getElementById('pvFormConteudo'),btn=document.getElementById('pvAlternarForm');
-  if(box)box.style.display='';
-  if(btn)btn.textContent='Fechar ✕';
+ const box=document.getElementById('pvFormConteudo');
+ if(box)box.style.display='';
+ atualizarCabecalhoFormPreventiva(true);
 }
 
 function popularTecnicosPreventiva(){
