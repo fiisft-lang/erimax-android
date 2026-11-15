@@ -2935,6 +2935,54 @@ tbody tr:hover{background:#eef6f5}
 .metrics-heat-empty{margin:0;padding:18px;text-align:center;color:#64748b;font-size:.8rem}
 @media(max-width:520px){.metrics-heat-row{grid-template-columns:minmax(85px,1fr) minmax(50px,1.3fr) 42px;gap:6px;padding:8px}.metrics-heat-row>small{grid-column:1/-1;text-align:left;margin-top:-3px}.metrics-heat-name{font-size:.7rem}}
 </style>
+<style id="erimax-premium-finish">
+
+/* EriMax — acabamento premium: consistência visual global, sem alterar fluxos */
+:root{--erimax-ink:#183448;--erimax-deep:#12364d;--erimax-teal:#287f7b;--erimax-gold:#c99552;--erimax-muted:#687d8c;--erimax-border:#dce6eb;--erimax-surface:#fff;--erimax-canvas:#f1f5f6;--erimax-elevation:0 8px 24px rgba(20,48,65,.055)}
+html,body{background:var(--erimax-canvas)!important;color:var(--erimax-ink)!important}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+header{background:linear-gradient(112deg,#102f45 0%,#17485e 62%,#22666a 100%)!important;box-shadow:0 7px 22px rgba(12,39,56,.16)!important}
+header .hd{color:#e4eef0!important;font-weight:750!important;letter-spacing:.11em!important}
+.user-bar{background:linear-gradient(90deg,#fff 0%,#f7fafb 100%)!important;color:#456174!important;border-bottom:1px solid #e0e8ec!important;box-shadow:0 2px 9px rgba(20,48,65,.035)!important}
+.user-bar button{font-weight:800!important;transition:color .16s ease,opacity .16s ease}
+.nav-tabs{gap:5px!important;padding:7px clamp(8px,1.8vw,18px)!important;background:rgba(255,255,255,.97)!important;border-bottom:1px solid #dce6eb!important;box-shadow:0 5px 17px rgba(20,48,65,.055)!important;backdrop-filter:blur(14px)}
+.nav-tabs .tab-btn{min-height:48px!important;padding:9px 10px!important;border:1px solid transparent!important;border-bottom:2px solid transparent!important;border-radius:11px!important;color:#607686!important;font-size:.77rem!important;font-weight:750!important;transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease!important}
+.nav-tabs .tab-btn.active{background:linear-gradient(135deg,#eaf3f3,#f2f7f7)!important;border:1px solid #d6e7e5!important;border-bottom:2px solid #287f7b!important;color:#174c5b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 7px rgba(24,73,82,.045)!important}
+.nav-tabs .tab-btn.active .tab-icon{color:#287f7b!important}
+.nav-tabs .tab-btn:focus-visible,button:focus-visible,[role=button]:focus-visible{outline:3px solid rgba(40,127,123,.25)!important;outline-offset:2px}
+.container{padding-top:clamp(15px,2.2vw,27px)!important;padding-bottom:34px!important}
+.tab-content.active{animation:erimaxPremiumIn .2s ease both}
+@keyframes erimaxPremiumIn{from{opacity:.72;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.tab-content>.card,.tab-content>div>.card,.tab-content>section.card{border:1px solid var(--erimax-border)!important;border-radius:17px!important;background:var(--erimax-surface)!important;box-shadow:var(--erimax-elevation)!important}
+.tab-content h2,.tab-content h3,.tab-content h4{color:#1b4a5d!important}
+.tab-content p{color:inherit}
+.card h2,.card h3{letter-spacing:-.025em}
+.form-group>label,.tab-content label{color:#526c7b!important;font-weight:800!important;letter-spacing:.055em!important}
+.tab-content input:not([type=checkbox]):not([type=radio]):not([type=file]),.tab-content select,.tab-content textarea{border-color:#d5e1e7!important;border-radius:12px!important;background:#f8fafb!important;color:#203b4c!important;box-shadow:0 1px 2px rgba(17,45,62,.025)!important}
+.tab-content input:focus,.tab-content select:focus,.tab-content textarea:focus{border-color:#5aaba3!important;background:#fff!important;box-shadow:0 0 0 3px rgba(40,127,123,.13)!important}
+.tab-content button,.box button{font-weight:750}
+.btn-submit{border-radius:12px!important;background:linear-gradient(112deg,#17485e 0%,#287f7b 100%)!important;box-shadow:0 6px 16px rgba(26,91,96,.17)!important;letter-spacing:.01em}
+.btn-action{border-radius:10px!important;box-shadow:0 2px 6px rgba(20,48,65,.055)!important}
+.os-card{border-radius:16px!important;border-color:#dce6eb!important;background:linear-gradient(145deg,#fff 0%,#fbfcfd 100%)!important;box-shadow:0 5px 16px rgba(20,48,65,.055)!important}
+.os-card .os-id{color:#174b60!important;letter-spacing:-.015em}
+.maq-row,.report-item{border-color:#e0e8ec!important;border-radius:12px!important;box-shadow:0 2px 8px rgba(20,48,65,.035)!important}
+.metric-card{border-color:#dce6e9!important;border-radius:15px!important;background:linear-gradient(145deg,#fff 0%,#f7fafb 100%)!important;box-shadow:0 4px 13px rgba(20,48,65,.045)!important}
+.metric-card .title{color:#718492!important}.metric-card .value{color:#216f70!important}
+.chart-wrapper{border-color:#e4ecee!important;border-radius:14px!important;background:linear-gradient(180deg,#f8fbfb 0%,#fff 100%)!important}
+.tbl-wrap{border-color:#dfe8ec!important;border-radius:13px!important;box-shadow:0 2px 8px rgba(20,48,65,.025)}
+table{color:#304b5a!important}th{background:#edf3f4!important;color:#476271!important;letter-spacing:.035em}td{color:#354e5d}
+tbody tr:nth-child(even){background:#f8fafb!important}tbody tr:hover{background:#edf6f5!important}
+.box{border-top-color:#287f7b!important;border-radius:20px!important;box-shadow:0 26px 76px rgba(7,27,40,.28)!important}
+#login{background:linear-gradient(135deg,rgba(10,35,51,.96),rgba(21,73,83,.94))!important;backdrop-filter:blur(9px)}
+#login .box{border:1px solid rgba(255,255,255,.65)!important}
+#toastOS{border:1px solid rgba(255,255,255,.16);box-shadow:0 12px 30px rgba(8,30,43,.2)!important}
+#bannerAlerta{box-shadow:0 7px 20px rgba(130,34,34,.18)!important}
+@media(hover:hover){.nav-tabs .tab-btn:not(.active):hover{background:#f4f8f9!important;color:#28596a!important}.tab-content>.card:hover,.tab-content>div>.card:hover,.tab-content>section.card:hover{border-color:#d1e0e5!important;box-shadow:0 10px 28px rgba(20,48,65,.075)!important}.os-card:hover{box-shadow:0 8px 22px rgba(20,48,65,.075)!important}}
+@media(max-width:760px){.nav-tabs{gap:4px!important;padding:6px 7px!important}.nav-tabs .tab-btn{min-height:46px!important;padding:8px 5px!important;border-radius:10px!important;font-size:.7rem!important}.container{padding-top:12px!important}.user-bar{padding:7px 11px!important}}
+@media(max-width:390px){.nav-tabs .tab-btn{font-size:.66rem!important;padding-inline:3px!important}.tab-content>.card,.tab-content>div>.card{border-radius:14px!important}}
+@media(prefers-reduced-motion:reduce){.tab-content.active{animation:none!important}}
+
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
