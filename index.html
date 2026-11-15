@@ -2166,7 +2166,10 @@ tbody tr:hover{background:#eef6f5}
 #painelMaquinasSupervisor .sv-live{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #dce8e7;border-radius:20px;background:#fff;color:#4c6877;font-size:.68rem;font-weight:750}
 #painelMaquinasSupervisor .sv-live span{width:7px;height:7px;border-radius:50%;background:#23856d;box-shadow:0 0 0 4px rgba(35,133,109,.1)}
 #painelMaquinasSupervisor .sv-metrics{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:22px}
-#painelMaquinasSupervisor .sv-metric{min-width:0;padding:13px 14px;border:1px solid #e1e9ee;border-radius:12px;background:rgba(255,255,255,.9)}
+#painelMaquinasSupervisor .sv-metric{display:block;width:100%;min-width:0;padding:13px 14px;border:1px solid #e1e9ee;border-radius:12px;background:rgba(255,255,255,.9);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s,box-shadow .18s,transform .18s}
+#painelMaquinasSupervisor button.sv-metric:hover{border-color:#9bb8c7;box-shadow:0 5px 14px rgba(23,63,95,.1);transform:translateY(-1px)}
+#painelMaquinasSupervisor button.sv-metric:focus-visible{outline:3px solid rgba(37,99,166,.3);outline-offset:2px}
+#painelMaquinasSupervisor .sv-metric:after{content:'Toque para ver detalhes';display:block;margin-top:7px;color:#286c78;font-size:.62rem;font-weight:750}
 #painelMaquinasSupervisor .sv-metric span{display:block;color:#60788a;font-size:.68rem;font-weight:750}
 #painelMaquinasSupervisor .sv-metric strong{display:block;margin:4px 0 2px;color:#173f5f;font-size:1.65rem;line-height:1.1;font-weight:850;font-variant-numeric:tabular-nums}
 #painelMaquinasSupervisor .sv-metric small{display:block;color:#788a97;font-size:.62rem;line-height:1.35}
@@ -3327,6 +3330,7 @@ function renderPainelMaquinasSupervisor(){
     item.ordens.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
     item.ativas=item.ordens.filter(o=>['Aberta','Em Atendimento','Pausada'].includes(String(o.status||'')));
     item.concluidas=item.ordens.filter(o=>o.status==='Concluída');
+    item.temOSAtiva=item.ativas.length>0;
     const situacoes=item.ativas.filter(o=>o.status==='Aberta').map(o=>String(o.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR'));
     const parada=situacoes.includes('parado'),rodando=situacoes.includes('rodando');
     const semSituacao=situacoes.some(s=>s!=='parado'&&s!=='rodando');
@@ -3363,10 +3367,10 @@ function renderPainelMaquinasSupervisor(){
   let html='<div class="sv-page">';
   html+='<section class="sv-hero"><div class="sv-hero-top"><div><span class="sv-kicker">CENTRO DE CONTROLE</span><h2>Supervisão</h2><p>Acompanhamento das máquinas e ordens de serviço.</p></div><div class="sv-live"><span></span> Dados do sistema</div></div>';
   html+='<div class="sv-metrics">'
-    +'<div class="sv-metric"><span>Ordens ativas</span><strong>'+osAtivas+'</strong><small>Em aberto, atendimento ou pausadas</small></div>'
-    +'<div class="sv-metric"><span>Máquinas com O.S.</span><strong>'+maquinasComOS+'</strong><small>Com ordem ainda não concluída</small></div>'
-    +'<div class="sv-metric"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Condição registrada na abertura</small></div>'
-    +'<div class="sv-metric"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Atendimento em andamento</small></div>'
+    +'<button type="button" class="sv-metric" onclick="filtrarMaquinasSupervisor(\'Com O.S. ativa\')" aria-label="Ver máquinas com ordens ativas"><span>Ordens ativas</span><strong>'+osAtivas+'</strong><small>Em aberto, atendimento ou pausadas</small></button>'
+    +'<button type="button" class="sv-metric" onclick="filtrarMaquinasSupervisor(\'Com O.S. ativa\')" aria-label="Ver máquinas com O.S. ativa"><span>Máquinas com O.S.</span><strong>'+maquinasComOS+'</strong><small>Com ordem ainda não concluída</small></button>'
+    +'<button type="button" class="sv-metric" onclick="filtrarMaquinasSupervisor(\'Parada informada na O.S.\')" aria-label="Ver máquinas paradas"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Condição registrada na abertura</small></button>'
+    +'<button type="button" class="sv-metric" onclick="filtrarMaquinasSupervisor(\'Manutenção em andamento\')" aria-label="Ver máquinas em manutenção"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Atendimento em andamento</small></button>'
     +'</div></section>';
   html+='<section class="sv-attention"><div class="sv-attention-head"><div><span class="sv-kicker">AÇÃO DO SUPERVISOR</span><h3>O.S. que precisam de atenção</h3><p>Prioridades, máquinas paradas, ordens pausadas e ordens aguardando técnico.</p></div><strong>'+alertasSupervisor.length+'</strong></div>';
   if(alertasSupervisor.length){
@@ -3393,7 +3397,7 @@ function renderPainelMaquinasSupervisor(){
     html+='<details class="sv-sector" data-supervisor-setor="1" data-sv-sector-name="'+escaparHtml(setor.toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-folder">▰</span><span class="sv-sector-name"><b>'+escaparHtml(setor)+'</b><small>'+lista.length+' máquina(s) • '+totalOS+' O.S. ativa(s)</small></span><span class="sv-sector-side">'+(paradas?'<em>'+paradas+' parada(s)</em>':'')+'<span class="sv-chevron">⌄</span></span></summary><div class="sv-machine-list">';
     lista.forEach(item=>{
       const estadoLabel=item.estado==='Sem O.S. ativa • situação não confirmada'?'Sem O.S. ativa':item.estado;
-      html+='<details class="sv-machine" data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" data-sv-search="'+escaparHtml((item.maquina+' '+item.setor).toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-machine-dot" style="--sv-state:'+item.cor+'"></span><span class="sv-machine-main"><b>'+escaparHtml(item.maquina)+'</b><small style="color:'+item.cor+'">'+escaparHtml(estadoLabel)+'</small></span><span class="sv-machine-count"><b>'+item.ativas.length+'</b><small>ativas</small></span><span class="sv-machine-count"><b>'+item.concluidas.length+'</b><small>concluídas</small></span><span class="sv-chevron">⌄</span></summary><div class="sv-machine-detail">';
+      html+='<details class="sv-machine" data-supervisor-maquina="1" data-supervisor-ativa="'+(item.temOSAtiva?'1':'0')+'" data-supervisor-estado="'+escaparHtml(item.estado)+'" data-sv-search="'+escaparHtml((item.maquina+' '+item.setor).toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-machine-dot" style="--sv-state:'+item.cor+'"></span><span class="sv-machine-main"><b>'+escaparHtml(item.maquina)+'</b><small style="color:'+item.cor+'">'+escaparHtml(estadoLabel)+'</small></span><span class="sv-machine-count"><b>'+item.ativas.length+'</b><small>ativas</small></span><span class="sv-machine-count"><b>'+item.concluidas.length+'</b><small>concluídas</small></span><span class="sv-chevron">⌄</span></summary><div class="sv-machine-detail">';
       if(item.ativas.length){
         html+='<div class="sv-detail-title">Ordens em andamento <span>'+item.ativas.length+'</span></div>';
         item.ativas.forEach(os=>{
@@ -3428,7 +3432,7 @@ function filtrarMaquinasSupervisor(estado){
   box.dataset.estadoFiltro=proximo;
   filtros.forEach(btn=>btn.classList.toggle('active',btn.dataset.svFilter===proximo));
   box.querySelectorAll('[data-supervisor-maquina]').forEach(el=>{
-    const bate=proximo==='Todas'||el.dataset.supervisorEstado===proximo;
+    const bate=proximo==='Todas'||(proximo==='Com O.S. ativa'?el.dataset.supervisorAtiva==='1':el.dataset.supervisorEstado===proximo);
     el.dataset.svStatusMatch=bate?'1':'0';
     const texto=el.dataset.svTextMatch!=='0';
     el.style.display=bate&&texto?'':'none';
