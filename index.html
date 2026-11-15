@@ -170,7 +170,7 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 #cardHorarioRanking{background:linear-gradient(155deg,#fff 0%,#f8fbff 100%)}
 #cardHorarioRanking .ranking-os-card-head{align-items:center;margin-bottom:15px}
 #cardHorarioRanking .ranking-os-card-head>span{background:#fff2e8;color:#bd6525}
-#cardHorarioRanking .downtime-ranking-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+#cardHorarioRanking .downtime-ranking-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
 #cardHorarioRanking .downtime-machine-card{min-width:0;padding:14px;border:1px solid #e5ebf2;border-radius:13px;background:#fff;box-shadow:0 3px 10px rgba(24,54,83,.035)}
 #cardHorarioRanking .downtime-machine-top{display:flex;align-items:center;gap:10px;min-width:0}
 #cardHorarioRanking .downtime-rank{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:#edf3f8;color:#536b80;font-size:.78rem;font-weight:850}
@@ -194,13 +194,23 @@ header .hd{font-size:.68rem;font-weight:800;text-transform:uppercase;text-align:
 #cardHorarioRanking .downtime-stats .downtime-repeat-alert{color:#c24141}
 #cardHorarioRanking .downtime-empty{grid-column:1/-1;padding:22px 12px;text-align:center;color:#7a8b9c;border:1px dashed #d9e2eb;border-radius:12px;font-size:.8rem}
 @media(max-width:600px){
- #cardHorarioRanking{padding:13px}
- #cardHorarioRanking .downtime-ranking-list{grid-template-columns:minmax(0,1fr);gap:9px}
- #cardHorarioRanking .downtime-machine-card{padding:12px}
- #cardHorarioRanking .downtime-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 5px}
- #cardHorarioRanking .downtime-main-value strong{font-size:1rem}
+ #cardHorarioRanking{padding:11px}
+ #cardHorarioRanking .downtime-ranking-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #cardHorarioRanking .downtime-machine-card{padding:9px}
+ #cardHorarioRanking .downtime-machine-top{display:grid;grid-template-columns:25px minmax(0,1fr);gap:6px}
+ #cardHorarioRanking .downtime-rank{width:25px;height:25px;flex-basis:25px;border-radius:8px;font-size:.68rem}
+ #cardHorarioRanking .downtime-machine-name strong{font-size:.76rem}
+ #cardHorarioRanking .downtime-machine-name small{font-size:.58rem}
+ #cardHorarioRanking .downtime-main-value{grid-column:2;text-align:left}
+ #cardHorarioRanking .downtime-main-value strong{font-size:.94rem}
+ #cardHorarioRanking .downtime-main-value small{font-size:.58rem}
+ #cardHorarioRanking .downtime-availability{margin:9px 0}
+ #cardHorarioRanking .downtime-availability-label{font-size:.61rem}
+ #cardHorarioRanking .downtime-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 5px;padding-top:8px}
+ #cardHorarioRanking .downtime-stats small{font-size:.56rem}
+ #cardHorarioRanking .downtime-stats strong{font-size:.68rem}
 }
-@media(min-width:601px) and (max-width:900px){#cardHorarioRanking .downtime-ranking-list{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:601px) and (max-width:900px){#cardHorarioRanking .downtime-ranking-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* Alerta discreto de preventivas */
 #alertaPreventivaApp{display:none;align-items:flex-start;gap:9px;margin:10px 12px;padding:9px 11px;border:1px solid #f1d28a;border-radius:10px;background:#fff9e9;color:#76520b;font-size:.78rem;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.05)}
