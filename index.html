@@ -5160,12 +5160,20 @@ async function alternarTurno(){
   if(atual&&atual.turno_ativo){
     const em=PERFIL.perfil==='tecnico'?chamados.filter(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome):[];
     if(em.length)return alert('Você ainda tem uma O.S. em serviço. Conclua ou transfira antes de encerrar o turno.');
-    const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'OFFLINE',turno_ativo:false,turno_fim:agora,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
+    const {data:encerrado,error}=await _supabase.from('status_tecnicos').update({status:'OFFLINE',turno_ativo:false,turno_fim:agora,os_atual_id:null,atualizado_em:agora}).eq('user_id',MEU_ID).select('user_id').maybeSingle();
     if(error)return alert('Não foi possível encerrar o turno: '+error.message);
+    if(!encerrado)return alert('Não foi possível localizar seu registro de expediente. Atualize o EriMax e tente novamente.');
     silenciarAlarmeNativo();
   }else{
-    const {error}=await _supabase.from('status_tecnicos').upsert({user_id:MEU_ID,status:'ONLINE',turno_ativo:true,turno_inicio:agora,turno_fim:null,os_atual_id:null,atualizado_em:agora},{onConflict:'user_id'});
-    if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
+    const dadosTurno={status:'ONLINE',turno_ativo:true,turno_inicio:agora,turno_fim:null,os_atual_id:null,atualizado_em:agora};
+    if(atual){
+      const {data:iniciado,error}=await _supabase.from('status_tecnicos').update(dadosTurno).eq('user_id',MEU_ID).select('user_id').maybeSingle();
+      if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
+      if(!iniciado)return alert('Não foi possível localizar seu registro de expediente. Atualize o EriMax e tente novamente.');
+    }else{
+      const {error}=await _supabase.from('status_tecnicos').insert({user_id:MEU_ID,...dadosTurno});
+      if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
+    }
   }
   if(PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
   await carregarDadosSupabase();
