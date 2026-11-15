@@ -3394,6 +3394,43 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 @media(max-width:800px){#tab-cadastro .cadastro-hub-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){#tab-cadastro .cadastro-hub-hero{padding:18px;border-radius:16px}#tab-cadastro .cadastro-hub-mark{width:48px;height:48px;flex-basis:48px;border-radius:14px;font-size:1.5rem}#tab-cadastro .cadastro-hub-nav{gap:8px;margin-bottom:14px}#tab-cadastro .cadastro-hub-tile{min-height:74px;padding:10px;gap:8px;border-radius:12px}#tab-cadastro .cadastro-hub-icon{width:34px;height:34px;flex-basis:34px;font-size:1.1rem}#tab-cadastro .cadastro-hub-copy b{font-size:.78rem}#tab-cadastro .cadastro-hub-copy small{font-size:.62rem}#tab-cadastro .cadastro-hub-arrow{display:none}}
 @media(prefers-reduced-motion:reduce){#tab-cadastro .cadastro-area-panel.active{animation:none}#tab-cadastro .cadastro-hub-tile{transition:none}}
+</style><style id="erimax-cadastro-experience-2026">
+/* Central de Cadastros: navegação por áreas e formulários */
+#tab-cadastro .cadastro-hub-nav{position:relative}
+#tab-cadastro .cadastro-hub-tile{position:relative;overflow:hidden;min-height:88px}
+#tab-cadastro .cadastro-hub-tile:focus-visible{outline:3px solid rgba(32,139,139,.35);outline-offset:3px}
+#tab-cadastro .cadastro-hub-tile.active:after{content:"ABERTO";position:absolute;right:10px;top:7px;color:#167b72;font-size:.55rem;font-weight:900;letter-spacing:.08em}
+#tab-cadastro .cadastro-area-panel>.card{border:1px solid #e1e9ef;border-radius:17px;box-shadow:0 7px 22px rgba(21,48,69,.055);padding:clamp(15px,2vw,22px)}
+#tab-cadastro .cadastro-area-panel .form-group{margin:0 0 15px}
+#tab-cadastro .cadastro-area-panel .form-group>label{display:block;margin-bottom:7px;color:#395469;font-size:.76rem;font-weight:800;letter-spacing:.015em}
+#tab-cadastro .cadastro-area-panel input:not([type=checkbox]),#tab-cadastro .cadastro-area-panel select,#tab-cadastro .cadastro-area-panel textarea,
+#tab-cadastro #novoSetor{min-height:44px;border:1px solid #cfdae4;border-radius:10px;background:#fbfdff;padding:10px 12px;color:#17364b;font-size:.88rem;transition:border-color .16s,box-shadow .16s,background .16s}
+#tab-cadastro .cadastro-area-panel input:focus,#tab-cadastro .cadastro-area-panel select:focus,#tab-cadastro .cadastro-area-panel textarea:focus,#tab-cadastro #novoSetor:focus{outline:none;border-color:#278d89;background:#fff;box-shadow:0 0 0 3px rgba(39,141,137,.12)}
+#tab-cadastro .cadastro-area-panel select{width:100%;appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235b7182' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center}
+#tab-cadastro .cadastro-area-panel .btn-submit{min-height:44px;border-radius:11px;font-weight:800;box-shadow:0 4px 10px rgba(22,73,89,.1)}
+#tab-cadastro .cadastro-area-panel .btn-action{min-height:38px;border-radius:9px;font-weight:750}
+#tab-cadastro #listaCfg>.card{border-radius:13px!important;background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:0 3px 12px rgba(26,55,76,.045)}
+#tab-cadastro .cfg-semana{border:1px solid #dce6ed!important;border-radius:13px!important;background:#f8fbfd;padding:12px!important}
+#tab-cadastro .cfg-semana> b{display:inline-flex;align-items:center;min-height:28px;color:#1b5066;font-size:.84rem}
+#tab-cadastro .cfg-semana>div{gap:10px!important}
+#tab-cadastro .cfg-semana>div>div{border:1px solid #e0e8ee;background:#fff!important;border-radius:11px!important;padding:10px!important;box-shadow:0 2px 7px rgba(28,57,78,.035)}
+#tab-cadastro .cfg-semana>div>div>b{display:block;margin-bottom:7px;color:#167b78;font-size:.78rem!important}
+#tab-cadastro .cfg-semana label{color:#536b7d;font-weight:700}
+#tab-cadastro .cfg-semana input[type=time],#tab-cadastro #listaCfg input[type=date],#tab-cadastro #listaCfg input[type=time]{min-height:38px;border:1px solid #d5e0e8;border-radius:8px;background:#fbfdff;padding:6px}
+#tab-cadastro #pvListaMaquinas,#tab-cadastro #pvEquipeTecnicos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;border:0!important;padding:0!important;max-height:240px}
+#tab-cadastro #pvListaMaquinas label,#tab-cadastro #pvEquipeTecnicos label{display:flex!important;align-items:center;gap:9px!important;min-height:43px;padding:10px 12px!important;border:1px solid #dce6ed;border-radius:10px;background:#f9fcfd;color:#29495d;font-weight:650;line-height:1.35}
+#tab-cadastro #pvListaMaquinas label:has(input:checked),#tab-cadastro #pvEquipeTecnicos label:has(input:checked){border-color:#4aa49b;background:#eef9f6;box-shadow:inset 0 0 0 1px rgba(42,139,129,.1)}
+#tab-cadastro input[type=checkbox]{accent-color:#18877f;width:17px!important;height:17px;flex:0 0 17px}
+#tab-cadastro #listaMaquinas .maq-row,#tab-cadastro #listaPrev .maq-row,#tab-cadastro #listaUsuarios .maq-row{border:1px solid #e1e9ef;border-radius:11px;background:#fff;padding:11px 13px;margin:7px 0}
+#tab-cadastro .cadastro-area-panel h3,#tab-cadastro .cadastro-area-panel h4{letter-spacing:-.02em}
+@media(max-width:600px){
+ #tab-cadastro .cadastro-area-panel>.card{padding:14px;border-radius:14px}
+ #tab-cadastro .cadastro-area-panel .form-group{margin-bottom:12px}
+ #tab-cadastro #pvListaMaquinas,#tab-cadastro #pvEquipeTecnicos{grid-template-columns:1fr;max-height:220px}
+ #tab-cadastro .cfg-semana>div{grid-template-columns:1fr!important}
+ #tab-cadastro .cadastro-hub-tile.active:after{right:7px;top:5px;font-size:.48rem}
+}
+@media(prefers-reduced-motion:reduce){#tab-cadastro .cadastro-hub-tile,#tab-cadastro .cadastro-area-panel *{transition:none!important}}
 </style></head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3976,22 +4013,50 @@ function fecharMenuLateral(){
   const b=document.getElementById('btnMenuLateral');if(b){b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir menu')}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharMenuLateral()});
+let CADASTRO_AREA_ATIVA=null;
+function atualizarVisualCadastroArea(area){
+  document.querySelectorAll('#tab-cadastro .cadastro-area-panel').forEach(el=>el.classList.toggle('active',!!area&&el.id==='cadastro-area-'+area));
+  document.querySelectorAll('#tab-cadastro .cadastro-hub-tile').forEach(el=>{
+    const ativo=!!area&&el.dataset.area===area;
+    el.classList.toggle('active',ativo);
+    el.setAttribute('aria-pressed',ativo?'true':'false');
+    el.setAttribute('aria-expanded',ativo?'true':'false');
+  });
+}
+function fecharCadastroArea(atualizarHistorico=true){
+  if(!CADASTRO_AREA_ATIVA)return;
+  CADASTRO_AREA_ATIVA=null;
+  atualizarVisualCadastroArea(null);
+  if(atualizarHistorico&&history.state&&history.state.erimaxCadastroArea)history.back();
+}
 function selecionarCadastroArea(area){
   const permitidas=['setores','maquinas','preventivas','usuarios'];
   if(!permitidas.includes(area))return;
-  document.querySelectorAll('#tab-cadastro .cadastro-area-panel').forEach(el=>el.classList.toggle('active',el.id==='cadastro-area-'+area));
-  document.querySelectorAll('#tab-cadastro .cadastro-hub-tile').forEach(el=>{
-    const ativo=el.dataset.area===area;
-    el.classList.toggle('active',ativo);
-    el.setAttribute('aria-pressed',ativo?'true':'false');
-  });
+  if(CADASTRO_AREA_ATIVA===area){fecharCadastroArea();return}
+  const estavaFechada=!CADASTRO_AREA_ATIVA;
+  CADASTRO_AREA_ATIVA=area;
+  atualizarVisualCadastroArea(area);
+  if(estavaFechada)history.pushState({...history.state,erimaxCadastroArea:true},'',location.href);
 }
+window.addEventListener('popstate',()=>{
+  if(CADASTRO_AREA_ATIVA)fecharCadastroArea(false);
+});
+(function instalarVoltarNativoCadastro(){
+  const app=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
+  if(app&&typeof app.addListener==='function'){
+    app.addListener('backButton',()=>{
+      if(CADASTRO_AREA_ATIVA)fecharCadastroArea();
+    }).catch?.(e=>console.warn('[EriMax] Voltar da Central de Cadastros:',e));
+  }
+})();
 function mudarAba(id,evt){
   fecharMenuLateral();
+  if(id!=='cadastro'&&CADASTRO_AREA_ATIVA)fecharCadastroArea(false);
+  if(id==='cadastro')fecharCadastroArea(false);
+  if(history.state&&history.state.erimaxCadastroArea)history.replaceState({...history.state,erimaxCadastroArea:false},'',location.href);
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
-  const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');if(id==='cadastro')selecionarCadastroArea('setores');
-  if(evt&&evt.currentTarget)evt.currentTarget.classList.add('active');
+  const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
   const precisaAtualizar=['painel','ordens-servico','ordens-abertas','metricas','ranking-os'].includes(id);
   const carregamento=precisaAtualizar?carregarDadosSupabase():Promise.resolve();
   if(id==='painel')renderPainelMaquinasSupervisor();
