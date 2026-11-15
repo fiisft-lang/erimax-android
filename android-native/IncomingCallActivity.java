@@ -87,6 +87,22 @@ public class IncomingCallActivity extends Activity {
     setContentView(scroll);
   }
 
+  @Override protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    String notificationAction = intent.getStringExtra("notification_action");
+    if ("silenciar".equals(notificationAction)) {
+      dismissCall();
+    } else if ("recusar_transferencia".equals(notificationAction)) {
+      rejectTransfer();
+    } else if ("assumir".equals(notificationAction) || "aceitar_transferencia".equals(notificationAction)) {
+      answerCall();
+    } else {
+      // Uma nova O.S. chegou enquanto a tela de alerta já estava aberta.
+      recreate();
+    }
+  }
+
   private void addInfoRow(LinearLayout card, String caption, String value) {
     TextView heading = label(caption, 10, Color.rgb(160, 188, 199));
     heading.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
