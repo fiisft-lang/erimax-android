@@ -1,0 +1,6 @@
+Recuperacao controlada do EriMax.
+
+Base restaurada em 2026-11-15: 79716e7caaf5146416d714254c88914c9259cd03
+Branch de seguranca preservando o estado anterior: backup/main-antes-recuperacao-2026-11-15
+
+Este arquivo registra o ponto de recuperacao e permite que os workflows de producao sejam executados sobre a base restaurada.
