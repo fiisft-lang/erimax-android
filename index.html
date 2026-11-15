@@ -8630,5 +8630,38 @@ window.onload=async function(){
   #tab-ia .sv-os-description,#tab-ia .sv-os-meta { font-size:.88rem!important; line-height:1.55!important; }
 }
 </style>
+
+<style id="erimax-acabamento-final-desktop-2026">
+/* Acabamento final: navegação, leitura, foco e consistência — somente desktop. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+  .nav-tabs { display:flex!important; flex-wrap:nowrap!important; align-items:stretch!important; gap:4px!important; padding:0 clamp(16px,2vw,32px)!important; overflow-x:auto; scrollbar-width:thin; }
+  .nav-tabs .tab-btn { flex:1 1 0!important; min-width:92px!important; min-height:60px!important; padding:12px 9px!important; font-size:.84rem!important; line-height:1.3!important; white-space:normal!important; overflow-wrap:normal!important; border-radius:9px 9px 0 0!important; transition:background-color .16s ease,color .16s ease,border-color .16s ease; }
+  .nav-tabs .tab-btn:hover { background:#f1f5f9!important; color:var(--primary)!important; }
+  .nav-tabs .tab-btn.active { background:#eef4fb!important; font-weight:750!important; }
+  .tab-content { min-width:0; }
+  .tab-content .card,.tab-content .os-card,.tab-content .ranking-os-card,.tab-content .metrics-ranking-card { min-width:0; }
+  .tab-content h2,.tab-content h3 { text-wrap:balance; }
+  .tab-content p { max-width:100%; }
+  .tab-content button,.tab-content input,.tab-content select,.tab-content textarea,.nav-tabs .tab-btn { outline-offset:3px; }
+  .tab-content button:focus-visible,.tab-content input:focus-visible,.tab-content select:focus-visible,.tab-content textarea:focus-visible,.nav-tabs .tab-btn:focus-visible { outline:3px solid rgba(37,99,235,.42)!important; }
+  .tab-content .tbl-wrap,.tab-content .table-responsive { width:100%; overflow-x:auto; }
+  .tab-content .tbl-wrap table,.tab-content .table-responsive table { min-width:680px; }
+  .tab-content .tbl-wrap th,.tab-content .table-responsive th { white-space:nowrap; }
+  .tab-content .tbl-wrap tbody tr:nth-child(even),.tab-content .table-responsive tbody tr:nth-child(even) { background:#f8fafc; }
+  .tab-content .tbl-wrap tbody tr:hover,.tab-content .table-responsive tbody tr:hover { background:#eef4fb; }
+  .tab-content .chart-wrapper { min-width:0; }
+  .tab-content .chart-wrapper canvas { display:block; max-width:100%; }
+  .tab-content .metric-card,.tab-content .supervisor-kpi,.tab-content .downtime-machine-card { overflow-wrap:anywhere; }
+  .tab-content .metric-card .title,.tab-content .metric-card .sub { letter-spacing:.01em; }
+  .tab-content .btn-submit,.tab-content .btn-action { transition:filter .15s ease,transform .15s ease,box-shadow .15s ease; }
+  .tab-content .btn-submit:hover,.tab-content .btn-action:hover { filter:brightness(.97); }
+}
+@media (min-width:1024px) and (max-width:1279px) and (hover:hover) and (pointer:fine) {
+  .nav-tabs .tab-btn { min-width:82px!important; padding-left:6px!important; padding-right:6px!important; font-size:.78rem!important; }
+  .container { padding-left:24px!important; padding-right:24px!important; }
+  #metricsDataContent .chart-wrapper,.chart-wrapper { height:360px!important; min-height:340px!important; }
+}
+</style>
+
 </body>
 </html>
