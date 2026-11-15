@@ -5612,7 +5612,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     if(PERFIL&&(PERFIL.perfil==='gestor'||PERFIL.perfil==='operador')&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="editarEquipamentoOS('+id+')">✏️ Editar equipamento</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
-    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')">✏️ Corrigir horários</button>';
+    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')" class="btn-action btn-transferir btn-horarios">✏️ Corrigir horários</button>';
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     const androidApp=document.documentElement.classList.contains('erimax-app-android');
@@ -7919,6 +7919,32 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 .nav-tabs #tbAbrirOS,
 .nav-tabs #tbOrdensServico{width:100%!important;min-height:49px!important;}
 </style>
+
+<style id="erimax-os-acoes-duas-colunas-oppo-2026">
+/* Mantém as ações da O.S. em duas colunas em celulares, inclusive no OPPO. */
+@media (min-width:361px) and (max-width:600px){
+  .os-card .os-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:stretch!important;
+    gap:9px!important;
+  }
+  .os-card .os-actions .btn-action{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:46px!important;
+    margin:0!important;
+    flex:none!important;
+    box-sizing:border-box!important;
+  }
+  .os-card .os-actions .btn-horarios,
+  .os-card .os-actions .btn-excluir{
+    grid-column:1/-1!important;
+  }
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
