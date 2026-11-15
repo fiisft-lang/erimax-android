@@ -31,11 +31,26 @@ jobs:
           node-version: 20
 
       - name: Gerar pacote web do aplicativo
-        env:
-          ERIMAX_BUILD_ID: ${{ github.sha }}
         run: |
-          npm install
-          npm run build
+          set -euo pipefail
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            export ERIMAX_BUILD_ID="${GITHUB_SHA}"
+            npm install
+            npm run build
+            echo "OTA_BUNDLE_ID=${GITHUB_SHA}" >> "$GITHUB_ENV"
+          else
+            # APKs antigos podem estar fixados no canal staging. Publica nele
+            # o mesmo aplicativo validado em main, sem deixar o canal defasado.
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            mkdir -p /tmp/erimax-main
+            git archive "$MAIN_SHA" | tar -x -C /tmp/erimax-main
+            cd /tmp/erimax-main
+            export ERIMAX_BUILD_ID="$MAIN_SHA"
+            npm install
+            npm run build
+            echo "OTA_BUNDLE_ID=$MAIN_SHA" >> "$GITHUB_ENV"
+          fi
           test -s www/index.html
           test -s www/ota-update.js
 
@@ -44,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ota
-          BUNDLE_ID="$(git rev-parse HEAD)"
+          BUNDLE_ID="${OTA_BUNDLE_ID:-$(git rev-parse HEAD)}"
           zip -j -q ota/latest.zip www/*
           CHECKSUM="$(sha256sum ota/latest.zip | awk '{print $1}')"
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
