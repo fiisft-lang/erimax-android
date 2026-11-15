@@ -2654,7 +2654,6 @@ tbody tr:hover{background:#eef6f5}
 <button id="tbOrdensServico" class="tab-btn" type="button" onclick="mudarAba('ordens-servico',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4l-3 3-3-3 3-3Z"/></svg></span><span>Ordens de Serviço</span> <span id="badgePendentes" class="badge-count">0</span></button>
 <button id="tbPainel" class="tab-btn" type="button" onclick="mudarAba('painel',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l6 3V8l6 4V5h4v16H3Z"/><path d="M7 17h2m3 0h2m3 0h2M16 5V3h3v2"/></svg></span><span>Supervisão</span></button>
 <button id="tbOrdensAbertas" class="tab-btn" type="button" onclick="mudarAba('ordens-abertas',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></span><span>Ordens Abertas</span></button>
-<button id="tbOrdensPausadas" class="tab-btn" type="button" onclick="mudarAba('ordens-pausadas',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zM15 5h3v14h-3z"/></svg></span><span>Ordens Pausadas</span></button>
 <button id="tbMetricas" class="tab-btn" type="button" onclick="mudarAba('metricas',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h17"/><path d="m7 15 4-4 3 2 5-6"/></svg></span><span>Métricas</span></button>
 <button id="tbCad" class="tab-btn" type="button" onclick="mudarAba('cadastro',event)"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z"/></svg></span><span>Cadastro</span></button>
 <button id="tbPresenca" class="tab-btn" type="button" onclick="mudarAba('presenca',event)" style="display:none"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1H3Zm13-9a3 3 0 1 0-1-5.8M17 14a5 5 0 0 1 4 5v1h-3"/></svg></span><span>Conectados</span></button>
@@ -2739,10 +2738,6 @@ tbody tr:hover{background:#eef6f5}
   <div id="osAbertasResumo" class="oa-stats" aria-live="polite"></div>
 </section>
 <section class="oa-list-panel"><div class="oa-list-heading"><div><span class="oa-kicker">ACOMPANHAMENTO</span><h3 id="oaTituloLista">Todas as ordens ativas</h3></div><div class="oa-list-tools"><span class="oa-list-note">Selecione um indicador para filtrar</span><button type="button" id="oaLimparFiltro" class="oa-clear-filter" onclick="filtrarOSAbertasIndicador('Todas')" hidden>Limpar filtro ×</button></div></div><div id="listaOSAbertas" class="oa-list"></div></section>
-</div>
-<div id="tab-ordens-pausadas" class="tab-content">
-<div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">⏸️ Ordens Pausadas</h3><p style="font-size:.8rem;color:#64748b;margin:0">Ordens interrompidas por falta de peça, prioridade ou outro impedimento. Retome quando puder continuar.</p></div>
-<div id="listaOSPausadas"></div>
 </div>
 
 <!-- PRESENÇA DOS USUÁRIOS (SOMENTE FII) -->
@@ -3141,7 +3136,7 @@ function iniciarSincronizacaoFallback(){
         renderPainelMaquinasSupervisor();
         if(document.getElementById('tab-ordens-servico')?.classList.contains('active'))renderizarChamados();
         if(document.getElementById('tab-ordens-abertas')?.classList.contains('active'))renderizarChamados('listaOSAbertas',true);
-        if(document.getElementById('tab-ordens-pausadas')?.classList.contains('active'))renderizarChamados('listaOSPausadas',false,true);
+        
         const badge=document.getElementById('badgePendentes');
         if(badge)badge.innerText=chamados.filter(os=>os.status==='Aberta').length;
         if(document.getElementById('tab-metricas')?.classList.contains('active'))atualizarMetricasReais();
@@ -3195,7 +3190,7 @@ function mudarAba(id,evt){
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
   if(evt&&evt.currentTarget)evt.currentTarget.classList.add('active');
-  const precisaAtualizar=['painel','ordens-servico','ordens-abertas','ordens-pausadas','metricas'].includes(id);
+  const precisaAtualizar=['painel','ordens-servico','ordens-abertas','metricas'].includes(id);
   const carregamento=precisaAtualizar?carregarDadosSupabase():Promise.resolve();
   if(id==='painel')renderPainelMaquinasSupervisor();
   if(id==='ordens-servico'&&!precisaAtualizar)renderizarChamados();
@@ -3612,6 +3607,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       ['Aguardando atendimento',totalAbertas,'Na fila de manutenção','#b7791f','Aguardando'],
       ['Em execução',totalAtendimento,'Com atendimento iniciado','#2875a5','Execucao'],
       ['Máquinas paradas',totalParadas,'Condição informada na O.S.','#b54747','Paradas'],
+      ['Ordens pausadas',chamados.filter(os=>os.status==='Pausada').length,'Aguardando retomada','#a16207','Pausadas'],
       ['Prioridade alta',totalUrgentes,'Alta, urgente ou crítica','#a16207','Prioridade']
     ].map(x=>'<button type="button" class="oa-stat'+(filtroCard===x[4]?' is-selected':'')+'" style="--oa-color:'+x[3]+'" onclick="filtrarOSAbertasIndicador(\''+x[4]+'\')" aria-pressed="'+(filtroCard===x[4]?'true':'false')+'"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></button>').join('');
     const limpar=document.getElementById('oaLimparFiltro');
@@ -3631,12 +3627,13 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
   const xf=principal?(document.getElementById('filtroTransferenciaOS')?.value||'Todas'):'Todas';
   const lista=chamados.filter(c=>{
     if(apenasPausadas&&c.status!=='Pausada')return false;
-    if(apenasAbertas&&!['Aberta','Em Atendimento'].includes(c.status))return false;
+    if(apenasAbertas&&!['Aberta','Em Atendimento','Pausada'].includes(c.status))return false;
     if(destino==='listaOSAbertas'){
       const filtroCard=window.__erimaxFiltroOSAbertas||'Todas';
       if(filtroCard==='Aguardando'&&c.status!=='Aberta')return false;
       if(filtroCard==='Execucao'&&c.status!=='Em Atendimento')return false;
       if(filtroCard==='Paradas'&&String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return false;
+      if(filtroCard==='Pausadas'&&c.status!=='Pausada')return false;
       if(filtroCard==='Prioridade'&&!['Alta','Urgente','Crítica','Critica'].includes(String(c.prioridade||'').trim()))return false;
     }
     if(!apenasPausadas&&!apenasAbertas&&filtro!=='Todas'&&c.status!==filtro)return false;
@@ -3651,7 +3648,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
   if(principal){const ordem=document.getElementById('ordenarOS')?.value||'recentes';const peso={Alta:3,'Média':2,Baixa:1};lista.sort((a,b)=>{if(ordem==='prioridade'){const d=(peso[b.prioridade]||0)-(peso[a.prioridade]||0);if(d)return d}const ta=a.created_at?new Date(a.created_at).getTime():0,tb=b.created_at?new Date(b.created_at).getTime():0;return ordem==='antigas'?ta-tb:tb-ta})}
   box.innerHTML='';
   if(destino==='listaOSAbertas'){
-    const titulos={Todas:'Todas as ordens ativas',Aguardando:'Aguardando atendimento',Execucao:'Em execução',Paradas:'Máquinas paradas',Prioridade:'Ordens de prioridade alta'};
+    const titulos={Todas:'Todas as ordens ativas',Aguardando:'Aguardando atendimento',Execucao:'Em execução',Paradas:'Máquinas paradas',Pausadas:'Ordens pausadas',Prioridade:'Ordens de prioridade alta'};
     const titulo=document.getElementById('oaTituloLista');if(titulo)titulo.textContent=titulos[window.__erimaxFiltroOSAbertas||'Todas'];
   }
   if(!lista.length){box.innerHTML='<div class="card" style="text-align:center;color:#64748b">'+(destino==='listaOSAbertas'?'Nenhuma ordem corresponde a este indicador.':'Nenhum chamado encontrado.')+'</div>';return}
@@ -5160,7 +5157,7 @@ async function iniciarApp(user){
   tbPainel.style.display='';
   tbOrdensServico.style.display='';
   tbOrdensAbertas.style.display=['tecnico','gestor'].includes(p)?'':'none';
-  tbOrdensPausadas.style.display=['tecnico','gestor'].includes(p)?'':'none';
+
   tbMetricas.style.display=['gestor','tecnico','operador'].includes(p)?'':'none';tbCad.style.display=p==='gestor'?'':'none';
   mdCausa.innerHTML='<option value="">Selecione...</option>'+CAUSAS.map(c=>`<option>${c}</option>`).join('');
   pvSetor.innerHTML=SETORES.map(s=>`<option>${s}</option>`).join('');
