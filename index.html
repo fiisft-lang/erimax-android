@@ -3281,6 +3281,38 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   #cardHorarioEfGeral *,#cardHorarioRanking *{scroll-behavior:auto!important;animation:none!important}
 }
 </style>
+
+<style id="erimax-metricas-correcao-estabilidade-2026">
+/* Corrige as alturas conflitantes e impede que o canvas redimensione o cartão. */
+#cardHorarioEfGeral>.chart-wrapper{
+  position:relative;
+  width:min(100%,380px)!important;
+  height:260px!important;
+  min-height:260px!important;
+  max-height:260px!important;
+  margin:10px auto 0!important;
+  padding:0!important;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+#cardHorarioEfGeral>.chart-wrapper>canvas{
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  animation:none!important;
+  transform:none!important;
+}
+@media(max-width:760px){
+  #cardHorarioEfGeral>.chart-wrapper{
+    width:min(100%,340px)!important;
+    height:240px!important;
+    min-height:240px!important;
+    max-height:240px!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -5230,8 +5262,10 @@ function mk(id,cfg){
     cfg.options.animation=false;
     if(charts[id]){
       const grafico=charts[id];
+      grafico.stop();
       grafico.data=cfg.data;
       grafico.config.options=cfg.options;
+      grafico.options.animation=false;
       grafico.config.plugins=cfg.plugins||[];
       grafico.update('none');
       return;
