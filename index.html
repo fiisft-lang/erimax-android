@@ -5343,8 +5343,12 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(podeConcluir)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
-        b+='<button type="button" class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
-        b+='<button type="button" class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';
+        if(document.documentElement.classList.contains('erimax-app-android')){
+          b+='<div class="os-vertical-actions os-transfer-actions" role="group" aria-label="Ações da transferência da ordem de serviço"><div class="os-vertical-action accept"><span class="os-vertical-caption">ACEITAR</span><div class="os-vertical-track" onpointerdown="iniciarArrasteAcaoOS(event,'+id+',\'aceitar_transferencia\')" onpointermove="moverArrasteAcaoOS(event,'+id+',\'aceitar_transferencia\')" onpointerup="finalizarArrasteAcaoOS(event,'+id+',\'aceitar_transferencia\')" onpointercancel="cancelarArrasteAcaoOS('+id+',\'aceitar_transferencia\')"><span class="os-vertical-hint">↑</span><span class="os-vertical-knob" aria-hidden="true">✓</span></div><small>Arraste para cima</small></div><div class="os-vertical-action reject"><span class="os-vertical-caption">RECUSAR</span><div class="os-vertical-track" onpointerdown="iniciarArrasteAcaoOS(event,'+id+',\'recusar_transferencia\')" onpointermove="moverArrasteAcaoOS(event,'+id+',\'recusar_transferencia\')" onpointerup="finalizarArrasteAcaoOS(event,'+id+',\'recusar_transferencia\')" onpointercancel="cancelarArrasteAcaoOS('+id+',\'recusar_transferencia\')"><span class="os-vertical-hint">↑</span><span class="os-vertical-knob" aria-hidden="true">✕</span></div><small>Arraste para cima</small></div></div>';
+        }else{
+          b+='<button type="button" class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar responsabilidade</button>';
+          b+='<button type="button" class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';
+        }
       }
     }else if(status==='Pausada'){
       const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
