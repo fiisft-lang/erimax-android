@@ -2735,6 +2735,51 @@ tbody tr:hover{background:#eef6f5}
  #tab-ordens-servico .os-card,#tab-ordens-abertas .os-card,#tab-ordens-servico .os-quick{transition:none!important}
 }
 </style>
+<style id="erimax-supervisao-indicadores-interativos-2026">
+#painelMaquinasSupervisor .sv-metric{
+  display:block;width:100%;text-align:left;font:inherit;cursor:pointer;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+#painelMaquinasSupervisor .sv-metric:hover,
+#painelMaquinasSupervisor .sv-metric:focus-visible{
+  outline:none;border-color:#9fc3dc;background:#fff;box-shadow:0 5px 14px rgba(15,55,82,.12);transform:translateY(-2px);
+}
+#painelMaquinasSupervisor .sv-metric[aria-expanded="true"]{border-color:#6ea4c6;background:#f2f8fc;box-shadow:inset 0 0 0 1px #b8d6e8}
+#painelMaquinasSupervisor .sv-metric small::after{content:"  ↗";font-weight:800;color:#28749c}
+#painelMaquinasSupervisor .sv-metric-detail[hidden]{display:none!important}
+#painelMaquinasSupervisor .sv-metric-detail{
+  margin:12px 0 2px;padding:16px;border:1px solid #cbdce8;border-radius:15px;
+  background:#fff;box-shadow:0 7px 20px rgba(17,51,75,.08)
+}
+#painelMaquinasSupervisor .sv-metric-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
+#painelMaquinasSupervisor .sv-metric-detail-head h3{margin:4px 0;color:#173f5f;font-size:1rem;font-weight:800}
+#painelMaquinasSupervisor .sv-metric-detail-head p{margin:0;color:#536b7c;font-size:.76rem;line-height:1.5}
+#painelMaquinasSupervisor .sv-metric-detail-actions{display:flex;align-items:center;gap:8px;flex:none}
+#painelMaquinasSupervisor .sv-metric-detail-actions strong{display:grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:9px;background:#edf5fa;color:#1d587b}
+#painelMaquinasSupervisor .sv-metric-detail-actions button{padding:7px 9px;border:1px solid #d9e3ea;border-radius:8px;background:#fff;color:#415a6c;font-size:.72rem;font-weight:700}
+#painelMaquinasSupervisor .sv-metric-detail-list{display:grid;gap:8px}
+#painelMaquinasSupervisor .sv-metric-detail-item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:11px 12px;border:1px solid #e0e8ee;border-radius:10px;background:#f9fbfd;text-align:left;color:#29475e}
+#painelMaquinasSupervisor .sv-metric-detail-main{display:grid;gap:4px;min-width:0}
+#painelMaquinasSupervisor .sv-metric-detail-main b{font-size:.8rem;overflow-wrap:anywhere}
+#painelMaquinasSupervisor .sv-metric-detail-main small{font-size:.69rem;color:#5c7181;line-height:1.4}
+#painelMaquinasSupervisor .sv-metric-detail-link{flex:none;color:#246b91;font-size:.7rem;font-weight:800}
+#painelMaquinasSupervisor .sv-metric-machine{padding:11px;border:1px solid #e0e8ee;border-radius:10px;background:#fbfcfd}
+#painelMaquinasSupervisor .sv-metric-machine>div:first-child{display:grid;gap:3px;margin-bottom:8px}
+#painelMaquinasSupervisor .sv-metric-machine>div:first-child b{color:#29475e;font-size:.82rem}
+#painelMaquinasSupervisor .sv-metric-machine>div:first-child small{color:#607486;font-size:.7rem}
+#painelMaquinasSupervisor .sv-metric-machine-orders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#painelMaquinasSupervisor .sv-metric-detail-os{display:grid;gap:3px;min-width:0;padding:9px;border:1px solid #e1e8ee;border-radius:8px;background:#fff;text-align:left}
+#painelMaquinasSupervisor .sv-metric-detail-os b{color:#245674;font-size:.72rem}
+#painelMaquinasSupervisor .sv-metric-detail-os span,#painelMaquinasSupervisor .sv-metric-detail-os small{color:#526a7b;font-size:.67rem;line-height:1.4}
+#painelMaquinasSupervisor .sv-metric-detail-os em{color:#246b91;font-size:.67rem;font-style:normal;font-weight:800}
+#painelMaquinasSupervisor .sv-metric-detail-empty{padding:18px;border:1px dashed #d2dfe8;border-radius:10px;color:#5b7182;text-align:center;font-size:.8rem}
+@media(max-width:600px){
+ #painelMaquinasSupervisor .sv-metric-detail{padding:12px}
+ #painelMaquinasSupervisor .sv-metric-detail-head{flex-wrap:wrap}
+ #painelMaquinasSupervisor .sv-metric-machine-orders{grid-template-columns:1fr}
+ #painelMaquinasSupervisor .sv-metric-detail-item{align-items:flex-start}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3450,6 +3495,7 @@ function renderPainelMaquinasSupervisor(){
   ];
   const osAtivas=ativas.length;
   const maquinasComOS=itens.filter(x=>x.ativas.length).length;
+  window.__erimaxSvMetricData={ativas,itens};
   const alertasSupervisor=ativas.map(os=>{
     const prioridade=String(os.prioridade||'').trim().toLocaleLowerCase('pt-BR');
     const situacao=String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR');
@@ -3464,11 +3510,11 @@ function renderPainelMaquinasSupervisor(){
   let html='<div class="sv-page">';
   html+='<section class="sv-hero"><div class="sv-hero-top"><div><span class="sv-kicker">CENTRO DE CONTROLE</span><h2>Supervisão</h2><p>Acompanhamento das máquinas e ordens de serviço.</p></div><div class="sv-live"><span></span> Dados do sistema</div></div>';
   html+='<div class="sv-metrics">'
-    +'<div class="sv-metric"><span>Ordens ativas</span><strong>'+osAtivas+'</strong><small>Em aberto, atendimento ou pausadas</small></div>'
-    +'<div class="sv-metric"><span>Máquinas com O.S.</span><strong>'+maquinasComOS+'</strong><small>Com ordem ainda não concluída</small></div>'
-    +'<div class="sv-metric"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Condição registrada na abertura</small></div>'
-    +'<div class="sv-metric"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Atendimento em andamento</small></div>'
-    +'</div></section>';
+    +'<button type="button" class="sv-metric" data-sv-metric="ativas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'ativas\')"><span>Ordens ativas</span><strong>'+osAtivas+'</strong><small>Toque para ver as O.S. em aberto, atendimento ou pausadas</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="maquinas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'maquinas\')"><span>Máquinas com O.S.</span><strong>'+maquinasComOS+'</strong><small>Toque para ver máquinas, setores e ordens ativas</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="paradas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'paradas\')"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Toque para ver as máquinas registradas como paradas</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="manutencao" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'manutencao\')"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Toque para ver os atendimentos em andamento</small></button>'
+    +'</div></section><section id="svMetricDetail" class="sv-metric-detail" hidden></section>';
   html+='<section class="sv-attention"><div class="sv-attention-head"><div><span class="sv-kicker">AÇÃO DO SUPERVISOR</span><h3>O.S. que precisam de atenção</h3><p>Prioridades, máquinas paradas, ordens pausadas e ordens aguardando técnico.</p></div><strong>'+alertasSupervisor.length+'</strong></div>';
   if(alertasSupervisor.length){
     html+='<div class="sv-attention-list">';
@@ -3519,6 +3565,50 @@ function renderPainelMaquinasSupervisor(){
   const busca=box.querySelector('.sv-search input');
   if(busca&&window.__erimaxSvBusca)busca.value=window.__erimaxSvBusca;
   if(busca&&busca.value)filtrarTextoMaquinasSupervisor(busca.value);
+}
+function fecharDetalheIndicadorSupervisor(){
+  const box=document.getElementById('painelMaquinasSupervisor');
+  const painel=box&&box.querySelector('#svMetricDetail');
+  if(painel){painel.hidden=true;painel.innerHTML='';}
+  if(box)box.querySelectorAll('[data-sv-metric]').forEach(btn=>btn.setAttribute('aria-expanded','false'));
+  window.__erimaxSvMetricAtivo=null;
+}
+function abrirDetalheIndicadorSupervisor(tipo){
+  const box=document.getElementById('painelMaquinasSupervisor');
+  const painel=box&&box.querySelector('#svMetricDetail');
+  const dados=window.__erimaxSvMetricData;
+  if(!painel||!dados)return;
+  if(window.__erimaxSvMetricAtivo===tipo){fecharDetalheIndicadorSupervisor();return;}
+  const titulos={
+    ativas:['Ordens de serviço ativas','Todas as ordens ainda não concluídas. Toque em uma O.S. para abrir os detalhes.'],
+    maquinas:['Máquinas com O.S. ativa','Máquinas e setores que possuem pelo menos uma ordem em andamento.'],
+    paradas:['Máquinas com parada informada','Condição registrada na abertura da O.S.; não é uma leitura automática da máquina.'],
+    manutencao:['Máquinas em manutenção','Equipamentos com O.S. em atendimento pela equipe técnica.']
+  };
+  const itens=dados.itens||[];
+  let ordens=[];
+  let maquinas=[];
+  if(tipo==='ativas')ordens=dados.ativas||[];
+  else{
+    const estado=tipo==='paradas'?'Parada informada na O.S.':tipo==='manutencao'?'Manutenção em andamento':null;
+    maquinas=itens.filter(item=>tipo==='maquinas'?item.ativas.length>0:item.estado===estado);
+    ordens=maquinas.flatMap(item=>item.ativas.map(os=>({os,item})));
+  }
+  let conteudo='';
+  if(tipo==='ativas'){
+    conteudo=ordens.map(os=>'<button type="button" class="sv-metric-detail-item" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><span class="sv-metric-detail-main"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><small>'+escaparHtml(os.setor||'Setor não informado')+' • '+escaparHtml(os.status||'Status não informado')+'</small><small>'+(os.tecnico?'Responsável: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • '+escaparHtml(os.situacao_equipamento):'')+'</small></span><span class="sv-metric-detail-link">Abrir O.S. →</span></button>').join('');
+  }else{
+    conteudo=maquinas.map(item=>{
+      const lista=item.ativas.map(os=>'<button type="button" class="sv-metric-detail-os" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><b>'+escaparHtml(nOS(os))+'</b><span>'+escaparHtml(os.status||'Status não informado')+'</span><small>'+(os.tecnico?'Responsável: '+escaparHtml(os.tecnico):'Aguardando técnico')+'</small><em>Abrir O.S. →</em></button>').join('');
+      return '<article class="sv-metric-machine"><div><b>'+escaparHtml(item.maquina)+'</b><small>'+escaparHtml(item.setor)+' • '+item.ativas.length+' O.S. ativa(s)</small></div><div class="sv-metric-machine-orders">'+lista+'</div></article>';
+    }).join('');
+  }
+  const total=tipo==='ativas'?ordens.length:maquinas.length;
+  painel.innerHTML='<div class="sv-metric-detail-head"><div><span class="sv-kicker">DETALHAMENTO DO INDICADOR</span><h3>'+titulos[tipo][0]+'</h3><p>'+titulos[tipo][1]+'</p></div><div class="sv-metric-detail-actions"><strong>'+total+'</strong><button type="button" onclick="fecharDetalheIndicadorSupervisor()" aria-label="Fechar detalhes">Fechar ×</button></div></div>'+(conteudo?'<div class="sv-metric-detail-list">'+conteudo+'</div>':'<div class="sv-metric-detail-empty">Nenhum registro encontrado para este indicador.</div>');
+  painel.hidden=false;
+  window.__erimaxSvMetricAtivo=tipo;
+  box.querySelectorAll('[data-sv-metric]').forEach(btn=>btn.setAttribute('aria-expanded',btn.dataset.svMetric===tipo?'true':'false'));
+  painel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function filtrarMaquinasSupervisor(estado){
   const box=document.getElementById('painelMaquinasSupervisor');
