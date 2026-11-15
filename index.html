@@ -2440,6 +2440,27 @@ tbody tr:hover{background:#eef6f5}
 .erimax-tec-foot{display:flex;justify-content:space-between;gap:8px;margin-top:10px;color:#8a98a3;font-size:.6rem}
 .erimax-tec-empty{grid-column:1/-1;padding:18px;text-align:center;color:#81909b;font-size:.78rem}
 @media(max-width:480px){.erimax-tec-panel{padding:14px;border-radius:15px}.erimax-tec-heading{align-items:flex-start}.erimax-tec-heading p{max-width:240px}.erimax-tec-kpis{gap:6px}.erimax-tec-kpis>div{flex-direction:column;align-items:flex-start;gap:1px;padding:8px}.erimax-tec-kpis b{font-size:1.05rem}.erimax-tec-kpis span{font-size:.62rem}.erimax-tec-grid{grid-template-columns:1fr}.erimax-tec-foot{font-size:.57rem}}
+.erimax-tec-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.erimax-tec-column{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;min-width:0}
+.erimax-tec-card{padding:10px;border-radius:12px}
+.erimax-tec-card-head{gap:7px}
+.erimax-tec-avatar{flex-basis:32px;width:32px;height:32px;border-radius:10px;font-size:.7rem}
+.erimax-tec-ident b{font-size:.76rem}.erimax-tec-ident small{font-size:.59rem}
+.erimax-tec-status{padding:4px 6px;font-size:.52rem;gap:4px}
+.erimax-tec-atividade{margin-top:8px;padding:8px}.erimax-tec-section-label{margin-bottom:5px;font-size:.54rem}
+.erimax-tec-os-top b{font-size:.68rem}.erimax-tec-os-top span{font-size:.5rem}
+.erimax-tec-local{margin-top:5px;gap:5px}.erimax-tec-local b{font-size:.67rem}
+.erimax-tec-local small,.erimax-tec-sem-os{font-size:.61rem}
+.erimax-tec-foot{margin-top:7px;font-size:.54rem;flex-wrap:wrap}
+@media(max-width:480px){
+.erimax-tec-panel{padding:11px}.erimax-tec-heading{gap:8px;margin-bottom:10px}
+.erimax-tec-heading h3{font-size:.98rem}.erimax-tec-heading p{font-size:.68rem;max-width:190px}
+.erimax-tec-kpis{margin-bottom:10px}.erimax-tec-columns{gap:7px}.erimax-tec-column{gap:7px}
+.erimax-tec-card{padding:8px}.erimax-tec-card-head{align-items:flex-start;flex-wrap:wrap}
+.erimax-tec-ident{flex-basis:calc(100% - 42px)}.erimax-tec-status{margin-left:39px}
+.erimax-tec-foot{display:block;line-height:1.5}}
+@media(max-width:340px){.erimax-tec-columns{grid-template-columns:1fr}.erimax-tec-ident{flex:1}.erimax-tec-status{margin-left:0}}
+
 </style>
 </head>
 <body>
@@ -2472,8 +2493,6 @@ tbody tr:hover{background:#eef6f5}
 <div class="container">
 <!-- ABRIR OS -->
 <div id="tab-abrir" class="tab-content active">
-<div id="boxStatusTurno"></div>
-<div id="boxTec2"></div>
 <div class="card">
 <h2 style="margin-bottom:4px;font-size:1.1rem;color:var(--primary)">Abrir Ordem de Serviço</h2>
 <p style="font-size:.8rem;color:#64748b;margin-bottom:14px">Registre o defeito da máquina informando o turno atual.</p>
@@ -2497,6 +2516,8 @@ tbody tr:hover{background:#eef6f5}
 <button type="submit" class="btn-submit">🚨 Abrir Ordem de Serviço</button>
 </form>
 </div>
+<div id="boxStatusTurno"></div>
+<div id="boxTec2"></div>
 </div>
 
 <!-- PAINEL -->
@@ -3248,31 +3269,20 @@ function renderTecnicos(){
   const em=chamados.filter(c=>c.status==='Em Atendimento');
   const aguardando=chamados.filter(c=>c.status==='Aberta').length;
   const equipe=USUARIOS_STATUS.length?USUARIOS_STATUS:TECNICOS;
-  const dados=equipe.map(t=>{
-    const osAtivas=em.filter(c=>c.tecnico===t.nome);
-    const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);
-    const status=osAtivas.length?'EM SERVIÇO':(st&&st.turno_ativo?'ONLINE':'OFFLINE');
-    return {t,osAtivas,st,status};
-  });
-  const qtdServico=dados.filter(x=>x.status==='EM SERVIÇO').length;
-  const qtdOnline=dados.filter(x=>x.status==='ONLINE').length;
-  const qtdOffline=dados.filter(x=>x.status==='OFFLINE').length;
-  const formatarAtualizacao=valor=>{
-    if(!valor)return 'Sem registro de atividade';
-    const data=new Date(valor);
-    return Number.isNaN(data.getTime())?'Sem registro de atividade':'Atualizado em '+data.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-  };
+  const dados=equipe.map(t=>{const osAtivas=em.filter(c=>c.tecnico===t.nome);const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);const status=osAtivas.length?'EM SERVIÇO':(st&&st.turno_ativo?'ONLINE':'OFFLINE');return {t,osAtivas,st,status};});
+  const qtdServico=dados.filter(x=>x.status==='EM SERVIÇO').length,qtdOnline=dados.filter(x=>x.status==='ONLINE').length,qtdOffline=dados.filter(x=>x.status==='OFFLINE').length;
+  const formatarAtualizacao=valor=>{if(!valor)return 'Sem registro de atividade';const data=new Date(valor);return Number.isNaN(data.getTime())?'Sem registro de atividade':'Atualizado em '+data.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});};
   const cards=dados.map(({t,osAtivas,st,status})=>{
     const classe=status==='EM SERVIÇO'?'servico':status==='ONLINE'?'online':'offline';
-    const iniciais=String(t.nome||'T').trim().split(/\\s+/).slice(0,2).map(p=>p.charAt(0)).join('').toUpperCase();
+    const iniciais=String(t.nome||'T').trim().split(/\s+/).slice(0,2).map(p=>p.charAt(0)).join('').toUpperCase();
     const local=osAtivas.length?osAtivas.map(os=>'<div class="erimax-tec-os"><div class="erimax-tec-os-top"><b>'+escaparHtml(nOS(os))+'</b><span>EM EXECUÇÃO</span></div><div class="erimax-tec-local"><span>⌖</span><div><b>'+escaparHtml(os.maquina||'Máquina não informada')+'</b><small>'+escaparHtml(os.setor||'Setor não informado')+'</small></div></div></div>').join(''):'<div class="erimax-tec-sem-os">'+(status==='ONLINE'?'Disponível para receber uma O.S.':'Nenhuma O.S. em execução')+'</div>';
     return '<article class="erimax-tec-card '+classe+'"><div class="erimax-tec-card-head"><div class="erimax-tec-avatar">'+escaparHtml(iniciais)+'</div><div class="erimax-tec-ident"><b>'+escaparHtml(t.nome)+'</b><small>Técnico de manutenção</small></div><span class="erimax-tec-status '+classe+'"><i></i>'+escaparHtml(status)+'</span></div><div class="erimax-tec-atividade"><div class="erimax-tec-section-label">ATIVIDADE ATUAL</div>'+local+'</div><div class="erimax-tec-foot"><span>'+formatarAtualizacao(st&&st.atualizado_em)+'</span><span>'+osAtivas.length+' O.S. ativa'+(osAtivas.length===1?'':'s')+'</span></div></article>';
-  }).join('');
-  const html='<section class="erimax-tec-panel"><div class="erimax-tec-heading"><div><span class="erimax-tec-eyebrow">EQUIPE DE MANUTENÇÃO</span><h3>Técnicos online</h3><p>Acompanhe a disponibilidade e o local de atendimento de cada técnico.</p></div><div class="erimax-tec-pending">'+aguardando+' <small>O.S. aguardando</small></div></div><div class="erimax-tec-kpis"><div><b>'+qtdServico+'</b><span>Em serviço</span></div><div><b>'+qtdOnline+'</b><span>Disponíveis</span></div><div><b>'+qtdOffline+'</b><span>Offline</span></div></div><div class="erimax-tec-grid">'+(cards||'<p class="erimax-tec-empty">Nenhum técnico cadastrado.</p>')+'</div></section>';
-  const principal=document.getElementById('boxTec');
-  const secundario=document.getElementById('boxTec2');
-  if(principal)principal.innerHTML=html;
-  if(secundario)secundario.innerHTML=html;
+  });
+  const meio=Math.ceil(cards.length/2),colunaEsquerda=cards.slice(0,meio).join(''),colunaDireita=cards.slice(meio).join('');
+  const grade=cards.length?'<div class="erimax-tec-columns"><div class="erimax-tec-column">'+colunaEsquerda+'</div><div class="erimax-tec-column">'+colunaDireita+'</div></div>':'<p class="erimax-tec-empty">Nenhum técnico cadastrado.</p>';
+  const html='<section class="erimax-tec-panel"><div class="erimax-tec-heading"><div><span class="erimax-tec-eyebrow">EQUIPE DE MANUTENÇÃO</span><h3>Técnicos online</h3><p>Acompanhe a disponibilidade e o local de atendimento de cada técnico.</p></div><div class="erimax-tec-pending">'+aguardando+' <small>O.S. aguardando</small></div></div><div class="erimax-tec-kpis"><div><b>'+qtdServico+'</b><span>Em serviço</span></div><div><b>'+qtdOnline+'</b><span>Disponíveis</span></div><div><b>'+qtdOffline+'</b><span>Offline</span></div></div>'+grade+'</section>';
+  const principal=document.getElementById('boxTec'),secundario=document.getElementById('boxTec2');
+  if(principal)principal.innerHTML=html;if(secundario)secundario.innerHTML=html;
 }
 function renderStatusTurno(){
   const box=document.getElementById('boxStatusTurno');
