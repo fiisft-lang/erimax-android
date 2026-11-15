@@ -2,10 +2,29 @@
 (function(){
   const RAW_BASE = 'https://raw.githubusercontent.com/fiisft-lang/erimax-android/';
   const PENDING_KEY = 'erimax_ota_pending_bundle';
-  const PLUGIN = () => window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LiveUpdate;
+  let livePlugin = null;
+  let pluginWarningShown = false;
+  function PLUGIN(){
+    if(livePlugin) return livePlugin;
+    const cap = window.Capacitor;
+    if(!cap) return null;
+    livePlugin = cap.Plugins && cap.Plugins.LiveUpdate || null;
+    // Algumas combinações do Capacitor registram plugins sob demanda.
+    if(!livePlugin && typeof cap.registerPlugin === 'function'){
+      try { livePlugin = cap.registerPlugin('LiveUpdate'); } catch (_) {}
+    }
+    return livePlugin;
+  }
   const isAndroid = () => !!(window.Capacitor && typeof window.Capacitor.getPlatform === 'function' && window.Capacitor.getPlatform() === 'android');
   let readyPromise = null;
   let checking = false;
+
+  function avisarPluginAusente(manual){
+    if(manual || !pluginWarningShown){
+      pluginWarningShown = true;
+      alert('Não consegui acessar o componente nativo de atualização deste APK.\n\nA verificação automática não pode continuar. Será necessário instalar uma versão do APK com o atualizador nativo habilitado. Nenhuma O.S. ou dado foi apagado.');
+    }
+  }
 
   function storageGet(key){
     try { return localStorage.getItem(key); } catch (_) { return null; }
@@ -53,7 +72,8 @@
     }
     const live = PLUGIN();
     if(!live || typeof live.getCurrentBundle !== 'function'){
-      if(manual) alert('O recurso de atualização não está disponível nesta versão do EriMax. Atualize o APK para habilitá-lo.');
+      avisarPluginAusente(manual);
+      console.error('[EriMax OTA] Plugin LiveUpdate indisponível. Plataforma:', window.Capacitor && window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : 'desconhecida', 'Plugins registrados:', window.Capacitor && window.Capacitor.Plugins ? Object.keys(window.Capacitor.Plugins) : []);
       return;
     }
     checking = true;
