@@ -1777,6 +1777,180 @@ tbody tr:hover{background:#eef6f5}
 .os-card .os-badge{min-height:26px;padding:5px 11px;font-size:.69rem;line-height:1.2;white-space:nowrap}
 @media(max-width:380px){.os-card .os-alert-title{align-items:flex-start}.os-card .os-alert-title .os-badge{margin-left:auto}}
 </style>
+<style id="erimax-supervisao-redesign-profissional">
+/* Supervisão: dashboard operacional limpo, consistente e responsivo */
+#painelMaquinasSupervisor{display:grid!important;gap:12px!important;color:#263746!important}
+#painelMaquinasSupervisor .supervisor-resumo{
+ padding:17px!important;background:#fff!important;border:1px solid #dce4eb!important;
+ border-radius:13px!important;box-shadow:0 2px 8px rgba(22,42,61,.045)!important;
+}
+#painelMaquinasSupervisor .supervisor-resumo-cabecalho{
+ display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
+ gap:14px!important;padding-bottom:13px!important;border-bottom:1px solid #e9eef2!important;
+}
+#painelMaquinasSupervisor .supervisor-eyebrow{
+ display:block!important;margin:0 0 4px!important;font-size:.62rem!important;
+ font-weight:750!important;letter-spacing:.11em!important;color:#738394!important;
+}
+#painelMaquinasSupervisor .supervisor-resumo-cabecalho h3{
+ margin:0!important;font-size:1.08rem!important;font-weight:700!important;
+ line-height:1.3!important;letter-spacing:-.025em!important;color:#233f56!important;
+}
+#painelMaquinasSupervisor .supervisor-intro{
+ margin:5px 0 0!important;font-size:.78rem!important;line-height:1.45!important;
+ color:#647587!important;opacity:1!important;
+}
+#painelMaquinasSupervisor .supervisor-total-maquinas{
+ flex:none!important;max-width:135px!important;padding:6px 9px!important;
+ border:1px solid #dce5ec!important;border-radius:7px!important;background:#f7f9fb!important;
+ color:#52677a!important;font-size:.69rem!important;font-weight:650!important;
+ text-align:center!important;line-height:1.35!important;
+}
+#painelMaquinasSupervisor .supervisor-kpis{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:9px!important;margin:13px 0 17px!important;
+}
+#painelMaquinasSupervisor .supervisor-kpi{
+ min-width:0!important;min-height:86px!important;padding:11px 12px!important;
+ display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;
+ border:1px solid #e1e7ed!important;border-radius:10px!important;background:#fff!important;
+ box-shadow:none!important;
+}
+#painelMaquinasSupervisor .supervisor-kpi>span{
+ color:#647587!important;font-size:.7rem!important;font-weight:650!important;line-height:1.3!important;
+}
+#painelMaquinasSupervisor .supervisor-kpi>b{
+ color:#233f56!important;font-size:1.42rem!important;font-weight:700!important;
+ line-height:1.15!important;font-variant-numeric:tabular-nums!important;
+}
+#painelMaquinasSupervisor .supervisor-kpi>small{
+ color:#778695!important;font-size:.65rem!important;line-height:1.35!important;
+}
+#painelMaquinasSupervisor .supervisor-kpi-alerta{border-top:3px solid #507fa5!important}
+#painelMaquinasSupervisor .supervisor-kpi-parada{border-top:3px solid #c45b56!important}
+#painelMaquinasSupervisor .supervisor-kpi-manutencao{border-top:3px solid #6489b2!important}
+#painelMaquinasSupervisor .supervisor-kpi-total{border-top:3px solid #8294a3!important}
+#painelMaquinasSupervisor .supervisor-status-titulo{
+ margin:0!important;padding:0!important;color:#2c465b!important;
+ font-size:.88rem!important;font-weight:700!important;line-height:1.35!important;
+}
+#painelMaquinasSupervisor .supervisor-status-titulo small{
+ display:block!important;margin-top:3px!important;color:#778695!important;
+ font-size:.7rem!important;font-weight:400!important;line-height:1.4!important;
+}
+#painelMaquinasSupervisor .supervisor-classificacao-grid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:8px!important;margin-top:10px!important;
+}
+#painelMaquinasSupervisor .supervisor-filtro-card{
+ min-width:0!important;min-height:77px!important;padding:10px 11px!important;
+ border:1px solid #e1e7ed!important;border-left:3px solid var(--supervisor-status-cor)!important;
+ border-radius:9px!important;background:#fff!important;cursor:pointer!important;
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;
+ transition:background .15s,border-color .15s!important;
+}
+#painelMaquinasSupervisor .supervisor-filtro-card:active,
+#painelMaquinasSupervisor .supervisor-filtro-card:hover{background:#f7f9fb!important;border-color:#cbd6df!important}
+#painelMaquinasSupervisor .supervisor-filtro-card>div{
+ color:#5d6f7f!important;font-size:.68rem!important;font-weight:600!important;line-height:1.35!important;
+}
+#painelMaquinasSupervisor .supervisor-filtro-card>b{
+ margin-top:4px!important;color:var(--supervisor-status-cor)!important;
+ font-size:1.2rem!important;font-weight:750!important;line-height:1.15!important;
+ font-variant-numeric:tabular-nums!important;
+}
+#painelMaquinasSupervisor .supervisor-filtro-card>small{
+ margin-top:3px!important;color:#8794a0!important;font-size:.61rem!important;line-height:1.25!important;
+}
+#painelMaquinasSupervisor .supervisor-aviso-status{
+ margin:12px 0 0!important;padding:9px 11px!important;border:1px solid #e4e9ee!important;
+ border-radius:8px!important;background:#f7f9fb!important;color:#617283!important;
+ font-size:.69rem!important;line-height:1.5!important;
+}
+#painelMaquinasSupervisor .supervisor-setores-cabecalho{
+ display:flex!important;align-items:flex-end!important;justify-content:space-between!important;
+ gap:10px!important;padding:4px 2px 0!important;
+}
+#painelMaquinasSupervisor .supervisor-setores-cabecalho h4{
+ margin:0!important;color:#2a455b!important;font-size:.98rem!important;
+ font-weight:700!important;letter-spacing:-.01em!important;text-align:left!important;
+}
+#painelMaquinasSupervisor .supervisor-setores-cabecalho>span{
+ color:#778695!important;font-size:.68rem!important;font-weight:600!important;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]{
+ margin:0!important;padding:0!important;overflow:hidden!important;
+ border:1px solid #dfe6ec!important;border-radius:10px!important;background:#fff!important;
+ box-shadow:0 1px 4px rgba(22,42,61,.035)!important;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary{
+ min-height:57px!important;padding:11px 13px!important;background:#fff!important;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor][open]>summary{
+ background:#f7f9fb!important;border-bottom:1px solid #e5ebf0!important;
+}
+#painelMaquinasSupervisor .supervisor-setor-marcador{
+ display:block!important;flex:none!important;width:4px!important;height:27px!important;
+ border-radius:3px!important;background:#6c879d!important;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary b{
+ color:#29465c!important;font-size:.86rem!important;font-weight:700!important;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary small{
+ color:#758493!important;font-size:.67rem!important;line-height:1.35!important;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>summary>span:last-child{
+ color:#718292!important;font-size:.66rem!important;font-weight:600!important;
+}
+#painelMaquinasSupervisor>details[data-supervisor-setor]>div{
+ padding:8px!important;gap:6px!important;background:#fbfcfd!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]{
+ border:1px solid #e4e9ee!important;border-radius:8px!important;background:#fff!important;
+ box-shadow:none!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary{
+ min-height:53px!important;padding:9px 10px!important;background:#fff!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary b{
+ color:#30485c!important;font-size:.79rem!important;font-weight:650!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary small{
+ font-size:.67rem!important;font-weight:650!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary>span:last-child{
+ color:#778695!important;font-size:.62rem!important;line-height:1.4!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-maquina]>div{
+ padding:9px!important;background:#fff!important;border-top:1px solid #edf1f4!important;
+}
+#painelMaquinasSupervisor .supervisor-bloco-titulo{
+ margin:8px 0 5px!important;color:#405b70!important;font-size:.73rem!important;font-weight:700!important;
+}
+#painelMaquinasSupervisor .supervisor-os-item{
+ border-radius:7px!important;font-size:.7rem!important;line-height:1.5!important;
+}
+#painelMaquinasSupervisor .supervisor-os-item b{font-size:.73rem!important;font-weight:700!important}
+#painelMaquinasSupervisor .supervisor-os-item>div{font-size:.69rem!important;line-height:1.45!important}
+#painelMaquinasSupervisor .supervisor-os-item small{font-size:.65rem!important}
+#painelMaquinasSupervisor [role="button"]:focus-visible{outline:2px solid #7898b2!important;outline-offset:2px!important}
+@media(max-width:700px){
+ #painelMaquinasSupervisor .supervisor-resumo{padding:13px!important}
+ #painelMaquinasSupervisor .supervisor-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin:11px 0 15px!important}
+ #painelMaquinasSupervisor .supervisor-kpi{min-height:76px!important;padding:9px!important}
+ #painelMaquinasSupervisor .supervisor-kpi>b{font-size:1.28rem!important}
+ #painelMaquinasSupervisor .supervisor-kpi>small{font-size:.61rem!important}
+ #painelMaquinasSupervisor .supervisor-classificacao-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ #painelMaquinasSupervisor .supervisor-filtro-card{min-height:70px!important;padding:9px!important}
+ #painelMaquinasSupervisor>details[data-supervisor-setor]>summary{padding:10px!important}
+}
+@media(max-width:360px){
+ #painelMaquinasSupervisor .supervisor-resumo-cabecalho{gap:7px!important}
+ #painelMaquinasSupervisor .supervisor-total-maquinas{max-width:105px!important;font-size:.61rem!important}
+ #painelMaquinasSupervisor .supervisor-kpi>span{font-size:.65rem!important}
+ #painelMaquinasSupervisor .supervisor-filtro-card>div{font-size:.64rem!important}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -2482,21 +2656,22 @@ function renderPainelMaquinasSupervisor(){
   const maquinasParadas=qtd('Parada informada na O.S.');
   const maquinasEmManutencao=qtd('Manutenção em andamento');
   const osAtivas=ativas.length;
-  let html='<section class="card supervisor-resumo" style="margin-bottom:12px"><div class="supervisor-resumo-cabecalho"><div><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Resumo das máquinas e ordens de serviço</h3><p class="supervisor-intro">Consulte as ordens ativas e a condição do equipamento informada na abertura. Abra um setor para ver os detalhes de cada máquina.</p></div><span class="supervisor-total-maquinas">'+itens.length+' máquina(s) no painel</span></div>';
+  let html='<section class="card supervisor-resumo" style="margin-bottom:12px"><div class="supervisor-resumo-cabecalho"><div><span class="supervisor-eyebrow">VISÃO GERAL</span><h3 style="font-size:1.05rem;color:var(--primary);margin:0">Supervisão de manutenção</h3><p class="supervisor-intro">Acompanhamento das máquinas e ordens de serviço.</p></div><span class="supervisor-total-maquinas">'+itens.length+' máquina(s) no painel</span></div>';
   html+='<div class="supervisor-kpis">'
     +'<div class="supervisor-kpi supervisor-kpi-alerta"><span>O.S. ativas</span><b>'+osAtivas+'</b><small>Aberta, em atendimento ou pausada</small></div>'
     +'<div class="supervisor-kpi supervisor-kpi-parada"><span>Parada informada</span><b>'+maquinasParadas+'</b><small>Condição registrada na abertura da O.S.</small></div>'
     +'<div class="supervisor-kpi supervisor-kpi-manutencao"><span>Em manutenção</span><b>'+maquinasEmManutencao+'</b><small>Máquinas com atendimento em andamento</small></div>'
     +'<div class="supervisor-kpi supervisor-kpi-total"><span>Máquinas no painel</span><b>'+itens.length+'</b><small>Máquinas cadastradas ou citadas em O.S.</small></div>'
-    +'</div><div class="supervisor-status-titulo">Classificação por máquina <small>Condição registrada na O.S. ou ausência de ordem ativa</small></div>';
-  html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:9px">';
-  resumo.forEach(r=>{html+='<div role="button" tabindex="0" aria-label="Filtrar máquinas: '+escaparHtml(r[0])+'" onclick="filtrarMaquinasSupervisor(\''+r[0]+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();filtrarMaquinasSupervisor(\''+r[0]+'\')}" style="border:1px solid #e2e8f0;border-left:4px solid '+r[2]+';border-radius:9px;padding:9px;min-width:0;cursor:pointer;background:#fff;transition:background .15s,box-shadow .15s" onmouseover="this.style.background=\'#f8fafc\';this.style.boxShadow=\'0 2px 8px #0f172a14\'" onmouseout="this.style.background=\'#fff\';this.style.boxShadow=\'none\'"><div style="font-size:.7rem;color:#64748b">'+r[0]+'</div><b style="font-size:1.35rem;color:'+r[2]+'">'+r[1]+'</b><small style="display:block;color:#64748b;font-size:.65rem;margin-top:2px">Toque para ver máquinas ›</small></div>'});
+    +'</div><div class="supervisor-status-titulo">Condição das máquinas <small>Selecione uma condição para filtrar os equipamentos</small></div>';
+  html+='<div class="supervisor-classificacao-grid">';
+  resumo.forEach(r=>{html+='<div class="supervisor-filtro-card" style="--supervisor-status-cor:'+r[2]+'" role="button" tabindex="0" aria-label="Filtrar máquinas: '+escaparHtml(r[0])+'" onclick="filtrarMaquinasSupervisor(\''+r[0]+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();filtrarMaquinasSupervisor(\''+r[0]+'\')}"><div>'+r[0]+'</div><b>'+r[1]+'</b><small>Ver máquinas</small></div>'});
   html+='</div><p class="supervisor-aviso-status">A condição “Parado” ou “Rodando” corresponde ao que foi informado na abertura da O.S. Quando não existe O.S. ativa, o painel não presume que a máquina esteja rodando ou parada.</p><div id="filtroMaquinasSupervisorAtivo" style="display:none;margin-top:12px"></div></section>';
+  html+='<div class="supervisor-setores-cabecalho"><div><span class="supervisor-eyebrow">EQUIPAMENTOS</span><h4>Setores e máquinas</h4></div><span>'+grupos.length+' setor(es)</span></div>';
   if(!itens.length)html+='<div class="card" style="color:#64748b;text-align:center">Nenhuma máquina cadastrada ou O.S. encontrada.</div>';
   grupos.forEach(setor=>{
     const lista=itens.filter(x=>x.setor===setor);
     const ativasSetor=lista.reduce((n,x)=>n+x.ativas.length,0);
-    html+='<details data-supervisor-setor="1" class="card" style="margin:8px 0;padding:0;overflow:hidden;border:1px solid #e2e8f0"><summary style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;list-style:none"><span style="font-size:1.25rem">📁</span><span style="flex:1;min-width:0"><b style="color:var(--primary)">'+escaparHtml(setor)+'</b><small style="display:block;color:#64748b;font-size:.7rem;margin-top:2px">'+lista.length+' máquina(s) • '+ativasSetor+' O.S. ativa(s)</small></span><span style="font-size:.75rem;color:#64748b">Abrir ▾</span></summary><div style="padding:0 10px 10px;display:grid;gap:7px">';
+    html+='<details data-supervisor-setor="1" class="card" style="margin:8px 0;padding:0;overflow:hidden;border:1px solid #e2e8f0"><summary style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;list-style:none"><span class="supervisor-setor-marcador" aria-hidden="true"></span><span style="flex:1;min-width:0"><b style="color:var(--primary)">'+escaparHtml(setor)+'</b><small style="display:block;color:#64748b;font-size:.7rem;margin-top:2px">'+lista.length+' máquina(s) • '+ativasSetor+' O.S. ativa(s)</small></span><span style="font-size:.75rem;color:#64748b">Abrir ▾</span></summary><div style="padding:0 10px 10px;display:grid;gap:7px">';
     lista.forEach(item=>{
       const qtdConcluidas=item.concluidas.length;
       html+='<details data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" style="border:1px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff"><summary style="display:flex;align-items:center;gap:8px;padding:11px;cursor:pointer;list-style:none"><span style="width:9px;height:9px;border-radius:50%;background:'+item.cor+';flex:none"></span><span style="flex:1;min-width:0"><b style="font-size:.84rem;overflow-wrap:anywhere">'+escaparHtml(item.maquina)+'</b><small style="display:block;font-size:.7rem;color:'+item.cor+';margin-top:3px;font-weight:700">'+item.estado+'</small></span><span style="font-size:.68rem;color:#64748b;text-align:right;white-space:nowrap">'+item.ativas.length+' O.S. ativa(s)<br>'+qtdConcluidas+' O.S. concluída(s)</span></summary><div style="padding:0 10px 10px;border-top:1px solid #f1f5f9">';
