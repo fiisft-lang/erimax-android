@@ -3479,6 +3479,45 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
  #tab-cadastro .cadastro-setor-actions .btn-action{width:36px;min-width:36px;height:36px}
 }
 </style>
+<style id="fix-preventiva-texto-sobreposto-2026">
+/* Corrige quebra e espaçamento dos textos somente no formulário de Preventivas */
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo,
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo *{min-width:0;box-sizing:border-box}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin:0 0 17px!important}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group>label{
+ display:block!important;width:100%;height:auto!important;min-height:0!important;
+ margin:0 0 2px!important;padding:0!important;white-space:normal!important;
+ overflow-wrap:anywhere;word-break:normal;line-height:1.45!important;
+ letter-spacing:.025em!important;text-transform:none!important;
+}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group>small,
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group>p{
+ display:block;width:100%;height:auto;white-space:normal;overflow-wrap:anywhere;
+ line-height:1.5;margin:3px 0 0!important
+}
+#tab-cadastro #cadastro-area-preventivas #pvTodasMaquinas{flex:0 0 18px;width:18px!important;height:18px;min-height:18px;padding:0;margin:0}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo label:has(#pvTodasMaquinas){
+ display:flex!important;align-items:flex-start!important;gap:9px!important;
+ width:100%;height:auto!important;white-space:normal!important;
+ line-height:1.45!important;letter-spacing:0!important;text-transform:none!important
+}
+#tab-cadastro #cadastro-area-preventivas #pvListaMaquinas label,
+#tab-cadastro #cadastro-area-preventivas #pvEquipeTecnicos label{
+ display:flex!important;align-items:flex-start!important;gap:9px!important;
+ width:100%;height:auto!important;white-space:normal!important;
+ overflow-wrap:anywhere;line-height:1.45!important;letter-spacing:0!important;
+ text-transform:none!important;padding:8px 4px!important
+}
+#tab-cadastro #cadastro-area-preventivas #pvListaMaquinas input,
+#tab-cadastro #cadastro-area-preventivas #pvEquipeTecnicos input{
+ flex:0 0 18px;width:18px!important;height:18px;min-height:18px;padding:0;margin:1px 0 0
+}
+#tab-cadastro #cadastro-area-preventivas #pvEquipeTecnicos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px}
+@media(max-width:600px){
+ #tab-cadastro #cadastro-area-preventivas #pvEquipeTecnicos{grid-template-columns:1fr}
+ #tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group>label{font-size:.76rem!important}
+}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
