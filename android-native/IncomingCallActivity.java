@@ -165,8 +165,7 @@ public class IncomingCallActivity extends Activity {
         return true;
       }
       if (event.getAction() == MotionEvent.ACTION_UP) {
-        float deslocamento = inicioY[0] - event.getRawY();
-        if (deslocamento > dp(28) || deslocamento <= dp(28)) action.run();
+        action.run();
         return true;
       }
       return event.getAction() == MotionEvent.ACTION_MOVE;
