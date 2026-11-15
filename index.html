@@ -3518,6 +3518,27 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
  #tab-cadastro #cadastro-area-preventivas #pvFormConteudo .form-group>label{font-size:.76rem!important}
 }
 </style>
+<style id="fix-preventiva-cards-layout-2026">
+/* Mantém formulário e lista de preventivas em blocos independentes, sem sobreposição */
+#tab-cadastro #cadastro-area-preventivas{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:18px!important;position:relative!important;isolation:isolate!important;
+}
+#tab-cadastro #cadastro-area-preventivas>#pvFormCard,
+#tab-cadastro #cadastro-area-preventivas>#pvListaCard{
+ position:relative!important;inset:auto!important;float:none!important;
+ display:block;width:100%;height:auto!important;min-height:0!important;
+ margin:0!important;transform:none!important;clear:both!important;
+}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo{
+ position:relative!important;inset:auto!important;float:none!important;
+ width:100%;height:auto!important;overflow:visible;
+}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo[style*="display: none"]{display:none!important}
+#tab-cadastro #cadastro-area-preventivas #pvListaCard{z-index:0}
+#tab-cadastro #cadastro-area-preventivas #pvFormCard{z-index:1}
+#tab-cadastro #cadastro-area-preventivas #listaPrev{position:relative;min-width:0}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -3658,7 +3679,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </section><section id="cadastro-area-maquinas" class="cadastro-area-panel"><div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Máquinas por setor</h3>
 <p style="font-size:.75rem;color:#64748b;margin-bottom:10px">Cada setor fica recolhido. Toque na ferramenta para abrir a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
-</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><button id="pvAlternarForm" type="button" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="alternarFormPreventiva()">Fechar ✕</button></div><div id="pvFormConteudo">
+</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Manutenção Preventiva</h3><button id="pvAlternarForm" type="button" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="alternarFormPreventiva()">Fechar ✕</button></div><div id="pvFormConteudo">
 <div class="form-group"><label>Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
 <div class="form-group"><label>Máquinas</label>
 <label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
@@ -3670,7 +3691,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="form-group"><label>Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button><button type="button" class="btn-action" style="margin-top:8px;width:auto" onclick="fecharFormPreventiva()">Fechar cadastro</button></div></div>
-<div class="card"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
+<div class="card" id="pvListaCard"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 </section><section id="cadastro-area-usuarios" class="cadastro-area-panel"><div class="card"><h3 style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Usuários</h3>
 <div class="form-group"><label>Novo usuário — e-mail</label><input id="nuEmail" type="email" autocomplete="off"></div>
 <div class="form-group"><label>Nome</label><input id="nuNome" autocomplete="off"></div>
