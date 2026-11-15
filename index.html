@@ -3047,7 +3047,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 #metricsDataContent>*{min-width:0}
 #metricsDataContent>.metrics-report-toolbar,#metricsDataContent>.metrics-section-heading,#metricsDataContent>#printReportHeader,#metricsDataContent>.metrics-grid,#metricsDataContent>#cardHorarioEfGeral,#metricsDataContent>#cardHeatmapMaquinas,#metricsDataContent>#cardHorarioPareto,#metricsDataContent>#cardRankingReincidencia,#metricsDataContent>.metrics-ranking-card{grid-column:1/-1}
 #metricsDataContent>.metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0}
-#metricsDataContent>.card{height:100%;min-width:0}
+#metricsDataContent>.card{height:auto;min-width:0;align-self:start}
 #metricsDataContent>.card:has(> .chart-wrapper > canvas#chEfSetor),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chEfMaq),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chCausas),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTendencia),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTendenciaMensal),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chDowntime),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTipos),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTecnico),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chTurno),#metricsDataContent>.card:has(> .chart-wrapper > canvas#chHora){grid-column:span 1}
 #metricsDataContent>.card:has(> .chart-wrapper > canvas#chPareto){grid-column:1/-1}
 #metricsDataContent>.metrics-section-heading{margin:5px 0 -1px;padding:11px 13px;border:1px solid #e2eaf1;border-radius:13px;background:linear-gradient(105deg,#f2f7fb,#fff)}
@@ -3056,7 +3056,10 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 #metricsDataContent>.metrics-report-toolbar{padding:14px 16px;background:#f7fafc}
 #metricsDataContent>.metrics-report-toolbar strong{font-size:.78rem}
 #metricsDataContent>.card:has(> .chart-wrapper){display:flex;flex-direction:column}
-#metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{flex:1;min-height:245px}
+#metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{flex:0 0 auto;height:275px;min-height:0;width:100%}
+#metricsDataContent>#cardHorarioPareto>.chart-wrapper{height:340px}
+#metricsDataContent>#cardHorarioEfSetor>.chart-wrapper,#metricsDataContent>#cardHorarioEfMaq>.chart-wrapper{height:300px}
+#metricsDataContent>#cardHorarioDowntime>.chart-wrapper{height:315px}
 #metricsDataContent>#metricsDataContent>#cardHorarioPareto>.chart-wrapper{min-height:340px}
 #metricsDataContent #cardHeatmapMaquinas{padding:18px}
 #metricsDataContent .metrics-heat-row{min-height:48px;transition:border-color .16s ease,background .16s ease,transform .16s ease}
@@ -3074,8 +3077,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
  #metricsDataContent>*,#metricsDataContent>.metrics-report-toolbar,#metricsDataContent>.metrics-section-heading,#metricsDataContent>.metrics-grid,#metricsDataContent>.card:has(> .chart-wrapper),#metricsDataContent>.metrics-ranking-card{grid-column:1}
  #metricsDataContent>.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
  #metricsDataContent>.metrics-section-heading{padding:10px 11px}
- #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{min-height:230px}
- #metricsDataContent>#cardHorarioPareto>.chart-wrapper{min-height:320px}
+ #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{height:250px;min-height:0;flex:0 0 auto}
+ #metricsDataContent>#cardHorarioPareto>.chart-wrapper{height:320px;min-height:0}
  #metricsDataContent .metrics-heat-row{grid-template-columns:minmax(86px,1.05fr) minmax(48px,1.4fr) 42px;gap:7px;padding:9px 8px}
  #metricsDataContent .metrics-heat-row small{grid-column:1/-1;padding-left:1px}
  #metricsDataContent .metrics-report-toolbar{border-radius:12px}
