@@ -6112,6 +6112,21 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 </style>
 
+
+<style id="erimax-menu-os-visibility-fix">
+/* Correção: as duas entradas operacionais devem permanecer visíveis no menu lateral em qualquer perfil. */
+#tbAbrirOS,
+#tbOrdensServico{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  z-index:2!important;
+}
+.nav-tabs #tbAbrirOS,
+.nav-tabs #tbOrdensServico{width:100%!important;min-height:49px!important;}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
