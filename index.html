@@ -1951,6 +1951,40 @@ tbody tr:hover{background:#eef6f5}
  #painelMaquinasSupervisor .supervisor-filtro-card>div{font-size:.64rem!important}
 }
 </style>
+<style id="erimax-supervisao-textos-contraste-e-interacao">
+/* Supervisão: textos de apoio com contraste confortável e leitura clara */
+#painelMaquinasSupervisor .supervisor-intro,
+#painelMaquinasSupervisor .supervisor-kpi small,
+#painelMaquinasSupervisor .supervisor-status-titulo small,
+#painelMaquinasSupervisor .supervisor-filtro-card>div,
+#painelMaquinasSupervisor .supervisor-filtro-card>small,
+#painelMaquinasSupervisor .supervisor-aviso-status,
+#painelMaquinasSupervisor .supervisor-setores-cabecalho>span,
+#painelMaquinasSupervisor details[data-supervisor-setor]>summary small,
+#painelMaquinasSupervisor details[data-supervisor-setor]>summary>span:last-child,
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary>span:last-child,
+#painelMaquinasSupervisor .supervisor-mensagem-vazia,
+#painelMaquinasSupervisor .supervisor-os-item {
+  color:#4b5b68!important;
+  opacity:1!important;
+}
+#painelMaquinasSupervisor .supervisor-setores-cabecalho h4,
+#painelMaquinasSupervisor .supervisor-status-titulo {
+  color:#263b4c!important;
+}
+#painelMaquinasSupervisor details[data-supervisor-setor]>summary,
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary {
+  -webkit-tap-highlight-color:rgba(39,91,132,.12);
+  touch-action:manipulation;
+}
+#painelMaquinasSupervisor details[data-supervisor-setor]>summary:focus-visible,
+#painelMaquinasSupervisor details[data-supervisor-maquina]>summary:focus-visible,
+#painelMaquinasSupervisor .supervisor-os-item:focus-visible {
+  outline:2px solid #6b9fc5!important;
+  outline-offset:2px!important;
+}
+#painelMaquinasSupervisor .supervisor-os-item {cursor:pointer!important}
+</style>
 </head>
 <body>
 <header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -4192,7 +4226,7 @@ function tratarLinkOS(url){
     setTimeout(async()=>{await abrirOSNoPainel(id);if(action==='aceitar_transferencia')await aceitarTransferenciaOS(Number(id));else if(action==='recusar_transferencia')await recusarTransferenciaOS(Number(id));else if(action==='assumir')await assumirOS(Number(id));},900);
   }catch(e){console.error('Link de O.S. inválido:',e)}
 }
-async function abrirOSDaSupervisao(id){
+async async function abrirOSDaSupervisao(id){
   const os=chamados.find(c=>Number(c.id)===Number(id));
   if(!os)return alert('Esta O.S. não está mais disponível. Atualize a supervisão e tente novamente.');
   await abrirOSNoPainel(id);
