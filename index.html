@@ -1798,6 +1798,32 @@ tbody tr:hover{background:#eef6f5}
  *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
 </style>
+<style id="erimax-modal-metricas-mobile">
+/* Modal de O.S. aberto pelas métricas: cabeçalho e Fechar sempre visíveis no celular. */
+#modalEfOS{box-sizing:border-box;align-items:center;justify-content:center;overflow:hidden;padding:12px!important}
+#modalEfOS>.box{
+ box-sizing:border-box!important;width:min(760px,100%)!important;max-width:760px!important;
+ max-height:calc(100dvh - 24px)!important;max-height:calc(100vh - 24px)!important;
+ display:flex!important;flex-direction:column!important;overflow:hidden!important;
+ padding:14px!important;min-height:0;
+}
+#modalEfOS>.box>div:first-child{
+ position:sticky;top:0;z-index:2;flex:0 0 auto;display:flex!important;
+ align-items:center!important;justify-content:space-between!important;
+ gap:10px!important;padding:2px 0 10px!important;background:#fff;
+ border-bottom:1px solid #e2e8f0;
+}
+#modalEfOS #modalEfOSTitulo{font-size:clamp(1rem,4vw,1.25rem)!important;line-height:1.25!important;min-width:0;overflow-wrap:anywhere;margin:0!important}
+#modalEfOS>.box>div:first-child button{flex:0 0 auto!important;min-width:74px!important;min-height:40px!important;white-space:nowrap!important}
+#modalEfOS #resumoEfOS{flex:0 0 auto!important;margin:8px 0!important}
+#modalEfOS #listaEfOS{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+@media(max-width:480px){
+ #modalEfOS{padding:8px!important}
+ #modalEfOS>.box{max-height:calc(100dvh - 16px)!important;max-height:calc(100vh - 16px)!important;padding:12px!important}
+ #modalEfOS>.box>div:first-child{gap:7px!important}
+ #modalEfOS>.box>div:first-child button{padding:8px 10px!important}
+}
+</style>
 <style id="erimax-supervisao-tipografia-app">
 /* Supervisão do aplicativo: hierarquia discreta e contraste legível */
 #painelMaquinasSupervisor{color:#293b49!important}
