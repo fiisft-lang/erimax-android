@@ -4405,7 +4405,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 </head>
 <body>
-<header><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
+<header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
 
 <button id="alertaPreventivaApp" type="button" onclick="dispensarAlertaPreventiva()" aria-label="Dispensar aviso de manutenção preventiva"></button>
@@ -5029,18 +5029,45 @@ function selecionarCadastroArea(area){
   atualizarVisualCadastroArea(area);
   if(estavaFechada)history.pushState({...history.state,erimaxCadastroArea:true},'',location.href);
 }
-window.addEventListener('popstate',()=>{
-  if(CADASTRO_AREA_ATIVA)fecharCadastroArea(false);
+window.addEventListener('popstate',event=>{
+  if(CADASTRO_AREA_ATIVA){fecharCadastroArea(false);return;}
+  const destino=event.state&&event.state.erimaxTab;
+  if(destino&&document.getElementById('tab-'+destino)){
+    mudarAba(destino,null,{fromHistory:true});
+  }else{
+    atualizarBotaoVoltarSistema();
+  }
 });
 (function instalarVoltarNativoCadastro(){
   const app=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
   if(app&&typeof app.addListener==='function'){
     app.addListener('backButton',()=>{
-      if(CADASTRO_AREA_ATIVA)fecharCadastroArea();
-    }).catch?.(e=>console.warn('[EriMax] Voltar da Central de Cadastros:',e));
+      if(document.body.classList.contains('menu-lateral-aberto')){fecharMenuLateral();return;}
+      voltarSistema();
+    }).catch?.(e=>console.warn('[EriMax] Botão voltar do Android:',e));
   }
 })();
-function mudarAba(id,evt){
+function atualizarBotaoVoltarSistema(){
+  const botao=document.getElementById('btnVoltarSistema');
+  if(!botao)return;
+  const aba=document.querySelector('.tab-content.active');
+  const id=aba&&aba.id?aba.id.replace(/^tab-/,''):'abrir';
+  const podeVoltar=!!CADASTRO_AREA_ATIVA||id!=='abrir';
+  botao.style.display=podeVoltar?'inline-flex':'none';
+}
+function voltarSistema(){
+  if(document.body.classList.contains('menu-lateral-aberto')){fecharMenuLateral();return;}
+  if(CADASTRO_AREA_ATIVA){fecharCadastroArea();return;}
+  if(history.state&&history.state.erimaxTab&&history.length>1){history.back();return;}
+  if(document.getElementById('tab-abrir')&&!document.getElementById('tab-abrir').classList.contains('active')){mudarAba('abrir');return;}
+  atualizarBotaoVoltarSistema();
+}
+function mudarAba(id,evt,opcoes={}){
+  const abaAtual=document.querySelector('.tab-content.active');
+  const idAtual=abaAtual&&abaAtual.id?abaAtual.id.replace(/^tab-/,''):'abrir';
+  if(!opcoes.fromHistory&&id!==idAtual){
+    try{history.pushState({...history.state,erimaxTab:id},'',location.href);}catch(e){console.warn('[EriMax] Histórico de navegação:',e);}
+  }
   fecharMenuLateral();
   if(id!=='cadastro'&&CADASTRO_AREA_ATIVA)fecharCadastroArea(false);
   if(id==='cadastro')fecharCadastroArea(false);
@@ -5053,6 +5080,7 @@ function mudarAba(id,evt){
   if(id==='painel')renderPainelMaquinasSupervisor();
   if(id==='ordens-servico'&&!precisaAtualizar)renderizarChamados();
   if(id==='presenca'&&MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
+  atualizarBotaoVoltarSistema();
   return carregamento.then(()=>{if(id==='metricas'){atualizarMaquinasMetrica();atualizarMetricasReais()}});
 }
 
@@ -8124,6 +8152,30 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 </style>
 
+<script id="erimax-navegacao-voltar-2026">
+/* Inicializa o histórico sem alterar a URL nem os dados operacionais. */
+(function iniciarHistoricoNavegacaoErimax(){
+  const aba=document.querySelector('.tab-content.active');
+  const id=aba&&aba.id?aba.id.replace(/^tab-/,''):'abrir';
+  try{
+    if(!history.state||!history.state.erimaxTab)history.replaceState({...history.state,erimaxTab:id},'',location.href);
+  }catch(e){console.warn('[EriMax] Não foi possível inicializar o histórico:',e);}
+  atualizarBotaoVoltarSistema();
+})();
+</script>
+<style id="erimax-botao-voltar-2026">
+#btnVoltarSistema{flex:0 0 auto;transition:background .18s,border-color .18s,transform .18s}
+#btnVoltarSistema:hover{background:#edf5f5!important;border-color:#b8d5d4!important}
+#btnVoltarSistema:active{transform:translateY(1px)}
+@media(max-width:600px){
+  #btnVoltarSistema{min-height:38px!important;padding:7px 9px!important;font-size:.78rem!important}
+  #btnVoltarSistema span{display:none}
+  header{gap:8px}
+}
+@media(min-width:601px){
+  #btnVoltarSistema span{display:inline}
+}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
