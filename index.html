@@ -9187,50 +9187,32 @@ window.onload=async function(){
 #erimaxZoomIndicador{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3000;padding:8px 14px;border-radius:22px;background:rgba(22,42,57,.94);color:#fff;font:700 13px/1.2 system-ui,sans-serif;letter-spacing:.02em;box-shadow:0 5px 18px rgba(0,0,0,.22);pointer-events:none;opacity:0;transition:opacity .16s}
 #erimaxZoomIndicador.visivel{opacity:1}
 @media(min-width:900px){#erimaxZoomIndicador{display:none!important}}
-/* Zoom inteligente: abaixo de 100%, os cartões ganham colunas; o texto não é reduzido. */
-.tab-content[data-erimax-zoom="compacto"] #listaOS,
-.tab-content[data-erimax-zoom="compacto"] #listaOSAbertas,
-.tab-content[data-erimax-zoom="compacto"] #listaOSPausadas,
-.tab-content[data-erimax-zoom="compacto"] #listaCfg,
-.tab-content[data-erimax-zoom="compacto"] #listaMaquinas,
-.tab-content[data-erimax-zoom="compacto"] #listaPrev,
-.tab-content[data-erimax-zoom="compacto"] #listaUsuarios,
-.tab-content[data-erimax-zoom="compacto"] .os-modern-list,
-.tab-content[data-erimax-zoom="compacto"] .oa-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:start;gap:10px!important}
-.tab-content[data-erimax-zoom="compacto"] .os-modern-list>.os-card,
-.tab-content[data-erimax-zoom="compacto"] .oa-list>.os-card,
-.tab-content[data-erimax-zoom="compacto"] #listaOS>.os-card,
-.tab-content[data-erimax-zoom="compacto"] #listaOSAbertas>.os-card{min-width:0;height:100%;padding:12px!important}
-.tab-content[data-erimax-zoom="compacto"] .os-card .os-actions{gap:6px!important}
-.tab-content[data-erimax-zoom="compacto"] .os-card .btn-action{min-width:0;flex:1 1 100px;padding:8px 7px!important}
-.tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .supervisor-kpis,
-.tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
-.tab-content[data-erimax-zoom="compacto"] .metrics-grid,
-.tab-content[data-erimax-zoom="compacto"] #metricsDataContent>.metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
-.tab-content[data-erimax-zoom="compacto"] .metric-card{min-width:0;padding:10px 7px!important}
-.tab-content#tab-presenca[data-erimax-zoom="compacto"] #listaPresenca{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-.tab-content#tab-cadastro[data-erimax-zoom="compacto"] #listaCfg,
-.tab-content#tab-cadastro[data-erimax-zoom="compacto"] #listaMaquinas,
-.tab-content#tab-cadastro[data-erimax-zoom="compacto"] #listaPrev,
-.tab-content#tab-cadastro[data-erimax-zoom="compacto"] #listaUsuarios{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-.tab-content[data-erimax-zoom="supercompacto"] .os-modern-list,
-.tab-content[data-erimax-zoom="supercompacto"] .oa-list{gap:8px!important}
-.tab-content[data-erimax-zoom="supercompacto"] .os-modern-list>.os-card,
-.tab-content[data-erimax-zoom="supercompacto"] .oa-list>.os-card,
-.tab-content[data-erimax-zoom="supercompacto"] #listaOS>.os-card,
-.tab-content[data-erimax-zoom="supercompacto"] #listaOSAbertas>.os-card{padding:10px!important}
-.tab-content[data-erimax-zoom="supercompacto"] #painelMaquinasSupervisor .supervisor-kpis,
-.tab-content[data-erimax-zoom="supercompacto"] #painelMaquinasSupervisor .sv-metrics{gap:6px!important}
-.tab-content[data-erimax-zoom="supercompacto"] .metric-card{padding:8px 5px!important}
-@media(min-width:760px){
-  .tab-content[data-erimax-zoom="compacto"] .os-modern-list,
-  .tab-content[data-erimax-zoom="compacto"] .oa-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-  .tab-content[data-erimax-zoom="supercompacto"] .os-modern-list,
-  .tab-content[data-erimax-zoom="supercompacto"] .oa-list{grid-template-columns:repeat(4,minmax(0,1fr))!important}
-  .tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .supervisor-kpis,
-  .tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(5,minmax(0,1fr))!important}
-  .tab-content[data-erimax-zoom="compacto"] .metrics-grid,
-  .tab-content[data-erimax-zoom="compacto"] #metricsDataContent>.metrics-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+/* Grade adaptável: 100% não recebe nenhuma regra visual adicional. */
+.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#resultadoConsulta,.os-modern-list,.oa-list){
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(260px * var(--erimax-zoom-scale,1))),1fr))!important;
+  align-items:start;gap:calc(12px * var(--erimax-zoom-scale,1))!important;min-width:0;
+}
+.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#resultadoConsulta,.os-modern-list,.oa-list)>*{
+  min-width:0!important;max-width:100%;zoom:var(--erimax-zoom-scale,1);
+}
+.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.oa-stat-card,.presence-card){
+  min-width:0!important;overflow:hidden;text-overflow:ellipsis;
+}
+.tab-content[data-erimax-zoom="60"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info),
+.tab-content[data-erimax-zoom="50"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info),
+.tab-content[data-erimax-zoom="40"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info){display:none!important}
+.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card) :is(h1,h2,h3,h4,p,span,b,strong,small){
+  min-width:0;overflow-wrap:anywhere;
+}
+.tab-content[data-erimax-zoom="60"] :is(.os-card,.card,.maq-row,.report-item,.metric-card) :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+}
+.tab-content[data-erimax-zoom="50"] :is(.os-card,.card,.maq-row,.report-item,.metric-card) :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;
+}
+.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card) :is(button,.btn-action){
+  min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;
 }
 </style>
 <script id="erimax-zoom-pinça-2026-js">
@@ -9245,15 +9227,54 @@ window.onload=async function(){
   function normalizar(z){z=Math.max(.65,Math.min(1.5,z));if(Math.abs(z-1)<=.04)return 1;return Math.round(z*100)/100}
   function mostrar(z){indicador.textContent='Zoom '+Math.round(z*100)+'%'+(z===1?' · padrão':'');indicador.classList.add('visivel');clearTimeout(indicadorTimer);indicadorTimer=setTimeout(()=>indicador.classList.remove('visivel'),1100)}
   function aplicarNivel(el,z){const densidade=nivel(z);if(densidade)el.setAttribute('data-erimax-zoom',densidade);else el.removeAttribute('data-erimax-zoom');el.style.zoom=z>1?String(z):''}
-  function aplicar(){const el=aba();if(!el)return;const id=el.id.replace(/^tab-/,'');if(abaAtual&&abaAtual!==id){const anterior=document.getElementById('tab-'+abaAtual);if(anterior&&Number(zooms[abaAtual]||1)<=1)anterior.style.zoom=''}abaAtual=id;const z=normalizar(Number(zooms[id])||1);zooms[id]=z;aplicarNivel(el,z)}
+  function aplicar(){const el=aba();if(!el)return;const id=el.id.replace(/^tab-/,'');if(abaAtual&&abaAtual!==id){const anterior=document.getElementById('tab-'+abaAtual);if(anterior&&Number(zooms[abaAtual]||1)<=1)anterior.style.zoom=''}abaAtual=<script id="erimax-zoom-pinça-2026-js">
+(function(){
+  const permitidas=new Set(['painel','ordens-servico','ordens-abertas','ordens-pausadas','presenca','cadastro','metricas','ranking-os','ia','supervisao']);
+  const chave='erimax_zoom_global_v2';
+  let zooms={};try{zooms=JSON.parse(localStorage.getItem(chave)||'{}')||{}}catch(e){zooms={}}
+  let inicioDistancia=0,inicioZoom=1,indicadorTimer=null,zoomEmGestao=null;
+  const indicador=document.createElement('div');indicador.id='erimaxZoomIndicador';indicador.setAttribute('aria-live','polite');document.body.appendChild(indicador);
+  function aba(){const el=document.querySelector('.tab-content.active');return el&&permitidas.has(el.id.replace(/^tab-/,'').trim())?el:null}
+  function normalizar(z){z=Math.max(.4,Math.min(1,z));return Math.round(z*100)/100}
+  function mostrar(z){indicador.textContent='Zoom '+Math.round(z*100)+'%'+(z===1?' · padrão':'');indicador.classList.add('visivel');clearTimeout(indicadorTimer);indicadorTimer=setTimeout(()=>indicador.classList.remove('visivel'),1100)}
+  function aplicarNivel(el,z){
+    if(z>=1){el.removeAttribute('data-erimax-zoom');el.style.removeProperty('--erimax-zoom-scale');return}
+    const pct=Math.round(z*100);
+    el.setAttribute('data-erimax-zoom',String(pct));
+    el.style.setProperty('--erimax-zoom-scale',String(z));
+  }
+  function aplicar(){
+    const el=aba();if(!el)return;
+    const id=el.id.replace(/^tab-/,'');
+    const z=normalizar(Number(zooms[id])||1);
+    zooms[id]=z;aplicarNivel(el,z);
+  }
   function distancia(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.hypot(dx,dy)}
-  document.addEventListener('touchstart',e=>{const el=aba();if(!el||!el.contains(e.target)||e.target.closest('#modal,#modalReabrirOS,#modalHistoricoOS,#modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal,input,select,textarea,button,[contenteditable="true"]'))return;if(e.touches.length===2){inicioDistancia=distancia(e.touches);inicioZoom=Number(zooms[el.id.replace(/^tab-/,'')])||1;zoomEmGestao=el.id.replace(/^tab-/,'')}},{passive:true});
-  document.addEventListener('touchmove',e=>{if(e.touches.length!==2||!inicioDistancia||!zoomEmGestao)return;const el=aba();if(!el||!el.contains(e.target))return;if(e.cancelable)e.preventDefault();const z=normalizar(inicioZoom*distancia(e.touches)/inicioDistancia);if(z===Number(zooms[zoomEmGestao]||1))return;zooms[zoomEmGestao]=z;aplicarNivel(el,z);mostrar(z)},{passive:false});
-  const encerrar=()=>{if(zoomEmGestao){try{localStorage.setItem(chave,JSON.stringify(zooms))}catch(e){}}inicioDistancia=0;zoomEmGestao=null};
-  document.addEventListener('touchend',encerrar,{passive:true});document.addEventListener('touchcancel',encerrar,{passive:true});
-  const observador=new MutationObserver(aplicar);document.querySelectorAll('.tab-content').forEach(el=>observador.observe(el,{attributes:true,attributeFilter:['class']}));aplicar();
+  document.addEventListener('touchstart',e=>{
+    const el=aba();
+    if(!el||!el.contains(e.target)||e.target.closest('#modal,#modalReabrirOS,#modalHistoricoOS,#modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal,input,select,textarea,button,[contenteditable="true"]'))return;
+    if(e.touches.length===2){
+      inicioDistancia=distancia(e.touches);
+      zoomEmGestao=el.id.replace(/^tab-/,'');
+      inicioZoom=normalizar(Number(zooms[zoomEmGestao])||1);
+    }
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(e.touches.length!==2||!inicioDistancia||!zoomEmGestao)return;
+    const el=aba();if(!el||el.id!=='tab-'+zoomEmGestao)return;
+    if(e.cancelable)e.preventDefault();
+    const z=normalizar(inicioZoom*distancia(e.touches)/inicioDistancia);
+    if(z===Number(zooms[zoomEmGestao]||1))return;
+    zooms[zoomEmGestao]=z;aplicarNivel(el,z);mostrar(z);
+  },{passive:false});
+  const encerrar=()=>{
+    if(zoomEmGestao){try{localStorage.setItem(chave,JSON.stringify(zooms))}catch(e){}}
+    inicioDistancia=0;zoomEmGestao=null;
+  };
+  document.addEventListener('touchend',encerrar,{passive:true});
+  document.addEventListener('touchcancel',encerrar,{passive:true});
+  const observador=new MutationObserver(aplicar);
+  document.querySelectorAll('.tab-content').forEach(el=>observador.observe(el,{attributes:true,attributeFilter:['class']}));
+  aplicar();
 })();
 </script>
-
-</body>
-</html>
