@@ -4695,6 +4695,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="form-group"><label>Causa da falha *</label><select id="mdCausa"></select></div>
 <div class="form-group"><label>Peça trocada (opcional)</label><input id="mdPeca" placeholder="Ex.: Rolamento 6204"></div>
 <div class="form-group"><label>Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
+<div class="form-group"><label for="mdMecanicoAux">Mecânico auxiliar (opcional)</label><select id="mdMecanicoAux"><option value="">Nenhum auxiliar</option></select><small style="display:block;color:#64748b;margin-top:5px">Selecione somente se outro técnico participou desta manutenção.</small></div>
 <div class="form-group" id="mdMaquinasWrap" style="display:none"><label>Execução por máquina</label><p style="font-size:.75rem;color:#64748b;margin:4px 0 8px">Marque cada máquina somente depois de executar o serviço nela. A O.S. só poderá ser concluída quando todas estiverem marcadas.</p><div id="mdListaMaquinas"></div><button type="button" class="btn-submit" style="background:#0f766e;margin-top:8px" onclick="salvarProgressoMaquinas()">💾 Salvar andamento sem fechar a O.S.</button></div>
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
@@ -5667,6 +5668,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     }
     if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
     if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Manutentor responsável pela finalização: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.mecanico_auxiliar)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Mecânico auxiliar: <b>'+escaparHtml(os.mecanico_auxiliar)+'</b></p>';
     const equipeOS=Array.isArray(os.tecnicos_participantes)?os.tecnicos_participantes:[];
     if(equipeOS.length)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Equipe participante: <b>'+escaparHtml(equipeOS.join(', '))+'</b></p>';
     if(os.situacao_equipamento==='Parado')html+='<p style="margin:6px 0;padding:7px 9px;background:#fff1f0;border:1px solid #fecaca;border-radius:5px;font-size:.8rem;color:#991b1b">⏱️ <b>Tempo de máquina parada:</b> <span data-tempo-parada-os="'+id+'">'+escaparHtml(fmt(Math.round(paradaProd(os,Number((String(os.turno||'').match(/\d+/)||[])[0])||null))))+'</span><small data-tempo-pausa-os="'+id+'" style="display:none;margin-top:3px;color:#805b00"></small></p>';
@@ -5897,6 +5899,12 @@ function concluirOS(id){
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
   const maquinas=Array.isArray(osAtual&&osAtual.maquinas_execucao)?osAtual.maquinas_execucao:[];
   const wrap=document.getElementById('mdMaquinasWrap'),lista=document.getElementById('mdListaMaquinas');
+  const selectAux=document.getElementById('mdMecanicoAux');
+  if(selectAux){
+    const auxiliares=(TECNICOS||[]).filter(t=>t&&t.perfil==='tecnico'&&t.nome&&t.nome!==osAtual?.tecnico).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+    selectAux.innerHTML='<option value="">Nenhum auxiliar</option>'+auxiliares.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
+    selectAux.value=osAtual?.mecanico_auxiliar||'';
+  }
   if(wrap&&lista){
     wrap.style.display=maquinas.length?'':'none';
     lista.innerHTML=maquinas.map((m,i)=>'<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.85rem"><input class="md-maquina-execucao" type="checkbox" data-index="'+i+'" '+(m.concluida?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+' '+(m.concluida?'<span style="color:#166534;font-size:.75rem">— concluída</span>':'')+'</label>').join('');
@@ -6028,7 +6036,7 @@ async function confirmarConclusao(){
   const diferenca=Math.abs(agora-fim);
   if(PERFIL&&PERFIL.perfil==='tecnico'&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
   const aj=PERFIL&&PERFIL.perfil==='gestor'&&diferenca>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
-  const atualizacao={status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),data_conclusao:fim.toISOString(),...aj};
+  const atualizacao={status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),mecanico_auxiliar:document.getElementById('mdMecanicoAux')?.value||null,data_conclusao:fim.toISOString(),...aj};
   if(maquinasExecucao.length)atualizacao.maquinas_execucao=maquinasExecucao;
   const {error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir);
   if(error)return alert('Erro ao concluir OS: '+error.message);
@@ -6104,8 +6112,8 @@ async function verHistorico(id){
     add(t.solicitada_em,'Transferência solicitada',(t.solicitada_por||t.tecnico_anterior||'—')+' • De: '+(t.tecnico_anterior||'—')+' • Para: '+(t.tecnico_novo||'—')+' • Motivo: '+(t.motivo||'Não informado'),'transferencia');
     if(t.aceita_em)add(t.aceita_em,'Transferência aceita','Aceita por '+(t.aceita_por||t.tecnico_novo||'—'),'retomada');
   });
-  (reaberturas||[]).forEach(r=>add(r.reaberta_em,'O.S. reaberta','Por: '+(r.tecnico_nome||'—')+' • Motivo: '+(r.motivo||'Não informado'),'alerta'));
-  add(os.data_conclusao,'O.S. concluída','Serviço: '+(os.servico_executado||'Não informado')+' • Técnico: '+(os.tecnico||'—'),'conclusao');
+  (reaberturas||[]).forEach(r=>{const auxAnterior=r.dados_conclusao?.mecanico_auxiliar;add(r.reaberta_em,'O.S. reaberta','Por: '+(r.tecnico_nome||'—')+' • Motivo: '+(r.motivo||'Não informado')+(auxAnterior?' • Auxiliar na conclusão anterior: '+auxAnterior:''),'alerta')});
+  add(os.data_conclusao,'O.S. concluída','Serviço: '+(os.servico_executado||'Não informado')+' • Técnico: '+(os.tecnico||'—')+(os.mecanico_auxiliar?' • Mecânico auxiliar: '+os.mecanico_auxiliar:''),'conclusao');
   add(os.ajustado_em,'Horário corrigido pelo gestor','Por: '+(os.ajustado_por||'Gestor')+' • Motivo: '+(os.ajuste_obs||'Não informado'),'alerta');
   eventos.sort((a,b)=>a.ts-b.ts);
   let totalPausa=0;
@@ -6117,7 +6125,7 @@ async function verHistorico(id){
   const detalhes=[
     ['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],
     ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],
-    ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Abertura',fmtData(os.created_at)],
+    ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],
     ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
   ];
   const detalheHtml=detalhes.map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('');
@@ -6137,7 +6145,7 @@ async function verHistorico(id){
     '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
     '<h3>Resumo da O.S.</h3><div class="erimax-os-detail-grid">'+detalheHtml+'</div>'+
     '<section class="erimax-os-history-section"><h3>Problema relatado</h3><p>'+safe(os.problema||os.descricao||os.defeito||'Não informado')+'</p></section>'+
-    '<section class="erimax-os-history-section"><h3>Diagnóstico e execução</h3><div class="erimax-os-detail-grid">'+[['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado]].map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('')+'</div></section>'+
+    '<section class="erimax-os-history-section"><h3>Diagnóstico e execução</h3><div class="erimax-os-detail-grid">'+[['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado],['Mecânico auxiliar',os.mecanico_auxiliar]].map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('')+'</div></section>'+
     (os.ajustado_em?'<p class="erimax-os-history-warning">Horário corrigido por '+safe(os.ajustado_por||'Gestor')+' em '+fmtData(os.ajustado_em)+'. Motivo: '+safe(os.ajuste_obs||'Não informado')+'</p>':'')+
     '<section class="erimax-os-history-section"><h3>Histórico de movimentações</h3><div class="erimax-os-timeline">'+eventoHtml+'</div></section>';
   modal.style.display='flex';
@@ -9175,5 +9183,46 @@ window.onload=async function(){
   #btnVoltarSistema span{display:inline}
 }
 </style>
+<style id="erimax-zoom-pinça-2026">
+#erimaxZoomIndicador{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3000;padding:8px 14px;border-radius:22px;background:rgba(22,42,57,.92);color:#fff;font:700 13px/1.2 system-ui,sans-serif;letter-spacing:.02em;box-shadow:0 5px 18px rgba(0,0,0,.22);pointer-events:none;opacity:0;transition:opacity .16s}
+#erimaxZoomIndicador.visivel{opacity:1}
+@media(min-width:900px){#erimaxZoomIndicador{display:none!important}}
+</style>
+<script id="erimax-zoom-pinça-2026-js">
+(function(){
+  const permitidas=new Set(['painel','ordens-servico','ordens-abertas','presenca','cadastro','metricas','ranking-os','ia']);
+  const chave='erimax_zoom_pagina_v1';
+  let zooms={};try{zooms=JSON.parse(localStorage.getItem(chave)||'{}')||{}}catch(e){zooms={}}
+  let abaAtual=null,inicioDistancia=0,inicioZoom=1,indicadorTimer=null;
+  const indicador=document.createElement('div');indicador.id='erimaxZoomIndicador';indicador.setAttribute('aria-live','polite');document.body.appendChild(indicador);
+  function aba(){const el=document.querySelector('.tab-content.active');return el&&permitidas.has(el.id.replace(/^tab-/,''))?el:null}
+  function mostrar(z){indicador.textContent='Zoom '+Math.round(z*100)+'%';indicador.classList.add('visivel');clearTimeout(indicadorTimer);indicadorTimer=setTimeout(()=>indicador.classList.remove('visivel'),950)}
+  function aplicar(){
+    const el=aba();if(!el)return;
+    const id=el.id.replace(/^tab-/,'');
+    if(abaAtual&&abaAtual!==id){const anterior=document.getElementById('tab-'+abaAtual);if(anterior)anterior.style.zoom=''}
+    abaAtual=id;const z=Math.max(.65,Math.min(1.5,Number(zooms[id])||1));el.style.zoom=z===1?'':String(z);
+  }
+  function distancia(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.hypot(dx,dy)}
+  document.addEventListener('touchstart',e=>{
+    const el=aba();
+    if(!el||!el.contains(e.target)||e.target.closest('#modal,#modalReabrirOS,#modalHistoricoOS,.erimax-os-history-modal,input,select,textarea,button,[contenteditable="true"]'))return;
+    if(e.touches.length===2){inicioDistancia=distancia(e.touches);inicioZoom=Number(zooms[el.id.replace(/^tab-/,'')])||1}
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(e.touches.length!==2||!inicioDistancia)return;
+    const el=aba();if(!el||!el.contains(e.target))return;
+    if(e.cancelable)e.preventDefault();
+    const id=el.id.replace(/^tab-/,'');let z=Math.max(.65,Math.min(1.5,inicioZoom*distancia(e.touches)/inicioDistancia));z=Math.round(z*100)/100;
+    if(Math.abs(z-(Number(zooms[id])||1))<.015)return;
+    zooms[id]=z;el.style.zoom=z===1?'':String(z);try{localStorage.setItem(chave,JSON.stringify(zooms))}catch(err){}mostrar(z);
+  },{passive:false});
+  const encerrar=()=>{inicioDistancia=0};
+  document.addEventListener('touchend',encerrar,{passive:true});document.addEventListener('touchcancel',encerrar,{passive:true});
+  const observador=new MutationObserver(aplicar);document.querySelectorAll('.tab-content').forEach(el=>observador.observe(el,{attributes:true,attributeFilter:['class']}));
+  aplicar();
+})();
+</script>
+
 </body>
 </html>
