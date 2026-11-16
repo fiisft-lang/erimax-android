@@ -7946,34 +7946,6 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 </style>
 
 
-<style id="erimax-menu-lateral-rolagem-desktop-2026">
-/* Corrige a lista vertical do menu lateral no computador sem alterar o layout mobile. */
-@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
-  .nav-tabs {
-    flex-direction:column!important;
-    flex-wrap:nowrap!important;
-    justify-content:flex-start!important;
-    align-items:stretch!important;
-    height:100vh!important;
-    height:100dvh!important;
-    max-height:100vh!important;
-    max-height:100dvh!important;
-    overflow-y:scroll!important;
-    overflow-x:hidden!important;
-    overscroll-behavior-y:contain;
-    scrollbar-width:thin;
-    padding:88px 13px 24px!important;
-    box-sizing:border-box!important;
-  }
-  .nav-tabs .tab-btn {
-    flex:0 0 auto!important;
-    width:100%!important;
-    min-height:49px!important;
-    max-width:none!important;
-    white-space:normal!important;
-  }
-}
-</style>
 
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
@@ -8716,6 +8688,44 @@ window.onload=async function(){
   .nav-tabs .tab-btn { min-width:82px!important; padding-left:6px!important; padding-right:6px!important; font-size:.78rem!important; }
   .container { padding-left:24px!important; padding-right:24px!important; }
   #metricsDataContent .chart-wrapper,.chart-wrapper { height:360px!important; min-height:340px!important; }
+}
+</style>
+
+<style id="erimax-menu-lateral-rolagem-desktop-2026">
+/* Menu lateral vertical e rolável no desktop; mantém o comportamento mobile original. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+  .nav-tabs {
+    display:flex!important;
+    position:fixed!important;
+    top:0!important;
+    bottom:0!important;
+    left:0!important;
+    width:min(86vw,330px)!important;
+    height:100vh!important;
+    height:100dvh!important;
+    max-height:100vh!important;
+    max-height:100dvh!important;
+    flex-direction:column!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:contain;
+    scrollbar-width:thin;
+    padding:88px 13px 24px!important;
+    box-sizing:border-box!important;
+  }
+  .nav-tabs .tab-btn {
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:49px!important;
+    padding:12px 10px!important;
+    white-space:normal!important;
+    border-radius:10px!important;
+  }
 }
 </style>
 
