@@ -8152,30 +8152,7 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 </style>
 
-<script id="erimax-navegacao-voltar-2026">
-/* Inicializa o histórico sem alterar a URL nem os dados operacionais. */
-(function iniciarHistoricoNavegacaoErimax(){
-  const aba=document.querySelector('.tab-content.active');
-  const id=aba&&aba.id?aba.id.replace(/^tab-/,''):'abrir';
-  try{
-    if(!history.state||!history.state.erimaxTab)history.replaceState({...history.state,erimaxTab:id},'',location.href);
-  }catch(e){console.warn('[EriMax] Não foi possível inicializar o histórico:',e);}
-  atualizarBotaoVoltarSistema();
-})();
-</script>
-<style id="erimax-botao-voltar-2026">
-#btnVoltarSistema{flex:0 0 auto;transition:background .18s,border-color .18s,transform .18s}
-#btnVoltarSistema:hover{background:#edf5f5!important;border-color:#b8d5d4!important}
-#btnVoltarSistema:active{transform:translateY(1px)}
-@media(max-width:600px){
-  #btnVoltarSistema{min-height:38px!important;padding:7px 9px!important;font-size:.78rem!important}
-  #btnVoltarSistema span{display:none}
-  header{gap:8px}
-}
-@media(min-width:601px){
-  #btnVoltarSistema span{display:inline}
-}
-</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -9174,5 +9151,29 @@ window.onload=async function(){
 }
 </style>
 
+<script id="erimax-navegacao-voltar-2026">
+/* Inicializa o histórico sem alterar a URL nem os dados operacionais. */
+(function iniciarHistoricoNavegacaoErimax(){
+  const aba=document.querySelector('.tab-content.active');
+  const id=aba&&aba.id?aba.id.replace(/^tab-/,''):'abrir';
+  try{
+    if(!history.state||!history.state.erimaxTab)history.replaceState({...history.state,erimaxTab:id},'',location.href);
+  }catch(e){console.warn('[EriMax] Não foi possível inicializar o histórico:',e);}
+  atualizarBotaoVoltarSistema();
+})();
+</script>
+<style id="erimax-botao-voltar-2026">
+#btnVoltarSistema{flex:0 0 auto;transition:background .18s,border-color .18s,transform .18s}
+#btnVoltarSistema:hover{background:#edf5f5!important;border-color:#b8d5d4!important}
+#btnVoltarSistema:active{transform:translateY(1px)}
+@media(max-width:600px){
+  #btnVoltarSistema{min-height:38px!important;padding:7px 9px!important;font-size:.78rem!important}
+  #btnVoltarSistema span{display:none}
+  header{gap:8px}
+}
+@media(min-width:601px){
+  #btnVoltarSistema span{display:inline}
+}
+</style>
 </body>
 </html>
