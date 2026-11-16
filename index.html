@@ -5274,6 +5274,7 @@ function renderPainelMaquinasSupervisor(){
   html+='</div>';
   html+='<p class="sv-note">“Parado” ou “Rodando” reflete o que foi informado na abertura da O.S. Sem O.S. ativa, a Supervisão não presume a condição da máquina.</p>';
   if(!itens.length)html+='<div class="sv-empty"><b>Nenhuma máquina cadastrada</b><span>Quando houver máquinas ou ordens de serviço, elas aparecerão organizadas por setor.</span></div>';
+  html+='<div class="sv-sector-grid">';
   grupos.forEach((setor,idx)=>{
     const lista=itens.filter(x=>x.setor===setor);
     const totalOS=lista.reduce((n,x)=>n+x.ativas.length,0);
@@ -5301,7 +5302,7 @@ function renderPainelMaquinasSupervisor(){
     });
     html+='</div></details>';
   });
-  html+='</section></div>';
+  html+='</div></section></div>';
   box.innerHTML=html;
   const busca=box.querySelector('.sv-search input');
   if(busca&&window.__erimaxSvBusca)busca.value=window.__erimaxSvBusca;
@@ -6911,27 +6912,48 @@ function atualizarMetricasReais(){
     }));
   }
 
-  // Tendência mensal dentro do mesmo recorte aplicado aos indicadores.
+  // Evolução mensal: contar abertura e conclusão pela data de cada evento.
+  // Assim, uma O.S. aberta em um mês e concluída em outro aparece nos dois meses corretos.
+  const baseEscopo=chamados.filter(os=>
+    (tn==='Todos'||os.turno===tn)&&(st==='Todos'||os.setor===st)&&
+    (mq==='Todas'||os.maquina===mq)&&os.tipo!=='Preventiva'&&
+    (tp==='Todos'||os.tipo===tp)
+  );
+  const eventoNoPeriodo=data=>{
+    if(!data)return false;
+    const d=diaLocal(data);
+    return periodoPersonalizado?(d>=dataInicio&&d<=dataFim):
+      ((!dia||d===dia)&&(!mes||d.startsWith(mes)));
+  };
   const porMes={};
-  f.forEach(os=>{
-    const mesAbertura=diaLocal(os.created_at).slice(0,7);
-    if(mesAbertura){if(!porMes[mesAbertura])porMes[mesAbertura]={abertas:0,concluidas:0};porMes[mesAbertura].abertas++}
-    if(os.status==='Concluída'&&os.data_conclusao){
-      const mesConclusao=diaLocal(os.data_conclusao).slice(0,7);
-      if(mesConclusao){if(!porMes[mesConclusao])porMes[mesConclusao]={abertas:0,concluidas:0};porMes[mesConclusao].concluidas++}
+  baseEscopo.forEach(os=>{
+    if(eventoNoPeriodo(os.created_at)){
+      const m=diaLocal(os.created_at).slice(0,7);
+      if(!porMes[m])porMes[m]={abertas:0,concluidas:0,listaAbertas:[],listaConcluidas:[]};
+      porMes[m].abertas++;porMes[m].listaAbertas.push(os);
+    }
+    if(os.status==='Concluída'&&eventoNoPeriodo(os.data_conclusao)){
+      const m=diaLocal(os.data_conclusao).slice(0,7);
+      if(!porMes[m])porMes[m]={abertas:0,concluidas:0,listaAbertas:[],listaConcluidas:[]};
+      porMes[m].concluidas++;porMes[m].listaConcluidas.push(os);
     }
   });
   const mesesGrafico=Object.keys(porMes).sort();
   DETALHES_GRAFICOS.chTendenciaMensal=(ds,i)=>{
-    const mesOS=mesesGrafico[i];
-    return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+mesOS,lista:f.filter(os=>ds===0?diaLocal(os.created_at).slice(0,7)===mesOS:os.status==='Concluída'&&diaLocal(os.data_conclusao||'').slice(0,7)===mesOS)};
+    const mesOS=mesesGrafico[i],grupo=porMes[mesOS];
+    return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+mesOS,lista:grupo?(ds===0?grupo.listaAbertas:grupo.listaConcluidas):[]};
   };
+  const mensalNota=document.querySelector('#chTendenciaMensal')?.closest('.card')?.querySelector('.metrics-chart-note');
+  if(mensalNota)mensalNota.textContent=mesesGrafico.length
+    ?'Aberturas e conclusões são agrupadas pelo mês em que cada evento aconteceu.'
+    :'Nenhuma O.S. encontrada no período e nos filtros selecionados.';
   mk('chTendenciaMensal',{type:'line',data:{labels:mesesGrafico.map(m=>m.split('-').reverse().join('/')),datasets:[
-    {label:'Abertas',data:mesesGrafico.map(m=>porMes[m].abertas),borderColor:'#2563eb',backgroundColor:'#2563eb22',fill:true},
-    {label:'Concluídas',data:mesesGrafico.map(m=>porMes[m].concluidas),borderColor:'#16a34a',backgroundColor:'#16a34a22',fill:true}]},
-    options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+    {label:'Abertas',data:mesesGrafico.map(m=>porMes[m].abertas),borderColor:'#2563eb',backgroundColor:'#2563eb22',fill:false,borderWidth:3,pointRadius:6,pointHoverRadius:8,tension:.25},
+    {label:'Concluídas',data:mesesGrafico.map(m=>porMes[m].concluidas),borderColor:'#16a34a',backgroundColor:'#16a34a22',fill:false,borderWidth:3,pointRadius:6,pointHoverRadius:8,tension:.25}]},
+    options:{plugins:{legend:{display:true},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw+' O.S.'}}},scales:{y:{beginAtZero:true,min:0,ticks:{precision:0,stepSize:1}},x:{ticks:{autoSkip:false}}}}});
 
-  // Novas análises acionáveis: envelhecimento das O.S. abertas e reincidência por máquina.
+  // Idade das O.S. ainda abertas: considerar as pendentes atuais, mesmo que
+  // tenham sido abertas antes do período selecionado nos filtros de data.
   const agoraIdade=Date.now();
   const faixasIdade=[
     {nome:'Até 1 dia',min:0,max:1,lista:[]},
@@ -6940,15 +6962,21 @@ function atualizarMetricasReais(){
     {nome:'8–15 dias',min:7,max:15,lista:[]},
     {nome:'Mais de 15 dias',min:15,max:Infinity,lista:[]}
   ];
-  f.filter(os=>!['Concluída','Cancelada'].includes(os.status)).forEach(os=>{
+  baseEscopo.filter(os=>!['concluída','cancelada'].includes(String(os.status||'').trim().toLocaleLowerCase('pt-BR'))).forEach(os=>{
     const inicio=new Date(os.created_at).getTime();
     if(!Number.isFinite(inicio))return;
     const idade=Math.max(0,(agoraIdade-inicio)/86400000);
-    const faixa=faixasIdade.find(x=>idade<=x.max&&idade>x.min) || (idade<=1?faixasIdade[0]:null);
-    if(faixa)faixa.lista.push(os);
+    const faixa=idade<=1?faixasIdade[0]:idade<=3?faixasIdade[1]:idade<=7?faixasIdade[2]:idade<=15?faixasIdade[3]:faixasIdade[4];
+    faixa.lista.push(os);
   });
+  const totalAbertasIdade=faixasIdade.reduce((n,x)=>n+x.lista.length,0);
+  const idadeNota=document.querySelector('#chOSIdade')?.closest('.card')?.querySelector('.metrics-chart-note');
+  if(idadeNota)idadeNota.textContent=totalAbertasIdade
+    ?totalAbertasIdade+' O.S. ainda abertas ou em atendimento, agrupadas pelo tempo desde a abertura.'
+    :'Nenhuma O.S. pendente encontrada para os filtros de setor, máquina, turno e tipo.';
   DETALHES_GRAFICOS.chOSIdade=(_ds,i)=>({titulo:'O.S. abertas — '+faixasIdade[i].nome,lista:faixasIdade[i].lista});
-  mk('chOSIdade',{type:'bar',data:{labels:faixasIdade.map(x=>x.nome),datasets:[{label:'O.S. pendentes',data:faixasIdade.map(x=>x.lista.length),backgroundColor:['#16a34a','#65a30d','#d97706','#ea580c','#dc2626'],borderRadius:7}]},options:{indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{ticks:{autoSkip:false}}},plugins:{legend:{display:false}}}});
+  const contagensIdade=faixasIdade.map(x=>x.lista.length);
+  mk('chOSIdade',{type:'bar',data:{labels:faixasIdade.map(x=>x.nome),datasets:[{label:'O.S. pendentes',data:contagensIdade,backgroundColor:['#16a34a','#65a30d','#d97706','#ea580c','#dc2626'],borderRadius:7,minBarLength:4}]},options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' O.S.'}}},scales:{x:{beginAtZero:true,min:0,max:Math.max(1,...contagensIdade),ticks:{precision:0,stepSize:1}},y:{ticks:{autoSkip:false}}}}});
 
   const reincidenciasPorMaq={};
   f.forEach(os=>{
@@ -9204,6 +9232,27 @@ window.onload=async function(){
 .tab-content[data-erimax-zoom-level="40"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
 .tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card) :is(h1,h2,h3,h4,p,span,b,strong,small){min-width:0;overflow-wrap:anywhere}
 .tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card) :is(button,.btn-action){min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;min-height:calc(40px / var(--erimax-zoom-scale,1))}
+
+/* Métricas: preservar hero/filtros e aplicar o zoom somente aos cartões de dados. */
+#tab-metricas[data-erimax-zoom] #metricsDataContent{
+ display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(360px * var(--erimax-zoom-scale,1))),1fr))!important;
+ align-items:start;gap:calc(14px * var(--erimax-zoom-scale,1))!important;
+}
+#tab-metricas[data-erimax-zoom] #metricsDataContent>.card{zoom:var(--erimax-zoom-scale,1);min-width:0;max-width:100%}
+#tab-metricas[data-erimax-zoom] #metricsDataContent>.metrics-grid,
+#tab-metricas[data-erimax-zoom] #metricsDataContent>.metrics-section-heading,
+#tab-metricas[data-erimax-zoom] #metricsDataContent>.metrics-report-toolbar,
+#tab-metricas[data-erimax-zoom] #metricsDataContent>#printReportHeader{grid-column:1/-1!important}
+#tab-metricas[data-erimax-zoom] #metricsDataContent>.metrics-grid{zoom:1}
+#tab-metricas[data-erimax-zoom] #metricsDataContent>.metrics-grid .metric-card{zoom:var(--erimax-zoom-scale,1)}
+
+/* Supervisão: cabeçalho intacto; a grade compacta setores e O.S. */
+#tab-painel[data-erimax-zoom] #painelMaquinasSupervisor .sv-sector-grid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(330px * var(--erimax-zoom-scale,1))),1fr));
+ align-items:start;gap:calc(10px * var(--erimax-zoom-scale,1));
+}
+#tab-painel[data-erimax-zoom] #painelMaquinasSupervisor .sv-sector{zoom:var(--erimax-zoom-scale,1);min-width:0;max-width:100%;margin:0!important}
+#tab-painel[data-erimax-zoom] #painelMaquinasSupervisor .sv-os-card{zoom:var(--erimax-zoom-scale,1);min-width:0;max-width:100%}
 </style>
 <script id="erimax-zoom-pinça-2026-js">
 (function(){
