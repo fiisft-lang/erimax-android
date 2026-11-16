@@ -4536,6 +4536,72 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 }
 </style>
 
+
+<style id="erimax-modal-efos-final-fix4">
+/* Correção final: reservar uma coluna fixa para o botão Fechar no modal de Métricas. */
+#modalEfOS{
+  position:fixed!important;inset:0!important;z-index:1200!important;
+  box-sizing:border-box!important;padding:8px!important;
+  align-items:center!important;justify-content:center!important;
+  overflow:hidden!important;
+}
+#modalEfOS>.box{
+  box-sizing:border-box!important;
+  width:100%!important;max-width:760px!important;
+  height:auto!important;max-height:calc(100vh - 16px)!important;
+  max-height:calc(100dvh - 16px)!important;
+  min-height:0!important;margin:0 auto!important;
+  padding:12px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+  gap:0!important;overflow:hidden!important;
+}
+#modalEfOS>.box>div:first-child{
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 104px!important;
+  align-items:center!important;justify-content:initial!important;
+  gap:8px!important;width:100%!important;min-width:0!important;
+  position:relative!important;inset:auto!important;
+  overflow:visible!important;margin:0 0 8px!important;
+  padding:4px 0 10px!important;
+  background:#fff!important;border-bottom:1px solid #e2e8f0!important;
+}
+#modalEfOS #modalEfOSTitulo{
+  display:block!important;min-width:0!important;max-width:100%!important;
+  margin:0!important;padding:0!important;
+  font-size:clamp(1rem,4vw,1.2rem)!important;
+  line-height:1.3!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+#modalEfOS>.box>div:first-child>button{
+  display:inline-flex!important;box-sizing:border-box!important;
+  position:static!important;inset:auto!important;float:none!important;
+  transform:none!important;justify-self:end!important;align-self:center!important;
+  flex:none!important;width:104px!important;min-width:104px!important;
+  max-width:104px!important;height:44px!important;min-height:44px!important;
+  margin:0!important;padding:8px 10px!important;
+  align-items:center!important;justify-content:center!important;
+  white-space:nowrap!important;overflow:visible!important;
+  visibility:visible!important;opacity:1!important;
+  font-size:14px!important;line-height:1!important;
+}
+#modalEfOS #resumoEfOS{
+  display:block!important;box-sizing:border-box!important;
+  min-width:0!important;margin:0 0 8px!important;padding:0!important;
+}
+#modalEfOS #listaEfOS{
+  display:block!important;box-sizing:border-box!important;
+  min-width:0!important;min-height:0!important;height:auto!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:0 2px 8px 0!important;margin:0!important;
+}
+#modalEfOS #listaEfOS>.os-card{box-sizing:border-box!important;max-width:100%!important;min-width:0!important}
+</style>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
