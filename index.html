@@ -4953,13 +4953,14 @@ function iniciarSincronizacaoFallback(){
         renderTecnicos();
         renderStatusTurno();
         renderPainelMaquinasSupervisor();
-        if(document.getElementById('tab-ordens-servico')?.classList.contains('active'))renderizarChamados();
-        if(document.getElementById('tab-ordens-abertas')?.classList.contains('active'))renderizarChamados('listaOSAbertas',true);
-        
         const badge=document.getElementById('badgePendentes');
         if(badge)badge.innerText=chamados.filter(os=>os.status==='Aberta').length;
         // Métricas não são redesenhadas pela sincronização de fundo; isso evita movimento periódico dos gráficos.
       }
+      // Mantém a lista visível sincronizada mesmo quando o evento Realtime foi perdido
+      // ou o DOM ficou desatualizado após uma mudança de status.
+      if(document.getElementById('tab-ordens-servico')?.classList.contains('active'))renderizarChamados();
+      if(document.getElementById('tab-ordens-abertas')?.classList.contains('active'))renderizarChamados('listaOSAbertas',true);
     }catch(e){console.error('Sincronização automática de segurança falhou:',e.message||e)}
     finally{sincronizacaoFallbackEmCurso=false}
   };
@@ -4967,7 +4968,7 @@ function iniciarSincronizacaoFallback(){
     if(document.visibilityState==='visible')sincronizar();
   });
   sincronizar();
-  intervaloSincronizacaoFallback=setInterval(sincronizar,30000);
+  intervaloSincronizacaoFallback=setInterval(sincronizar,10000);
 }
 
 function dispararSireneEVibracao(){
