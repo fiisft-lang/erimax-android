@@ -9216,12 +9216,12 @@ window.onload=async function(){
 #erimaxZoomIndicador.visivel{opacity:1}
 @media(min-width:900px){#erimaxZoomIndicador{display:none!important}}
 /* A grade se reorganiza sem alterar o desenho original quando retorna a 100%. */
-.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid){
+.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid){
  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(260px * var(--erimax-zoom-scale,1))),1fr))!important;
  align-items:start;gap:calc(12px * var(--erimax-zoom-scale,1))!important;min-width:0;
  transition:gap .16s ease,grid-template-columns .16s ease
 }
-.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid)>*{
+.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid)>*{
  min-width:0!important;max-width:100%;zoom:var(--erimax-zoom-scale,1)
 }
 .tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.oa-stat-card,.presence-card,.sv-os-card,.sv-sector,.sv-machine){min-width:0!important;overflow:hidden;text-overflow:ellipsis}
