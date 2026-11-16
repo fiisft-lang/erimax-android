@@ -9184,43 +9184,74 @@ window.onload=async function(){
 }
 </style>
 <style id="erimax-zoom-pinça-2026">
-#erimaxZoomIndicador{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3000;padding:8px 14px;border-radius:22px;background:rgba(22,42,57,.92);color:#fff;font:700 13px/1.2 system-ui,sans-serif;letter-spacing:.02em;box-shadow:0 5px 18px rgba(0,0,0,.22);pointer-events:none;opacity:0;transition:opacity .16s}
+#erimaxZoomIndicador{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3000;padding:8px 14px;border-radius:22px;background:rgba(22,42,57,.94);color:#fff;font:700 13px/1.2 system-ui,sans-serif;letter-spacing:.02em;box-shadow:0 5px 18px rgba(0,0,0,.22);pointer-events:none;opacity:0;transition:opacity .16s}
 #erimaxZoomIndicador.visivel{opacity:1}
 @media(min-width:900px){#erimaxZoomIndicador{display:none!important}}
+/* Zoom inteligente: abaixo de 100%, os cartões ganham colunas; o texto não é reduzido. */
+.tab-content[data-erimax-zoom="compacto"] #listaOS,
+.tab-content[data-erimax-zoom="compacto"] #listaOSAbertas,
+.tab-content[data-erimax-zoom="compacto"] #listaOSPausadas,
+.tab-content[data-erimax-zoom="compacto"] #listaCfg,
+.tab-content[data-erimax-zoom="compacto"] #listaMaquinas,
+.tab-content[data-erimax-zoom="compacto"] #listaPrev,
+.tab-content[data-erimax-zoom="compacto"] #listaUsuarios,
+.tab-content[data-erimax-zoom="compacto"] .os-modern-list,
+.tab-content[data-erimax-zoom="compacto"] .oa-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:start;gap:10px!important}
+.tab-content[data-erimax-zoom="compacto"] .os-modern-list>.os-card,
+.tab-content[data-erimax-zoom="compacto"] .oa-list>.os-card,
+.tab-content[data-erimax-zoom="compacto"] #listaOS>.os-card,
+.tab-content[data-erimax-zoom="compacto"] #listaOSAbertas>.os-card{min-width:0;height:100%;padding:12px!important}
+.tab-content[data-erimax-zoom="compacto"] .os-card .os-actions{gap:6px!important}
+.tab-content[data-erimax-zoom="compacto"] .os-card .btn-action{min-width:0;flex:1 1 100px;padding:8px 7px!important}
+.tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .supervisor-kpis,
+.tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+.tab-content[data-erimax-zoom="compacto"] .metrics-grid,
+.tab-content[data-erimax-zoom="compacto"] #metricsDataContent>.metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+.tab-content[data-erimax-zoom="compacto"] .metric-card{min-width:0;padding:10px 7px!important}
+.tab-content[data-erimax-zoom="compacto"] #tab-presenca #listaPresenca{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.tab-content[data-erimax-zoom="compacto"] #tab-cadastro #listaCfg,
+.tab-content[data-erimax-zoom="compacto"] #tab-cadastro #listaMaquinas,
+.tab-content[data-erimax-zoom="compacto"] #tab-cadastro #listaPrev,
+.tab-content[data-erimax-zoom="compacto"] #tab-cadastro #listaUsuarios{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.tab-content[data-erimax-zoom="supercompacto"] .os-modern-list,
+.tab-content[data-erimax-zoom="supercompacto"] .oa-list{gap:8px!important}
+.tab-content[data-erimax-zoom="supercompacto"] .os-modern-list>.os-card,
+.tab-content[data-erimax-zoom="supercompacto"] .oa-list>.os-card,
+.tab-content[data-erimax-zoom="supercompacto"] #listaOS>.os-card,
+.tab-content[data-erimax-zoom="supercompacto"] #listaOSAbertas>.os-card{padding:10px!important}
+.tab-content[data-erimax-zoom="supercompacto"] #painelMaquinasSupervisor .supervisor-kpis,
+.tab-content[data-erimax-zoom="supercompacto"] #painelMaquinasSupervisor .sv-metrics{gap:6px!important}
+.tab-content[data-erimax-zoom="supercompacto"] .metric-card{padding:8px 5px!important}
+@media(min-width:760px){
+  .tab-content[data-erimax-zoom="compacto"] .os-modern-list,
+  .tab-content[data-erimax-zoom="compacto"] .oa-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .tab-content[data-erimax-zoom="supercompacto"] .os-modern-list,
+  .tab-content[data-erimax-zoom="supercompacto"] .oa-list{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .supervisor-kpis,
+  .tab-content[data-erimax-zoom="compacto"] #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  .tab-content[data-erimax-zoom="compacto"] .metrics-grid,
+  .tab-content[data-erimax-zoom="compacto"] #metricsDataContent>.metrics-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
 </style>
 <script id="erimax-zoom-pinça-2026-js">
 (function(){
   const permitidas=new Set(['painel','ordens-servico','ordens-abertas','presenca','cadastro','metricas','ranking-os','ia']);
   const chave='erimax_zoom_pagina_v1';
   let zooms={};try{zooms=JSON.parse(localStorage.getItem(chave)||'{}')||{}}catch(e){zooms={}}
-  let abaAtual=null,inicioDistancia=0,inicioZoom=1,indicadorTimer=null;
+  let abaAtual=null,inicioDistancia=0,inicioZoom=1,indicadorTimer=null,zoomEmGestao=null;
   const indicador=document.createElement('div');indicador.id='erimaxZoomIndicador';indicador.setAttribute('aria-live','polite');document.body.appendChild(indicador);
-  function aba(){const el=document.querySelector('.tab-content.active');return el&&permitidas.has(el.id.replace(/^tab-/,''))?el:null}
-  function mostrar(z){indicador.textContent='Zoom '+Math.round(z*100)+'%';indicador.classList.add('visivel');clearTimeout(indicadorTimer);indicadorTimer=setTimeout(()=>indicador.classList.remove('visivel'),950)}
-  function aplicar(){
-    const el=aba();if(!el)return;
-    const id=el.id.replace(/^tab-/,'');
-    if(abaAtual&&abaAtual!==id){const anterior=document.getElementById('tab-'+abaAtual);if(anterior)anterior.style.zoom=''}
-    abaAtual=id;const z=Math.max(.65,Math.min(1.5,Number(zooms[id])||1));el.style.zoom=z===1?'':String(z);
-  }
+  function aba(){const el=document.querySelector('.tab-content.active');return el&&permitidas.has(el.id.replace(/^tab-/,'').trim())?el:null}
+  function nivel(z){return z<=.80?'supercompacto':z<.96?'compacto':''}
+  function normalizar(z){z=Math.max(.65,Math.min(1.5,z));if(Math.abs(z-1)<=.04)return 1;return Math.round(z*100)/100}
+  function mostrar(z){indicador.textContent='Zoom '+Math.round(z*100)+'%'+(z===1?' · padrão':'');indicador.classList.add('visivel');clearTimeout(indicadorTimer);indicadorTimer=setTimeout(()=>indicador.classList.remove('visivel'),1100)}
+  function aplicarNivel(el,z){const densidade=nivel(z);if(densidade)el.setAttribute('data-erimax-zoom',densidade);else el.removeAttribute('data-erimax-zoom');el.style.zoom=z>1?String(z):''}
+  function aplicar(){const el=aba();if(!el)return;const id=el.id.replace(/^tab-/,'');if(abaAtual&&abaAtual!==id){const anterior=document.getElementById('tab-'+abaAtual);if(anterior&&Number(zooms[abaAtual]||1)<=1)anterior.style.zoom=''}abaAtual=id;const z=normalizar(Number(zooms[id])||1);zooms[id]=z;aplicarNivel(el,z)}
   function distancia(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.hypot(dx,dy)}
-  document.addEventListener('touchstart',e=>{
-    const el=aba();
-    if(!el||!el.contains(e.target)||e.target.closest('#modal,#modalReabrirOS,#modalHistoricoOS,.erimax-os-history-modal,input,select,textarea,button,[contenteditable="true"]'))return;
-    if(e.touches.length===2){inicioDistancia=distancia(e.touches);inicioZoom=Number(zooms[el.id.replace(/^tab-/,'')])||1}
-  },{passive:true});
-  document.addEventListener('touchmove',e=>{
-    if(e.touches.length!==2||!inicioDistancia)return;
-    const el=aba();if(!el||!el.contains(e.target))return;
-    if(e.cancelable)e.preventDefault();
-    const id=el.id.replace(/^tab-/,'');let z=Math.max(.65,Math.min(1.5,inicioZoom*distancia(e.touches)/inicioDistancia));z=Math.round(z*100)/100;
-    if(Math.abs(z-(Number(zooms[id])||1))<.015)return;
-    zooms[id]=z;el.style.zoom=z===1?'':String(z);try{localStorage.setItem(chave,JSON.stringify(zooms))}catch(err){}mostrar(z);
-  },{passive:false});
-  const encerrar=()=>{inicioDistancia=0};
+  document.addEventListener('touchstart',e=>{const el=aba();if(!el||!el.contains(e.target)||e.target.closest('#modal,#modalReabrirOS,#modalHistoricoOS,#modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal,input,select,textarea,button,[contenteditable="true"]'))return;if(e.touches.length===2){inicioDistancia=distancia(e.touches);inicioZoom=Number(zooms[el.id.replace(/^tab-/,'')])||1;zoomEmGestao=el.id.replace(/^tab-/,'')}},{passive:true});
+  document.addEventListener('touchmove',e=>{if(e.touches.length!==2||!inicioDistancia||!zoomEmGestao)return;const el=aba();if(!el||!el.contains(e.target))return;if(e.cancelable)e.preventDefault();const z=normalizar(inicioZoom*distancia(e.touches)/inicioDistancia);if(z===Number(zooms[zoomEmGestao]||1))return;zooms[zoomEmGestao]=z;aplicarNivel(el,z);mostrar(z)},{passive:false});
+  const encerrar=()=>{if(zoomEmGestao){try{localStorage.setItem(chave,JSON.stringify(zooms))}catch(e){}}inicioDistancia=0;zoomEmGestao=null};
   document.addEventListener('touchend',encerrar,{passive:true});document.addEventListener('touchcancel',encerrar,{passive:true});
-  const observador=new MutationObserver(aplicar);document.querySelectorAll('.tab-content').forEach(el=>observador.observe(el,{attributes:true,attributeFilter:['class']}));
-  aplicar();
+  const observador=new MutationObserver(aplicar);document.querySelectorAll('.tab-content').forEach(el=>observador.observe(el,{attributes:true,attributeFilter:['class']}));aplicar();
 })();
 </script>
 
