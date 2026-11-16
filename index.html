@@ -9187,55 +9187,78 @@ window.onload=async function(){
 #erimaxZoomIndicador{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3000;padding:8px 14px;border-radius:22px;background:rgba(22,42,57,.94);color:#fff;font:700 13px/1.2 system-ui,sans-serif;box-shadow:0 5px 18px rgba(0,0,0,.22);pointer-events:none;opacity:0;transition:opacity .16s}
 #erimaxZoomIndicador.visivel{opacity:1}
 @media(min-width:900px){#erimaxZoomIndicador{display:none!important}}
-/* 100% preserva integralmente o desenho original. Abaixo disso, a grade se adapta. */
-.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid){
+/* A grade se reorganiza sem alterar o desenho original quando retorna a 100%. */
+.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid){
  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(260px * var(--erimax-zoom-scale,1))),1fr))!important;
- align-items:start;gap:calc(12px * var(--erimax-zoom-scale,1))!important;min-width:0
+ align-items:start;gap:calc(12px * var(--erimax-zoom-scale,1))!important;min-width:0;
+ transition:gap .16s ease,grid-template-columns .16s ease
 }
-.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid)>*{
+.tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid)>*{
  min-width:0!important;max-width:100%;zoom:var(--erimax-zoom-scale,1)
 }
-.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.oa-stat-card,.presence-card){min-width:0!important;overflow:hidden;text-overflow:ellipsis}
-.tab-content[data-erimax-zoom="60"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info),
-.tab-content[data-erimax-zoom="50"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info),
-.tab-content[data-erimax-zoom="40"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info){display:none!important}
-.tab-content[data-erimax-zoom="60"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description),
-.tab-content[data-erimax-zoom="50"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.tab-content[data-erimax-zoom="40"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
-.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card) :is(h1,h2,h3,h4,p,span,b,strong,small){min-width:0;overflow-wrap:anywhere}
-.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card) :is(button,.btn-action){min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.oa-stat-card,.presence-card,.sv-os-card,.sv-sector,.sv-machine){min-width:0!important;overflow:hidden;text-overflow:ellipsis}
+.tab-content[data-erimax-zoom-level="60"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info),
+.tab-content[data-erimax-zoom-level="40"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info){display:none!important}
+.tab-content[data-erimax-zoom-level="60"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description),
+.tab-content[data-erimax-zoom-level="80"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.tab-content[data-erimax-zoom-level="40"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
+.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card) :is(h1,h2,h3,h4,p,span,b,strong,small){min-width:0;overflow-wrap:anywhere}
+.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card) :is(button,.btn-action){min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;min-height:calc(40px / var(--erimax-zoom-scale,1))}
 </style>
 <script id="erimax-zoom-pinça-2026-js">
 (function(){
- const permitidas=new Set(['painel','ordens-servico','ordens-abertas','ordens-pausadas','presenca','cadastro','metricas','ranking-os','ia','supervisao']);
  const chave='erimax_zoom_global_v2';
+ const alvosDensos='#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid,.os-card,.sv-os-card,.maq-row,.report-item,.metric-card,.presence-card';
  let zooms={};try{zooms=JSON.parse(localStorage.getItem(chave)||'{}')||{}}catch(e){zooms={}}
  let inicioDistancia=0,inicioZoom=1,indicadorTimer=null,zoomEmGestao=null;
- const indicador=document.createElement('div');indicador.id='erimaxZoomIndicador';indicador.setAttribute('aria-live','polite');document.body.appendChild(indicador);
- function aba(){const el=document.querySelector('.tab-content.active');return el&&permitidas.has(el.id.replace(/^tab-/,'').trim())?el:null}
- function normalizar(z){return Math.max(.4,Math.min(1,Math.round(z*100)/100))}
- function mostrar(z){indicador.textContent='Zoom '+Math.round(z*100)+'%'+(z===1?' · padrão':'');indicador.classList.add('visivel');clearTimeout(indicadorTimer);indicadorTimer=setTimeout(()=>indicador.classList.remove('visivel'),1100)}
- function aplicarNivel(el,z){
-  if(z>=1){el.removeAttribute('data-erimax-zoom');el.style.removeProperty('--erimax-zoom-scale');return}
-  el.setAttribute('data-erimax-zoom',String(Math.round(z*100)));el.style.setProperty('--erimax-zoom-scale',String(z));
+ const indicador=document.createElement('div');indicador.id='erimaxZoomIndicador';indicador.setAttribute('aria-live','polite');indicador.setAttribute('role','status');document.body.appendChild(indicador);
+ function aba(){
+  const el=document.querySelector('.tab-content.active');
+  return el&&el.querySelector(alvosDensos)?el:null;
  }
- function aplicar(){const el=aba();if(!el)return;const id=el.id.replace(/^tab-/,'');const z=normalizar(Number(zooms[id])||1);zooms[id]=z;aplicarNivel(el,z)}
+ function normalizar(z){return Math.max(.4,Math.min(1,Math.round(z*100)/100))}
+ function nivel(z){return z>=.9?100:z>=.7?80:z>=.5?60:40}
+ function mostrar(z){indicador.textContent='Zoom '+Math.round(z*100)+'%'+(z>=1?' · padrão':'');indicador.classList.add('visivel');clearTimeout(indicadorTimer);indicadorTimer=setTimeout(()=>indicador.classList.remove('visivel'),1250)}
+ function aplicarNivel(el,z){
+  if(z>=1){el.removeAttribute('data-erimax-zoom');el.removeAttribute('data-erimax-zoom-level');el.style.removeProperty('--erimax-zoom-scale');return}
+  el.setAttribute('data-erimax-zoom',String(Math.round(z*100)));
+  el.setAttribute('data-erimax-zoom-level',String(nivel(z)));
+  el.style.setProperty('--erimax-zoom-scale',String(z));
+ }
+ function aplicar(){
+  const el=aba();if(!el)return;
+  const id=el.id.replace(/^tab-/,'');
+  const z=normalizar(Number(zooms[id])||1);
+  zooms[id]=z;aplicarNivel(el,z);
+ }
  function distancia(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.hypot(dx,dy)}
+ function salvar(){
+  if(!zoomEmGestao)return;
+  try{localStorage.setItem(chave,JSON.stringify(zooms))}catch(e){console.warn('[EriMax] Não foi possível salvar o zoom:',e)}
+ }
  document.addEventListener('touchstart',e=>{
-  const el=aba();if(!el||!el.contains(e.target)||e.target.closest('#modal,#modalReabrirOS,#modalHistoricoOS,#modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal,input,select,textarea,button,[contenteditable="true"]'))return;
-  if(e.touches.length===2){inicioDistancia=distancia(e.touches);zoomEmGestao=el.id.replace(/^tab-/,'');inicioZoom=normalizar(Number(zooms[zoomEmGestao])||1)}
+  const el=aba();
+  if(!el||!el.contains(e.target)||e.target.closest('#modal,#modalReabrirOS,#modalHistoricoOS,#modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal,input,select,textarea,button,[contenteditable="true"]')){
+   inicioDistancia=0;zoomEmGestao=null;return;
+  }
+  if(e.touches.length===2){
+   inicioDistancia=distancia(e.touches);zoomEmGestao=el.id.replace(/^tab-/,'');
+   inicioZoom=normalizar(Number(zooms[zoomEmGestao])||1);
+  }else{inicioDistancia=0;zoomEmGestao=null}
  },{passive:true});
  document.addEventListener('touchmove',e=>{
   if(e.touches.length!==2||!inicioDistancia||!zoomEmGestao)return;
-  const el=aba();if(!el||el.id!=='tab-'+zoomEmGestao)return;
+  const el=aba();if(!el||el.id!=='tab-'+zoomEmGestao){inicioDistancia=0;zoomEmGestao=null;return}
   if(e.cancelable)e.preventDefault();
   const z=normalizar(inicioZoom*distancia(e.touches)/inicioDistancia);
-  if(z===Number(zooms[zoomEmGestao]||1))return;
+  if(z===normalizar(Number(zooms[zoomEmGestao])||1))return;
   zooms[zoomEmGestao]=z;aplicarNivel(el,z);mostrar(z);
  },{passive:false});
- const encerrar=()=>{if(zoomEmGestao){try{localStorage.setItem(chave,JSON.stringify(zooms))}catch(e){}}inicioDistancia=0;zoomEmGestao=null};
- document.addEventListener('touchend',encerrar,{passive:true});document.addEventListener('touchcancel',encerrar,{passive:true});
- const observador=new MutationObserver(aplicar);document.querySelectorAll('.tab-content').forEach(el=>observador.observe(el,{attributes:true,attributeFilter:['class']}));
+ const encerrar=()=>{salvar();inicioDistancia=0;zoomEmGestao=null};
+ document.addEventListener('touchend',encerrar,{passive:true});
+ document.addEventListener('touchcancel',encerrar,{passive:true});
+ const observador=new MutationObserver(aplicar);
+ document.querySelectorAll('.tab-content').forEach(el=>observador.observe(el,{attributes:true,attributeFilter:['class']}));
  aplicar();
 })();
 </script>
