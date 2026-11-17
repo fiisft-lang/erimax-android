@@ -6845,32 +6845,39 @@ function atualizarMetricasReais(){
   const fechadas=f.filter(c=>c.status==='Concluída');
   rel.innerHTML=fechadas.length?fechadas.map(c=>`<div class="report-item"><b>${escaparHtml(nOS(c))} (${escaparHtml(c.maquina)})</b> — ${escaparHtml(c.turno)} • ${escaparHtml(c.setor)}<br><b>Aberta:</b> ${escaparHtml(hm(c.created_at))} • <b>Início:</b> ${escaparHtml(hm(c.data_atendimento))} • <b>Fechada:</b> ${escaparHtml(hm(c.data_conclusao))}${c.data_conclusao?' ('+escaparHtml(fmt(paradaProd(c)))+' parados em horário de produção)':''}${c.ajustado_por?`<br><small style="color:#b45309">✏️ Horário ajustado por ${escaparHtml(c.ajustado_por)} em ${escaparHtml(hm(c.ajustado_em))}${c.ajuste_obs?' — '+escaparHtml(c.ajuste_obs):''}</small>`:''}<br><b>Problema:</b> ${escaparHtml(c.descricao)}<br>${c.causa?`<b>Causa:</b> ${escaparHtml(c.causa)}<br>`:''}${c.peca?`<b>Peça:</b> ${escaparHtml(c.peca)}<br>`:''}<b>Solução (${escaparHtml(c.tecnico||'Técnico')}):</b> ${escaparHtml(c.servico_executado)}</div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhum chamado concluído no filtro selecionado.</p>';
 
-  // Linha do tempo: cada abertura e cada conclusão aparece no horário exato.
+  // Linha do tempo: pontos individuais em duas faixas, sem linhas que confundam os eventos.
+  const separarEventos=(lista,faixa)=>lista
+    .filter(os=>os._erimaxEventoData&&Number.isFinite(new Date(os._erimaxEventoData).getTime()))
+    .map(os=>({x:new Date(os._erimaxEventoData).getTime(),os}))
+    .sort((a,b)=>a.x-b.x||String(a.os.id).localeCompare(String(b.os.id)))
+    .map((evento,i)=>({...evento,y:faixa+[-0.22,-0.15,-0.08,0,0.08,0.15,0.22][i%7]}));
   const eventosAbertura=f.filter(os=>os.created_at&&Number.isFinite(new Date(os.created_at).getTime()))
-    .map(os=>({x:new Date(os.created_at).getTime(),os}))
-    .sort((a,b)=>a.x-b.x)
-    .map((evento,i)=>({...evento,y:i+1}));
+    .map(os=>({...os,_erimaxEventoData:os.created_at}));
   const eventosConclusao=f.filter(os=>os.status==='Concluída'&&os.data_conclusao&&Number.isFinite(new Date(os.data_conclusao).getTime()))
-    .map(os=>({x:new Date(os.data_conclusao).getTime(),os}))
-    .sort((a,b)=>a.x-b.x)
-    .map((evento,i)=>({...evento,y:i+1}));
+    .map(os=>({...os,_erimaxEventoData:os.data_conclusao}));
+  const pontosAbertura=separarEventos(eventosAbertura,1);
+  const pontosConclusao=separarEventos(eventosConclusao,0);
   const dataEvento=(evento)=>new Date(evento.x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   DETALHES_GRAFICOS.chTendencia=(ds,i)=>{
-    const evento=(ds===0?eventosAbertura:eventosConclusao)[i];
+    const evento=(ds===0?pontosAbertura:pontosConclusao)[i];
     const tipo=ds===0?'aberta':'concluída';
     return{titulo:'O.S. '+nOS(evento?.os)+' — '+tipo+' em '+(evento?dataEvento(evento):''),lista:evento?[evento.os]:[]};
   };
-  const tendenciaNota=document.querySelector('#chTendencia')?.closest('.card')?.querySelector('.metrics-chart-note');
-  if(tendenciaNota)tendenciaNota.textContent='Cada ponto representa uma O.S. no dia e horário exatos da abertura (linha vermelha) ou conclusão (linha verde). Toque em um ponto para ver o problema, a causa, o técnico e a solução registrada.';
-  mk('chTendencia',{type:'line',data:{datasets:[
-    {label:'Abertura de O.S.',data:eventosAbertura,borderColor:'#dc3545',backgroundColor:'#dc3545',pointBackgroundColor:'#dc3545',pointRadius:6,pointHoverRadius:9,pointHitRadius:12,borderWidth:2.5,tension:0,fill:false},
-    {label:'Conclusão de O.S.',data:eventosConclusao,borderColor:'#16a34a',backgroundColor:'#16a34a',pointBackgroundColor:'#16a34a',pointRadius:6,pointHoverRadius:9,pointHitRadius:12,borderWidth:2.5,tension:0,fill:false}]},
-    options:{interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:true},tooltip:{callbacks:{
+  const tendenciaCard=document.querySelector('#chTendencia')?.closest('.card');
+  const tendenciaNota=tendenciaCard?.querySelector('.metrics-chart-note');
+  if(tendenciaNota)tendenciaNota.textContent='Cada ponto é um acontecimento individual. A faixa superior mostra aberturas; a inferior, conclusões. Os pontos são separados para não ficarem uns sobre os outros. Toque em qualquer ponto para abrir os detalhes da O.S., incluindo problema, causa, técnico e solução registrada.';
+  const tendenciaWrapper=document.querySelector('#chTendencia')?.parentElement;
+  if(tendenciaWrapper)tendenciaWrapper.style.height='360px';
+  mk('chTendencia',{type:'scatter',data:{datasets:[
+    {label:'Abertura de O.S.',data:pontosAbertura,borderColor:'#c62828',backgroundColor:'#c62828',pointBackgroundColor:'#c62828',pointBorderColor:'#fff',pointBorderWidth:1.5,pointRadius:4,pointHoverRadius:7,pointHitRadius:16,showLine:false},
+    {label:'Conclusão de O.S.',data:pontosConclusao,borderColor:'#16804b',backgroundColor:'#16804b',pointBackgroundColor:'#16804b',pointBorderColor:'#fff',pointBorderWidth:1.5,pointRadius:4,pointHoverRadius:7,pointHitRadius:16,showLine:false}]},
+    options:{interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:true,position:'top'},tooltip:{callbacks:{
       title:items=>items.length?dataEvento(items[0].raw):'',
-      label:ctx=>(ctx.dataset.label||'Evento')+' • '+nOS(ctx.raw.os)+' • '+(ctx.raw.os.maquina||'Máquina não informada')
+      label:ctx=>(ctx.dataset.label||'Evento')+' • O.S. '+nOS(ctx.raw.os)+' • '+(ctx.raw.os.maquina||'Máquina não informada'),
+      afterLabel:ctx=>'Problema: '+(ctx.raw.os.descricao||ctx.raw.os.problema||'Não informado')
     }}},scales:{
-      x:{type:'linear',title:{display:true,text:'Dia / hora / minuto'},ticks:{maxTicksLimit:8,callback:v=>new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}},
-      y:{beginAtZero:true,title:{display:true,text:'Eventos acumulados'},ticks:{precision:0,stepSize:1}}
+      x:{type:'linear',title:{display:true,text:'Data e horário (dia / hora / minuto)'},ticks:{maxTicksLimit:7,callback:v=>new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}},
+      y:{min:-0.4,max:1.4,afterBuildTicks:axis=>{axis.ticks=[{value:0},{value:1}]},title:{display:true,text:'Tipo de acontecimento'},ticks:{stepSize:1,callback:v=>v===1?'ABERTURAS':v===0?'CONCLUSÕES':''},grid:{color:ctx=>ctx.tick.value===0||ctx.tick.value===1?'#dce5ec':'transparent'}}
     }}});
 
   const paradasPorCausa={};
