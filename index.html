@@ -5727,7 +5727,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const equipeOS=Array.isArray(os.tecnicos_participantes)?os.tecnicos_participantes:[];
     if(equipeOS.length)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Equipe participante: <b>'+escaparHtml(equipeOS.join(', '))+'</b></p>';
     if(os.situacao_equipamento==='Parado')html+='<p style="margin:6px 0;padding:7px 9px;background:#fff1f0;border:1px solid #fecaca;border-radius:5px;font-size:.8rem;color:#991b1b">⏱️ <b>Tempo de máquina parada:</b> <span data-tempo-parada-os="'+id+'">'+escaparHtml(fmt(Math.round(paradaProd(os,Number((String(os.turno||'').match(/\d+/)||[])[0])||null))))+'</span><small data-tempo-pausa-os="'+id+'" style="display:none;margin-top:3px;color:#805b00"></small></p>';
-    if(os.rodando_em)html+='<p class="os-rodando-status">▶ <b>Máquina rodando — em observação</b> desde '+escaparHtml(hm(os.rodando_em))+(os.observacao_rodando?' • '+escaparHtml(os.observacao_rodando):'')+'</p>';
+    if(os.rodando_em){const tempoObs=Math.max(0,Math.round(((os.data_conclusao?new Date(os.data_conclusao):new Date()).getTime()-new Date(os.rodando_em).getTime())/60000));html+='<p class="os-rodando-status">▶ <b>'+(status==='Concluída'?'Máquina liberada para produção':'Máquina rodando — em observação')+'</b> desde '+escaparHtml(hm(os.rodando_em))+' • '+(status==='Concluída'?'Tempo em observação: ':'Em observação há ')+escaparHtml(fmt(tempoObs))+(os.observacao_rodando?' • '+escaparHtml(os.observacao_rodando):'')+'</p>';}
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
     if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
@@ -6203,7 +6203,7 @@ async function verHistorico(id){
   const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Não definida';
   const detalhes=[
     ['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],
-    ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],['Retomada da produção',fmtData(os.rodando_em)],['Observação de acompanhamento',os.observacao_rodando],
+    ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],['Retomada da produção',fmtData(os.rodando_em)],['Tempo em observação',os.rodando_em?minutosFmt(new Date(os.data_conclusao||Date.now()).getTime()-new Date(os.rodando_em).getTime()):'—'],['Observação de acompanhamento',os.observacao_rodando],
     ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],
     ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
   ];
