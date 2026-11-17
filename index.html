@@ -5224,6 +5224,7 @@ function renderRankingOperadores(){
   chamados.filter(c=>c.status==="Concluída"&&c.data_conclusao&&c.tecnico&&diaLocal(c.data_conclusao).slice(0,7)===mes)
     .forEach(c=>{contagem[c.tecnico]=(contagem[c.tecnico]||0)+1;(ordensPorTecnico[c.tecnico]||(ordensPorTecnico[c.tecnico]=[])).push(c)});
   const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
+  const maior=Math.max(1,...lista.map(item=>item[1]));
   if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
   box.previousElementSibling?.classList.contains('ranking-os-summary')&&box.previousElementSibling.remove();
     box.innerHTML=lista.map(([nome,total],i)=>{
