@@ -6845,15 +6845,20 @@ function atualizarMetricasReais(){
   const fechadas=f.filter(c=>c.status==='Concluída');
   rel.innerHTML=fechadas.length?fechadas.map(c=>`<div class="report-item"><b>${escaparHtml(nOS(c))} (${escaparHtml(c.maquina)})</b> — ${escaparHtml(c.turno)} • ${escaparHtml(c.setor)}<br><b>Aberta:</b> ${escaparHtml(hm(c.created_at))} • <b>Início:</b> ${escaparHtml(hm(c.data_atendimento))} • <b>Fechada:</b> ${escaparHtml(hm(c.data_conclusao))}${c.data_conclusao?' ('+escaparHtml(fmt(paradaProd(c)))+' parados em horário de produção)':''}${c.ajustado_por?`<br><small style="color:#b45309">✏️ Horário ajustado por ${escaparHtml(c.ajustado_por)} em ${escaparHtml(hm(c.ajustado_em))}${c.ajuste_obs?' — '+escaparHtml(c.ajuste_obs):''}</small>`:''}<br><b>Problema:</b> ${escaparHtml(c.descricao)}<br>${c.causa?`<b>Causa:</b> ${escaparHtml(c.causa)}<br>`:''}${c.peca?`<b>Peça:</b> ${escaparHtml(c.peca)}<br>`:''}<b>Solução (${escaparHtml(c.tecnico||'Técnico')}):</b> ${escaparHtml(c.servico_executado)}</div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhum chamado concluído no filtro selecionado.</p>';
 
-  // Evolução cronológica por setor: cada linha acompanha a quantidade de acontecimentos.
+  // Evolução por setor em intervalos de uma hora, com visual de linha contínua.
   const eventosPorSetor={};
+  let primeiraHora=null,ultimaHora=null;
   const registrarEvento=(os,data,tipo)=>{
     if(!data||!Number.isFinite(new Date(data).getTime()))return;
     const setor=String(os.setor||'Setor não informado').trim()||'Setor não informado';
-    const minuto=Math.floor(new Date(data).getTime()/60000)*60000;
+    const dataEvento=new Date(data);
+    dataEvento.setMinutes(0,0,0);
+    const hora=dataEvento.getTime();
+    primeiraHora=primeiraHora===null?hora:Math.min(primeiraHora,hora);
+    ultimaHora=ultimaHora===null?hora:Math.max(ultimaHora,hora);
     if(!eventosPorSetor[setor])eventosPorSetor[setor]={};
-    if(!eventosPorSetor[setor][minuto])eventosPorSetor[setor][minuto]={x:minuto,y:0,aberturas:0,conclusoes:0,lista:[]};
-    const ponto=eventosPorSetor[setor][minuto];
+    if(!eventosPorSetor[setor][hora])eventosPorSetor[setor][hora]={x:hora,y:0,aberturas:0,conclusoes:0,lista:[]};
+    const ponto=eventosPorSetor[setor][hora];
     ponto.y++;
     if(tipo==='abertura')ponto.aberturas++;else ponto.conclusoes++;
     if(!ponto.lista.some(item=>String(item.id)===String(os.id)))ponto.lista.push(os);
@@ -6864,22 +6869,31 @@ function atualizarMetricasReais(){
   });
   const paletaSetores=['#2563eb','#16a34a','#dc6b19','#8b5cf6','#0891b2','#db2777','#64748b','#65a30d','#9333ea','#0f766e'];
   const nomesSetores=Object.keys(eventosPorSetor).sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  const dadosSetores=nomesSetores.map((nome,indice)=>({
-    label:nome,
-    data:Object.values(eventosPorSetor[nome]).sort((a,b)=>a.x-b.x),
-    borderColor:paletaSetores[indice%paletaSetores.length],
-    backgroundColor:paletaSetores[indice%paletaSetores.length],
-    pointBackgroundColor:paletaSetores[indice%paletaSetores.length],
-    pointBorderColor:'#fff',
-    pointBorderWidth:1.5,
-    pointRadius:4,
-    pointHoverRadius:7,
-    pointHitRadius:12,
-    borderWidth:2,
-    tension:0.18,
-    fill:false,
-    spanGaps:false
-  }));
+  const horasGrafico=[];
+  if(primeiraHora!==null&&ultimaHora!==null){
+    for(let h=primeiraHora;h<=ultimaHora;h+=3600000)horasGrafico.push(h);
+  }
+  const dadosSetores=nomesSetores.map((nome,indice)=>{
+    const eventos=eventosPorSetor[nome];
+    const cor=paletaSetores[indice%paletaSetores.length];
+    return{
+      label:nome,
+      data:horasGrafico.map(h=>eventos[h]||{x:h,y:0,aberturas:0,conclusoes:0,lista:[]}),
+      borderColor:cor,
+      backgroundColor:cor,
+      pointBackgroundColor:cor,
+      pointBorderColor:'#fff',
+      pointBorderWidth:1.5,
+      pointRadius:ctx=>ctx.raw&&ctx.raw.y>0?3.5:0,
+      pointHoverRadius:ctx=>ctx.raw&&ctx.raw.y>0?7:0,
+      pointHitRadius:ctx=>ctx.raw&&ctx.raw.lista&&ctx.raw.lista.length?12:0,
+      borderWidth:2.5,
+      tension:0.28,
+      cubicInterpolationMode:'monotone',
+      fill:false,
+      spanGaps:false
+    };
+  });
   const dataEvento=(x)=>new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   DETALHES_GRAFICOS.chTendencia=(ds,i)=>{
     const setor=nomesSetores[ds],ponto=dadosSetores[ds]?.data[i];
@@ -6887,22 +6901,21 @@ function atualizarMetricasReais(){
   };
   const tendenciaCard=document.querySelector('#chTendencia')?.closest('.card');
   if(tendenciaCard){
-    const titulo=tendenciaCard.querySelector('h4');if(titulo)titulo.textContent='Evolução dos acontecimentos por setor';
+    const titulo=tendenciaCard.querySelector('h4');if(titulo)titulo.textContent='Evolução horária dos acontecimentos por setor';
     const nota=tendenciaCard.querySelector('.metrics-chart-note');
-    if(nota)nota.textContent='Cada linha colorida representa um setor. O eixo inferior mostra dia, hora e minuto; a altura indica quantas aberturas e conclusões ocorreram naquele minuto. Toque em um ponto para ver todas as O.S. daquele setor naquele horário.';
+    if(nota)nota.textContent='Visual de linha contínua, como um gráfico de bolsa. Cada linha representa um setor; cada ponto mostra o total de aberturas e conclusões naquela hora. O eixo inferior marca dia e hora. Toque em um ponto para consultar as O.S. daquele setor e horário.';
   }
   const tendenciaWrapper=document.querySelector('#chTendencia')?.parentElement;
   if(tendenciaWrapper)tendenciaWrapper.style.height='360px';
   mk('chTendencia',{type:'line',data:{datasets:dadosSetores},
     options:{interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,boxHeight:8,font:{size:10}}},tooltip:{callbacks:{
       title:items=>items.length?dataEvento(items[0].parsed.x):'',
-      label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' acontecimento(s)',
-      afterLabel:ctx=>{const p=ctx.raw;return 'Aberturas: '+p.aberturas+' • Conclusões: '+p.conclusoes+' • O.S.: '+p.lista.map(os=>nOS(os)).join(', ')}
+      label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' acontecimento(s) na hora',
+      afterLabel:ctx=>{const p=ctx.raw;return p&&p.lista&&p.lista.length?'Aberturas: '+p.aberturas+' • Conclusões: '+p.conclusoes+' • O.S.: '+p.lista.map(os=>nOS(os)).join(', '):'Sem acontecimentos nesta hora'}
     }}},scales:{
-      x:{type:'linear',title:{display:true,text:'Linha do tempo — dia / hora / minuto'},ticks:{maxTicksLimit:7,callback:v=>new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}},
-      y:{beginAtZero:true,min:0,title:{display:true,text:'Quantidade de acontecimentos'},ticks:{precision:0,stepSize:1}}
+      x:{type:'linear',title:{display:true,text:'Linha do tempo — dia e hora'},ticks:{stepSize:3600000,maxTicksLimit:12,callback:v=>new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}},
+      y:{beginAtZero:true,min:0,title:{display:true,text:'Acontecimentos por hora'},ticks:{precision:0,stepSize:1}}
     }}});
-
 
   const paradasPorCausa={};
   (OS_PARADA_ATUAL||[]).forEach(x=>{const nome=x.os.causa||'Não informada';paradasPorCausa[nome]=(paradasPorCausa[nome]||0)+x.parada});
