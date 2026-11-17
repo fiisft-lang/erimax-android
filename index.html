@@ -4636,10 +4636,10 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 <div class="card metricas-com-horario" id="cardHeatmapMaquinas"><h4>Mapa de calor — disponibilidade das máquinas</h4><p class="metrics-chart-note">As máquinas com menor disponibilidade registrada aparecem primeiro. Toque em uma máquina para consultar as O.S. do filtro atual.</p><div id="metricsHeatmapMaquinas" class="metrics-machine-heatmap"></div></div>
 <div class="metrics-section-heading"><span>03</span><div><h3>Causas e evolução das O.S.</h3><p>Identifique os motivos mais frequentes e acompanhe a evolução ao longo do tempo</p></div></div>
-<div class="card"><h4>Principais causas das falhas</h4><p class="metrics-chart-note">Frequência de O.S. por causa. Use junto ao Pareto de parada para diferenciar problemas frequentes dos que mais tiram tempo das máquinas.</p><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
-<div class="card"><h4>Evolução diária das O.S.</h4><div class="chart-wrapper"><canvas id="chTendencia"></canvas></div></div>
+<div class="card"><h4>Falhas mais frequentes (nº de ocorrências)</h4><p class="metrics-chart-note">Quantidade de O.S. por causa, da mais frequente à menos frequente.</p><div class="chart-wrapper"><canvas id="chCausas"></canvas></div></div>
+<div class="card"><h4>Linha do tempo das O.S.</h4><p class="metrics-chart-note">Cada ponto mostra uma abertura ou conclusão com dia, hora e minuto. Toque no ponto para consultar a O.S.</p><div class="chart-wrapper"><canvas id="chTendencia"></canvas></div></div>
 <div class="card"><h4>Evolução mensal das O.S.</h4><p class="metrics-chart-note">Ajuda a identificar tendências de aumento ou redução das ordens ao longo do período filtrado.</p><div class="chart-wrapper"><canvas id="chTendenciaMensal"></canvas></div></div>
-<div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Parada por causa (Pareto)</h4><p class="metrics-chart-note">Mostra quais causas acumulam mais tempo de máquina parada, ajudando a priorizar ações corretivas.</p><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
+<div class="card metricas-com-horario" id="cardHorarioPareto"><h4>Tempo de parada por causa (minutos — Pareto)</h4><p class="metrics-chart-note">Tempo acumulado de máquina parada por causa, em minutos. Ajuda a priorizar os problemas que mais tiram tempo da produção.</p><div class="chart-wrapper"><canvas id="chPareto"></canvas></div></div>
 
 <div class="card"><h4>Idade das O.S. ainda abertas</h4><p class="metrics-chart-note">Mostra há quanto tempo as ordens pendentes aguardam atendimento ou conclusão.</p><div class="chart-wrapper"><canvas id="chOSIdade"></canvas></div></div>
 <div class="card"><h4>Máquinas com falhas recorrentes</h4><p class="metrics-chart-note">Destaca os equipamentos com mais reincidências identificadas no histórico disponível.</p><div class="chart-wrapper"><canvas id="chReincidenciaMaquina"></canvas></div></div>
@@ -6510,7 +6510,7 @@ function mostrarOSDetalhe(titulo,lista){
   const itens=(lista||[]).filter(Boolean);
   modalEfOSTitulo.textContent=titulo||'Ordens de serviço relacionadas';
   resumoEfOS.textContent=itens.length?itens.length+' O.S. encontradas com os filtros selecionados.':'Nenhuma O.S. encontrada para este item.';
-  listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • '+(os.created_at?hm(os.created_at):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
+  listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • Aberta: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'horário não informado')+(os.data_conclusao?' • Concluída: '+new Date(os.data_conclusao).toLocaleString('pt-BR'):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p>'+(os.servico_executado?'<p style="font-size:.82rem;margin:6px 0"><b>O que foi feito:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'<button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
   modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
@@ -6845,13 +6845,33 @@ function atualizarMetricasReais(){
   const fechadas=f.filter(c=>c.status==='Concluída');
   rel.innerHTML=fechadas.length?fechadas.map(c=>`<div class="report-item"><b>${escaparHtml(nOS(c))} (${escaparHtml(c.maquina)})</b> — ${escaparHtml(c.turno)} • ${escaparHtml(c.setor)}<br><b>Aberta:</b> ${escaparHtml(hm(c.created_at))} • <b>Início:</b> ${escaparHtml(hm(c.data_atendimento))} • <b>Fechada:</b> ${escaparHtml(hm(c.data_conclusao))}${c.data_conclusao?' ('+escaparHtml(fmt(paradaProd(c)))+' parados em horário de produção)':''}${c.ajustado_por?`<br><small style="color:#b45309">✏️ Horário ajustado por ${escaparHtml(c.ajustado_por)} em ${escaparHtml(hm(c.ajustado_em))}${c.ajuste_obs?' — '+escaparHtml(c.ajuste_obs):''}</small>`:''}<br><b>Problema:</b> ${escaparHtml(c.descricao)}<br>${c.causa?`<b>Causa:</b> ${escaparHtml(c.causa)}<br>`:''}${c.peca?`<b>Peça:</b> ${escaparHtml(c.peca)}<br>`:''}<b>Solução (${escaparHtml(c.tecnico||'Técnico')}):</b> ${escaparHtml(c.servico_executado)}</div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhum chamado concluído no filtro selecionado.</p>';
 
-  // gráficos
-  const dias_=[...new Set([...Object.keys(aberDia),...Object.keys(conclDia)])].sort();
-  DETALHES_GRAFICOS.chTendencia=(ds,i)=>{const d=dias_[i];const lista=f.filter(c=>ds===0?diaLocal(c.created_at)===d:diaLocal(c.data_conclusao||'')===d&&c.status==='Concluída');return{titulo:(ds===0?'O.S. abertas em ':'O.S. concluídas em ')+d.split('-').reverse().join('/'),lista}};
-  mk('chTendencia',{type:'line',data:{labels:dias_.map(d=>d.slice(8)+'/'+d.slice(5,7)),datasets:[
-    {label:'Abertas',data:dias_.map(d=>aberDia[d]||0),borderColor:'#dc3545',backgroundColor:'#dc354533',tension:.3,fill:true},
-    {label:'Concluídas',data:dias_.map(d=>conclDia[d]||0),borderColor:'#28a745',backgroundColor:'#28a74533',tension:.3,fill:true}]},
-    options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+  // Linha do tempo: cada abertura e cada conclusão aparece no horário exato.
+  const eventosAbertura=f.filter(os=>os.created_at&&Number.isFinite(new Date(os.created_at).getTime()))
+    .map(os=>({x:new Date(os.created_at).getTime(),os}))
+    .sort((a,b)=>a.x-b.x)
+    .map((evento,i)=>({...evento,y:i+1}));
+  const eventosConclusao=f.filter(os=>os.status==='Concluída'&&os.data_conclusao&&Number.isFinite(new Date(os.data_conclusao).getTime()))
+    .map(os=>({x:new Date(os.data_conclusao).getTime(),os}))
+    .sort((a,b)=>a.x-b.x)
+    .map((evento,i)=>({...evento,y:i+1}));
+  const dataEvento=(evento)=>new Date(evento.x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  DETALHES_GRAFICOS.chTendencia=(ds,i)=>{
+    const evento=(ds===0?eventosAbertura:eventosConclusao)[i];
+    const tipo=ds===0?'aberta':'concluída';
+    return{titulo:'O.S. '+nOS(evento?.os)+' — '+tipo+' em '+(evento?dataEvento(evento):''),lista:evento?[evento.os]:[]};
+  };
+  const tendenciaNota=document.querySelector('#chTendencia')?.closest('.card')?.querySelector('.metrics-chart-note');
+  if(tendenciaNota)tendenciaNota.textContent='Cada ponto representa uma O.S. no dia e horário exatos da abertura (linha vermelha) ou conclusão (linha verde). Toque em um ponto para ver o problema, a causa, o técnico e a solução registrada.';
+  mk('chTendencia',{type:'line',data:{datasets:[
+    {label:'Abertura de O.S.',data:eventosAbertura,borderColor:'#dc3545',backgroundColor:'#dc3545',pointBackgroundColor:'#dc3545',pointRadius:6,pointHoverRadius:9,pointHitRadius:12,borderWidth:2.5,tension:0,fill:false},
+    {label:'Conclusão de O.S.',data:eventosConclusao,borderColor:'#16a34a',backgroundColor:'#16a34a',pointBackgroundColor:'#16a34a',pointRadius:6,pointHoverRadius:9,pointHitRadius:12,borderWidth:2.5,tension:0,fill:false}]},
+    options:{interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:true},tooltip:{callbacks:{
+      title:items=>items.length?dataEvento(items[0].raw):'',
+      label:ctx=>(ctx.dataset.label||'Evento')+' • '+nOS(ctx.raw.os)+' • '+(ctx.raw.os.maquina||'Máquina não informada')
+    }}},scales:{
+      x:{type:'linear',title:{display:true,text:'Dia / hora / minuto'},ticks:{maxTicksLimit:8,callback:v=>new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}},
+      y:{beginAtZero:true,title:{display:true,text:'Eventos acumulados'},ticks:{precision:0,stepSize:1}}
+    }}});
 
   const paradasPorCausa={};
   (OS_PARADA_ATUAL||[]).forEach(x=>{const nome=x.os.causa||'Não informada';paradasPorCausa[nome]=(paradasPorCausa[nome]||0)+x.parada});
