@@ -8436,6 +8436,43 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
   }
 }
 </style>
+
+<style id="erimax-modal-efos-botao-fixo-2026">
+/* Mantém o título e o fechamento sempre visíveis enquanto a lista de O.S. rola. */
+#modalEfOS>.efos-dialog{
+  display:flex!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+#modalEfOS .efos-header{
+  position:sticky!important;
+  top:0!important;
+  z-index:10!important;
+  flex:0 0 auto!important;
+  background:#fff!important;
+  padding:8px 0 12px!important;
+  margin:0 0 10px!important;
+  box-shadow:0 5px 8px -8px rgba(15,23,42,.45)!important;
+}
+#modalEfOS .efos-header .efos-close{
+  position:sticky!important;
+  top:8px!important;
+  z-index:11!important;
+  flex:0 0 auto!important;
+  min-height:44px!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#modalEfOS .efos-list{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
