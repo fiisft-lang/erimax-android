@@ -5990,8 +5990,14 @@ async function salvarHorarios(){
   if(fim&&!ini)return alert('Informe o início do atendimento antes da conclusão.');
   if(fim&&fim<ini)return alert('A conclusão não pode ser antes do início do atendimento.');
   if(fim&&fim>new Date(Date.now()+60000))return alert('A conclusão não pode ser no futuro.');
-  const atualizacao={created_at:abertura.toISOString(),data_atendimento:ini?ini.toISOString():null,data_conclusao:fim?fim.toISOString():null,ajustado_por:PERFIL.nome,ajustado_em:new Date().toISOString(),ajuste_obs:hrTipo.value+' — '+hrMot.value.trim()};
-  const {error}=await _supabase.from('os').update(atualizacao).eq('id',o.id);
+  const {error}=await _supabase.rpc('erimax_ajustar_horarios_os',{
+    p_os_id:o.id,
+    p_created_at:abertura.toISOString(),
+    p_data_atendimento:ini?ini.toISOString():null,
+    p_data_conclusao:fim?fim.toISOString():null,
+    p_motivo_tipo:hrTipo.value,
+    p_motivo_detalhe:hrMot.value.trim()
+  });
   if(error)return alert('Erro ao corrigir horários: '+error.message);
   modalHor.style.display='none';await carregarDadosSupabase();alert('Horários corrigidos. O histórico registra quem fez o ajuste e o motivo.');
 }
