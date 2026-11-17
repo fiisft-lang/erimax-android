@@ -6845,20 +6845,28 @@ function atualizarMetricasReais(){
   const fechadas=f.filter(c=>c.status==='Concluída');
   rel.innerHTML=fechadas.length?fechadas.map(c=>`<div class="report-item"><b>${escaparHtml(nOS(c))} (${escaparHtml(c.maquina)})</b> — ${escaparHtml(c.turno)} • ${escaparHtml(c.setor)}<br><b>Aberta:</b> ${escaparHtml(hm(c.created_at))} • <b>Início:</b> ${escaparHtml(hm(c.data_atendimento))} • <b>Fechada:</b> ${escaparHtml(hm(c.data_conclusao))}${c.data_conclusao?' ('+escaparHtml(fmt(paradaProd(c)))+' parados em horário de produção)':''}${c.ajustado_por?`<br><small style="color:#b45309">✏️ Horário ajustado por ${escaparHtml(c.ajustado_por)} em ${escaparHtml(hm(c.ajustado_em))}${c.ajuste_obs?' — '+escaparHtml(c.ajuste_obs):''}</small>`:''}<br><b>Problema:</b> ${escaparHtml(c.descricao)}<br>${c.causa?`<b>Causa:</b> ${escaparHtml(c.causa)}<br>`:''}${c.peca?`<b>Peça:</b> ${escaparHtml(c.peca)}<br>`:''}<b>Solução (${escaparHtml(c.tecnico||'Técnico')}):</b> ${escaparHtml(c.servico_executado)}</div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhum chamado concluído no filtro selecionado.</p>';
 
-  // Evolução por setor em intervalos de uma hora, com visual de linha contínua.
-  const eventosPorSetor={};
-  let primeiraHora=null,ultimaHora=null;
+  // Evolução por setor: visão diária para períodos longos e detalhamento horário ao selecionar um dia.
+  const eventosPorDia={};
+  const eventosPorHoraDia={};
+  let primeiroDia=null,ultimoDia=null;
   const registrarEvento=(os,data,tipo)=>{
     if(!data||!Number.isFinite(new Date(data).getTime()))return;
+    const dataEvento=new Date(data),dia=diaLocal(dataEvento);
     const setor=String(os.setor||'Setor não informado').trim()||'Setor não informado';
-    const dataEvento=new Date(data);
+    primeiroDia=primeiroDia===null||dia<primeiroDia?dia:primeiroDia;
+    ultimoDia=ultimoDia===null||dia>ultimoDia?dia:ultimoDia;
+    if(!eventosPorDia[setor])eventosPorDia[setor]={};
+    if(!eventosPorDia[setor][dia])eventosPorDia[setor][dia]={y:0,aberturas:0,conclusoes:0,lista:[]};
+    const resumo=eventosPorDia[setor][dia];
+    resumo.y++;
+    if(tipo==='abertura')resumo.aberturas++;else resumo.conclusoes++;
+    if(!resumo.lista.some(item=>String(item.id)===String(os.id)))resumo.lista.push(os);
+    if(!eventosPorHoraDia[dia])eventosPorHoraDia[dia]={};
+    if(!eventosPorHoraDia[dia][setor])eventosPorHoraDia[dia][setor]={};
     dataEvento.setMinutes(0,0,0);
     const hora=dataEvento.getTime();
-    primeiraHora=primeiraHora===null?hora:Math.min(primeiraHora,hora);
-    ultimaHora=ultimaHora===null?hora:Math.max(ultimaHora,hora);
-    if(!eventosPorSetor[setor])eventosPorSetor[setor]={};
-    if(!eventosPorSetor[setor][hora])eventosPorSetor[setor][hora]={x:hora,y:0,aberturas:0,conclusoes:0,lista:[]};
-    const ponto=eventosPorSetor[setor][hora];
+    if(!eventosPorHoraDia[dia][setor][hora])eventosPorHoraDia[dia][setor][hora]={x:hora,y:0,aberturas:0,conclusoes:0,lista:[]};
+    const ponto=eventosPorHoraDia[dia][setor][hora];
     ponto.y++;
     if(tipo==='abertura')ponto.aberturas++;else ponto.conclusoes++;
     if(!ponto.lista.some(item=>String(item.id)===String(os.id)))ponto.lista.push(os);
@@ -6867,55 +6875,66 @@ function atualizarMetricasReais(){
     registrarEvento(os,os.created_at,'abertura');
     if(os.status==='Concluída')registrarEvento(os,os.data_conclusao,'conclusao');
   });
-  const paletaSetores=['#2563eb','#16a34a','#dc6b19','#8b5cf6','#0891b2','#db2777','#64748b','#65a30d','#9333ea','#0f766e'];
-  const nomesSetores=Object.keys(eventosPorSetor).sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  const horasGrafico=[];
-  if(primeiraHora!==null&&ultimaHora!==null){
-    for(let h=primeiraHora;h<=ultimaHora;h+=3600000)horasGrafico.push(h);
+  const paletaSetores=['#2563eb','#0f9d8a','#d97706','#7c3aed','#0891b2','#db2777','#64748b','#65a30d','#9333ea','#0f766e'];
+  const nomesSetores=Object.keys(eventosPorDia).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const diasGrafico=[];
+  if(primeiroDia&&ultimoDia){
+    const cursor=new Date(primeiroDia+'T12:00:00');
+    const fim=new Date(ultimoDia+'T12:00:00');
+    while(cursor<=fim){diasGrafico.push(diaLocal(cursor));cursor.setDate(cursor.getDate()+1)}
   }
-  const dadosSetores=nomesSetores.map((nome,indice)=>{
-    const eventos=eventosPorSetor[nome];
-    const cor=paletaSetores[indice%paletaSetores.length];
-    return{
-      label:nome,
-      data:horasGrafico.map(h=>eventos[h]||{x:h,y:0,aberturas:0,conclusoes:0,lista:[]}),
-      borderColor:cor,
-      backgroundColor:cor,
-      pointBackgroundColor:cor,
-      pointBorderColor:'#fff',
-      pointBorderWidth:1.5,
-      pointRadius:ctx=>ctx.raw&&ctx.raw.y>0?3.5:0,
-      pointHoverRadius:ctx=>ctx.raw&&ctx.raw.y>0?7:0,
-      pointHitRadius:ctx=>ctx.raw&&ctx.raw.lista&&ctx.raw.lista.length?12:0,
-      borderWidth:2.5,
-      tension:0.28,
-      cubicInterpolationMode:'monotone',
-      fill:false,
-      spanGaps:false
-    };
-  });
-  const dataEvento=(x)=>new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  DETALHES_GRAFICOS.chTendencia=(ds,i)=>{
-    const setor=nomesSetores[ds],ponto=dadosSetores[ds]?.data[i];
-    return{titulo:setor+' — '+(ponto?dataEvento(ponto.x):'')+' ('+(ponto?.y||0)+' acontecimentos)',lista:ponto?.lista||[]};
-  };
+  const dataDia=d=>new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const dataEvento=x=>new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const tendenciaCard=document.querySelector('#chTendencia')?.closest('.card');
-  if(tendenciaCard){
-    const titulo=tendenciaCard.querySelector('h4');if(titulo)titulo.textContent='Evolução horária dos acontecimentos por setor';
-    const nota=tendenciaCard.querySelector('.metrics-chart-note');
-    if(nota)nota.textContent='Visual de linha contínua, como um gráfico de bolsa. Cada linha representa um setor; cada ponto mostra o total de aberturas e conclusões naquela hora. O eixo inferior marca dia e hora. Toque em um ponto para consultar as O.S. daquele setor e horário.';
-  }
   const tendenciaWrapper=document.querySelector('#chTendencia')?.parentElement;
-  if(tendenciaWrapper)tendenciaWrapper.style.height='360px';
-  mk('chTendencia',{type:'line',data:{datasets:dadosSetores},
-    options:{interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,boxHeight:8,font:{size:10}}},tooltip:{callbacks:{
-      title:items=>items.length?dataEvento(items[0].parsed.x):'',
-      label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' acontecimento(s) na hora',
-      afterLabel:ctx=>{const p=ctx.raw;return p&&p.lista&&p.lista.length?'Aberturas: '+p.aberturas+' • Conclusões: '+p.conclusoes+' • O.S.: '+p.lista.map(os=>nOS(os)).join(', '):'Sem acontecimentos nesta hora'}
-    }}},scales:{
-      x:{type:'linear',title:{display:true,text:'Linha do tempo — dia e hora'},ticks:{stepSize:3600000,maxTicksLimit:12,callback:v=>new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}},
-      y:{beginAtZero:true,min:0,title:{display:true,text:'Acontecimentos por hora'},ticks:{precision:0,stepSize:1}}
-    }}});
+  if(tendenciaCard&&!tendenciaCard.querySelector('#tendenciaControles')){
+    const controles=document.createElement('div');
+    controles.id='tendenciaControles';
+    controles.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:12px 0 4px';
+    controles.innerHTML='<div style="display:flex;gap:7px;align-items:center"><span style="font-size:.76rem;font-weight:700;color:#526579">Visualização</span><span id="tendenciaModo" style="font-size:.76rem;font-weight:800;color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;padding:6px 10px">Por dia</span></div><button type="button" id="tendenciaVoltarDia" style="display:none;border:1px solid #cbd5e1;background:#fff;color:#245a91;border-radius:9px;padding:8px 12px;font-size:.76rem;font-weight:750;cursor:pointer">← Voltar para os dias</button>';
+    const note=tendenciaCard.querySelector('.metrics-chart-note');
+    if(note)note.insertAdjacentElement('afterend',controles);else tendenciaCard.insertBefore(controles,tendenciaWrapper);
+  }
+  const modoLabel=document.getElementById('tendenciaModo');
+  const voltarDia=document.getElementById('tendenciaVoltarDia');
+  let diaSelecionado=null;
+  const atualizarControles=(modo)=>{
+    if(modoLabel)modoLabel.textContent=modo==='hora'?'Por hora — '+dataDia(diaSelecionado):'Por dia';
+    if(voltarDia)voltarDia.style.display=modo==='hora'?'inline-flex':'none';
+    const titulo=tendenciaCard?.querySelector('h4');
+    if(titulo)titulo.textContent=modo==='hora'?'Detalhamento por hora — '+dataDia(diaSelecionado):'Evolução diária dos acontecimentos por setor';
+    const nota=tendenciaCard?.querySelector('.metrics-chart-note');
+    if(nota)nota.textContent=modo==='hora'?'Cada linha representa um setor. Os pontos mostram aberturas e conclusões por hora neste dia. Toque em um ponto para consultar as O.S. daquele setor e horário.':'Visão diária para comparar semanas e meses sem amontoar horários. Cada linha representa um setor e cada ponto soma aberturas e conclusões do dia. Toque em um dia para abrir o detalhamento por hora.';
+  };
+  const renderTendenciaHora=dia=>{
+    diaSelecionado=dia;atualizarControles('hora');
+    const setoresDia=eventosPorHoraDia[dia]||{};
+    const inicio=new Date(dia+'T00:00:00');inicio.setMinutes(0,0,0);
+    const horas=Array.from({length:24},(_,i)=>inicio.getTime()+i*3600000);
+    const datasets=nomesSetores.filter(nome=>setoresDia[nome]).map(nome=>{
+      const indice=nomesSetores.indexOf(nome),cor=paletaSetores[indice%paletaSetores.length],eventos=setoresDia[nome];
+      return{label:nome,data:horas.map(h=>eventos[h]||{x:h,y:0,aberturas:0,conclusoes:0,lista:[]}),borderColor:cor,backgroundColor:cor,pointBackgroundColor:cor,pointBorderColor:'#fff',pointBorderWidth:1.5,pointRadius:ctx=>ctx.raw&&ctx.raw.y>0?4:0,pointHoverRadius:7,pointHitRadius:ctx=>ctx.raw?.lista?.length?14:0,borderWidth:2.7,tension:.3,fill:false,spanGaps:false};
+    });
+    DETALHES_GRAFICOS.chTendencia=(ds,i)=>{const nome=datasets[ds]?.label,ponto=datasets[ds]?.data[i];return{titulo:nome+' — '+(ponto?dataEvento(ponto.x):'')+' ('+(ponto?.y||0)+' acontecimentos)',lista:ponto?.lista||[]}};
+    if(tendenciaWrapper)tendenciaWrapper.style.height='350px';
+    mk('chTendencia',{type:'line',data:{datasets},options:{interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:true,position:'bottom'},tooltip:{callbacks:{title:items=>items.length?dataEvento(items[0].parsed.x):'',label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' acontecimento(s)',afterLabel:ctx=>{const p=ctx.raw;return p?.lista?.length?'Aberturas: '+p.aberturas+' • Conclusões: '+p.conclusoes+' • O.S.: '+p.lista.map(os=>nOS(os)).join(', '):''}}}},scales:{x:{type:'linear',min:inicio.getTime(),max:inicio.getTime()+23*3600000,title:{display:true,text:'Horário do dia'},ticks:{stepSize:3*3600000,maxTicksLimit:9,callback:v=>new Date(v).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}},y:{beginAtZero:true,min:0,title:{display:true,text:'Acontecimentos por hora'},ticks:{precision:0,stepSize:1}}},onClick:(_evt,items)=>{const item=items&&items[0],resolver=DETALHES_GRAFICOS.chTendencia;if(item&&resolver){const r=resolver(item.datasetIndex,item.index);if(r.lista.length)mostrarOSDetalhe(r.titulo,r.lista)}}}});
+  };
+  const renderTendenciaDia=()=>{
+    diaSelecionado=null;atualizarControles('dia');
+    const datasets=nomesSetores.map((nome,indice)=>{
+      const cor=paletaSetores[indice%paletaSetores.length],eventos=eventosPorDia[nome]||{};
+      return{label:nome,data:diasGrafico.map(d=>eventos[d]?.y||0),borderColor:cor,backgroundColor:cor,pointBackgroundColor:cor,pointBorderColor:'#fff',pointBorderWidth:1.5,pointRadius:ctx=>ctx.raw>0?3.5:0,pointHoverRadius:7,borderWidth:2.6,tension:.3,fill:false};
+    });
+    DETALHES_GRAFICOS.chTendencia=(ds,i)=>{const nome=nomesSetores[ds],resumo=eventosPorDia[nome]?.[diasGrafico[i]];return{titulo:nome+' — '+dataDia(diasGrafico[i])+' ('+(resumo?.y||0)+' acontecimentos)',lista:resumo?.lista||[]}};
+    if(tendenciaWrapper)tendenciaWrapper.style.height='350px';
+    mk('chTendencia',{type:'line',data:{labels:diasGrafico.map(dataDia),datasets},options:{interaction:{mode:'nearest',intersect:true},plugins:{legend:{display:true,position:'bottom'},tooltip:{callbacks:{title:items=>items.length?diasGrafico[items[0].dataIndex]: '',label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' acontecimento(s)',afterLabel:ctx=>{const r=eventosPorDia[ctx.dataset.label]?.[diasGrafico[ctx.dataIndex]];return r?'Aberturas: '+r.aberturas+' • Conclusões: '+r.conclusoes:''}}}},scales:{x:{title:{display:true,text:'Dia analisado'},ticks:{autoSkip:true,maxTicksLimit:12,maxRotation:0,minRotation:0}},y:{beginAtZero:true,min:0,title:{display:true,text:'Acontecimentos no dia'},ticks:{precision:0,stepSize:1}}},onClick:(_evt,items)=>{const item=items&&items[0];if(item&&diasGrafico[item.index])renderTendenciaHora(diasGrafico[item.index])}}});
+  };
+  if(tendenciaCard){
+    const nota=tendenciaCard.querySelector('.metrics-chart-note');
+    if(nota)nota.textContent='Visão diária para comparar semanas e meses sem amontoar horários. Cada linha representa um setor e cada ponto soma aberturas e conclusões do dia. Toque em um dia para abrir o detalhamento por hora.';
+  }
+  if(voltarDia)voltarDia.onclick=renderTendenciaDia;
+  renderTendenciaDia();
 
   const paradasPorCausa={};
   (OS_PARADA_ATUAL||[]).forEach(x=>{const nome=x.os.causa||'Não informada';paradasPorCausa[nome]=(paradasPorCausa[nome]||0)+x.parada});
