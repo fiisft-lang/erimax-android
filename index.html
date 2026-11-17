@@ -8473,6 +8473,48 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
   -webkit-overflow-scrolling:touch!important;
 }
 </style>
+
+<style id="erimax-efos-fechar-viewport-fixo-v2">
+/* O botão fica preso à tela do aparelho, mesmo se o conteúdo inteiro do modal rolar. */
+#modalEfOS>.efos-dialog{
+  position:relative!important;
+  height:calc(100dvh - 24px)!important;
+  max-height:calc(100dvh - 24px)!important;
+  min-height:0!important;
+  overflow-y:hidden!important;
+}
+#modalEfOS .efos-header .efos-close{
+  position:fixed!important;
+  top:max(14px, env(safe-area-inset-top))!important;
+  right:max(14px, env(safe-area-inset-right))!important;
+  z-index:1400!important;
+  display:inline-flex!important;
+  min-width:94px!important;
+  min-height:46px!important;
+  height:46px!important;
+  margin:0!important;
+  border:2px solid #fff!important;
+  border-radius:12px!important;
+  box-shadow:0 3px 14px rgba(0,0,0,.28)!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+#modalEfOS .efos-header{padding-right:104px!important;flex:0 0 auto!important}
+#modalEfOS .efos-list{
+  flex:1 1 0!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  touch-action:pan-y!important;
+}
+@media(max-width:480px){
+ #modalEfOS>.efos-dialog{height:calc(100dvh - 16px)!important;max-height:calc(100dvh - 16px)!important}
+ #modalEfOS .efos-header .efos-close{top:max(10px,env(safe-area-inset-top))!important;right:max(10px,env(safe-area-inset-right))!important}
+}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
