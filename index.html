@@ -5203,15 +5203,18 @@ async function salvarOS(e){
 
 function abrirRankingOSDoTecnico(botao){
   if(!botao||botao.disabled)return;
-  const nome=botao.dataset.tecnico||'',mes=botao.dataset.mes||'';
-  if(!nome||!/^\\d{4}-\\d{2}$/.test(mes))return;
-  const lista=chamados.filter(c=>c.status==='Concluída'&&c.data_conclusao&&c.tecnico===nome&&diaLocal(c.data_conclusao).slice(0,7)===mes)
-    .sort((a,b)=>new Date(b.data_conclusao)-new Date(a.data_conclusao));
+  const nome=String(botao.dataset.tecnico||'').trim(),mes=String(botao.dataset.mes||'').trim();
+  if(!nome||!/^[0-9]{4}-[0-9]{2}$/.test(mes))return;
+  const normalizarNome=valor=>String(valor||'').trim().normalize('NFC').toLocaleLowerCase('pt-BR');
+  const lista=chamados.filter(c=>
+    c.status==='Concluída'&&c.data_conclusao&&
+    normalizarNome(c.tecnico)===normalizarNome(nome)&&
+    diaLocal(c.data_conclusao).slice(0,7)===mes
+  ).sort((a,b)=>new Date(b.data_conclusao)-new Date(a.data_conclusao));
   const [ano,numeroMes]=mes.split('-');
   const periodo=new Date(Number(ano),Number(numeroMes)-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   mostrarOSDetalhe('O.S. concluídas por '+nome+' — '+periodo,lista);
 }
-
 function renderRankingOperadores(){
   const box=document.getElementById("boxRankingOperadores"),campo=document.getElementById("rankingMes");
   if(!box||!campo)return;
@@ -5222,11 +5225,8 @@ function renderRankingOperadores(){
     .forEach(c=>{contagem[c.tecnico]=(contagem[c.tecnico]||0)+1;(ordensPorTecnico[c.tecnico]||(ordensPorTecnico[c.tecnico]=[])).push(c)});
   const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
   if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
-  const totalGeral=lista.reduce((s,item)=>s+item[1],0),ativos=lista.filter(item=>item[1]>0).length,maior=Math.max(1,...lista.map(item=>item[1]));
-  const resumoAntigo=box.previousElementSibling?.classList.contains('ranking-os-summary')?box.previousElementSibling:null;
-  const resumo='<div class="ranking-os-summary"><div><small>O.S. concluídas no mês</small><b>'+totalGeral+'</b></div><div><small>Técnicos com produção</small><b>'+ativos+'</b></div><div><small>Maior resultado</small><b>'+maior+'</b></div></div>';
-  if(resumoAntigo)resumoAntigo.outerHTML=resumo;else box.insertAdjacentHTML('beforebegin',resumo);
-  box.innerHTML=lista.map(([nome,total],i)=>{
+  box.previousElementSibling?.classList.contains('ranking-os-summary')&&box.previousElementSibling.remove();
+    box.innerHTML=lista.map(([nome,total],i)=>{
     const seguro=escaparHtml(nome),percentual=total?Math.round(total/maior*100):0;
     const qtd=ordensPorTecnico[nome]?.length||0;
     return '<div class="maq-row ranking-os-row"><b class="ranking-os-position">'+(medalhas[i]||(i+1)+'º')+'</b><span class="ranking-os-person"><b>'+seguro+'</b><small class="ranking-os-progress-label">'+percentual+'% do maior resultado</small><span class="ranking-os-progress"><i style="width:'+percentual+'%"></i></span></span><button type="button" class="ranking-os-count" data-tecnico="'+seguro+'" data-mes="'+mes+'" onclick="abrirRankingOSDoTecnico(this)" '+(qtd?'':'disabled')+' aria-label="Ver '+qtd+' O.S. concluídas por '+seguro+' em '+mes+'"><b>'+total+'</b><small>O.S.</small><span aria-hidden="true">›</span></button></div>';
