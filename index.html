@@ -4423,6 +4423,13 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 #tab-ranking-os .ranking-os-count:not(:disabled):hover{border-color:#8fc4bd;background:#eaf8f5}
 #tab-ranking-os .ranking-os-count:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
 @media(max-width:520px){#tab-ranking-os .ranking-os-summary{gap:7px}#tab-ranking-os .ranking-os-summary>div{padding:10px 9px}#tab-ranking-os .ranking-os-summary small{font-size:.6rem;line-height:1.3}#tab-ranking-os .ranking-os-summary b{font-size:1.15rem}#tab-ranking-os #boxRankingOperadores>.ranking-os-row{gap:8px!important;padding:10px!important}#tab-ranking-os .ranking-os-count{min-width:70px;padding:7px 7px}}
+.os-rodando-details{margin:10px 0 4px;border:1px solid #cfe7dc;border-radius:9px;background:#f5fbf7;padding:8px 10px}
+.os-rodando-details summary{cursor:pointer;font-size:.82rem;font-weight:650;color:#176b4b;list-style:none}
+.os-rodando-details summary::-webkit-details-marker{display:none}
+.os-rodando-fields{display:grid;gap:7px;padding-top:9px}
+.os-rodando-fields input{width:100%;min-height:38px;border:1px solid #cbd5e1;border-radius:7px;padding:8px;font:inherit;font-size:.82rem;background:#fff;color:#1e293b}
+.os-rodando-save{border:0;border-radius:7px;padding:9px 11px;background:#16845b;color:#fff;font-weight:650;font-size:.8rem}
+.os-rodando-status{margin:6px 0;padding:7px 9px;border:1px solid #b7e4cc;background:#effaf3;color:#176b4b;border-radius:7px;font-size:.78rem}
 </style>
 </head>
 <body>
@@ -4717,6 +4724,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="form-group"><label>Peça trocada (opcional)</label><input id="mdPeca" placeholder="Ex.: Rolamento 6204"></div>
 <div class="form-group"><label>Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
 <div class="form-group"><label for="mdMecanicoAux">Mecânico auxiliar (opcional)</label><select id="mdMecanicoAux"><option value="">Nenhum auxiliar</option></select><small style="display:block;color:#64748b;margin-top:5px">Selecione somente se outro técnico participou desta manutenção.</small></div>
+<details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details>
 <div class="form-group" id="mdMaquinasWrap" style="display:none"><label>Execução por máquina</label><p style="font-size:.75rem;color:#64748b;margin:4px 0 8px">Marque cada máquina somente depois de executar o serviço nela. A O.S. só poderá ser concluída quando todas estiverem marcadas.</p><div id="mdListaMaquinas"></div><button type="button" class="btn-submit" style="background:#0f766e;margin-top:8px" onclick="salvarProgressoMaquinas()">💾 Salvar andamento sem fechar a O.S.</button></div>
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
@@ -4776,7 +4784,7 @@ let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};le
 const SETORES_PADRAO=['Costura','Corte de atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 let SETORES=[...SETORES_PADRAO];
 
-let chamados=[],HISTORICO_PAUSAS=[],HISTORICO_TRANSFERENCIAS=[],vibrationInterval=null;
+let chamados=[],HISTORICO_PAUSAS=[],HISTORICO_TRANSFERENCIAS=[],HISTORICO_SITUACAO_OS=[],vibrationInterval=null;
 
 // preenche os selects de setor (a lista vem do cadastro de setores)
 function popularSetores(){
@@ -5108,10 +5116,11 @@ function mudarAba(id,evt,opcoes={}){
 
 async function carregarDadosSupabase(){
   // Consultas independentes em paralelo para reduzir o tempo de abertura das O.S.
-  const [{data,error},{data:hp,error:hpError},{data:ht,error:htError},{data:pf},{data:st,error:stError}]=await Promise.all([
+  const [{data,error},{data:hp,error:hpError},{data:ht,error:htError},{data:hs,error:hsError},{data:pf},{data:st,error:stError}]=await Promise.all([
     _supabase.from('os').select('*').order('id',{ascending:false}),
     _supabase.from('historico_pausas_os').select('*').order('id',{ascending:false}),
     _supabase.from('historico_transferencias_os').select('*').order('solicitada_em',{ascending:false}),
+    _supabase.from('historico_situacao_os').select('*').order('registrado_em',{ascending:false}),
     _supabase.from('perfis').select('id,nome,perfil'),
     _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em')
   ]);
@@ -5121,6 +5130,8 @@ async function carregarDadosSupabase(){
   HISTORICO_PAUSAS=hp||[];
   if(htError)console.error('Erro ao carregar histórico de transferências:',htError.message);
   HISTORICO_TRANSFERENCIAS=ht||[];
+  if(hsError)console.error('Erro ao carregar histórico de situação da máquina:',hsError.message);
+  HISTORICO_SITUACAO_OS=hs||[];
   TODOS_USUARIOS=pf||[];TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
@@ -5260,8 +5271,9 @@ function renderPainelMaquinasSupervisor(){
     const semSituacao=situacoes.some(s=>s!=='parado'&&s!=='rodando');
     const pausada=item.ativas.some(o=>o.status==='Pausada');
     const atendimento=item.ativas.some(o=>o.status==='Em Atendimento');
-    item.estado=pausada?'O.S. pausada':atendimento?'Manutenção em andamento':parada?'Parada informada na O.S.':semSituacao?'Situação não informada na O.S.':rodando?'Rodando informado na O.S.':'Sem O.S. ativa • situação não confirmada';
-    item.cor=pausada?'#a16207':atendimento?'#2563a6':parada?'#b54747':rodando?'#23856d':'#748494';
+    const emObservacao=item.ativas.some(o=>o.status==='Em Atendimento'&&!!o.rodando_em&&String(o.situacao_equipamento||'').toLowerCase()==='rodando');
+    item.estado=pausada?'O.S. pausada':emObservacao?'Rodando em observação':atendimento?'Manutenção em andamento':parada?'Parada informada na O.S.':semSituacao?'Situação não informada na O.S.':rodando?'Rodando informado na O.S.':'Sem O.S. ativa • situação não confirmada';
+    item.cor=pausada?'#a16207':emObservacao?'#23856d':atendimento?'#2563a6':parada?'#b54747':rodando?'#23856d':'#748494';
     return item;
   }).sort((a,b)=>a.setor.localeCompare(b.setor,'pt-BR')||a.maquina.localeCompare(b.maquina,'pt-BR'));
   const grupos=[...new Set(itens.map(x=>x.setor))];
@@ -5271,6 +5283,7 @@ function renderPainelMaquinasSupervisor(){
     ['Parada informada na O.S.',qtd('Parada informada na O.S.'),'#b54747'],
     ['Rodando informado na O.S.',qtd('Rodando informado na O.S.'),'#23856d'],
     ['Manutenção em andamento',qtd('Manutenção em andamento'),'#2563a6'],
+    ['Rodando em observação',qtd('Rodando em observação'),'#23856d'],
     ['O.S. pausada',qtd('O.S. pausada'),'#a16207'],
     ['Sem O.S. ativa • situação não confirmada',qtd('Sem O.S. ativa • situação não confirmada'),'#748494'],
     ['Situação não informada na O.S.',qtd('Situação não informada na O.S.'),'#748494']
@@ -5714,6 +5727,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const equipeOS=Array.isArray(os.tecnicos_participantes)?os.tecnicos_participantes:[];
     if(equipeOS.length)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Equipe participante: <b>'+escaparHtml(equipeOS.join(', '))+'</b></p>';
     if(os.situacao_equipamento==='Parado')html+='<p style="margin:6px 0;padding:7px 9px;background:#fff1f0;border:1px solid #fecaca;border-radius:5px;font-size:.8rem;color:#991b1b">⏱️ <b>Tempo de máquina parada:</b> <span data-tempo-parada-os="'+id+'">'+escaparHtml(fmt(Math.round(paradaProd(os,Number((String(os.turno||'').match(/\d+/)||[])[0])||null))))+'</span><small data-tempo-pausa-os="'+id+'" style="display:none;margin-top:3px;color:#805b00"></small></p>';
+    if(os.rodando_em)html+='<p class="os-rodando-status">▶ <b>Máquina rodando — em observação</b> desde '+escaparHtml(hm(os.rodando_em))+(os.observacao_rodando?' • '+escaparHtml(os.observacao_rodando):'')+'</p>';
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
     if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
@@ -5939,6 +5953,10 @@ function concluirOS(id){
   osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
+  const rodandoDetails=document.getElementById('mdRodandoDetails');
+  const obsRodando=document.getElementById('mdObsRodando');
+  if(rodandoDetails){rodandoDetails.style.display=osAtual&&osAtual.status==='Em Atendimento'&&String(osAtual.situacao_equipamento||'').toLowerCase()==='parado'?'':'none';rodandoDetails.open=false}
+  if(obsRodando)obsRodando.value='';
   const maquinas=Array.isArray(osAtual&&osAtual.maquinas_execucao)?osAtual.maquinas_execucao:[];
   const wrap=document.getElementById('mdMaquinasWrap'),lista=document.getElementById('mdListaMaquinas');
   const selectAux=document.getElementById('mdMecanicoAux');
@@ -5952,6 +5970,17 @@ function concluirOS(id){
     lista.innerHTML=maquinas.map((m,i)=>'<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.85rem"><input class="md-maquina-execucao" type="checkbox" data-index="'+i+'" '+(m.concluida?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+' '+(m.concluida?'<span style="color:#166534;font-size:.75rem">— concluída</span>':'')+'</label>').join('');
   }
   modal.style.display='flex';
+}
+async function registrarMaquinaRodandoObservacao(){
+  const id=Number(osConcluir),os=chamados.find(c=>Number(c.id)===id);
+  if(!id||!os)return;
+  if(os.status!=='Em Atendimento'||String(os.situacao_equipamento||'').toLowerCase()!=='parado')return alert('Esta O.S. não está mais com a máquina marcada como parada. Atualize a lista.');
+  const observacao=String(document.getElementById('mdObsRodando')?.value||'').trim();
+  const {error}=await _supabase.rpc('erimax_registrar_maquina_rodando_os',{p_os_id:id,p_observacao:observacao||null});
+  if(error)return alert('Não foi possível registrar a máquina rodando: '+error.message);
+  fecharModal();
+  await carregarDadosSupabase();
+  alert(nOS(os)+' registrada como máquina rodando em observação. A O.S. continua Em Atendimento; conclua somente após confirmar a estabilidade.');
 }
 function obterMaquinasExecucaoModal(){
   const osAtual=chamados.find(c=>Number(c.id)===Number(osConcluir));
@@ -6136,6 +6165,7 @@ async function verHistorico(id){
   if(!os)return;
   const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).sort((a,b)=>new Date(a.pausada_em)-new Date(b.pausada_em));
   const transferencias=HISTORICO_TRANSFERENCIAS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.solicitada_em)-new Date(b.solicitada_em));
+  const mudancasSituacao=HISTORICO_SITUACAO_OS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.registrado_em)-new Date(b.registrado_em));
   let reaberturas=[];
   try{
     const resposta=await _supabase.from('historico_reaberturas_os').select('*').eq('os_id',id).order('reaberta_em',{ascending:true});
@@ -6156,6 +6186,7 @@ async function verHistorico(id){
       add(p.retomada_em,'Atendimento retomado','Tempo pausado: '+minutosFmt(dur),'retomada');
     }
   });
+  mudancasSituacao.forEach(t=>add(t.registrado_em,'Máquina liberada para produção — em observação',(t.registrado_por||'Responsável não informado')+(t.observacao?' • Observação: '+t.observacao:''),'retomada'));
   transferencias.forEach(t=>{
     add(t.solicitada_em,'Transferência solicitada',(t.solicitada_por||t.tecnico_anterior||'—')+' • De: '+(t.tecnico_anterior||'—')+' • Para: '+(t.tecnico_novo||'—')+' • Motivo: '+(t.motivo||'Não informado'),'transferencia');
     if(t.aceita_em)add(t.aceita_em,'Transferência aceita','Aceita por '+(t.aceita_por||t.tecnico_novo||'—'),'retomada');
@@ -6172,7 +6203,7 @@ async function verHistorico(id){
   const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Não definida';
   const detalhes=[
     ['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],
-    ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],
+    ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],['Retomada da produção',fmtData(os.rodando_em)],['Observação de acompanhamento',os.observacao_rodando],
     ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],
     ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
   ];
@@ -6449,8 +6480,10 @@ function intervalosProdutivosAtribuidosOS(c,periodoInicio,periodoFim,turnoFiltro
   return resultado;
 }
 function paradaProd(c,tn,periodoInicio,periodoFim){
-  if(String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return 0;
-  const inicioOriginal=new Date(c.created_at).getTime(),fimOriginal=new Date(c.data_conclusao||Date.now()).getTime();
+  const situacao=String(c.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR');
+  const retomada=c.rodando_em?new Date(c.rodando_em).getTime():NaN;
+  if(situacao!=='parado'&&!Number.isFinite(retomada))return 0;
+  const inicioOriginal=new Date(c.created_at).getTime(),fimOriginal=Number.isFinite(retomada)?retomada:new Date(c.data_conclusao||Date.now()).getTime();
   const limiteIni=periodoInicio?new Date(periodoInicio).getTime():inicioOriginal;
   const limiteFim=periodoFim?new Date(periodoFim).getTime():fimOriginal;
   const ini=Math.max(inicioOriginal,limiteIni),fim=Math.min(fimOriginal,limiteFim);
