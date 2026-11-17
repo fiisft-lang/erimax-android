@@ -5223,7 +5223,7 @@ function renderRankingOperadores(){
   const lista=Object.entries(contagem).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR")),medalhas=["🥇","🥈","🥉"];
   if(!lista.length){box.innerHTML="<p style=\"color:#64748b;text-align:center\">Nenhum técnico cadastrado.</p>";return}
   const totalGeral=lista.reduce((s,item)=>s+item[1],0),ativos=lista.filter(item=>item[1]>0).length,maior=Math.max(1,...lista.map(item=>item[1]));
-  const resumoAntigo=box.querySelector('.ranking-os-summary');
+  const resumoAntigo=box.previousElementSibling?.classList.contains('ranking-os-summary')?box.previousElementSibling:null;
   const resumo='<div class="ranking-os-summary"><div><small>O.S. concluídas no mês</small><b>'+totalGeral+'</b></div><div><small>Técnicos com produção</small><b>'+ativos+'</b></div><div><small>Maior resultado</small><b>'+maior+'</b></div></div>';
   if(resumoAntigo)resumoAntigo.outerHTML=resumo;else box.insertAdjacentHTML('beforebegin',resumo);
   box.innerHTML=lista.map(([nome,total],i)=>{
