@@ -5711,21 +5711,21 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const duracaoOS=Number.isFinite(inicioOS)?fmt(Math.max(0,Math.floor((fimOS-inicioOS)/60000))):'—';
     const responsavelOS=os.tecnico|| (os.transferencia_para?'Aguardando aceite de '+os.transferencia_para:'Aguardando técnico');
     html+=listaAbertasCompacta?'<div class="oa-card-facts"><span><small>SITUAÇÃO DA MÁQUINA</small><b class="'+(String(os.situacao_equipamento||'').toLowerCase()==='parado'?'oa-machine-stopped':'')+'">'+escaparHtml(os.situacao_equipamento||'Não informada')+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>':'<div class="os-resumo-info"><span><small>PRIORIDADE</small><b class="os-prioridade-'+prioridade.toLowerCase().replace('é','e')+'">'+escaparHtml(prioridade)+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>';
-    if(listaAbertasCompacta)html+='<div class="oa-card-problem"><span>PROBLEMA RELATADO</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div><details class="oa-more"><summary>Ver detalhes da O.S.</summary><div class="oa-more-content">';if(os.ajustado_em){html+='<div style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
-    html+='<p style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
-    if(os.data_atendimento)html+='<p style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
-    html+='<p style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
+    if(listaAbertasCompacta)html+='<div class="oa-card-problem"><span>PROBLEMA RELATADO</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div><details class="oa-more"><summary>Ver detalhes da O.S.</summary><div class="oa-more-content">';if(os.ajustado_em){html+='<div class="os-zoom-extra-60" style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
+    html+='<p class="os-zoom-extra-80" style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
+    if(os.data_atendimento)html+='<p class="os-zoom-extra-80" style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
+    html+='<p class="os-zoom-extra-80" style="margin:4px 0;font-size:.85rem">Tipo: <b>'+escaparHtml(os.tipo)+'</b></p>';
     if(!listaAbertasCompacta)html+='<div class="os-problema"><span class="os-problema-titulo">⚠️ Problema relatado pelo operador</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div>';
     const execucao=Array.isArray(os.maquinas_execucao)?os.maquinas_execucao:[];
     if(execucao.length){
       const feitas=execucao.filter(m=>m.concluida).length;
       html+='<div style="margin:7px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem"><b>Execução por máquina: '+feitas+'/'+execucao.length+'</b>'+execucao.map(m=>'<div style="margin-top:3px;color:'+(m.concluida?'#166534':'#92400e')+'">'+(m.concluida?'✓':'○')+' '+escaparHtml(m.nome)+(m.concluida?' — concluída':' — pendente')+'</div>').join('')+'</div>';
     }
-    if(foto)html+='<a href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
-    if(os.tecnico)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Manutentor responsável pela finalização: <b>'+escaparHtml(os.tecnico)+'</b></p>';
-    if(os.mecanico_auxiliar)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Mecânico auxiliar: <b>'+escaparHtml(os.mecanico_auxiliar)+'</b></p>';
+    if(foto)html+='<a class="os-zoom-extra-60" href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
+    if(os.tecnico)html+='<p class="os-zoom-extra-60" style="font-size:.8rem;color:var(--primary-dark)">Manutentor responsável pela finalização: <b>'+escaparHtml(os.tecnico)+'</b></p>';
+    if(os.mecanico_auxiliar)html+='<p class="os-zoom-extra-60" style="font-size:.8rem;color:var(--primary-dark)">Mecânico auxiliar: <b>'+escaparHtml(os.mecanico_auxiliar)+'</b></p>';
     const equipeOS=Array.isArray(os.tecnicos_participantes)?os.tecnicos_participantes:[];
-    if(equipeOS.length)html+='<p style="font-size:.8rem;color:var(--primary-dark)">Equipe participante: <b>'+escaparHtml(equipeOS.join(', '))+'</b></p>';
+    if(equipeOS.length)html+='<p class="os-zoom-extra-60" style="font-size:.8rem;color:var(--primary-dark)">Equipe participante: <b>'+escaparHtml(equipeOS.join(', '))+'</b></p>';
     if(os.situacao_equipamento==='Parado')html+='<p style="margin:6px 0;padding:7px 9px;background:#fff1f0;border:1px solid #fecaca;border-radius:5px;font-size:.8rem;color:#991b1b">⏱️ <b>Tempo de máquina parada:</b> <span data-tempo-parada-os="'+id+'">'+escaparHtml(fmt(Math.round(paradaProd(os,Number((String(os.turno||'').match(/\d+/)||[])[0])||null))))+'</span><small data-tempo-pausa-os="'+id+'" style="display:none;margin-top:3px;color:#805b00"></small></p>';
     if(os.rodando_em){const tempoObs=Math.max(0,Math.round(((os.data_conclusao?new Date(os.data_conclusao):new Date()).getTime()-new Date(os.rodando_em).getTime())/60000));html+='<p class="os-rodando-status">▶ <b>'+(status==='Concluída'?'Máquina liberada para produção':'Máquina rodando — em observação')+'</b> desde '+escaparHtml(hm(os.rodando_em))+' • '+(status==='Concluída'?'Tempo em observação: ':'Em observação há ')+escaparHtml(fmt(tempoObs))+(os.observacao_rodando?' • '+escaparHtml(os.observacao_rodando):'')+'</p>';}
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
@@ -9582,16 +9582,26 @@ window.onload=async function(){
 @media(min-width:900px){#erimaxZoomIndicador{display:none!important}}
 /* A grade se reorganiza sem alterar o desenho original quando retorna a 100%. */
 .tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid){
- display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(260px * var(--erimax-zoom-scale,1))),1fr))!important;
+ display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(220px,calc(260px * var(--erimax-zoom-scale,1)))),1fr))!important;
  align-items:start;gap:calc(12px * var(--erimax-zoom-scale,1))!important;min-width:0;
  transition:gap .16s ease,grid-template-columns .16s ease
 }
 .tab-content[data-erimax-zoom] :is(#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid)>*{
- min-width:0!important;max-width:100%;zoom:var(--erimax-zoom-scale,1)
+ min-width:0!important;max-width:100%;zoom:var(--erimax-content-scale,1)
 }
 .tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.oa-stat-card,.presence-card,.sv-os-card,.sv-sector,.sv-machine){min-width:0!important;overflow:hidden;text-overflow:ellipsis}
-.tab-content[data-erimax-zoom-level="60"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info),
+.tab-content[data-erimax-zoom-level="80"] .os-zoom-extra-80,
+.tab-content[data-erimax-zoom-level="60"] .os-zoom-extra-80,
+.tab-content[data-erimax-zoom-level="60"] .os-zoom-extra-60,
+.tab-content[data-erimax-zoom-level="40"] .os-zoom-extra-80,
+.tab-content[data-erimax-zoom-level="40"] .os-zoom-extra-60,
 .tab-content[data-erimax-zoom-level="40"] :is(.oa-card-meta,.oa-card-facts,.card-secondary,.os-secondary,.secondary-info){display:none!important}
+.tab-content[data-erimax-zoom] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card){--erimax-content-scale:1}
+.tab-content[data-erimax-zoom-level="80"] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card){--erimax-content-scale:.96}
+.tab-content[data-erimax-zoom-level="60"] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card){--erimax-content-scale:.92}
+.tab-content[data-erimax-zoom-level="40"] :is(.os-card,.card,.maq-row,.report-item,.metric-card,.sv-os-card){--erimax-content-scale:.88}
+.tab-content[data-erimax-zoom-level="60"] .os-resumo-info span:nth-child(3),
+.tab-content[data-erimax-zoom-level="40"] .os-resumo-info span:nth-child(3){display:none!important}
 .tab-content[data-erimax-zoom-level="60"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description),
 .tab-content[data-erimax-zoom-level="80"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .tab-content[data-erimax-zoom-level="40"] :is(.os-problema,.oa-card-problem p,.description,.descricao,.report-description){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
@@ -9622,6 +9632,7 @@ window.onload=async function(){
 <script id="erimax-zoom-pinça-2026-js">
 (function(){
  const chave='erimax_zoom_global_v2';
+ if(/Android/i.test(navigator.userAgent||''))document.documentElement.classList.add('erimax-android');
  const alvosDensos='#listaOS,#listaOSAbertas,#listaOSPausadas,#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios,#listaPresenca,#listaRelatorioProblemas,#listaEfOS,#listaDetalheMetrica,#resultadoConsulta,.os-modern-list,.oa-list,.supervisor-kpis,.sv-metrics,.metrics-grid,.cards-grid,.card-grid,.grid-cards,.list-grid,.os-card,.sv-os-card,.maq-row,.report-item,.metric-card,.presence-card';
  let zooms={};try{zooms=JSON.parse(localStorage.getItem(chave)||'{}')||{}}catch(e){zooms={}}
  let inicioDistancia=0,inicioZoom=1,indicadorTimer=null,zoomEmGestao=null;
