@@ -9628,6 +9628,52 @@ window.onload=async function(){
 }
 #tab-painel[data-erimax-zoom] #painelMaquinasSupervisor .sv-sector{zoom:var(--erimax-zoom-scale,1);min-width:0;max-width:100%;margin:0!important}
 #tab-painel[data-erimax-zoom] #painelMaquinasSupervisor .sv-os-card{zoom:var(--erimax-zoom-scale,1);min-width:0;max-width:100%}
+
+/* Zoom em grade adaptável: os cartões acompanham o espaço disponível, como uma galeria. */
+#tab-ordens-servico[data-erimax-zoom-level="80"] .os-modern-list,
+#tab-ordens-abertas[data-erimax-zoom-level="80"] .oa-list{
+ display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr))!important;align-items:start!important;gap:9px!important
+}
+#tab-ordens-servico[data-erimax-zoom-level="60"] .os-modern-list,
+#tab-ordens-abertas[data-erimax-zoom-level="60"] .oa-list{
+ display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(100%,165px),1fr))!important;align-items:start!important;gap:8px!important
+}
+#tab-ordens-servico[data-erimax-zoom-level="40"] .os-modern-list,
+#tab-ordens-abertas[data-erimax-zoom-level="40"] .oa-list{
+ display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(100%,145px),1fr))!important;align-items:start!important;gap:7px!important
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card,
+#tab-ordens-abertas[data-erimax-zoom] .os-card{
+ min-width:0!important;width:100%!important;margin:0!important;padding:8px!important;border-radius:10px!important;box-sizing:border-box!important
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-header{gap:4px!important;padding-bottom:6px!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-id{font-size:.76rem!important;line-height:1.2}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-badge{font-size:.58rem!important;padding:3px 5px!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-resumo-info{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;margin:7px 0!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-resumo-info>span{padding:5px!important;min-width:0!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-resumo-info small{font-size:.49rem!important;line-height:1.1}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-resumo-info b{font-size:.64rem!important;line-height:1.2}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-problema{margin:6px 0!important;padding:7px!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-problema-titulo{font-size:.56rem!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-problema p{font-size:.68rem!important;line-height:1.3!important;margin:3px 0 0!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important;margin-top:7px!important;padding-top:6px!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions .btn-action{min-width:0!important;min-height:29px!important;padding:4px 5px!important;font-size:.57rem!important;line-height:1.15!important;white-space:normal!important}
+#tab-ordens-servico[data-erimax-zoom-level="80"] .os-card .os-zoom-extra-80,
+#tab-ordens-abertas[data-erimax-zoom-level="80"] .os-card .os-zoom-extra-80{display:none!important}
+#tab-ordens-servico[data-erimax-zoom-level="60"] .os-card :is(.os-zoom-extra-80,.os-zoom-extra-60),
+#tab-ordens-abertas[data-erimax-zoom-level="60"] .os-card :is(.os-zoom-extra-80,.os-zoom-extra-60){display:none!important}
+#tab-ordens-servico[data-erimax-zoom-level="40"] .os-card :is(.os-zoom-extra-80,.os-zoom-extra-60,.oa-card-meta,.card-secondary,.os-secondary,.secondary-info),
+#tab-ordens-abertas[data-erimax-zoom-level="40"] .os-card :is(.os-zoom-extra-80,.os-zoom-extra-60,.oa-card-meta,.card-secondary,.os-secondary,.secondary-info){display:none!important}
+#tab-ordens-servico[data-erimax-zoom] .os-card :is(.os-rodando-status,[data-tempo-parada-os]),
+#tab-ordens-abertas[data-erimax-zoom] .os-card :is(.os-rodando-status,[data-tempo-parada-os]){font-size:.62rem!important;line-height:1.25!important}
+@media(max-width:420px){
+ #tab-ordens-servico[data-erimax-zoom-level="80"] .os-modern-list,
+ #tab-ordens-abertas[data-erimax-zoom-level="80"] .oa-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #tab-ordens-servico[data-erimax-zoom-level="60"] .os-modern-list,
+ #tab-ordens-abertas[data-erimax-zoom-level="60"] .oa-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #tab-ordens-servico[data-erimax-zoom-level="40"] .os-modern-list,
+ #tab-ordens-abertas[data-erimax-zoom-level="40"] .oa-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
 </style>
 <script id="erimax-zoom-pinça-2026-js">
 (function(){
