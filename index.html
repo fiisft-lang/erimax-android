@@ -4758,6 +4758,32 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 <div id="modalEditarEquipamentoOS" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1500;align-items:center;justify-content:center;padding:14px"><div class="box" style="width:100%;max-width:480px;max-height:90vh;overflow:auto"><h2 style="color:var(--primary)">Corrigir equipamento da O.S.</h2><p id="editarEquipamentoInfo" style="font-size:.8rem;color:#64748b;margin:6px 0 12px"></p><div class="form-group"><label for="editarEquipamentoSelect">EQUIPAMENTO CORRETO *</label><select id="editarEquipamentoSelect" required></select></div><p style="font-size:.72rem;color:#64748b">Somente o equipamento será alterado. O sistema registra quem fez a correção, a data e o nome anterior.</p><div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharEdicaoEquipamentoOS()">Cancelar</button><button type="button" class="btn-submit" onclick="salvarEdicaoEquipamentoOS()">Salvar correção</button></div></div></div>
 
+<div id="modalEditarOSCompleta" role="dialog" aria-modal="true" aria-labelledby="editarOSCompletaTitulo" style="display:none;position:fixed;inset:0;z-index:1800;background:rgba(15,23,42,.72);align-items:center;justify-content:center;padding:12px">
+ <div class="box" style="width:100%;max-width:720px;max-height:94dvh;overflow:auto;padding:16px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 id="editarOSCompletaTitulo" style="margin:0;color:var(--primary)">Editar O.S.</h2><button type="button" class="btn-action" onclick="fecharEdicaoCompletaOS()">Fechar ✕</button></div>
+  <p id="editarOSCompletaInfo" style="font-size:.78rem;color:#64748b;margin:6px 0 12px"></p>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
+   <div class="form-group"><label>Máquina *</label><input id="ecMaquina"></div>
+   <div class="form-group"><label>Setor *</label><input id="ecSetor"></div>
+   <div class="form-group"><label>Turno *</label><select id="ecTurno"><option>1º Turno</option><option>2º Turno</option><option>3º Turno</option></select></div>
+   <div class="form-group"><label>Responsável técnico</label><input id="ecTecnico" placeholder="Nome do técnico"></div>
+   <div class="form-group"><label>Tipo *</label><input id="ecTipo"></div>
+   <div class="form-group"><label>Prioridade *</label><select id="ecPrioridade"><option>Baixa</option><option>Média</option><option>Alta</option><option>Urgente</option><option>Crítica</option></select></div>
+   <div class="form-group"><label>Situação da máquina *</label><select id="ecSituacao"><option>Parado</option><option>Rodando</option></select></div>
+   <div class="form-group"><label>Data/hora da abertura *</label><input id="ecAbertura" type="datetime-local"></div>
+   <div class="form-group"><label>Início do atendimento</label><input id="ecInicio" type="datetime-local"></div>
+   <div class="form-group"><label>Data/hora da conclusão</label><input id="ecConclusao" type="datetime-local"></div>
+   <div class="form-group" style="grid-column:1/-1"><label>Problema relatado *</label><textarea id="ecDescricao" rows="2"></textarea></div>
+   <div class="form-group" style="grid-column:1/-1"><label>Causa identificada</label><input id="ecCausa"></div>
+   <div class="form-group" style="grid-column:1/-1"><label>Serviço executado</label><textarea id="ecServico" rows="2"></textarea></div>
+   <div class="form-group"><label>Peça utilizada</label><input id="ecPeca"></div>
+   <div class="form-group"><label>Observação de máquina rodando</label><input id="ecObsRodando"></div>
+   <div class="form-group" style="grid-column:1/-1"><label>Justificativa da edição * (mínimo 8 caracteres)</label><textarea id="ecMotivo" rows="2" placeholder="Explique por que os dados precisam ser corrigidos"></textarea></div>
+  </div>
+  <p style="font-size:.72rem;color:#64748b">A edição não altera o status da O.S. nem apaga o histórico. Todos os valores anteriores e novos ficam registrados.</p>
+  <div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharEdicaoCompletaOS()">Cancelar</button><button type="button" class="btn-submit" onclick="salvarEdicaoCompletaOS()">Salvar alterações</button></div>
+ </div>
+</div>
 <audio id="audioSirene" preload="auto" loop>
 <source src="/alarme.wav" type="audio/wav">
 </audio>
@@ -5697,9 +5723,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     }
     if(status.trim().normalize('NFC').toLocaleLowerCase('pt-BR')==='concluída'&&gestor)b+='<button type="button" class="btn-action btn-transferir" style="background:#d97706;color:#fff" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
-    if(PERFIL&&(PERFIL.perfil==='gestor'||PERFIL.perfil==='operador')&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="editarEquipamentoOS('+id+')">✏️ Editar equipamento</button>';
+    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="abrirEdicaoCompletaOS('+id+')">✏️ Editar O.S.</button>';
     b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
-    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button class="btn-action btn-transferir" onclick="editarHorarios('+id+')" class="btn-action btn-transferir btn-horarios">✏️ Corrigir horários</button>';
     if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     const androidApp=document.documentElement.classList.contains('erimax-app-android');
@@ -5998,6 +6023,37 @@ async function salvarProgressoMaquinas(){
   if(error)return alert('Não foi possível salvar o andamento das máquinas: '+error.message);
   fecharModal();await carregarDadosSupabase();
   alert('Andamento das máquinas salvo. A O.S. continua em atendimento.');
+}
+let osEdicaoCompleta=null;
+function abrirEdicaoCompletaOS(id){
+ if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode editar todos os dados da O.S.');
+ const o=chamados.find(c=>Number(c.id)===Number(id));if(!o)return;
+ osEdicaoCompleta=o;
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v??''};
+ document.getElementById('editarOSCompletaInfo').textContent=nOS(o)+' • '+(o.status||'')+' • A edição não muda o status da ordem.';
+ set('ecMaquina',o.maquina);set('ecSetor',o.setor);set('ecTurno',o.turno);set('ecTecnico',o.tecnico);
+ set('ecTipo',o.tipo);set('ecPrioridade',o.prioridade);set('ecSituacao',o.situacao_equipamento||'Parado');
+ set('ecAbertura',o.created_at?loc(o.created_at):'');set('ecInicio',o.data_atendimento?loc(o.data_atendimento):'');set('ecConclusao',o.data_conclusao?loc(o.data_conclusao):'');
+ set('ecDescricao',o.descricao);set('ecCausa',o.causa);set('ecServico',o.servico_executado);set('ecPeca',o.peca);set('ecObsRodando',o.observacao_rodando);set('ecMotivo','');
+ document.getElementById('modalEditarOSCompleta').style.display='flex';
+}
+function fecharEdicaoCompletaOS(){document.getElementById('modalEditarOSCompleta').style.display='none';osEdicaoCompleta=null}
+async function salvarEdicaoCompletaOS(){
+ const o=osEdicaoCompleta;if(!o)return;
+ if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode editar todos os dados da O.S.');
+ const val=id=>String(document.getElementById(id)?.value??'').trim();
+ for(const [id,nome] of [['ecMaquina','Máquina'],['ecSetor','Setor'],['ecTurno','Turno'],['ecTipo','Tipo'],['ecDescricao','Problema relatado'],['ecAbertura','Data/hora da abertura']])if(!val(id))return alert('Preencha: '+nome+'.');
+ if(val('ecMotivo').length<8)return alert('A justificativa precisa ter pelo menos 8 caracteres.');
+ const abertura=new Date(val('ecAbertura')),inicio=val('ecInicio')?new Date(val('ecInicio')):null,fim=val('ecConclusao')?new Date(val('ecConclusao')):null;
+ if(abertura>new Date(Date.now()+60000))return alert('A abertura não pode estar no futuro.');
+ if(inicio&&inicio<abertura)return alert('O atendimento não pode ser anterior à abertura.');
+ if(fim&&!inicio)return alert('Informe o início do atendimento antes da conclusão.');
+ if(fim&&fim<inicio)return alert('A conclusão não pode ser anterior ao atendimento.');
+ if(o.status==='Concluída'&&(!inicio||!fim))return alert('Uma O.S. concluída precisa ter início e conclusão preenchidos.');
+ const dados={maquina:val('ecMaquina'),setor:val('ecSetor'),turno:val('ecTurno'),tecnico:val('ecTecnico')||null,tipo:val('ecTipo'),prioridade:val('ecPrioridade'),situacao_equipamento:val('ecSituacao'),created_at:abertura.toISOString(),data_atendimento:inicio?inicio.toISOString():null,data_conclusao:fim?fim.toISOString():null,descricao:val('ecDescricao'),causa:val('ecCausa')||null,servico_executado:val('ecServico')||null,peca:val('ecPeca')||null,rodando_em:o.rodando_em||null,observacao_rodando:val('ecObsRodando')||null};
+ const {error}=await _supabase.rpc('erimax_editar_os_completa',{p_os_id:o.id,p_dados:dados,p_motivo:val('ecMotivo')});
+ if(error)return alert('Não foi possível salvar a O.S.: '+error.message);
+ fecharEdicaoCompletaOS();await carregarDadosSupabase();alert('O.S. atualizada. A auditoria guardou os dados anteriores, os novos e a justificativa.');
 }
 function editarHorarios(id){
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode corrigir os horários.');
