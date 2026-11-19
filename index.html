@@ -6648,7 +6648,7 @@ function abrirOSParadaMaquina(nome){
 }
 function mostrarOSParada(lista){
   modalEfOSTitulo.textContent='O.S. com tempo de parada';
-  const itens=(lista||[]).slice().sort((a,b)=>b.parada-a.parada);
+  const itens=ordenarOSRecentes((lista||[]).map(x=>x.os)).map(os=>({os,parada:(lista||[]).find(x=>Number(x.os.id)===Number(os.id))?.parada||0}));
   resumoEfOS.textContent=itens.length?itens.length+' OS com tempo de parada no período e filtros selecionados.':'Nenhuma OS com parada foi encontrada neste filtro.';
   listaEfOS.innerHTML=itens.length?itens.map(({os,parada})=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(os.status).replace(/\s+/g,'')+'">'+escaparHtml(os.status)+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor)+' • '+escaparHtml(os.turno)+' • '+hm(os.created_at)+'</p><p style="font-size:.8rem;margin:6px 0"><b>Parada considerada:</b> '+fmt(parada)+'</p><p style="font-size:.82rem"><b>Defeito:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+(os.data_conclusao?' • Concluída em '+hm(os.data_conclusao):' • Ainda não concluída')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta OS no painel</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma OS com parada neste filtro.</p>';
   modalEfOS.style.display='flex';
