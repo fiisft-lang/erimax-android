@@ -7413,6 +7413,7 @@ async function executarLinkOS(id,action){
   const chave=String(id)+':'+String(action||'abrir');
   if(ACOES_LINK_OS.has(chave))return;
   ACOES_LINK_OS.add(chave);
+  let etapa='preparação';
   try{
     if(!PERFIL){
       localStorage.setItem('erimax_os_pendente',String(id));
@@ -7420,19 +7421,21 @@ async function executarLinkOS(id,action){
       ACOES_LINK_OS.delete(chave);
       return;
     }
-    // Primeiro executa a decisão; só depois navega para a lista da O.S.
-    // Assim a ação não depende da renderização/rolagem do painel.
+    etapa='carregamento da O.S.';
     await carregarDadosSupabase();
     const os=chamados.find(x=>Number(x.id)===Number(id));
     if(!os)throw new Error('A O.S. '+id+' ainda não foi carregada.');
+    etapa='execução da ação '+(action||'abrir');
     if(action==='aceitar_transferencia')await aceitarTransferenciaOS(Number(id));
     else if(action==='recusar_transferencia')await recusarTransferenciaOS(Number(id));
     else if(action==='assumir')await assumirOS(Number(id));
+    etapa='abertura da O.S. no painel';
     await abrirOSNoPainel(id);
+    ACOES_LINK_OS.delete(chave);
   }catch(e){
     ACOES_LINK_OS.delete(chave);
-    console.error('Não foi possível executar a ação recebida pela notificação:',e);
-    alert('Não foi possível concluir a ação da notificação: '+(e?.message||e));
+    console.error('Não foi possível executar a ação recebida pela notificação ('+etapa+'):',e,e?.stack||'');
+    alert('Não foi possível concluir a ação da notificação ('+etapa+'): '+(e?.message||e));
   }
 }
 function tratarLinkOS(url){
@@ -9085,9 +9088,10 @@ navigator.serviceWorker?.addEventListener('message',event=>{
   if(event.origin!==location.origin)return;
   if(event.data?.type==='ERIMAX_SILENCE_ALERT'){desligarAlarme();return}
   if(event.data?.type==='ERIMAX_OPEN_OS'&&event.data.os_id&&PERFIL){
-    setTimeout(async()=>{
-      await abrirOSNoPainel(event.data.os_id);
-      if(event.data.action==='assumir')await assumirOS(Number(event.data.os_id));
+    setTimeout(()=>{
+      // Usa o mesmo fluxo validado dos links nativos: carrega a O.S., executa
+      // a ação uma única vez e só então abre a ordem no painel.
+      executarLinkOS(String(event.data.os_id),event.data.action==='assumir'?'assumir':'');
     },300);
   }
 });
