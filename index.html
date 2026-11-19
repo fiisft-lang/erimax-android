@@ -5677,7 +5677,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
   const sf=principal?(document.getElementById('filtroSetorOS')?.value||'Todos'):'Todos';
   const tf=principal?(document.getElementById('filtroTecnicoOS')?.value||'Todos'):'Todos';
   const xf=principal?(document.getElementById('filtroTransferenciaOS')?.value||'Todas'):'Todas';
-  const lista=chamados.filter(c=>{
+  let lista=chamados.filter(c=>{
     if(apenasPausadas&&c.status!=='Pausada')return false;
     if(apenasAbertas&&!['Aberta','Em Atendimento','Pausada'].includes(c.status))return false;
     if(destino==='listaOSAbertas'){
