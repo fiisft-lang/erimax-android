@@ -4776,8 +4776,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 id="editarOSCompletaTitulo" style="margin:0;color:var(--primary)">Editar O.S.</h2><button type="button" class="btn-action" onclick="fecharEdicaoCompletaOS()">Fechar ✕</button></div>
   <p id="editarOSCompletaInfo" style="font-size:.78rem;color:#64748b;margin:6px 0 12px"></p>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
-   <div class="form-group"><label>Máquina *</label><input id="ecMaquina"></div>
-   <div class="form-group"><label>Setor *</label><input id="ecSetor"></div>
+   <div class="form-group"><label for="ecSetor">Setor *</label><select id="ecSetor" required onchange="atualizarMaquinasEdicaoOS(true)"><option value="">Selecione o setor primeiro...</option></select></div>
+   <div class="form-group"><label for="ecMaquina">Máquina *</label><select id="ecMaquina" required disabled><option value="">Escolha o setor primeiro</option></select></div>
    <div class="form-group"><label>Turno *</label><select id="ecTurno"><option>1º Turno</option><option>2º Turno</option><option>3º Turno</option></select></div>
    <div class="form-group"><label>Responsável técnico</label><input id="ecTecnico" placeholder="Nome do técnico"></div>
    <div class="form-group"><label>Tipo *</label><input id="ecTipo"></div>
@@ -6044,16 +6044,40 @@ async function salvarProgressoMaquinas(){
   alert('Andamento das máquinas salvo. A O.S. continua em atendimento.');
 }
 let osEdicaoCompleta=null;
+function atualizarMaquinasEdicaoOS(limpar=true,maquinaInicial=''){
+ const setor=document.getElementById('ecSetor'),maquina=document.getElementById('ecMaquina');
+ if(!setor||!maquina)return;
+ if(limpar)maquina.value='';
+ const escolhido=normSetor(setor.value);
+ const lista=(MAQUINAS||[]).filter(m=>m&&m.nome&&normSetor(m.setor)===escolhido)
+  .sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+ const unicas=[...new Map(lista.map(m=>[String(m.nome).trim(),m])).values()];
+ maquina.innerHTML=unicas.length
+  ?'<option value="">Selecione a máquina...</option>'+unicas.map(m=>'<option value="'+escaparHtml(String(m.nome).trim())+'">'+escaparHtml(String(m.nome).trim())+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+'</option>').join('')
+  :'<option value="">Nenhuma máquina cadastrada neste setor</option>';
+ maquina.disabled=!unicas.length;
+ if(maquinaInicial&&unicas.some(m=>String(m.nome).trim()===String(maquinaInicial).trim()))maquina.value=String(maquinaInicial).trim();
+ const info=document.getElementById('editarOSCompletaInfo');
+ if(info&&setor.value&&!unicas.length)info.textContent=nOS(osEdicaoCompleta)+' • Não há máquinas cadastradas neste setor. Confira o cadastro de máquinas.';
+}
 function abrirEdicaoCompletaOS(id){
  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode editar todos os dados da O.S.');
  const o=chamados.find(c=>Number(c.id)===Number(id));if(!o)return;
  osEdicaoCompleta=o;
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v??''};
- document.getElementById('editarOSCompletaInfo').textContent=nOS(o)+' • '+(o.status||'')+' • A edição não muda o status da ordem.';
- set('ecMaquina',o.maquina);set('ecSetor',o.setor);set('ecTurno',o.turno);set('ecTecnico',o.tecnico);
+ const setores=[...new Set([...(SETORES||[]),...(MAQUINAS||[]).map(m=>m&&m.setor),o.setor].filter(Boolean).map(normSetor))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ const setor=document.getElementById('ecSetor');
+ setor.innerHTML='<option value="">Selecione o setor...</option>'+setores.map(x=>'<option value="'+escaparHtml(x)+'">'+escaparHtml(x)+'</option>').join('');
+ const setorOS=normSetor(o.setor);
+ setor.value=setores.includes(setorOS)?setorOS:'';
+ atualizarMaquinasEdicaoOS(false,o.maquina);
+ set('ecTurno',o.turno);set('ecTecnico',o.tecnico);
  set('ecTipo',o.tipo);set('ecPrioridade',o.prioridade);set('ecSituacao',o.situacao_equipamento||'Parado');
  set('ecAbertura',o.created_at?loc(o.created_at):'');set('ecInicio',o.data_atendimento?loc(o.data_atendimento):'');set('ecConclusao',o.data_conclusao?loc(o.data_conclusao):'');
  set('ecDescricao',o.descricao);set('ecCausa',o.causa);set('ecServico',o.servico_executado);set('ecPeca',o.peca);set('ecObsRodando',o.observacao_rodando);set('ecMotivo','');
+ const info=document.getElementById('editarOSCompletaInfo');
+ info.textContent=nOS(o)+' • '+(o.status||'')+' • A edição não muda o status da ordem.';
+ if(!setor.value||!document.getElementById('ecMaquina').value)info.textContent+=' A máquina atual não está cadastrada nesse setor; selecione uma máquina válida.';
  document.getElementById('modalEditarOSCompleta').style.display='flex';
 }
 function fecharEdicaoCompletaOS(){document.getElementById('modalEditarOSCompleta').style.display='none';osEdicaoCompleta=null}
@@ -6061,7 +6085,9 @@ async function salvarEdicaoCompletaOS(){
  const o=osEdicaoCompleta;if(!o)return;
  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode editar todos os dados da O.S.');
  const val=id=>String(document.getElementById(id)?.value??'').trim();
- for(const [id,nome] of [['ecMaquina','Máquina'],['ecSetor','Setor'],['ecTurno','Turno'],['ecTipo','Tipo'],['ecDescricao','Problema relatado'],['ecAbertura','Data/hora da abertura']])if(!val(id))return alert('Preencha: '+nome+'.');
+ for(const [id,nome] of [['ecSetor','Setor'],['ecMaquina','Máquina'],['ecTurno','Turno'],['ecTipo','Tipo'],['ecDescricao','Problema relatado'],['ecAbertura','Data/hora da abertura']])if(!val(id))return alert('Preencha: '+nome+'.');
+ const maquinaValida=(MAQUINAS||[]).some(m=>m&&String(m.nome||'').trim()===val('ecMaquina')&&normSetor(m.setor)===normSetor(val('ecSetor')));
+ if(!maquinaValida)return alert('A máquina selecionada não pertence ao setor escolhido ou não está cadastrada. Selecione uma máquina da lista.');
  if(val('ecMotivo').length<8)return alert('A justificativa precisa ter pelo menos 8 caracteres.');
  const abertura=new Date(val('ecAbertura')),inicio=val('ecInicio')?new Date(val('ecInicio')):null,fim=val('ecConclusao')?new Date(val('ecConclusao')):null;
  if(abertura>new Date(Date.now()+60000))return alert('A abertura não pode estar no futuro.');
