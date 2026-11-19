@@ -4632,6 +4632,19 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
+<section class="card metrics-compare-panel" id="metricsComparacaoMaquinas">
+  <div class="metrics-compare-head"><div><span>ANÁLISE COMPARATIVA</span><h3>Comparar máquinas do mesmo setor</h3><p>Selecione de 2 a 5 máquinas. A comparação acompanha o período, turno e tipo de problema escolhidos acima.</p></div><span class="metrics-compare-icon">⇄</span></div>
+  <div class="metrics-compare-controls">
+    <div class="form-group"><label for="comparacaoSetor">SETOR</label><select id="comparacaoSetor" onchange="atualizarListaComparacaoMaquinas()"><option value="">Carregando setores...</option></select></div>
+    <div class="form-group"><label for="comparacaoMaquinas">MÁQUINAS (SELECIONE ATÉ 5)</label><select id="comparacaoMaquinas" multiple size="5" onchange="validarSelecaoComparacaoMaquinas()"></select></div>
+  </div>
+  <div class="metrics-compare-actions"><small id="comparacaoAjuda">Escolha um setor e pelo menos duas máquinas.</small><button type="button" class="btn-submit" onclick="renderizarComparacaoMaquinas()">Comparar máquinas</button></div>
+  <div id="comparacaoResultado" class="metrics-compare-result"><p>Os resultados aparecerão aqui depois que você selecionar as máquinas.</p></div>
+  <div class="metrics-compare-charts" id="comparacaoGraficos" style="display:none">
+    <div><h4>Quantidade de O.S.</h4><div class="chart-wrapper"><canvas id="chComparacaoOS"></canvas></div></div>
+    <div><h4>Tempo parado e MTTR</h4><div class="chart-wrapper"><canvas id="chComparacaoTempos"></canvas></div></div>
+  </div>
+</section>
 <div id="metricsHorarioAviso" class="card" style="display:none;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;text-align:center;padding:18px"><b>⚠️ Horário do turno não cadastrado</b><p id="metricsHorarioAvisoTexto" style="margin:8px 0 0;font-size:.85rem">Cadastre a entrada e a saída desse turno no setor para visualizar os gráficos com dados reais.</p></div>
 <div id="metricsDataContent">
 
@@ -7229,6 +7242,7 @@ function atualizarMetricasReais(){
 
   DETALHES_GRAFICOS.chHora=(_ds,i)=>{const horaTxt=i+'h';return{titulo:'O.S. abertas às '+horaTxt,lista:f.filter(c=>new Date(c.created_at).getHours()===i)}};
   mk('chHora',{type:'bar',data:{labels:hora.map((_,i)=>i+'h'),datasets:[{label:'OS abertas',data:hora,backgroundColor:'#0056b3'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+  atualizarSetoresComparacaoMaquinas();
 }
 
 /* ===== NOTIFICAÇÃO PUSH (só funciona dentro do APK) ===== */
@@ -9842,3 +9856,105 @@ window.onload=async function(){
   #tab-ordens-abertas .os-card .btn-action {min-height:34px!important;padding:7px 9px!important;font-size:.68rem!important}
 }
 </style>
+<style id="erimax-comparacao-maquinas-2026">
+.metrics-compare-panel{margin:14px 0 18px;border:1px solid #cbdced!important;background:linear-gradient(145deg,#f8fbff,#fff)!important}
+.metrics-compare-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.metrics-compare-head>div>span{font-size:.65rem;font-weight:850;letter-spacing:.08em;color:#2563eb}
+.metrics-compare-head h3{margin:4px 0;color:#173b5c;font-size:1.05rem}
+.metrics-compare-head p{margin:0;color:#64748b;font-size:.78rem;line-height:1.5}
+.metrics-compare-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:11px;background:#e7f0fb;color:#245a91;font-size:1.35rem;font-weight:800}
+.metrics-compare-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}
+.metrics-compare-controls .form-group{min-width:0;margin:0}
+.metrics-compare-controls select{width:100%;min-width:0;box-sizing:border-box}
+#comparacaoMaquinas{min-height:126px;padding:8px}
+#comparacaoMaquinas option{padding:5px}
+.metrics-compare-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.metrics-compare-actions small{color:#64748b;font-size:.72rem}
+.metrics-compare-result{margin-top:14px}
+.metrics-compare-result>p{margin:0;color:#64748b;text-align:center;font-size:.8rem}
+.metrics-compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.metrics-compare-machine{min-width:0;padding:12px;border:1px solid #dce6f0;border-radius:12px;background:#fff}
+.metrics-compare-machine h4{margin:0 0 8px;color:#183653;font-size:.9rem}
+.metrics-compare-machine .cmp-main{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #edf1f5;font-size:.74rem}
+.metrics-compare-machine .cmp-main strong{color:#173b5c;text-align:right}
+.metrics-compare-machine .cmp-causes{margin:8px 0 0;color:#64748b;font-size:.7rem;line-height:1.55}
+.metrics-compare-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.metrics-compare-charts>div{min-width:0;padding:12px;border:1px solid #e4eaf1;border-radius:12px;background:#fff}
+.metrics-compare-charts h4{margin:0;color:#183653;font-size:.84rem}
+.metrics-compare-charts .chart-wrapper{height:260px}
+@media(max-width:650px){.metrics-compare-controls,.metrics-compare-charts{grid-template-columns:1fr}.metrics-compare-actions{align-items:stretch}.metrics-compare-actions button{width:100%}}
+@media print{#metricsComparacaoMaquinas .metrics-compare-actions button{display:none}}
+</style>
+<script id="erimax-comparacao-maquinas-2026">
+function atualizarListaComparacaoMaquinas(){
+  const setor=document.getElementById('comparacaoSetor'),lista=document.getElementById('comparacaoMaquinas');
+  if(!setor||!lista)return;
+  const anterior=[...lista.selectedOptions].map(o=>o.value);
+  const nomeSetor=setor.value;
+  const maquinas=[...new Set(MAQUINAS.filter(m=>m&&m.nome&&m.setor===nomeSetor).map(m=>m.nome))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  lista.innerHTML=maquinas.map(nome=>'<option value="'+escaparHtml(nome)+'">'+escaparHtml(nome)+'</option>').join('');
+  anterior.forEach(nome=>{const opt=[...lista.options].find(o=>o.value===nome);if(opt)opt.selected=true});
+  const ajuda=document.getElementById('comparacaoAjuda');
+  if(ajuda)ajuda.textContent=maquinas.length?maquinas.length+' máquina(s) cadastrada(s) neste setor. Selecione de 2 a 5.':'Nenhuma máquina cadastrada neste setor.';
+}
+function atualizarSetoresComparacaoMaquinas(){
+  const setor=document.getElementById('comparacaoSetor');if(!setor)return;
+  const atual=setor.value,base=[...new Set(MAQUINAS.filter(m=>m&&m.nome&&m.setor).map(m=>m.setor))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  setor.innerHTML=base.map(nome=>'<option value="'+escaparHtml(nome)+'">'+escaparHtml(nome)+'</option>').join('');
+  const filtro=document.getElementById('filtroSetorMetrica')?.value;
+  setor.value=base.includes(atual)?atual:(base.includes(filtro)?filtro:(base[0]||''));
+  atualizarListaComparacaoMaquinas();
+}
+function validarSelecaoComparacaoMaquinas(){
+  const lista=document.getElementById('comparacaoMaquinas');if(!lista)return;
+  const escolhidas=[...lista.selectedOptions];
+  if(escolhidas.length>5){escolhidas.slice(5).forEach(o=>o.selected=false);const ajuda=document.getElementById('comparacaoAjuda');if(ajuda)ajuda.textContent='Limite de 5 máquinas por comparação.'}
+  else{const ajuda=document.getElementById('comparacaoAjuda');if(ajuda)ajuda.textContent=escolhidas.length+' máquina(s) selecionada(s). Selecione pelo menos duas.'}
+}
+function renderizarComparacaoMaquinas(){
+  const setor=document.getElementById('comparacaoSetor')?.value||'';
+  const selecionadas=[...(document.getElementById('comparacaoMaquinas')?.selectedOptions||[])].map(o=>o.value).slice(0,5);
+  const resultado=document.getElementById('comparacaoResultado'),graficos=document.getElementById('comparacaoGraficos');
+  if(!resultado)return;
+  if(selecionadas.length<2){resultado.innerHTML='<p>Selecione pelo menos duas máquinas do mesmo setor para comparar.</p>';if(graficos)graficos.style.display='none';return}
+  const dia=document.getElementById('filtroDia')?.value||'',mes=document.getElementById('filtroMes')?.value||'';
+  const inicioTxt=document.getElementById('filtroDataInicio')?.value||'',fimTxt=document.getElementById('filtroDataFim')?.value||'';
+  const personalizado=!!(inicioTxt&&fimTxt),turno=document.getElementById('filtroTurnoMetrica')?.value||'Todos',tipo=document.getElementById('filtroTipoMetrica')?.value||'Todos';
+  let ini=null,fim=null;
+  if(personalizado){ini=new Date(inicioTxt+'T00:00:00');fim=new Date(fimTxt+'T00:00:00');fim.setDate(fim.getDate()+1)}
+  else if(dia){ini=new Date(dia+'T00:00:00');fim=new Date(ini);fim.setDate(fim.getDate()+1)}
+  else if(mes){const [a,m]=mes.split('-').map(Number);ini=new Date(a,m-1,1);fim=new Date(a,m,1)}
+  else{ini=null;fim=null}
+  const tnum=turno==='Todos'?null:+turno.slice(-1);
+  const dentroData=os=>{const d=os.created_at?new Date(os.created_at):null;return !!d&&(!ini||d>=ini)&&(!fim||d<fim)};
+  const dados=selecionadas.map(nome=>{
+    const todos=chamados.filter(os=>os.maquina===nome&&os.setor===setor&&os.tipo!=='Preventiva'&&os.status!=='Cancelada'&&(tipo==='Todos'||os.tipo===tipo));
+    const abertasPeriodo=todos.filter(os=>dentroData(os)&&(turno==='Todos'||os.turno===turno));
+    const concluidas=abertasPeriodo.filter(os=>os.status==='Concluída').length;
+    let somaResp=0,nResp=0,somaMTTR=0,nMTTR=0;
+    abertasPeriodo.forEach(os=>{
+      if(os.data_atendimento){const v=min(os.created_at,os.data_atendimento);if(v>=0){somaResp+=v;nResp++}}
+      if(os.data_atendimento&&os.data_conclusao){const v=min(os.data_atendimento,os.data_conclusao);if(v>=0){somaMTTR+=v;nMTTR++}}
+    });
+    const limiteIni=ini?ini.getTime():-Infinity,limiteFim=fim?Math.min(fim.getTime(),Date.now()):Date.now();
+    const intervalos=todos.filter(os=>String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')==='parado'&&Number.isFinite(new Date(os.created_at).getTime()))
+      .map(os=>({os,ini:Math.max(new Date(os.created_at).getTime(),limiteIni),fim:Math.min(new Date(os.rodando_em||os.data_conclusao||Date.now()).getTime(),limiteFim)}))
+      .filter(x=>x.fim>x.ini).sort((a,b)=>a.ini-b.ini);
+    let parado=0,unidos=[];
+    intervalos.forEach(x=>{
+      let partes=[{ini:x.ini,fim:x.fim}];
+      unidos.forEach(u=>{partes=partes.flatMap(p=>u.fim<=p.ini||u.ini>=p.fim?[p]:[{ini:p.ini,fim:Math.min(p.fim,u.ini)},{ini:Math.max(p.ini,u.fim),fim:p.fim}].filter(z=>z.fim>z.ini))});
+      partes.forEach(p=>{const trecho={...x.os,created_at:new Date(p.ini).toISOString(),data_conclusao:new Date(p.fim).toISOString(),rodando_em:null};parado+=paradaProd(trecho,tnum,ini||null,fim?new Date(Math.min(fim.getTime(),Date.now())):null)});
+      unidos=[...unidos,{ini:x.ini,fim:x.fim}].sort((a,b)=>a.ini-b.ini).reduce((acc,v)=>{const last=acc[acc.length-1];if(last&&v.ini<=last.fim)last.fim=Math.max(last.fim,v.fim);else acc.push({...v});return acc},[]);
+    });
+    const causas={};abertasPeriodo.forEach(os=>{const c=os.causa||'Não informada';causas[c]=(causas[c]||0)+1});
+    const principais=Object.entries(causas).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    return{nome,total:abertasPeriodo.length,abertas:abertasPeriodo.length-concluidas,concluidas,parado,resp:media(somaResp,nResp),mttr:media(somaMTTR,nMTTR),causas:principais};
+  });
+  resultado.innerHTML='<div class="metrics-compare-grid">'+dados.map(d=>'<article class="metrics-compare-machine"><h4>'+escaparHtml(d.nome)+'</h4><div class="cmp-main"><span>O.S. no período</span><strong>'+d.total+'</strong></div><div class="cmp-main"><span>Concluídas / abertas</span><strong>'+d.concluidas+' / '+d.abertas+'</strong></div><div class="cmp-main"><span>Tempo parado</span><strong>'+fmt(d.parado)+'</strong></div><div class="cmp-main"><span>Tempo médio de resposta</span><strong>'+fmt(d.resp)+'</strong></div><div class="cmp-main"><span>MTTR médio</span><strong>'+fmt(d.mttr)+'</strong></div><div class="cmp-causes"><b>Principais causas:</b> '+(d.causas.length?d.causas.map(c=>escaparHtml(c[0])+' ('+c[1]+')').join(' • '):'Sem registros')+'</div></article>').join('')+'</div>';
+  if(graficos)graficos.style.display='';
+  mk('chComparacaoOS',{type:'bar',data:{labels:dados.map(d=>d.nome),datasets:[{label:'Concluídas',data:dados.map(d=>d.concluidas),backgroundColor:'#0f9d8a',borderRadius:6},{label:'Em aberto / atendimento',data:dados.map(d=>d.abertas),backgroundColor:'#d97706',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+  mk('chComparacaoTempos',{type:'bar',data:{labels:dados.map(d=>d.nome),datasets:[{label:'Tempo parado (min)',data:dados.map(d=>Math.round(d.parado)),backgroundColor:'#dc3545',borderRadius:6},{label:'MTTR médio (min)',data:dados.map(d=>Math.round(d.mttr)),backgroundColor:'#2563eb',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+  const ajuda=document.getElementById('comparacaoAjuda');if(ajuda)ajuda.textContent='Comparação de '+dados.length+' máquinas • '+(personalizado?inicioTxt.split('-').reverse().join('/')+' a '+fimTxt.split('-').reverse().join('/'):dia||mes||'todo o histórico')+' • '+(turno==='Todos'?'todos os turnos':turno)+' • '+(tipo==='Todos'?'todos os tipos':tipo);
+}
+</script>
