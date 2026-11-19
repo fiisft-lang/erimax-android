@@ -4633,7 +4633,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </div>
 
 <section class="card metrics-compare-panel" id="metricsComparacaoMaquinas">
-  <div class="metrics-compare-head"><div><span>ANÁLISE COMPARATIVA</span><h3>Comparar máquinas do mesmo setor</h3><p>Selecione de 2 a 5 máquinas. A comparação acompanha o período, turno e tipo de problema escolhidos acima.</p></div><span class="metrics-compare-icon">⇄</span></div>
+  <div class="metrics-compare-head"><div><span>ANÁLISE COMPARATIVA</span><h3>Comparar máquinas do mesmo setor</h3><p>Selecione de 2 a 5 máquinas. A comparação acompanha o período, turno e tipo de problema escolhidos acima.</p></div><div class="metrics-compare-head-actions"><span class="metrics-compare-icon">⇄</span><button type="button" class="metrics-compare-toggle" id="btnToggleComparacaoMaquinas" aria-expanded="true" onclick="alternarPainelComparacaoMaquinas()">Fechar comparação <span aria-hidden="true">⌃</span></button></div></div>
   <div class="metrics-compare-controls">
     <div class="form-group"><label for="comparacaoSetor">SETOR</label><select id="comparacaoSetor" onchange="atualizarListaComparacaoMaquinas()"><option value="">Carregando setores...</option></select></div>
     <div class="form-group"><label for="comparacaoMaquinas">MÁQUINAS (SELECIONE ATÉ 5)</label><select id="comparacaoMaquinas" multiple size="5" onchange="validarSelecaoComparacaoMaquinas()"></select></div>
@@ -9956,5 +9956,30 @@ function renderizarComparacaoMaquinas(){
   mk('chComparacaoOS',{type:'bar',data:{labels:dados.map(d=>d.nome),datasets:[{label:'Concluídas',data:dados.map(d=>d.concluidas),backgroundColor:'#0f9d8a',borderRadius:6},{label:'Em aberto / atendimento',data:dados.map(d=>d.abertas),backgroundColor:'#d97706',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
   mk('chComparacaoTempos',{type:'bar',data:{labels:dados.map(d=>d.nome),datasets:[{label:'Tempo parado (min)',data:dados.map(d=>Math.round(d.parado)),backgroundColor:'#dc3545',borderRadius:6},{label:'MTTR médio (min)',data:dados.map(d=>Math.round(d.mttr)),backgroundColor:'#2563eb',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
   const ajuda=document.getElementById('comparacaoAjuda');if(ajuda)ajuda.textContent='Comparação de '+dados.length+' máquinas • '+(personalizado?inicioTxt.split('-').reverse().join('/')+' a '+fimTxt.split('-').reverse().join('/'):dia||mes||'todo o histórico')+' • '+(turno==='Todos'?'todos os turnos':turno)+' • '+(tipo==='Todos'?'todos os tipos':tipo);
+}
+</script>
+<style id="erimax-comparacao-recolher-2026">
+.metrics-compare-head-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.metrics-compare-toggle{border:1px solid #cbd8e6;border-radius:9px;background:#fff;color:#24527b;padding:8px 11px;font-size:.74rem;font-weight:750;cursor:pointer;white-space:nowrap}
+.metrics-compare-toggle:hover{background:#eef5fc}
+.metrics-compare-panel.cmp-collapsed{padding:12px 15px!important}
+.metrics-compare-panel.cmp-collapsed>.metrics-compare-head p,
+.metrics-compare-panel.cmp-collapsed>:not(.metrics-compare-head){display:none!important}
+.metrics-compare-panel.cmp-collapsed .metrics-compare-head h3{margin-bottom:0}
+.metrics-compare-panel.cmp-collapsed .metrics-compare-toggle span{display:inline-block;transform:rotate(180deg)}
+@media(max-width:560px){
+ .metrics-compare-head-actions{gap:6px}
+ .metrics-compare-icon{display:none!important}
+ .metrics-compare-toggle{padding:7px 9px;font-size:.68rem}
+ .metrics-compare-head h3{font-size:.9rem}
+}
+</style><script id="erimax-comparacao-recolher-js-2026">
+function alternarPainelComparacaoMaquinas(){
+  const painel=document.getElementById('metricsComparacaoMaquinas');
+  const botao=document.getElementById('btnToggleComparacaoMaquinas');
+  if(!painel||!botao)return;
+  const fechado=painel.classList.toggle('cmp-collapsed');
+  botao.setAttribute('aria-expanded',String(!fechado));
+  botao.innerHTML=fechado?'Abrir comparação <span aria-hidden="true">⌄</span>':'Fechar comparação <span aria-hidden="true">⌃</span>';
 }
 </script>
