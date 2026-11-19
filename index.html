@@ -4514,7 +4514,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
     <button type="button" class="os-quick" data-status="Cancelada" onclick="filtrarOSRapido('Cancelada')">Canceladas <b id="osQuickCanceladas">0</b></button>
   </div>
   <div class="os-modern-toolbar">
-    <div class="os-modern-field"><label for="ordenarOS">ORDENAR POR</label><select id="ordenarOS" onchange="renderizarChamados()"><option value="recentes">Mais recentes</option><option value="antigas">Mais antigas</option><option value="prioridade">Maior prioridade</option></select></div>
+    <div class="os-modern-field"><label for="ordenarOS">ORDENAÇÃO</label><select id="ordenarOS" disabled aria-label="Ordenação fixa: mais recentes primeiro"><option value="recentes">Mais recentes primeiro</option></select></div>
     <details class="os-advanced-filters"><summary>＋ Filtros avançados</summary>
       <div class="os-advanced-grid">
         <div class="form-group"><label for="filtroStatus">STATUS</label><select id="filtroStatus" onchange="renderizarChamados()"><option value="Todas">Todas as ordens</option><option value="Aberta">Abertas</option><option value="Em Atendimento">Em atendimento</option><option value="Pausada">Pausadas</option><option value="Concluída">Concluídas</option><option value="Cancelada">Canceladas</option></select></div>
@@ -4817,6 +4817,12 @@ let SETOR_MAQUINAS_EM_EDICAO=null;
 let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,intervaloStatusTecnicos=null,atualizacaoStatusEmCurso=false,ultimoIdOSRealtime=null,intervaloSincronizacaoFallback=null,sincronizacaoFallbackEmCurso=false;
 const idsOSAlertadas=new Set();
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
+// Ordenação padrão das relações de O.S.: data/hora de abertura mais recente primeiro.
+const ordenarOSRecentes=lista=>(lista||[]).filter(Boolean).slice().sort((a,b)=>{
+  const ta=a?.created_at?new Date(a.created_at).getTime():NaN,tb=b?.created_at?new Date(b.created_at).getTime():NaN;
+  const va=Number.isFinite(ta)?ta:-Infinity,vb=Number.isFinite(tb)?tb:-Infinity;
+  return vb-va||(Number(b?.id)||0)-(Number(a?.id)||0);
+});
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
 let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};let SETOR_EM_EDICAO=null;const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
@@ -5423,7 +5429,7 @@ function abrirDetalheIndicadorSupervisor(tipo){
   const itens=dados.itens||[];
   let ordens=[];
   let maquinas=[];
-  if(tipo==='ativas')ordens=dados.ativas||[];
+  if(tipo==='ativas')ordens=ordenarOSRecentes(dados.ativas||[]);
   else{
     const estado=tipo==='paradas'?'Parada informada na O.S.':tipo==='manutencao'?'Manutenção em andamento':null;
     maquinas=itens.filter(item=>tipo==='maquinas'?item.ativas.length>0:item.estado===estado);
@@ -5434,7 +5440,7 @@ function abrirDetalheIndicadorSupervisor(tipo){
     conteudo=ordens.map(os=>'<button type="button" class="sv-metric-detail-item" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><span class="sv-metric-detail-main"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><small>'+escaparHtml(os.setor||'Setor não informado')+' • '+escaparHtml(os.status||'Status não informado')+'</small><small>'+(os.tecnico?'Responsável: '+escaparHtml(os.tecnico):'Aguardando técnico')+(os.situacao_equipamento?' • '+escaparHtml(os.situacao_equipamento):'')+'</small></span><span class="sv-metric-detail-link">Abrir O.S. →</span></button>').join('');
   }else{
     conteudo=maquinas.map(item=>{
-      const lista=item.ativas.map(os=>'<button type="button" class="sv-metric-detail-os" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><b>'+escaparHtml(nOS(os))+'</b><span>'+escaparHtml(os.status||'Status não informado')+'</span><small>'+(os.tecnico?'Responsável: '+escaparHtml(os.tecnico):'Aguardando técnico')+'</small><em>Abrir O.S. →</em></button>').join('');
+      const lista=ordenarOSRecentes(item.ativas).map(os=>'<button type="button" class="sv-metric-detail-os" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><b>'+escaparHtml(nOS(os))+'</b><span>'+escaparHtml(os.status||'Status não informado')+'</span><small>'+(os.tecnico?'Responsável: '+escaparHtml(os.tecnico):'Aguardando técnico')+'</small><em>Abrir O.S. →</em></button>').join('');
       return '<article class="sv-metric-machine"><div><b>'+escaparHtml(item.maquina)+'</b><small>'+escaparHtml(item.setor)+' • '+item.ativas.length+' O.S. ativa(s)</small></div><div class="sv-metric-machine-orders">'+lista+'</div></article>';
     }).join('');
   }
@@ -5485,7 +5491,7 @@ function filtrarTextoMaquinasSupervisor(valor){
 }
 
 function renderTecnicos(){
-  const em=chamados.filter(c=>c.status==='Em Atendimento');
+  const em=ordenarOSRecentes(chamados.filter(c=>c.status==='Em Atendimento'));
   const aguardando=chamados.filter(c=>c.status==='Aberta').length;
   const equipe=USUARIOS_STATUS.length?USUARIOS_STATUS:TECNICOS;
   const dados=equipe.map(t=>{const osAtivas=em.filter(c=>c.tecnico===t.nome);const st=STATUS_TECNICOS.find(x=>x.user_id===t.id);const status=osAtivas.length?'EM SERVIÇO':(st&&st.turno_ativo?'ONLINE':'OFFLINE');return {t,osAtivas,st,status};});
@@ -5691,7 +5697,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(busca){const t=[nOS(c),c.maquina,c.descricao,c.setor,c.tecnico,c.aberto_por].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');if(!t.includes(busca))return false}
     return true;
   });
-  if(principal){const ordem=document.getElementById('ordenarOS')?.value||'recentes';const peso={Alta:3,'Média':2,Baixa:1};lista.sort((a,b)=>{if(ordem==='prioridade'){const d=(peso[b.prioridade]||0)-(peso[a.prioridade]||0);if(d)return d}const ta=a.created_at?new Date(a.created_at).getTime():0,tb=b.created_at?new Date(b.created_at).getTime():0;return ordem==='antigas'?ta-tb:tb-ta})}
+  lista=ordenarOSRecentes(lista);
   box.innerHTML='';
   if(destino==='listaOSAbertas'){
     const titulos={Todas:'Todas as ordens ativas',Aguardando:'Aguardando atendimento',Execucao:'Em execução',Paradas:'Máquinas paradas',Pausadas:'Ordens pausadas',Prioridade:'Ordens de prioridade alta'};
@@ -6655,7 +6661,7 @@ function mostrarMaquinasRodando(lista){
   modalEfOS.style.display='flex';
 }
 function mostrarOSDetalhe(titulo,lista){
-  const itens=(lista||[]).filter(Boolean);
+  const itens=ordenarOSRecentes(lista);
   modalEfOSTitulo.textContent=titulo||'Ordens de serviço relacionadas';
   resumoEfOS.textContent=itens.length?itens.length+' O.S. encontradas com os filtros selecionados.':'Nenhuma O.S. encontrada para este item.';
   listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • Aberta: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'horário não informado')+(os.data_conclusao?' • Concluída: '+new Date(os.data_conclusao).toLocaleString('pt-BR'):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p>'+(os.servico_executado?'<p style="font-size:.82rem;margin:6px 0"><b>O que foi feito:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'<button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
@@ -6726,20 +6732,20 @@ function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMet
 function abrirDetalheMetrica(tipo){
  const modal=document.getElementById('modalDetalheMetrica'),titulo=document.getElementById('tituloDetalheMetrica'),resumo=document.getElementById('resumoDetalheMetrica'),box=document.getElementById('listaDetalheMetrica'),canvas=document.getElementById('chartDetalheMetrica');
  if(!modal||!canvas)return;
- const todos=(FILTRADAS||[]).filter(Boolean),dados=todos.filter(c=>c.status!=='Cancelada');
+ const todos=ordenarOSRecentes(FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada'));
  const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
  const agrupar=(arr,key,val)=>{const g={};arr.forEach(x=>{const k=key(x)||'Não informado';g[k]=(g[k]||0)+val(x)});return Object.entries(g).sort((a,b)=>b[1]-a[1])};
  let cfg={type:'bar',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}},explicacao='',lista=[];
  if(tipo==='disp'){
   titulo.textContent='Disponibilidade registrada';const v=charts.chEfGeral?.data?.datasets?.[0]?.data||[];
   cfg={type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:v,backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}};
-  lista=(OS_PARADA_ATUAL||[]).slice().sort((a,b)=>b.parada-a.parada).map(x=>x.os);
+  lista=ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os));
   explicacao='Usa a mesma base de horas do indicador principal. Considera somente paradas registradas em O.S. dentro do horário de produção.';
-  box.innerHTML=(OS_PARADA_ATUAL||[]).length?OS_PARADA_ATUAL.slice().sort((a,b)=>b.parada-a.parada).map(x=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(x.os))+' • '+escaparHtml(x.os.maquina)+'</b><p>Parada considerada: '+fmt(x.parada)+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(x.os.id)+')">Abrir O.S.</button></div>').join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
+  box.innerHTML=lista.length?lista.map(os=>{const x=(OS_PARADA_ATUAL||[]).find(v=>Number(v.os.id)===Number(os.id));return '<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina)+'</b><p>Parada considerada: '+fmt(x?.parada||0)+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>'}).join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
  }else if(tipo==='parada'){
   titulo.textContent='Tempo total parado';const g=agrupar(OS_PARADA_ATUAL||[],x=>x.os.maquina,x=>x.parada).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
-  lista=(OS_PARADA_ATUAL||[]).slice().sort((a,b)=>b.parada-a.parada).map(x=>x.os);
+  lista=ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os));
   explicacao='Considera somente horários produtivos e evita duplicar minutos de O.S. sobrepostas na mesma máquina.';
   box.innerHTML=lista.length?lista.map(itemOS).join(''):'<p>Nenhuma O.S. com parada neste filtro.</p>';
  }else if(tipo==='resposta'||tipo==='mttr'){
@@ -6748,15 +6754,15 @@ function abrirDetalheMetrica(tipo){
   lista.forEach(c=>{const n=c.tecnico||'Sem técnico',v=min(resp?c.created_at:c.data_atendimento,resp?c.data_atendimento:c.data_conclusao);if(v>=0){if(!g[n])g[n]={s:0,n:0};g[n].s+=v;g[n].n++}});
   const a=Object.entries(g).map(([n,v])=>[n,v.n?v.s/v.n:0]).sort((x,y)=>y[1]-x[1]);
   cfg={type:'bar',data:{labels:a.map(x=>x[0]),datasets:[{label:'Média em minutos',data:a.map(x=>Math.round(x[1])),backgroundColor:resp?'#2563eb':'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,title:{display:true,text:'minutos'}}}}};
-  explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
+  explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
  }else if(tipo==='mtbf'){
   titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(todos,c=>c.maquina,()=>1).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
-  lista=dados;explicacao='O MTBF geral mantém a fórmula atual baseada nas horas produtivas. O gráfico mostra a quantidade de falhas por máquina, sem inventar um MTBF individual sem base horária confiável.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma falha registrada.</p>';
+  lista=dados;explicacao='O MTBF geral mantém a fórmula atual baseada nas horas produtivas. O gráfico mostra a quantidade de falhas por máquina, sem inventar um MTBF individual sem base horária confiável.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma falha registrada.</p>';
  }else if(tipo==='total'||tipo==='conclusao'){
   titulo.textContent=tipo==='total'?'Total de O.S.':'Taxa de conclusão';const g={};todos.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g);
   cfg={type:'doughnut',data:{labels,datasets:[{data:labels.map(x=>g[x]),backgroundColor:labels.map((x,i)=>x==='Concluída'?'#16a34a':x==='Cancelada'?'#94a3b8':COR[i%COR.length]),borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'}}}};
-  lista=todos;explicacao='A taxa mantém a fórmula atual: O.S. concluídas divididas pelo total de O.S. no filtro. O gráfico separa as demais situações.';box.innerHTML=lista.length?lista.slice().reverse().map(itemOS).join(''):'<p>Nenhuma O.S. neste filtro.</p>';
+  lista=todos;explicacao='A taxa mantém a fórmula atual: O.S. concluídas divididas pelo total de O.S. no filtro. O gráfico separa as demais situações.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. neste filtro.</p>';
  }else if(tipo==='reincidencia'){
   titulo.textContent='Reincidência por defeito';const mapa=calcularReincidenciasHistorico(chamados),grupos={};
   dados.forEach(os=>{
@@ -6771,7 +6777,7 @@ function abrirDetalheMetrica(tipo){
   cfg={type:'bar',data:{labels:ranking.map(x=>x[0]),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x[1]),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=r.flatMap(g=>[g.primeiraOS,...g.os].filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i));
   explicacao='Compara o histórico da mesma máquina, usando os termos relevantes da descrição do defeito. Variações como “a faca não estava cortando” e “faca parou de cortar” podem ser agrupadas. Descrições curtas ou ambíguas ficam sem classificação automática para evitar falsos positivos.';
-  box.innerHTML=r.length?r.map(g=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(g.maquina)+' • '+escaparHtml(g.problema)+' • '+g.os.length+' reincidência(s)</b>'+itemOS(g.primeiraOS)+g.os.map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
+  box.innerHTML=r.length?r.map(g=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(g.maquina)+' • '+escaparHtml(g.problema)+' • '+g.os.length+' reincidência(s)</b>'+ordenarOSRecentes([g.primeiraOS,...g.os]).map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
  resumo.textContent=explicacao;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
 }
@@ -6990,7 +6996,7 @@ function atualizarMetricasReais(){
 
   // relatório
   const rel=document.getElementById('listaRelatorioProblemas');
-  const fechadas=f.filter(c=>c.status==='Concluída');
+  const fechadas=ordenarOSRecentes(f.filter(c=>c.status==='Concluída'));
   rel.innerHTML=fechadas.length?fechadas.map(c=>`<div class="report-item"><b>${escaparHtml(nOS(c))} (${escaparHtml(c.maquina)})</b> — ${escaparHtml(c.turno)} • ${escaparHtml(c.setor)}<br><b>Aberta:</b> ${escaparHtml(hm(c.created_at))} • <b>Início:</b> ${escaparHtml(hm(c.data_atendimento))} • <b>Fechada:</b> ${escaparHtml(hm(c.data_conclusao))}${c.data_conclusao?' ('+escaparHtml(fmt(paradaProd(c)))+' parados em horário de produção)':''}${c.ajustado_por?`<br><small style="color:#b45309">✏️ Horário ajustado por ${escaparHtml(c.ajustado_por)} em ${escaparHtml(hm(c.ajustado_em))}${c.ajuste_obs?' — '+escaparHtml(c.ajuste_obs):''}</small>`:''}<br><b>Problema:</b> ${escaparHtml(c.descricao)}<br>${c.causa?`<b>Causa:</b> ${escaparHtml(c.causa)}<br>`:''}${c.peca?`<b>Peça:</b> ${escaparHtml(c.peca)}<br>`:''}<b>Solução (${escaparHtml(c.tecnico||'Técnico')}):</b> ${escaparHtml(c.servico_executado)}</div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhum chamado concluído no filtro selecionado.</p>';
 
   // Evolução por setor: visão diária para períodos longos e detalhamento horário ao selecionar um dia.
@@ -8633,7 +8639,7 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 async function exportarExcel(){
   if(typeof XLSX==='undefined'){alert('A biblioteca de Excel não carregou. Verifique a internet e tente novamente.');return}
-  const f=obterFiltrosRelatorio(),os=FILTRADAS||[];
+  const f=obterFiltrosRelatorio(),os=ordenarOSRecentes(FILTRADAS||[]);
   const d=dataHoraRelatorio,m=(a,b)=>a&&b?Math.round((new Date(b)-new Date(a))/60000):'';
   const concluidas=os.filter(c=>c.status==='Concluída').length;
   const abertas=os.filter(c=>c.status==='Aberta').length;
@@ -9040,17 +9046,17 @@ function executarConsultaHistorico(){
   const filtro=(document.getElementById('consultaFiltro')?.value||'').trim().toLocaleLowerCase('pt-BR');
   const box=document.getElementById('resultadoConsulta');
   if(!box)return;
-  const registros=chamados.filter(c=>{
+  const registros=ordenarOSRecentes(chamados.filter(c=>{
     const data=c.created_at?diaLocal(c.created_at):'';
     const noMes=!mes||data.startsWith(mes);
     const texto=[c.maquina,c.setor,c.tipo,c.descricao,c.causa,c.peca,c.servico_executado,c.tecnico].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');
     const bateFiltro=!filtro||texto.includes(filtro);
     return noMes&&bateFiltro&&c.tipo!=='Preventiva';
-  });
+  }));
   const escapeHTML=v=>String(v??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
   const periodo=mes?mes.split('-').reverse().join('/'):'todo o histórico';
   if(tipo==='motores'){
-    const motores=registros.filter(c=>/motor(?:es)?.{0,50}queim|queim.{0,50}motor(?:es)?/i.test([c.tipo,c.descricao,c.causa,c.peca,c.servico_executado].filter(Boolean).join(' ')));
+    const motores=ordenarOSRecentes(registros.filter(c=>/motor(?:es)?.{0,50}queim|queim.{0,50}motor(?:es)?/i.test([c.tipo,c.descricao,c.causa,c.peca,c.servico_executado].filter(Boolean).join(' '))));
     box.innerHTML='<h4>Resultado: '+motores.length+' O.S. com relato de motor queimado em '+escapeHTML(periodo)+'</h4>'+
       (motores.length?motores.map(c=>'<div class="maq-row" style="display:block"><b>'+escapeHTML(nOS(c))+' • '+escapeHTML(c.maquina)+'</b><div style="font-size:.76rem;color:#64748b">'+escapeHTML(c.setor)+' • '+escapeHTML(c.status)+' • '+escapeHTML(c.data_conclusao?hm(c.data_conclusao):hm(c.created_at))+'</div><div style="font-size:.82rem;margin-top:4px">'+escapeHTML(c.descricao)+'</div><div style="font-size:.76rem;color:#137333">'+escapeHTML(c.causa||'')+' '+escapeHTML(c.peca||'')+' '+escapeHTML(c.servico_executado||'')+'</div></div>').join(''):'<p>Nenhum relato de motor queimado foi encontrado nesse período. A busca considera o texto registrado na O.S.</p>');
     return;
