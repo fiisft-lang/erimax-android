@@ -9789,3 +9789,56 @@ window.onload=async function(){
  aplicar();
 })();
 </script>
+
+<style id="erimax-ordens-layout-desktop-2026">
+/* Layout exclusivo do computador: três cartões em telas largas, sem alterar o celular. */
+@media (min-width:1200px) and (hover:hover) and (pointer:fine) {
+  #tab-ordens-servico .os-modern-list,
+  #tab-ordens-abertas .oa-list {
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    align-items:stretch!important;
+    gap:13px!important;
+  }
+  #tab-ordens-servico .os-modern-list>.os-card,
+  #tab-ordens-abertas .oa-list>.os-card {
+    min-width:0!important;
+    width:100%!important;
+    height:100%;
+    padding:13px!important;
+    box-sizing:border-box!important;
+  }
+  #tab-ordens-servico .os-card .os-header,
+  #tab-ordens-abertas .os-card .os-header {
+    gap:7px!important;
+    padding-bottom:9px!important;
+  }
+  #tab-ordens-servico .os-card .os-id,
+  #tab-ordens-abertas .os-card .os-id {font-size:.86rem!important;line-height:1.35!important}
+  #tab-ordens-servico .os-card .os-badge,
+  #tab-ordens-abertas .os-card .os-badge {font-size:.66rem!important;line-height:1.3!important}
+  #tab-ordens-servico .os-card .os-resumo-info,
+  #tab-ordens-abertas .os-card .oa-card-meta,
+  #tab-ordens-abertas .os-card .oa-card-facts {
+    gap:7px!important;
+    margin:9px 0!important;
+  }
+  #tab-ordens-servico .os-card .os-resumo-info>span,
+  #tab-ordens-abertas .os-card .oa-card-meta>span,
+  #tab-ordens-abertas .os-card .oa-card-facts>span {padding:8px!important;min-width:0!important}
+  #tab-ordens-servico .os-card .os-resumo-info small,
+  #tab-ordens-abertas .os-card .oa-card-meta small,
+  #tab-ordens-abertas .os-card .oa-card-facts small {font-size:.62rem!important;line-height:1.3!important}
+  #tab-ordens-servico .os-card .os-resumo-info b,
+  #tab-ordens-abertas .os-card .oa-card-meta b,
+  #tab-ordens-abertas .os-card .oa-card-facts b {font-size:.78rem!important;line-height:1.4!important;overflow-wrap:anywhere}
+  #tab-ordens-servico .os-card .os-problema,
+  #tab-ordens-abertas .os-card .oa-card-problem {margin:9px 0!important;padding:10px!important}
+  #tab-ordens-servico .os-card .os-problema p,
+  #tab-ordens-abertas .os-card .oa-card-problem p {font-size:.78rem!important;line-height:1.5!important}
+  #tab-ordens-servico .os-card .os-actions,
+  #tab-ordens-abertas .os-card .os-actions {gap:6px!important;margin-top:9px!important;padding-top:8px!important}
+  #tab-ordens-servico .os-card .btn-action,
+  #tab-ordens-abertas .os-card .btn-action {min-height:34px!important;padding:7px 9px!important;font-size:.68rem!important}
+}
+</style>
