@@ -6087,7 +6087,8 @@ function renderPainelMaquinasSupervisor(){
   const osConcluidas=chamados.filter(os=>String(os.status||'')==='Concluída');
   const maquinasComOS=itens.filter(x=>x.ativas.length).length;
   const tempoParadaTotal=chamados.reduce((total,os)=>{
-    if(String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return total;
+    const situacaoAtual=String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR');
+    if(situacaoAtual!=='parado'&&!os.rodando_em)return total;
     const turno=Number((String(os.turno||'').match(/\d+/)||[])[0])||null;
     try{return total+Math.max(0,Number(paradaProd(os,turno))||0)}catch(e){return total}
   },0);
