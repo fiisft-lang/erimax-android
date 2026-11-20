@@ -5167,6 +5167,29 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 #painelMaquinasSupervisor .sv-movement-empty{padding:18px 4px;color:#718092;font-size:.8rem}
 @media(max-width:600px){#painelMaquinasSupervisor .sv-movement-item{align-items:flex-start;flex-wrap:wrap}#painelMaquinasSupervisor .sv-movement-item time{margin-left:20px}#painelMaquinasSupervisor .sv-metric-static strong{font-size:1.35rem}}
 </style>
+<style id="erimax-auditoria-supervisao-2026">
+#painelMaquinasSupervisor .sv-audit{padding:clamp(14px,2.2vw,22px);border:1px solid #dce5eb;border-radius:16px;background:#fff;box-shadow:0 4px 16px rgba(25,48,68,.05)}
+#painelMaquinasSupervisor .sv-audit-count{flex:none;padding:7px 10px;border:1px solid #dce7ed;border-radius:9px;background:#f5f9fb;color:#49697b;font-size:.68rem;font-weight:750}
+#painelMaquinasSupervisor .sv-audit-filters{display:grid;grid-template-columns:minmax(220px,2fr) repeat(2,minmax(130px,.7fr));gap:9px;margin:0 0 12px}
+#painelMaquinasSupervisor .sv-audit-filters label{display:grid;gap:5px;min-width:0;color:#60788a;font-size:.66rem;font-weight:700}
+#painelMaquinasSupervisor .sv-audit-filters input{width:100%;min-width:0;min-height:38px;padding:8px 10px;border:1px solid #dce5eb;border-radius:9px;background:#f9fbfc;color:#28485c;font:inherit;font-weight:500}
+#painelMaquinasSupervisor .sv-audit-results{display:grid;gap:7px}
+#painelMaquinasSupervisor .sv-audit-row{border:1px solid #e3eaf0;border-radius:10px;background:#fff;overflow:hidden}
+#painelMaquinasSupervisor .sv-audit-row>summary{display:grid;grid-template-columns:150px minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:11px 12px;cursor:pointer;list-style:none}
+#painelMaquinasSupervisor .sv-audit-row>summary::-webkit-details-marker{display:none}
+#painelMaquinasSupervisor .sv-audit-date{grid-row:span 2;color:#718494;font-size:.66rem;font-variant-numeric:tabular-nums}
+#painelMaquinasSupervisor .sv-audit-row>summary>b{color:#254b63;font-size:.74rem}
+#painelMaquinasSupervisor .sv-audit-row>summary>small{grid-column:2;color:#6c7f8d;font-size:.65rem}
+#painelMaquinasSupervisor .sv-audit-row>summary>em{grid-column:3;grid-row:1/3;color:#47798b;font-size:.64rem;font-style:normal;font-weight:700;text-align:right}
+#painelMaquinasSupervisor .sv-audit-detail{padding:8px 12px 11px;border-top:1px solid #edf1f4;background:#f9fbfc}
+#painelMaquinasSupervisor .sv-audit-detail p{display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;color:#627888;font-size:.68rem;line-height:1.4}
+#painelMaquinasSupervisor .sv-audit-detail p b{color:#385a70}
+#painelMaquinasSupervisor .sv-audit-detail p strong{color:#236c58}
+#painelMaquinasSupervisor .sv-audit-detail p i{color:#9aaab4;font-style:normal}
+#painelMaquinasSupervisor .sv-audit-detail button{margin-top:7px;padding:7px 10px;border:1px solid #cddfe6;border-radius:8px;background:#fff;color:#28677a;font-size:.67rem;font-weight:750}
+#painelMaquinasSupervisor .sv-audit-empty,#painelMaquinasSupervisor .sv-audit-more{padding:13px;color:#758895;font-size:.69rem;text-align:center}
+@media(max-width:680px){#painelMaquinasSupervisor .sv-audit-filters{grid-template-columns:1fr 1fr}#painelMaquinasSupervisor .sv-audit-filters label:first-child{grid-column:1/-1}#painelMaquinasSupervisor .sv-audit-row>summary{grid-template-columns:1fr auto;gap:4px 8px}#painelMaquinasSupervisor .sv-audit-date{grid-row:auto;grid-column:1/-1}#painelMaquinasSupervisor .sv-audit-row>summary>b{grid-column:1}#painelMaquinasSupervisor .sv-audit-row>summary>small{grid-column:1}#painelMaquinasSupervisor .sv-audit-row>summary>em{grid-column:2;grid-row:2/4}}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -5565,7 +5588,7 @@ let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};le
 const SETORES_PADRAO=['Costura','Corte de atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 let SETORES=[...SETORES_PADRAO];
 
-let chamados=[],HISTORICO_PAUSAS=[],HISTORICO_TRANSFERENCIAS=[],HISTORICO_SITUACAO_OS=[],vibrationInterval=null;
+let chamados=[],HISTORICO_PAUSAS=[],HISTORICO_TRANSFERENCIAS=[],HISTORICO_SITUACAO_OS=[],HISTORICO_EDICOES_OS=[],vibrationInterval=null;
 
 // preenche os selects de setor (a lista vem do cadastro de setores)
 function popularSetores(){
@@ -5911,13 +5934,17 @@ function mudarAba(id,evt,opcoes={}){
 
 async function carregarDadosSupabase(){
   // Consultas independentes em paralelo para reduzir o tempo de abertura das O.S.
-  const [{data,error},{data:hp,error:hpError},{data:ht,error:htError},{data:hs,error:hsError},{data:pf},{data:st,error:stError}]=await Promise.all([
+  const consultaAuditoria=PERFIL&&PERFIL.perfil==='gestor'
+    ?_supabase.from('historico_edicoes_os').select('*').order('alterado_em',{ascending:false}).limit(500)
+    :Promise.resolve({data:[],error:null});
+  const [{data,error},{data:hp,error:hpError},{data:ht,error:htError},{data:hs,error:hsError},{data:pf},{data:st,error:stError},{data:auditoria,error:auditoriaError}]=await Promise.all([
     _supabase.from('os').select('*').order('id',{ascending:false}),
     _supabase.from('historico_pausas_os').select('*').order('id',{ascending:false}),
     _supabase.from('historico_transferencias_os').select('*').order('solicitada_em',{ascending:false}),
     _supabase.from('historico_situacao_os').select('*').order('registrado_em',{ascending:false}),
     _supabase.from('perfis').select('id,nome,perfil'),
-    _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em')
+    _supabase.from('status_tecnicos').select('user_id,status,turno_ativo,turno_inicio,turno_fim,os_atual_id,atualizado_em'),
+    consultaAuditoria
   ]);
   if(error){console.error('Erro ao buscar OS:',error);return}
   chamados=(data||[]).map(c=>({...c,setor:normSetor(c.setor)}));
@@ -5927,6 +5954,8 @@ async function carregarDadosSupabase(){
   HISTORICO_TRANSFERENCIAS=ht||[];
   if(hsError)console.error('Erro ao carregar histórico de situação da máquina:',hsError.message);
   HISTORICO_SITUACAO_OS=hs||[];
+  if(auditoriaError)console.error('Erro ao carregar auditoria das O.S.:',auditoriaError.message);
+  HISTORICO_EDICOES_OS=auditoria||[];
   TODOS_USUARIOS=pf||[];TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
@@ -6040,6 +6069,53 @@ function renderRankingOperadores(){
   }).join("");
 }
 
+function camposAlteradosAuditoria(registro){
+  const antes=registro?.valores_anteriores||{},depois=registro?.valores_novos||{};
+  const rotulos={status:'Situação da O.S.',tecnico:'Técnico responsável',maquina:'Máquina',setor:'Setor',turno:'Turno',prioridade:'Prioridade',tipo:'Tipo',descricao:'Descrição',situacao_equipamento:'Situação do equipamento',created_at:'Data de abertura',data_atendimento:'Início do atendimento',data_conclusao:'Conclusão',causa:'Causa',peca:'Peça utilizada',servico_executado:'Serviço executado',motivo_pausa:'Motivo da pausa',pausada_em:'Data da pausa',rodando_em:'Máquina voltou a rodar',observacao_rodando:'Observação de acompanhamento',transferencia_para:'Transferência para',transferencia_motivo:'Motivo da transferência',mecanico_auxiliar:'Mecânico auxiliar',tecnicos_participantes:'Equipe participante',maquinas_execucao:'Máquinas da execução',foto_url:'Foto anexada',aberto_por:'Aberta por'};
+  const ignorar=new Set(['id','numero_mes','mes_referencia','mes_conclusao','notificado_em','web_notificado_em','ajustado_em','ajustado_por','ajuste_obs']);
+  const chaves=[...new Set([...Object.keys(antes),...Object.keys(depois)])].filter(k=>!ignorar.has(k)&&JSON.stringify(antes[k]??null)!==JSON.stringify(depois[k]??null));
+  return chaves.map(k=>({campo:rotulos[k]||k,antes:antes[k],depois:depois[k]}));
+}
+function formatarValorAuditoria(v){
+  if(v===null||v===undefined||v==='')return '—';
+  if(typeof v==='object')return JSON.stringify(v);
+  if(typeof v==='string'&&/^\\d{4}-\\d{2}-\\d{2}T/.test(v)){const d=new Date(v);if(Number.isFinite(d.getTime()))return d.toLocaleString('pt-BR')}
+  return String(v);
+}
+function renderListaAuditoriaSupervisor(){
+  const box=document.getElementById('svAuditResults');
+  const count=document.getElementById('svAuditCount');
+  if(!box)return;
+  const busca=(document.getElementById('svAuditSearch')?.value||'').trim().toLocaleLowerCase('pt-BR');
+  const inicio=document.getElementById('svAuditFrom')?.value||'';
+  const fim=document.getElementById('svAuditTo')?.value||'';
+  const registros=(HISTORICO_EDICOES_OS||[]).filter(r=>{
+    const ts=new Date(r.alterado_em||0).getTime();
+    if(inicio&&ts<new Date(inicio+'T00:00:00').getTime())return false;
+    if(fim&&ts>new Date(fim+'T23:59:59').getTime())return false;
+    const antes=r.valores_anteriores||{},depois=r.valores_novos||{};
+    const texto=[r.os_id,r.alterado_por,r.motivo,antes.maquina,depois.maquina,antes.tecnico,depois.tecnico,antes.setor,depois.setor,antes.status,depois.status].join(' ').toLocaleLowerCase('pt-BR');
+    return !busca||texto.includes(busca);
+  }).sort((a,b)=>new Date(b.alterado_em||0)-new Date(a.alterado_em||0));
+  if(count)count.textContent=registros.length+' registro(s)';
+  if(!registros.length){box.innerHTML='<div class="sv-audit-empty">Nenhum registro encontrado com esses filtros.</div>';return}
+  box.innerHTML=registros.slice(0,40).map(r=>{
+    const origem=Object.keys(r.valores_anteriores||{}).length?(r.valores_anteriores||{}):(r.valores_novos||{});
+    const alteracoes=camposAlteradosAuditoria(r);
+    const resumo=alteracoes.slice(0,3).map(x=>x.campo).join(' • ')||(r.motivo||'Registro de auditoria');
+    const id=Number(r.os_id)||0;
+    return '<details class="sv-audit-row"><summary><span class="sv-audit-date">'+escaparHtml(r.alterado_em?new Date(r.alterado_em).toLocaleString('pt-BR'):'Data não informada')+'</span><b>'+escaparHtml(nOS({id}))+' • '+escaparHtml(origem.maquina||'Máquina não informada')+'</b><small>'+escaparHtml(r.alterado_por||'Responsável não informado')+' • '+escaparHtml(r.motivo||'Alteração registrada')+'</small><em>'+escaparHtml(resumo)+'</em></summary><div class="sv-audit-detail">'+(alteracoes.length?alteracoes.map(x=>'<p><b>'+escaparHtml(x.campo)+':</b> <span>'+escaparHtml(formatarValorAuditoria(x.antes))+'</span> <i>→</i> <strong>'+escaparHtml(formatarValorAuditoria(x.depois))+'</strong></p>').join(''):'<p>Registro de abertura ou exclusão da ordem.</p>')+(id?'<button type="button" onclick="abrirAuditoriaOS('+id+')">Ver histórico completo da O.S. →</button>':'')+'</div></details>';
+  }).join('')+(registros.length>40?'<small class="sv-audit-more">Exibindo 40 de '+registros.length+' registros. Refine a pesquisa para localizar outros.</small>':'');
+}
+function filtrarAuditoriaSupervisor(){renderListaAuditoriaSupervisor()}
+async function abrirAuditoriaOS(id){
+  const os=chamados.find(x=>Number(x.id)===Number(id));
+  if(os){await verHistorico(id);return}
+  const registro=HISTORICO_EDICOES_OS.find(x=>Number(x.os_id)===Number(id));
+  if(!registro)return;
+  const modal=document.getElementById('modalHistoricoOS');
+  alert('Esta O.S. foi excluída do cadastro. O registro de auditoria permanece preservado na lista, com os dados anteriores.');
+}
 function renderPainelMaquinasSupervisor(){
   const box=document.getElementById('painelMaquinasSupervisor');
   if(!box)return;
@@ -6195,6 +6271,7 @@ function renderPainelMaquinasSupervisor(){
     html+='</div>';
   }else html+='<div class="sv-movement-empty">Ainda não há movimentações registradas.</div>';
   html+='</section>';
+  html+='<section class="sv-audit"><div class="sv-section-head"><div><span class="sv-kicker">RASTREABILIDADE</span><h3>Auditoria das ordens de serviço</h3><p>Consulte quem alterou, quando alterou e quais dados foram modificados.</p></div><span id="svAuditCount" class="sv-audit-count">Carregando registros...</span></div><div class="sv-audit-filters"><label><span>Pesquisar O.S., máquina, técnico ou responsável</span><input id="svAuditSearch" type="search" placeholder="Ex.: 710, Flowpack 7, Felipe..." oninput="filtrarAuditoriaSupervisor()"></label><label><span>De</span><input id="svAuditFrom" type="date" onchange="filtrarAuditoriaSupervisor()"></label><label><span>Até</span><input id="svAuditTo" type="date" onchange="filtrarAuditoriaSupervisor()"></label></div><div id="svAuditResults" class="sv-audit-results"></div></section>';
   html+='<section class="sv-workspace"><div class="sv-section-head"><div><span class="sv-kicker">ACOMPANHAMENTO</span><h3>Máquinas por setor</h3><p>'+itens.length+' equipamento(s) • '+grupos.length+' setor(es)</p></div><div class="sv-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Buscar máquina ou setor..." aria-label="Buscar máquina ou setor" oninput="filtrarTextoMaquinasSupervisor(this.value)"></div></div>';
   html+='<div class="sv-filter-row" aria-label="Filtros de condição">';
   filtros.forEach((f,i)=>{html+='<button type="button" class="sv-filter '+(i===0?'active':'')+'" data-sv-filter="'+escaparHtml(f[0])+'" onclick="filtrarMaquinasSupervisor(\''+f[0]+'\')"><span style="--sv-dot:'+f[2]+'"></span>'+escaparHtml(f[0]==='Todas'?'Todas':f[0].replace(' informada na O.S.','').replace(' • situação não confirmada',''))+' <b>'+f[1]+'</b></button>'});
@@ -6234,6 +6311,7 @@ function renderPainelMaquinasSupervisor(){
   const busca=box.querySelector('.sv-search input');
   if(busca&&window.__erimaxSvBusca)busca.value=window.__erimaxSvBusca;
   if(busca&&busca.value)filtrarTextoMaquinasSupervisor(busca.value);
+  renderListaAuditoriaSupervisor();
 }
 function fecharDetalheIndicadorSupervisor(){
   const box=document.getElementById('painelMaquinasSupervisor');
@@ -7097,6 +7175,8 @@ async function verHistorico(id){
   const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).sort((a,b)=>new Date(a.pausada_em)-new Date(b.pausada_em));
   const transferencias=HISTORICO_TRANSFERENCIAS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.solicitada_em)-new Date(b.solicitada_em));
   const mudancasSituacao=HISTORICO_SITUACAO_OS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.registrado_em)-new Date(b.registrado_em));
+  let auditoriaOS=[];
+  try{const resposta=await _supabase.from('historico_edicoes_os').select('*').eq('os_id',id).order('alterado_em',{ascending:true});if(resposta.error)throw resposta.error;auditoriaOS=resposta.data||[];}catch(e){console.warn('Não foi possível carregar auditoria da O.S.:',e?.message||e)}
   let reaberturas=[];
   try{
     const resposta=await _supabase.from('historico_reaberturas_os').select('*').eq('os_id',id).order('reaberta_em',{ascending:true});
@@ -7123,6 +7203,7 @@ async function verHistorico(id){
     if(t.aceita_em)add(t.aceita_em,'Transferência aceita','Aceita por '+(t.aceita_por||t.tecnico_novo||'—'),'retomada');
   });
   (reaberturas||[]).forEach(r=>{const auxAnterior=r.dados_conclusao?.mecanico_auxiliar;add(r.reaberta_em,'O.S. reaberta','Por: '+(r.tecnico_nome||'—')+' • Motivo: '+(r.motivo||'Não informado')+(auxAnterior?' • Auxiliar na conclusão anterior: '+auxAnterior:''),'alerta')});
+  auditoriaOS.forEach(r=>{const alteracoes=camposAlteradosAuditoria(r);const resumo=alteracoes.slice(0,5).map(x=>x.campo+': '+formatarValorAuditoria(x.antes)+' → '+formatarValorAuditoria(x.depois)).join(' • ');add(r.alterado_em,'Alteração registrada por '+(r.alterado_por||'Responsável não informado'),(r.motivo||'Alteração da O.S.')+(resumo?' • '+resumo:''),'alerta')});
   add(os.data_conclusao,'O.S. concluída','Serviço: '+(os.servico_executado||'Não informado')+' • Técnico: '+(os.tecnico||'—')+(os.mecanico_auxiliar?' • Mecânico auxiliar: '+os.mecanico_auxiliar:''),'conclusao');
   add(os.ajustado_em,'Horário corrigido pelo gestor','Por: '+(os.ajustado_por||'Gestor')+' • Motivo: '+(os.ajuste_obs||'Não informado'),'alerta');
   eventos.sort((a,b)=>a.ts-b.ts);
@@ -7157,7 +7238,7 @@ async function verHistorico(id){
     '<section class="erimax-os-history-section"><h3>Problema relatado</h3><p>'+safe(os.problema||os.descricao||os.defeito||'Não informado')+'</p></section>'+
     '<section class="erimax-os-history-section"><h3>Diagnóstico e execução</h3><div class="erimax-os-detail-grid">'+[['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado],['Mecânico auxiliar',os.mecanico_auxiliar]].map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('')+'</div></section>'+
     (os.ajustado_em?'<p class="erimax-os-history-warning">Horário corrigido por '+safe(os.ajustado_por||'Gestor')+' em '+fmtData(os.ajustado_em)+'. Motivo: '+safe(os.ajuste_obs||'Não informado')+'</p>':'')+
-    '<section class="erimax-os-history-section"><h3>Histórico de movimentações</h3><div class="erimax-os-timeline">'+eventoHtml+'</div></section>';
+    '<section class="erimax-os-history-section"><h3>Histórico de movimentações e auditoria</h3><p>As alterações abaixo mostram os valores anteriores e os novos, quando disponíveis.</p><div class="erimax-os-timeline">'+eventoHtml+'</div></section>';
   modal.style.display='flex';
   document.body.style.overflow='hidden';
   modal.querySelector('.erimax-os-history-close')?.focus();
