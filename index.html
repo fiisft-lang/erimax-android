@@ -7070,8 +7070,10 @@ async function assumirOS(id){
     if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
     if(!st||!st.turno_ativo||st.status!=='ONLINE')return alert('Você precisa estar ONLINE e sem outra O.S. em serviço para assumir uma nova ordem.');
   }
-  const {error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id);
+  // Atualização condicional: impede dois usuários de assumirem a mesma O.S. simultaneamente.
+  const {data:assumida,error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id).eq('status','Aberta').select('id').maybeSingle();
   if(error)return alert('Erro ao assumir OS: '+error.message);
+  if(!assumida){await carregarDadosSupabase();return alert('Esta O.S. já foi assumida ou alterada por outra pessoa. A lista foi atualizada.');}
   if(PERFIL&&PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
   await carregarDadosSupabase();
 }
@@ -7388,8 +7390,9 @@ async function confirmarReaberturaOS(){
 // Status dos técnicos sincronizados automaticamente a cada 8 segundos como proteção ao Realtime.
 async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
-  const os0=chamados.find(c=>c.id===osConcluir),agora=new Date();
-  if(os0&&os0.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
+  const os0=chamados.find(c=>Number(c.id)===Number(osConcluir)),agora=new Date();
+  if(!os0||os0.status!=='Em Atendimento')return alert('Esta O.S. não está mais em atendimento. Atualize a lista antes de continuar.');
+  if(os0.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
   const maquinasExecucao=obterMaquinasExecucaoModal();
   if(maquinasExecucao.length&&maquinasExecucao.some(m=>!m.concluida))return alert('Marque todas as máquinas como concluídas. Se alguma ainda estiver pendente, use “Salvar andamento” e finalize a O.S. depois.');
   let fim=mdHora.value?new Date(mdHora.value):agora;
@@ -7397,16 +7400,18 @@ async function confirmarConclusao(){
   // Isso evita que o horário padrão fique defasado e pareça anterior ao início do atendimento.
   if(mdHora.value===mdHoraInicial){fim=agora;mdHora.value=loc(agora)}
   if(fim>new Date(agora.getTime()+60000))return alert('O horário de conclusão não pode ser no futuro.');
-  if(os0&&os0.data_atendimento&&fim<new Date(os0.data_atendimento))return alert('O horário de conclusão não pode ser antes do início do atendimento ('+hm(os0.data_atendimento)+').');
+  if(os0.data_atendimento&&fim<new Date(os0.data_atendimento))return alert('O horário de conclusão não pode ser antes do início do atendimento ('+hm(os0.data_atendimento)+').');
   const diferenca=Math.abs(agora-fim);
   if(PERFIL&&PERFIL.perfil==='tecnico'&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
   const aj=PERFIL&&PERFIL.perfil==='gestor'&&diferenca>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
   const atualizacao={status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),mecanico_auxiliar:document.getElementById('mdMecanicoAux')?.value||null,data_conclusao:fim.toISOString(),...aj};
   if(maquinasExecucao.length)atualizacao.maquinas_execucao=maquinasExecucao;
-  const {error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir);
+  // O status no banco é verificado novamente para impedir conclusão duplicada ou fora de sequência.
+  const {data:concluida,error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir).eq('status','Em Atendimento').select('id').maybeSingle();
   if(error)return alert('Erro ao concluir OS: '+error.message);
+  if(!concluida){await carregarDadosSupabase();return alert('Esta O.S. já foi alterada por outra pessoa. A lista foi atualizada e a conclusão não foi repetida.');}
   let erroAtualizacaoPreventiva=null;
-  if(os0&&os0.preventiva_id){
+  if(os0.preventiva_id){
     const {data:prevCfg,error:prevCfgError}=await _supabase.from('preventivas').select('intervalo_dias').eq('id',os0.preventiva_id).single();
     if(prevCfgError||!prevCfg){
       erroAtualizacaoPreventiva=prevCfgError||new Error('Cadastro da preventiva não encontrado.');
@@ -7418,7 +7423,7 @@ async function confirmarConclusao(){
       erroAtualizacaoPreventiva=prevError;
     }
   }
-  if(os0&&os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
+  if(os0.tecnico){const tecnico=TECNICOS.find(t=>t.nome===os0.tecnico);if(tecnico)await recalcularStatusTecnico(tecnico.id)}
   fecharModal();await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
   if(erroAtualizacaoPreventiva)alert('A O.S. foi concluída, mas não foi possível atualizar a próxima data da preventiva: '+erroAtualizacaoPreventiva.message+'. Atualize o cadastro da preventiva.');
 }
