@@ -7176,7 +7176,9 @@ async function verHistorico(id){
   const transferencias=HISTORICO_TRANSFERENCIAS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.solicitada_em)-new Date(b.solicitada_em));
   const mudancasSituacao=HISTORICO_SITUACAO_OS.filter(t=>Number(t.os_id)===Number(id)).sort((a,b)=>new Date(a.registrado_em)-new Date(b.registrado_em));
   let auditoriaOS=[];
-  try{const resposta=await _supabase.from('historico_edicoes_os').select('*').eq('os_id',id).order('alterado_em',{ascending:true});if(resposta.error)throw resposta.error;auditoriaOS=resposta.data||[];}catch(e){console.warn('Não foi possível carregar auditoria da O.S.:',e?.message||e)}
+  if(PERFIL&&PERFIL.perfil==='gestor'){
+    try{const resposta=await _supabase.from('historico_edicoes_os').select('*').eq('os_id',id).order('alterado_em',{ascending:true});if(resposta.error)throw resposta.error;auditoriaOS=resposta.data||[];}catch(e){console.warn('Não foi possível carregar auditoria da O.S.:',e?.message||e)}
+  }
   let reaberturas=[];
   try{
     const resposta=await _supabase.from('historico_reaberturas_os').select('*').eq('os_id',id).order('reaberta_em',{ascending:true});
