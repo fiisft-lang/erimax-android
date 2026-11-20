@@ -6093,7 +6093,11 @@ function alternarMenuLateral(){
 function fecharMenuLateral(){
   const b=document.getElementById('btnMenuLateral');
   if(window.innerWidth>=1024){
-    if(b){const recolhido=document.body.classList.contains('erimax-sidebar-collapsed');b.setAttribute('aria-expanded',recolhido?'false':'true');b.setAttribute('aria-label',recolhido?'Expandir menu lateral':'Recolher menu lateral')}
+    // Ao selecionar uma página, recolhe a navegação e devolve espaço à área de trabalho.
+    document.body.classList.add('erimax-sidebar-collapsed');
+    try{localStorage.setItem('erimax.desktop.sidebar.collapsed','1')}catch(e){}
+    if(b){b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Expandir menu lateral');b.title='Expandir menu lateral'}
+    const c=document.querySelector('header .menu-caption');if(c)c.textContent='Abrir menu';
     return;
   }
   document.body.classList.remove('menu-lateral-aberto');
