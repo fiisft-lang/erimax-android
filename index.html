@@ -11876,7 +11876,10 @@ function alternarPainelComparacaoMaquinas(){
 @media (min-width:1024px) and (hover:hover) and (pointer:fine){
   :root{--erimax-analytics-bg:#f2f6f8;--erimax-analytics-ink:#17394e;--erimax-analytics-muted:#657d8d;--erimax-analytics-border:#dce6eb;--erimax-analytics-shadow:0 5px 18px rgba(17,48,68,.045),0 18px 42px rgba(17,48,68,.035)}
   body:has(#tab-metricas.active) .container{width:min(100% - 40px,1800px)!important;max-width:1800px!important;padding:28px clamp(22px,2.5vw,46px) 52px!important}
-  #tab-metricas{width:100%!important;max-width:none!important;gap:18px!important}
+  #tab-metricas.active{display:flex!important;flex-direction:column!important;gap:18px!important;width:100%!important;max-width:none!important}
+  #tab-metricas #metricsHorarioAviso{margin:0!important}
+  #tab-metricas #metricsDataContent>.metrics-grid+.card{grid-column:1/-1!important;padding:10px 15px!important;border:1px solid #dce7ed!important;background:#f7fafb!important;box-shadow:none!important}
+  #tab-metricas #metricsDataContent>.metrics-grid+.card p{margin:0!important;text-align:left!important;color:#5f7888!important;font-size:.75rem!important}
   #tab-metricas .metrics-hero{min-height:164px!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(260px,.34fr)!important;align-items:center!important;gap:28px!important;padding:30px 34px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:22px!important;background:linear-gradient(118deg,var(--primary-dark) 0%,var(--primary) 72%,#286e7c 100%)!important;box-shadow:0 16px 36px rgba(20,53,74,.15)!important;overflow:hidden!important;position:relative!important}
   #tab-metricas .metrics-hero:after{content:"";position:absolute;right:22%;top:-105px;width:310px;height:310px;border:1px solid rgba(255,255,255,.11);border-radius:50%;box-shadow:0 0 0 34px rgba(255,255,255,.035),0 0 0 70px rgba(255,255,255,.025);pointer-events:none}
   #tab-metricas .metrics-hero-kicker{display:inline-flex!important;margin-bottom:10px!important;color:#c5dce6!important;font-size:.68rem!important;font-weight:850!important;letter-spacing:.16em!important}
