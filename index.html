@@ -4928,6 +4928,135 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   .tab-content.active { animation:none!important; }
 }
 </style>
+
+<style id="erimax-desktop-menu-refino-2026">
+/* Menu desktop recolhível + acabamento geral. Restrito a mouse/desktop; mobile preservado. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+  :root { --erimax-sidebar-width:268px; }
+  body { transition:padding-left .24s ease,background-color .2s ease; }
+  .nav-tabs { width:var(--erimax-sidebar-width)!important; transition:width .24s ease,box-shadow .2s ease!important; }
+  header .menu-control {
+    display:flex!important; flex:0 0 auto; align-items:center; gap:9px;
+    margin-right:auto; order:-1;
+  }
+  header #btnMenuLateral {
+    width:40px!important;height:40px!important;flex:0 0 40px!important;
+    border-color:var(--border)!important;background:var(--bg)!important;
+  }
+  header .menu-caption { display:inline!important;color:var(--primary-dark);font-size:.76rem;font-weight:700;white-space:nowrap; }
+  header img.logo { margin-right:auto; }
+  body.erimax-sidebar-collapsed { padding-left:88px!important; }
+  body.erimax-sidebar-collapsed .nav-tabs { width:82px!important;padding:24px 10px!important; }
+  body.erimax-sidebar-collapsed .nav-tabs:before {
+    content:"E";margin:0 0 20px;padding:0 0 17px;text-align:center;
+    font-size:1.22rem;letter-spacing:0;
+  }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-btn {
+    position:relative;justify-content:center!important;gap:0!important;
+    min-height:48px!important;padding:10px 8px!important;
+    border-left-width:3px!important;border-radius:10px!important;
+  }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-btn > span:not(.tab-icon):not(.badge-count) { display:none!important; }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-icon,
+  body.erimax-sidebar-collapsed .nav-tabs .tab-icon svg { width:23px!important;height:23px!important;flex-basis:23px!important; }
+  body.erimax-sidebar-collapsed .nav-tabs .badge-count {
+    position:absolute;top:3px;right:3px;margin:0!important;min-width:17px;
+    padding:0 4px!important;font-size:.62rem!important;line-height:17px;
+  }
+  body.erimax-sidebar-collapsed header .menu-caption { font-size:0!important; }
+  body.erimax-sidebar-collapsed header .menu-caption:after {
+    content:"Abrir menu";font-size:.76rem;
+  }
+  /* Melhor aproveitamento da área útil e alinhamento consistente entre telas. */
+  .container {
+    width:min(100%,1680px)!important;max-width:1680px!important;
+    margin:0 auto!important;padding:26px clamp(24px,2.8vw,48px)!important;
+  }
+  .tab-content.active { min-width:0; }
+  .tab-content .card {
+    border-radius:14px!important;border-color:var(--border)!important;
+    box-shadow:0 5px 18px rgba(32,56,78,.045)!important;
+  }
+  .tab-content .card h2,.tab-content .card h3 {
+    letter-spacing:-.018em;line-height:1.3;
+  }
+  .tab-content .card h2 { margin-top:0; }
+  .tab-content .form-group { margin-bottom:16px; }
+  .tab-content input,.tab-content select,.tab-content textarea {
+    min-height:42px;border-radius:9px;
+  }
+  .tab-content button { transition:filter .16s ease,transform .16s ease,box-shadow .16s ease; }
+  .tab-content button:hover { filter:brightness(.98); }
+  .tab-content button:focus-visible,header button:focus-visible,.nav-tabs button:focus-visible {
+    outline:3px solid color-mix(in srgb,var(--secondary) 55%,white)!important;
+    outline-offset:2px;
+  }
+  .tbl-wrap { border-radius:10px; }
+  .tbl-wrap table { border-collapse:separate;border-spacing:0; }
+  .tbl-wrap thead th { position:sticky;top:0;z-index:1; }
+  .tab-content .os-card { border-radius:13px!important; }
+  .tab-content .os-actions { gap:8px; }
+  .tab-content .os-actions .btn-action { min-height:36px; }
+  .tab-content canvas { max-width:100%; }
+  .user-bar { position:sticky!important;top:76px!important;z-index:100!important; }
+}
+@media (min-width:1024px) and (max-width:1279px) and (hover:hover) and (pointer:fine) {
+  .container { padding:22px 22px!important; }
+  header { gap:14px!important; }
+  header img.logo { width:190px!important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  body,.nav-tabs,header #btnMenuLateral,.tab-content button { transition:none!important; }
+}
+</style>
+<script id="erimax-desktop-menu-controller-2026">
+(function(){
+  const desktop=()=>!!(window.matchMedia&&window.matchMedia('(min-width:1024px) and (hover:hover) and (pointer:fine)').matches);
+  function atualizarBotao(){
+    const b=document.getElementById('btnMenuLateral');
+    if(!b)return;
+    const recolhido=document.body.classList.contains('erimax-sidebar-collapsed');
+    b.setAttribute('aria-expanded',desktop()?(recolhido?'false':'true'):(document.body.classList.contains('menu-lateral-aberto')?'true':'false'));
+    b.setAttribute('aria-label',desktop()?(recolhido?'Expandir menu lateral':'Recolher menu lateral'):(document.body.classList.contains('menu-lateral-aberto')?'Fechar menu':'Abrir menu'));
+    b.title=b.getAttribute('aria-label');
+    const c=document.querySelector('header .menu-caption');
+    if(c)c.textContent=desktop()?(recolhido?'Abrir menu':'Recolher menu'):'Menu';
+  }
+  window.alternarMenuLateral=function(){
+    if(desktop()){
+      document.body.classList.toggle('erimax-sidebar-collapsed');
+      try{localStorage.setItem('erimax.desktop.sidebar.collapsed',document.body.classList.contains('erimax-sidebar-collapsed')?'1':'0')}catch(e){}
+      atualizarBotao();
+      return;
+    }
+    const aberto=document.body.classList.contains('menu-lateral-aberto');
+    if(aberto)window.fecharMenuLateral();
+    else document.body.classList.add('menu-lateral-aberto');
+    atualizarBotao();
+  };
+  window.fecharMenuLateral=function(){
+    if(desktop()){atualizarBotao();return;}
+    document.body.classList.remove('menu-lateral-aberto');
+    atualizarBotao();
+  };
+  function iniciar(){
+    if(desktop()){
+      let recolhido=false;
+      try{recolhido=localStorage.getItem('erimax.desktop.sidebar.collapsed')==='1'}catch(e){}
+      document.body.classList.toggle('erimax-sidebar-collapsed',recolhido);
+    }
+    document.querySelectorAll('.nav-tabs .tab-btn').forEach(b=>{
+      const label=(b.innerText||b.textContent||'').replace(/\s+/g,' ').trim();
+      if(label&&!b.title)b.title=label;
+    });
+    atualizarBotao();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();
+  window.addEventListener('resize',atualizarBotao,{passive:true});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!desktop())window.fecharMenuLateral()});
+})();
+</script>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
