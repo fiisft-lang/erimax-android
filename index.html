@@ -5773,7 +5773,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 <div id="modal"><div class="box"><h2>Concluir OS</h2>
 <div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
-<div class="form-group"><label for="mdPeca">Peça trocada (opcional)</label><input id="mdPeca" placeholder="Ex.: Rolamento 6204"></div>
+<div class="form-group"><label for="mdPeca">Peça utilizada (opcional)</label><input id="mdPeca" placeholder="Ex.: Rolamento 6204"><small style="display:block;color:#64748b;margin-top:4px">Ao concluir a O.S., o material será enviado ao Almoxarifado para conferência do Gestor.</small></div>
+<div class="form-group"><label for="mdPecaQtd">Quantidade utilizada</label><input id="mdPecaQtd" type="number" min="0.001" step="0.001" value="1"></div>
 <div class="form-group"><label for="mdServico">Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
 <div class="form-group"><label for="mdMecanicoAux">Mecânico auxiliar (opcional)</label><select id="mdMecanicoAux"><option value="">Nenhum auxiliar</option></select><small style="display:block;color:#64748b;margin-top:5px">Selecione somente se outro técnico participou desta manutenção.</small></div>
 <details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" aria-label="Observação de máquina rodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details>
@@ -7192,7 +7193,7 @@ const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffse
 function concluirOS(id){
   const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
   if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||osResponsavel.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
-  osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';
+  osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';if(document.getElementById('mdPecaQtd'))document.getElementById('mdPecaQtd').value='1';
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
   const rodandoDetails=document.getElementById('mdRodandoDetails');
@@ -7413,7 +7414,8 @@ async function confirmarConclusao(){
   const diferenca=Math.abs(agora-fim);
   if(PERFIL&&PERFIL.perfil==='tecnico'&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
   const aj=PERFIL&&PERFIL.perfil==='gestor'&&diferenca>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
-  const atualizacao={status:'Concluída',causa:mdCausa.value,peca:mdPeca.value.trim()||null,servico_executado:mdServico.value.trim(),mecanico_auxiliar:document.getElementById('mdMecanicoAux')?.value||null,data_conclusao:fim.toISOString(),...aj};
+  const pecaInformada=mdPeca.value.trim();const pecaQtd=Number(document.getElementById('mdPecaQtd')?.value||1);if(pecaInformada&&(!Number.isFinite(pecaQtd)||pecaQtd<=0))return alert('Informe uma quantidade válida para a peça utilizada.');
+  const atualizacao={status:'Concluída',causa:mdCausa.value,peca:pecaInformada||null,peca_quantidade:pecaInformada?pecaQtd:1,servico_executado:mdServico.value.trim(),mecanico_auxiliar:document.getElementById('mdMecanicoAux')?.value||null,data_conclusao:fim.toISOString(),...aj};
   if(maquinasExecucao.length)atualizacao.maquinas_execucao=maquinasExecucao;
   // O status no banco é verificado novamente para impedir conclusão duplicada ou fora de sequência.
   const {data:concluida,error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir).eq('status','Em Atendimento').select('id').maybeSingle();
