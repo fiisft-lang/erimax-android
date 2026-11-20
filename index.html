@@ -5333,7 +5333,9 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   .tab-content button:hover{transform:translateY(-1px)}
   .tab-content button:active{transform:translateY(0)}
   /* Tela Abrir O.S. */
-  #tab-abrir{display:flex;flex-direction:column;gap:16px}
+  #tab-abrir:not(.active),#tab-ordens-servico:not(.active),#tab-ordens-abertas:not(.active){display:none!important}
+  #tab-abrir.active,#tab-ordens-servico.active,#tab-ordens-abertas.active{display:flex!important;flex-direction:column;gap:16px}
+
   #tab-abrir>.card{width:min(100%,1120px)!important;max-width:1120px!important;padding:30px!important;margin:0 auto 22px!important}
   #tab-abrir>.card h2{font-size:1.58rem!important}
   #tab-abrir #formOS{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;row-gap:2px}
