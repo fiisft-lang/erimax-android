@@ -10430,10 +10430,10 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
  function detalhe(tipo){
   const box=document.getElementById('almoxIndicadorDetalhe');if(!box)return;
   if(box.dataset.tipo===tipo&&!box.hidden){box.hidden=true;box.innerHTML='';box.dataset.tipo='';document.querySelectorAll('[data-almox-kpi]').forEach(x=>{x.classList.remove('is-selected');x.setAttribute('aria-expanded','false')});return}
-  const materiais=(window.ALMOX_MATERIAIS||[]).filter(x=>x.ativo);
+  const materiais=(ALMOX_MATERIAIS||[]).filter(x=>x.ativo);
   let html='';
   if(tipo==='pendentes'){
-   const pendencias=window.ALMOX_SOLICITACOES||[];
+   const pendencias=ALMOX_SOLICITACOES||[];
    html=pendencias.length?pendencias.map(s=>'<article class="almox-kpi-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b></article>').join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
   }else{
    const lista= materiais.filter(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return tipo==='total'||(tipo==='disponivel'&&n>0&&(min<=0||n>min))||(tipo==='baixo'&&n>0&&min>0&&n<=min)||(tipo==='zerado'&&n<=0)}).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
