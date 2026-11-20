@@ -5057,6 +5057,45 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 })();
 </script>
 
+
+<style id="erimax-desktop-menu-toggle-fix">
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+  /* O controle precisa permanecer visível no desktop para alternar a sidebar. */
+  header .menu-control {
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    flex:0 0 auto!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+  header #btnMenuLateral {
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    visibility:visible!important;
+    opacity:1!important;
+    cursor:pointer!important;
+  }
+  header .menu-caption {
+    display:inline!important;
+    visibility:visible!important;
+  }
+  .nav-tabs {
+    transition:width .22s ease,padding .22s ease,transform .22s ease!important;
+  }
+  body {
+    transition:padding-left .22s ease!important;
+  }
+  body.erimax-sidebar-collapsed .nav-tabs {
+    width:82px!important;
+  }
+  body.erimax-sidebar-collapsed {
+    padding-left:88px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
