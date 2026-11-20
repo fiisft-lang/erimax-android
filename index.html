@@ -6188,6 +6188,8 @@ function atualizarCabecalhoDesktopEriMax(id){
   titulo.textContent=pagina[0];
   descricao.textContent=pagina[1];
 }
+const erimaxAbaInicial=document.querySelector('.tab-content.active');
+atualizarCabecalhoDesktopEriMax(erimaxAbaInicial&&erimaxAbaInicial.id?erimaxAbaInicial.id.replace(/^tab-/,''):'abrir');
 function mudarAba(id,evt,opcoes={}){
   const abaAtual=document.querySelector('.tab-content.active');
   const idAtual=abaAtual&&abaAtual.id?abaAtual.id.replace(/^tab-/,''):'abrir';
@@ -10322,6 +10324,7 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
   .erimax-pagehead-context{color:#8495a2;font-size:.62rem;font-weight:850;letter-spacing:.09em;text-align:right}
   /* O título principal agora pertence ao cabeçalho do espaço de trabalho. */
   #tab-abrir>.card>h2,
+  #tab-abrir>.card>p:first-of-type,
   #tab-ordens-servico .os-modern-heading h2,
   #tab-ordens-abertas .oa-hero h2,
   #tab-metricas .metrics-hero h2,
