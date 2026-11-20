@@ -5575,7 +5575,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   </div>
   <div class="cadastro-setor-create">
     <div class="cadastro-setor-create-copy"><strong>Novo setor</strong><small>Adicione uma área da fábrica para organizar as máquinas.</small></div>
-    <div class="cadastro-setor-create-fields"><input id="novoSetor" placeholder="Ex.: Usinagem, Montagem..." maxlength="60"><button class="btn-submit" onclick="adicionarSetor()"><span aria-hidden="true">＋</span> Adicionar setor</button></div>
+    <div class="cadastro-setor-create-fields"><input id="novoSetor" aria-label="Nome do novo setor" placeholder="Ex.: Usinagem, Montagem..." maxlength="60"><button class="btn-submit" onclick="adicionarSetor()"><span aria-hidden="true">＋</span> Adicionar setor</button></div>
   </div>
   <div class="cadastro-setores-list-heading"><strong>Áreas cadastradas</strong><span>Gerencie horários e configurações</span></div>
   <div id="listaCfg"></div>
@@ -5586,15 +5586,15 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <p class="cadastro-area-intro">Cada setor fica recolhido. Abra um setor para visualizar a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
 </section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div class="pv-form-heading"><div><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Cadastrar preventiva</h3><small>Preencha os dados para programar a manutenção</small></div></div><div id="pvFormConteudo">
-<div class="form-group"><label>Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
+<div class="form-group"><label for="pvSetor">Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
 <div class="form-group"><label>Máquinas</label>
 <label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
 <div id="pvListaMaquinas"></div>
 <p style="font-size:.72rem;color:#64748b;margin-top:6px">Você pode selecionar uma ou várias máquinas. Todas serão reunidas em uma única O.S.</p></div>
-<div class="form-group"><label>Descrição</label><input id="pvDesc" placeholder="Ex.: Lubrificar correntes"></div>
-<div class="form-group"><label>Repetir a cada (dias)</label><input id="pvDias" type="number" min="1" value="30"></div>
-<div class="form-group"><label>Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
-<div class="form-group"><label>Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
+<div class="form-group"><label for="pvDesc">Descrição</label><input id="pvDesc" placeholder="Ex.: Lubrificar correntes"></div>
+<div class="form-group"><label for="pvDias">Repetir a cada (dias)</label><input id="pvDias" type="number" min="1" value="30"></div>
+<div class="form-group"><label for="pvDataPrevista">Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
+<div class="form-group"><label for="pvTecnico">Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div></div>
 <div class="card" id="pvListaCard"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
@@ -5602,10 +5602,10 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="cadastro-area-heading"><span class="cadastro-area-heading-icon" aria-hidden="true">👥</span><div><span class="cadastro-area-eyebrow">ACESSO E PERMISSÕES</span><h3>Gestão de usuários</h3><p>Cadastre pessoas, atualize perfis e administre o acesso ao EriMax.</p></div></div>
 <div class="card cadastro-area-card cadastro-usuario-form">
 <div class="cadastro-area-card-heading"><div><strong>Novo usuário</strong><small>Preencha os dados para criar um novo acesso.</small></div></div>
-<div class="form-group"><label>E-mail</label><input id="nuEmail" type="email" autocomplete="off" placeholder="nome@empresa.com"></div>
-<div class="form-group"><label>Nome completo</label><input id="nuNome" autocomplete="off" placeholder="Nome do colaborador"></div>
-<div class="form-group"><label>Senha (mínimo 8 caracteres)</label><input id="nuSenha" type="text" autocomplete="off" placeholder="Defina uma senha inicial"></div>
-<div class="form-group"><label>Perfil de acesso</label><select id="nuPerfil"><option>operador</option><option>tecnico</option><option>gestor</option></select></div>
+<div class="form-group"><label for="nuEmail">E-mail</label><input id="nuEmail" type="email" autocomplete="off" placeholder="nome@empresa.com"></div>
+<div class="form-group"><label for="nuNome">Nome completo</label><input id="nuNome" autocomplete="off" placeholder="Nome do colaborador"></div>
+<div class="form-group"><label for="nuSenha">Senha (mínimo 8 caracteres)</label><input id="nuSenha" type="text" autocomplete="off" placeholder="Defina uma senha inicial"></div>
+<div class="form-group"><label for="nuPerfil">Perfil de acesso</label><select id="nuPerfil"><option>operador</option><option>tecnico</option><option>gestor</option></select></div>
 <button class="btn-submit" onclick="criarUsuario()">＋ Criar usuário</button>
 </div>
 <div class="card cadastro-area-card cadastro-usuarios-list">
@@ -5623,8 +5623,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="card metrics-filter-card">
 <h3 style="margin-bottom:2px;font-size:1.1rem;color:var(--primary)">Refinar análise</h3>
 <p style="font-size:.8rem;color:#64748b;margin-bottom:12px">Escolha o recorte que deseja investigar. Todos os indicadores e gráficos abaixo acompanham esses filtros.</p>
-<div class="form-group"><label>DIA ESPECÍFICO</label><input type="date" id="filtroDia" onchange="limparPeriodoPersonalizado();atualizarMetricasReais()"></div>
-<div class="form-group"><label>MÊS</label><input type="month" id="filtroMes" onchange="limparPeriodoPersonalizado();atualizarMetricasReais()"></div>
+<div class="form-group"><label for="filtroDia">DIA ESPECÍFICO</label><input type="date" id="filtroDia" onchange="limparPeriodoPersonalizado();atualizarMetricasReais()"></div>
+<div class="form-group"><label for="filtroMes">MÊS</label><input type="month" id="filtroMes" onchange="limparPeriodoPersonalizado();atualizarMetricasReais()"></div>
 <div class="metrics-custom-period" style="border:1px solid var(--border,#dbe3ec);border-radius:10px;padding:11px;margin:10px 0;background:var(--surface,#fff)">
   <label style="display:block;font-weight:700;font-size:.78rem;margin-bottom:8px">PERÍODO PERSONALIZADO</label>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
@@ -5634,13 +5634,13 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   <p id="filtroPeriodoAjuda" style="font-size:.72rem;color:#64748b;margin:7px 0 0">Escolha as duas datas para analisar uma semana ou qualquer intervalo.</p>
   <button type="button" class="btn-action" style="margin-top:8px" onclick="limparPeriodoPersonalizado(true)">Limpar período</button>
 </div>
-<div class="form-group"><label>TURNO</label>
+<div class="form-group"><label for="filtroTurnoMetrica">TURNO</label>
 <select id="filtroTurnoMetrica" onchange="atualizarMetricasReais()"><option value="Todos">Todos os Turnos</option><option>Turno 1</option><option>Turno 2</option><option>Turno 3</option></select></div>
-<div class="form-group"><label>TIPO DE PROBLEMA</label>
+<div class="form-group"><label for="filtroTipoMetrica">TIPO DE PROBLEMA</label>
 <select id="filtroTipoMetrica" onchange="atualizarMetricasReais()"><option value="Todos">Todos os tipos</option><option>Mecânico</option><option>Elétrico</option><option>Pneumático</option><option>Operacional</option></select></div>
-<div class="form-group"><label>SETOR</label>
+<div class="form-group"><label for="filtroSetorMetrica">SETOR</label>
 <select id="filtroSetorMetrica" onchange="atualizarMaquinasMetrica();atualizarMetricasReais()"></select></div>
-<div class="form-group" style="margin-bottom:0"><label>MÁQUINA</label>
+<div class="form-group" style="margin-bottom:0"><label for="filtroMaquinaMetrica">MÁQUINA</label>
 <select id="filtroMaquinaMetrica" onchange="atualizarMetricasReais()"><option value="Todas">Todas as Máquinas</option></select></div>
 </div>
 
@@ -5723,8 +5723,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   <div class="card">
     <h2 style="font-size:1.12rem;color:var(--primary);margin-bottom:5px">Consultas do histórico de manutenção</h2>
     <p style="font-size:.78rem;color:#64748b;margin:0 0 14px">Pesquise diretamente nas ordens de serviço registradas. Esta ferramenta não usa IA externa nem serviços pagos.</p>
-    <div class="form-group"><label>MÊS</label><input type="month" id="consultaMes"></div>
-    <div class="form-group"><label>TIPO DE CONSULTA</label>
+    <div class="form-group"><label for="consultaMes">MÊS</label><input type="month" id="consultaMes"></div>
+    <div class="form-group"><label for="consultaTipo">TIPO DE CONSULTA</label>
       <select id="consultaTipo">
         <option value="motores">Relatos de motor queimado</option>
         <option value="maquina">Máquinas com mais falhas</option>
@@ -5732,7 +5732,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
         <option value="termo">Buscar palavra no histórico</option>
       </select>
     </div>
-    <div class="form-group"><label>MÁQUINA OU PALAVRA (opcional)</label><input id="consultaFiltro" placeholder="Ex.: Envasadora 02, motor, rolamento"></div>
+    <div class="form-group"><label for="consultaFiltro">MÁQUINA OU PALAVRA (opcional)</label><input id="consultaFiltro" placeholder="Ex.: Envasadora 02, motor, rolamento"></div>
     <button class="btn-submit" type="button" onclick="executarConsultaHistorico()">🔎 Consultar registros</button>
     <div id="resultadoConsulta" aria-live="polite" style="margin-top:14px"></div>
   </div>
