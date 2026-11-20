@@ -10945,7 +10945,7 @@ function renderAlertasReposicaoAlmox(){
 function renderSolicitacoesAlmox(){
  const box=document.getElementById('almoxListaSolicitacoes');if(!box)return;
  if(!ALMOX_SOLICITACOES.length){box.innerHTML='<p class="almox-empty">Nenhuma peça pendente de cadastro ou regularização.</p>';return}
- const normalizar=s=>String(s||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ');
+ const normalizar=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ');
  box.innerHTML=ALMOX_SOLICITACOES.map(s=>{
   const match=ALMOX_MATERIAIS.find(m=>m.ativo&&(m.id===s.material_id||normalizar(m.nome)===normalizar(s.nome_material)||normalizar(m.codigo)===normalizar(s.nome_material)));
   const escolhido=s.material_id||match?.id||'';
