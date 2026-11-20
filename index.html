@@ -6093,15 +6093,47 @@ function renderPainelMaquinasSupervisor(){
     try{return total+Math.max(0,Number(paradaProd(os,turno))||0)}catch(e){return total}
   },0);
   window.__erimaxSvMetricData={ativas,itens,concluidas:ordenarOSRecentes(osConcluidas),tempoParadaTotal};
+  const agoraSupervisor=Date.now();
+  const minutosDesde=(data)=>{const ts=data?new Date(data).getTime():NaN;return Number.isFinite(ts)?Math.max(0,(agoraSupervisor-ts)/60000):0};
+  const pausaAbertaOS=(os)=>{
+    const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(os.id)).sort((a,b)=>new Date(b.pausada_em||0)-new Date(a.pausada_em||0));
+    const ultima=pausas[0];
+    if(ultima&&!ultima.retomada_em)return ultima.pausada_em;
+    return os.pausada_em||null;
+  };
+  const recorrenciaPorMaquina=new Map();
+  const limiteRecorrencia=agoraSupervisor-30*24*60*60*1000;
+  chamados.forEach(os=>{
+    const ts=os.created_at?new Date(os.created_at).getTime():NaN;
+    if(!Number.isFinite(ts)||ts<limiteRecorrencia)return;
+    const chave=normSetor(os.setor)+'||'+String(os.maquina||'').trim().toLocaleLowerCase('pt-BR');
+    if(!String(os.maquina||'').trim())return;
+    recorrenciaPorMaquina.set(chave,(recorrenciaPorMaquina.get(chave)||0)+1);
+  });
   const alertasSupervisor=ativas.map(os=>{
     const prioridade=String(os.prioridade||'').trim().toLocaleLowerCase('pt-BR');
     const situacao=String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR');
     const motivos=[];
     let nivel=0;
-    if(os.status==='Pausada'){motivos.push('O.S. pausada');nivel=Math.max(nivel,4)}
-    if(['urgente','crítica','critica','alta'].includes(prioridade)){motivos.push('Prioridade '+(os.prioridade||'alta'));nivel=Math.max(nivel,3)}
-    if(situacao==='parado'){motivos.push('Máquina informada como parada');nivel=Math.max(nivel,3)}
-    if(os.status==='Aberta'&&!String(os.tecnico||'').trim()){motivos.push('Aguardando técnico');nivel=Math.max(nivel,2)}
+    const idadeOS=minutosDesde(os.created_at);
+    if(os.status==='Pausada'){
+      const inicioPausa=pausaAbertaOS(os);
+      const minutosPausa=minutosDesde(inicioPausa);
+      motivos.push(minutosPausa>=30?'Pausada há '+fmt(Math.round(minutosPausa)):'O.S. pausada');
+      nivel=Math.max(nivel,minutosPausa>=30?5:4);
+    }
+    if(['urgente','crítica','critica','alta'].includes(prioridade)){motivos.push('Prioridade '+(os.prioridade||'alta'));nivel=Math.max(nivel,4)}
+    if(situacao==='parado'){
+      motivos.push(idadeOS>=30?'Máquina parada há '+fmt(Math.round(idadeOS)):'Máquina informada como parada');
+      nivel=Math.max(nivel,idadeOS>=30?5:3);
+    }
+    if(os.status==='Aberta'&&!String(os.tecnico||'').trim()){
+      motivos.push(idadeOS>=15?'Sem técnico há '+fmt(Math.round(idadeOS)):'Aguardando técnico');
+      nivel=Math.max(nivel,idadeOS>=15?4:2);
+    }
+    const chave=normSetor(os.setor)+'||'+String(os.maquina||'').trim().toLocaleLowerCase('pt-BR');
+    const repeticoes=recorrenciaPorMaquina.get(chave)||0;
+    if(repeticoes>=3){motivos.push(repeticoes+' O.S. nos últimos 30 dias nesta máquina');nivel=Math.max(nivel,3)}
     return motivos.length?{os,motivos,nivel}:null;
   }).filter(Boolean).sort((a,b)=>b.nivel-a.nivel||new Date(a.os.created_at||0)-new Date(b.os.created_at||0));
   let html='<div class="sv-page">';
@@ -6114,14 +6146,14 @@ function renderPainelMaquinasSupervisor(){
     +'<button type="button" class="sv-metric" data-sv-metric="concluidas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'concluidas\')"><span>O.S. concluídas</span><strong>'+osConcluidas.length+'</strong><small>Histórico completo • toque para consultar</small></button>'
     +'<div class="sv-metric sv-metric-static"><span>Tempo de parada registrado</span><strong>'+fmt(Math.round(tempoParadaTotal))+'</strong><small>Tempo produtivo calculado nas O.S. informadas como paradas</small></div>'
     +'</div></section><section id="svMetricDetail" class="sv-metric-detail" hidden></section>';
-  html+='<section class="sv-attention"><div class="sv-attention-head"><div><span class="sv-kicker">AÇÃO DO SUPERVISOR</span><h3>O.S. que precisam de atenção</h3><p>Prioridades, máquinas paradas, ordens pausadas e ordens aguardando técnico.</p></div><strong>'+alertasSupervisor.length+'</strong></div>';
+  html+='<section class="sv-attention"><div class="sv-attention-head"><div><span class="sv-kicker">AÇÃO DO SUPERVISOR</span><h3>O.S. que precisam de atenção</h3><p>Alertas por tempo de parada, pausa prolongada, prioridade, falta de responsável e reincidência nos últimos 30 dias.</p></div><strong>'+alertasSupervisor.length+'</strong></div>';
   if(alertasSupervisor.length){
     html+='<div class="sv-attention-list">';
     alertasSupervisor.slice(0,5).forEach(({os,motivos})=>{
       html+='<button type="button" class="sv-attention-item" onclick="abrirOSDaSupervisao('+Number(os.id)+')"><span class="sv-attention-mark">!</span><span class="sv-attention-main"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><small>'+escaparHtml(os.setor||'Setor não informado')+' • '+escaparHtml(os.status)+'</small><small>'+escaparHtml(motivos.join(' · '))+'</small></span><span class="sv-attention-open">Ver O.S. →</span></button>';
     });
     html+='</div>';
-    if(alertasSupervisor.length>5)html+='<small class="sv-attention-more">Mostrando as 5 mais importantes de '+alertasSupervisor.length+' O.S. sinalizadas. Use a busca ou os filtros abaixo para localizar as demais.</small>';
+    if(alertasSupervisor.length>5)html+='<small class="sv-attention-more">Mostrando as 5 mais importantes de '+alertasSupervisor.length+' alertas. Abra cada O.S. para verificar a situação.</small>';
   }else{
     html+='<div class="sv-attention-clear"><span>✓</span><div><b>Nenhuma pendência prioritária identificada</b><small>As O.S. ativas não apresentam os critérios de atenção deste painel.</small></div></div>';
   }
