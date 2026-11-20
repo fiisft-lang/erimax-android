@@ -10431,14 +10431,15 @@ function renderMateriaisAlmox(){const box=document.getElementById('almoxListaMat
 function renderSolicitacoesAlmox(){
  const box=document.getElementById('almoxListaSolicitacoes');if(!box)return;
  if(!ALMOX_SOLICITACOES.length){box.innerHTML='<p class="almox-empty">Nenhuma solicitação aguardando análise.</p>';return}
- const normalizar=s=>String(s||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+ const normalizar=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
  box.innerHTML=ALMOX_SOLICITACOES.map(s=>{
   const match=ALMOX_MATERIAIS.find(m=>m.ativo&&normalizar(m.nome)===normalizar(s.nome_material));
   const escolhido=s.material_id||match?.id||'';
   const opts=ALMOX_MATERIAIS.filter(m=>m.ativo).map(m=>'<option value="'+m.id+'" '+(escolhido===m.id?'selected':'')+'>'+htmlAlmox(m.nome)+' ('+Number(m.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(m.unidade)+')</option>').join('');
   const situacao=match?'<span class="almox-request-registered">CADASTRADO • AGUARDANDO APROVAÇÃO</span>':'<span class="almox-request-unregistered">⚠ NÃO CADASTRADO</span>';
-  const cadastrar=match?'':'<button class="almox-register" type="button" onclick="prepararCadastroMaterialAlmox(\\''+s.id+'\\')">Cadastrar material</button>';
-  return '<article class="almox-request"><div class="almox-request-top"><div><strong>'+htmlAlmox(s.nome_material)+'</strong>'+situacao+'<small>O.S. #'+s.os_id+' • Quantidade: '+Number(s.quantidade).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade)+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small>'+(s.observacao?'<small>'+htmlAlmox(s.observacao)+'</small>':'')+'</div></div><div class="almox-request-controls"><select id="almoxReqMat-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+cadastrar+'<button class="almox-approve" type="button" onclick="aprovarSolicitacaoAlmox(\\''+s.id+'\\')">Aprovar saída</button><button class="almox-reject" type="button" onclick="recusarSolicitacaoAlmox(\\''+s.id+'\\')">Recusar</button></div></article>';
+  const sid=JSON.stringify(s.id);
+  const cadastrar=match?'':"<button class=\"almox-register\" type=\"button\" onclick='prepararCadastroMaterialAlmox("+sid+")'>Cadastrar material</button>";
+  return "<article class=\"almox-request\"><div class=\"almox-request-top\"><div><strong>"+htmlAlmox(s.nome_material)+"</strong>"+situacao+"<small>O.S. #"+s.os_id+" • Quantidade: "+Number(s.quantidade).toLocaleString('pt-BR')+" "+htmlAlmox(s.unidade)+" • "+new Date(s.criado_em).toLocaleString('pt-BR')+"</small>"+(s.observacao?'<small>'+htmlAlmox(s.observacao)+'</small>':'')+"</div></div><div class=\"almox-request-controls\"><select id=\"almoxReqMat-"+s.id+"\"><option value=\"\">Vincular ao material cadastrado...</option>"+opts+"</select>"+cadastrar+"<button class=\"almox-approve\" type=\"button\" onclick='aprovarSolicitacaoAlmox("+sid+")'>Aprovar saída</button><button class=\"almox-reject\" type=\"button\" onclick='recusarSolicitacaoAlmox("+sid+")'>Recusar</button></div></article>";
  }).join('');
 }
 function prepararCadastroMaterialAlmox(id){
