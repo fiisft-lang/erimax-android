@@ -10031,6 +10031,243 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
  #modalEfOS .efos-header .efos-close{top:max(10px,env(safe-area-inset-top))!important;right:max(10px,env(safe-area-inset-right))!important}
 }
 </style>
+
+<style id="erimax-desktop-v2-ferrari-2026">
+/* EriMax 2.0 — transformação real da experiência desktop.
+   Mantém a paleta da versão mobile e não altera fluxos, permissões ou dados. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+  :root{
+    --erimax-v2-side:264px;
+    --erimax-v2-gutter:clamp(24px,2.35vw,48px);
+    --erimax-v2-radius:18px;
+    --erimax-v2-shadow:0 8px 28px rgba(22,48,70,.065),0 1px 2px rgba(22,48,70,.035);
+  }
+  body{
+    padding-left:var(--erimax-v2-side)!important;
+    background:var(--bg)!important;
+    min-height:100vh;
+  }
+  /* Navegação lateral com hierarquia clara e estados de interação fortes. */
+  .nav-tabs{
+    width:var(--erimax-v2-side)!important;
+    padding:28px 14px 26px!important;
+    gap:8px!important;
+    background:var(--primary-dark)!important;
+    border-right:1px solid rgba(255,255,255,.12)!important;
+    box-shadow:8px 0 32px rgba(18,43,63,.12)!important;
+  }
+  .nav-tabs:before{
+    content:"ERIMAX  /  2.0"!important;
+    margin:0 10px 25px!important;
+    padding:4px 2px 21px!important;
+    font-size:1.02rem!important;
+    letter-spacing:.14em!important;
+    font-weight:900!important;
+  }
+  .nav-tabs .tab-btn{
+    min-height:51px!important;
+    padding:12px 14px!important;
+    border-radius:11px!important;
+    font-size:.9rem!important;
+    font-weight:650!important;
+    letter-spacing:-.01em!important;
+  }
+  .nav-tabs .tab-btn.active{
+    background:rgba(255,255,255,.18)!important;
+    border-left-color:var(--secondary)!important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),0 5px 14px rgba(0,0,0,.08)!important;
+  }
+  .nav-tabs .tab-btn.active .tab-icon{color:#fff!important}
+  .nav-tabs .tab-btn:not(.active):hover{transform:translateX(2px);background:rgba(255,255,255,.10)!important}
+  header{
+    min-height:78px!important;height:78px!important;
+    padding:10px var(--erimax-v2-gutter)!important;
+    border-bottom:1px solid var(--border)!important;
+    border-top:0!important;
+    box-shadow:0 4px 18px rgba(26,52,74,.045)!important;
+  }
+  header img.logo{width:210px!important;height:46px!important}
+  header .hd{font-size:.78rem!important;letter-spacing:.08em!important}
+  header .menu-control{display:flex!important}
+  header #btnMenuLateral{
+    width:42px!important;height:42px!important;
+    border-radius:12px!important;background:var(--bg)!important;
+    border:1px solid var(--border)!important;
+  }
+  header .menu-caption{font-size:.76rem!important;font-weight:750!important}
+  .user-bar{
+    min-height:42px!important;
+    padding:6px var(--erimax-v2-gutter)!important;
+    background:#edf3f8!important;
+    border-bottom:1px solid #dce6ee!important;
+  }
+  .user-bar>span:first-child{font-weight:750!important}
+  .user-bar button{
+    min-height:32px!important;padding:6px 13px!important;
+    border-radius:9px!important;font-weight:750!important;
+  }
+  .container{
+    width:100%!important;max-width:none!important;
+    margin:0!important;
+    padding:clamp(24px,2.15vw,42px) var(--erimax-v2-gutter) 64px!important;
+  }
+  .tab-content{
+    width:100%!important;max-width:2048px!important;
+    margin:0 auto!important;min-width:0!important;
+    font-size:15px!important;line-height:1.62!important;
+  }
+  .tab-content.active{animation:erimaxV2Enter .24s cubic-bezier(.2,.7,.2,1) both!important}
+  @keyframes erimaxV2Enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .tab-content h1,.tab-content h2{
+    letter-spacing:-.045em!important;
+    line-height:1.14!important;
+    font-weight:830!important;
+  }
+  .tab-content h2{font-size:clamp(1.65rem,1.8vw,2.35rem)!important}
+  .tab-content h3{font-size:1.08rem!important;font-weight:780!important;letter-spacing:-.025em!important}
+  .tab-content p{max-width:78ch}
+  .tab-content>.card,.tab-content>div>.card,.tab-content section.card{
+    border:1px solid color-mix(in srgb,var(--border) 84%,#9aafbf 16%)!important;
+    border-radius:var(--erimax-v2-radius)!important;
+    box-shadow:var(--erimax-v2-shadow)!important;
+    padding:clamp(22px,1.7vw,32px)!important;
+  }
+  .tab-content input,.tab-content select,.tab-content textarea{
+    min-height:48px!important;border-radius:10px!important;
+    border-color:#cbd9e4!important;padding:12px 14px!important;
+    font-size:.94rem!important;
+  }
+  .tab-content input:focus,.tab-content select:focus,.tab-content textarea:focus{
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 13%,transparent)!important;
+  }
+  .tab-content button{font-weight:720}
+  .tab-content button:not(.tab-btn):hover{transform:translateY(-1px)}
+  /* Abertura de O.S.: formulário amplo, alinhado e sem aparência de formulário mobile esticado. */
+  #tab-abrir{display:block!important}
+  #tab-abrir>#boxStatusTurno,#tab-abrir>#boxTec2{width:100%;max-width:1680px;margin:0 auto 14px!important}
+  #tab-abrir>.card{
+    width:100%!important;max-width:1680px!important;
+    margin:0 auto!important;padding:clamp(28px,2.2vw,42px)!important;
+    border-top:4px solid var(--primary)!important;
+  }
+  #tab-abrir>.card>h2{font-size:clamp(1.8rem,2vw,2.45rem)!important}
+  #formOS{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:0 22px!important;align-items:start!important;
+  }
+  #formOS>.form-group{min-width:0!important;margin:0 0 20px!important}
+  #formOS .form-group:has(#descricao),#formOS .form-group:has(#foto),
+  #formOS #grupoOutroEquipamento,#formOS>.btn-submit{grid-column:1/-1!important}
+  #formOS textarea#descricao{min-height:130px!important}
+  #formOS>.btn-submit{
+    width:max-content!important;min-width:270px!important;
+    min-height:54px!important;padding:14px 24px!important;
+    border-radius:11px!important;font-size:.98rem!important;
+  }
+  /* Central de O.S.: cartões em grade com leitura rápida no monitor. */
+  #tab-ordens-servico .os-modern-hero,#tab-ordens-abertas .oa-hero{
+    padding:clamp(28px,2.2vw,42px)!important;
+    border-radius:20px!important;margin-bottom:22px!important;
+    box-shadow:var(--erimax-v2-shadow)!important;
+  }
+  #tab-ordens-servico .os-modern-heading h2,#tab-ordens-abertas .oa-hero h2{
+    font-size:clamp(1.9rem,2vw,2.55rem)!important;
+  }
+  #tab-ordens-servico .os-modern-controls,#tab-ordens-abertas .oa-list-panel{
+    padding:24px!important;border-radius:17px!important;
+    box-shadow:var(--erimax-v2-shadow)!important;
+  }
+  #tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:16px!important;align-items:stretch!important;
+  }
+  #tab-ordens-servico .os-modern-list>.os-card,#tab-ordens-abertas .oa-list>.os-card{
+    min-width:0!important;height:100%!important;
+    border-radius:15px!important;padding:20px!important;
+    box-shadow:0 4px 16px rgba(25,50,70,.055)!important;
+  }
+  #tab-ordens-servico .os-modern-list>.os-card:hover,#tab-ordens-abertas .oa-list>.os-card:hover{
+    box-shadow:0 14px 30px rgba(25,50,70,.11)!important;
+    transform:translateY(-3px)!important;
+  }
+  /* Supervisão: painéis de gestão ocupam a largura real disponível. */
+  #painelMaquinasSupervisor{width:100%!important}
+  #painelMaquinasSupervisor .sv-page{gap:20px!important}
+  #painelMaquinasSupervisor .sv-hero{padding:34px!important}
+  #painelMaquinasSupervisor .sv-metric,#painelMaquinasSupervisor .supervisor-kpi{
+    min-height:132px!important;padding:21px!important;
+  }
+  /* Métricas: filtros, indicadores e gráficos em composição de análise. */
+  #tab-metricas .metrics-hero,#tab-ranking-os .ranking-os-hero,
+  #tab-cadastro .cadastro-hub-hero{
+    padding:34px!important;border-radius:20px!important;
+    box-shadow:var(--erimax-v2-shadow)!important;
+  }
+  #tab-metricas .metrics-filter-card{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:14px 18px!important;padding:23px!important;
+  }
+  #tab-metricas .metrics-filter-card h3,#tab-metricas .metrics-filter-card>p{grid-column:1/-1!important}
+  #tab-metricas .metrics-grid{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:16px!important;
+  }
+  #tab-metricas .metric-card{
+    min-height:142px!important;padding:22px!important;
+    border-radius:16px!important;box-shadow:var(--erimax-v2-shadow)!important;
+  }
+  #metricsDataContent{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important}
+  #metricsDataContent>.metrics-section-heading,#metricsDataContent>#printReportHeader,
+  #metricsDataContent>.noprint,#metricsDataContent>.metrics-grid,
+  #metricsDataContent>#cardHorarioEfGeral,#metricsDataContent>#cardHorarioRanking{grid-column:1/-1!important}
+  #metricsDataContent>.card,#metricsDataContent>.metrics-ranking-card{
+    min-width:0!important;border-radius:17px!important;padding:24px!important;
+    box-shadow:var(--erimax-v2-shadow)!important;
+  }
+  #metricsDataContent .chart-wrapper,.metrics-compare-charts .chart-wrapper{
+    height:clamp(330px,25vw,440px)!important;min-height:300px!important;
+  }
+  /* Cadastros, presença e ranking seguem a mesma linguagem visual. */
+  #tab-cadastro .cadastro-hub-nav{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
+  #tab-cadastro .cadastro-hub-tile{min-height:126px!important;border-radius:15px!important;padding:20px!important}
+  #tab-presenca #listaPresenca{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}
+  #tab-ranking-os .ranking-os-card{border-radius:16px!important;box-shadow:var(--erimax-v2-shadow)!important}
+  /* Tabelas com contraste e densidade de software profissional. */
+  .tab-content .tbl-wrap,.tab-content .table-responsive{
+    border:1px solid var(--border)!important;border-radius:13px!important;
+    overflow:auto!important;box-shadow:0 2px 10px rgba(20,45,65,.035)!important;
+  }
+  .tab-content .tbl-wrap table,.tab-content .table-responsive table{font-size:.87rem!important}
+  .tab-content .tbl-wrap th,.tab-content .table-responsive th{
+    padding:14px 15px!important;background:#eaf1f7!important;
+    color:var(--primary-dark)!important;font-size:.74rem!important;
+    font-weight:850!important;letter-spacing:.045em!important;
+  }
+  .tab-content .tbl-wrap td,.tab-content .table-responsive td{padding:13px 15px!important}
+  /* Monitores ultrawide: aproveitamento gradual sem esticar textos. */
+  @media (min-width:1600px){
+    :root{--erimax-v2-side:280px}
+    #tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+    #tab-presenca #listaPresenca{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+    #tab-metricas .metrics-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+  }
+  @media (max-width:1279px){
+    :root{--erimax-v2-side:238px}
+    #formOS{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    #tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{grid-template-columns:1fr!important}
+    #tab-presenca #listaPresenca{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    #tab-metricas .metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    #metricsDataContent{grid-template-columns:1fr!important}
+  }
+  body.erimax-sidebar-collapsed{padding-left:88px!important}
+  body.erimax-sidebar-collapsed .nav-tabs{width:82px!important}
+  #toastOS{left:calc(50% + var(--erimax-v2-side)/2)!important}
+}
+@media (max-width:1023px){
+  #erimax-desktop-v2-ferrari-2026{display:none}
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
