@@ -5469,11 +5469,6 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </nav>
 
 <div class="container">
-<section id="erimaxDesktopPageHeader" aria-live="polite">
-  <div class="erimax-pagehead-main">
-    <div class="erimax-pagehead-title-row"><div><h1 id="erimaxDesktopPageTitle">Abrir ordem de serviço</h1></div></div>
-  </div>
-</section>
 <!-- ABRIR OS -->
 <div id="tab-abrir" class="tab-content active">
 <div id="boxStatusTurno"></div>
@@ -6167,24 +6162,7 @@ function voltarSistema(){
   if(document.getElementById('tab-abrir')&&!document.getElementById('tab-abrir').classList.contains('active')){mudarAba('abrir');return;}
   atualizarBotaoVoltarSistema();
 }
-function atualizarCabecalhoDesktopEriMax(id){
-  const titulo=document.getElementById('erimaxDesktopPageTitle');
-  if(!titulo)return;
-  const paginas={
-    'abrir':'Abrir ordem de serviço',
-    'painel':'Supervisão',
-    'ordens-servico':'Ordens de serviço',
-    'ordens-abertas':'Ordens abertas',
-    'presenca':'Presença dos usuários',
-    'cadastro':'Central de cadastros',
-    'metricas':'Indicadores de manutenção',
-    'ranking-os':'Desempenho da equipe',
-    'ia':'Consulta ao histórico'
-  };
-  titulo.textContent=paginas[id]||paginas.abrir;
-}
-const erimaxAbaInicial=document.querySelector('.tab-content.active');
-atualizarCabecalhoDesktopEriMax(erimaxAbaInicial&&erimaxAbaInicial.id?erimaxAbaInicial.id.replace(/^tab-/,''):'abrir');
+
 function mudarAba(id,evt,opcoes={}){
   const abaAtual=document.querySelector('.tab-content.active');
   const idAtual=abaAtual&&abaAtual.id?abaAtual.id.replace(/^tab-/,''):'abrir';
@@ -6198,7 +6176,7 @@ function mudarAba(id,evt,opcoes={}){
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
-  atualizarCabecalhoDesktopEriMax(id);
+
   const precisaAtualizar=['painel','ordens-servico','ordens-abertas','metricas','ranking-os'].includes(id);
   const carregamento=precisaAtualizar?carregarDadosSupabase():Promise.resolve();
   if(id==='painel')renderPainelMaquinasSupervisor();
