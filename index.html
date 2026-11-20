@@ -5011,7 +5011,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </style>
 <script id="erimax-desktop-menu-controller-2026">
 (function(){
-  const desktop=()=>!!(window.matchMedia&&window.matchMedia('(min-width:1024px) and (hover:hover) and (pointer:fine)').matches);
+  const desktop=()=>window.innerWidth>=1024;
   function atualizarBotao(){
     const b=document.getElementById('btnMenuLateral');
     if(!b)return;
@@ -5059,7 +5059,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 
 
 <style id="erimax-desktop-menu-toggle-fix">
-@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+@media (min-width:1024px) {
   /* O controle precisa permanecer visível no desktop para alternar a sidebar. */
   header .menu-control {
     display:flex!important;
@@ -5093,6 +5093,18 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   body.erimax-sidebar-collapsed {
     padding-left:88px!important;
   }
+}
+</style>
+
+
+<style id="erimax-sidebar-force-desktop-2026">
+@media (min-width:1024px) {
+  header .menu-control { display:flex!important; align-items:center!important; visibility:visible!important; opacity:1!important; }
+  header #btnMenuLateral { display:flex!important; visibility:visible!important; opacity:1!important; pointer-events:auto!important; }
+  body.erimax-sidebar-collapsed { padding-left:88px!important; }
+  body.erimax-sidebar-collapsed .nav-tabs { width:82px!important; min-width:82px!important; max-width:82px!important; padding-left:10px!important; padding-right:10px!important; }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-btn { justify-content:center!important; gap:0!important; }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-btn > span:not(.tab-icon):not(.badge-count) { display:none!important; }
 }
 </style>
 
