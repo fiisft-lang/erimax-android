@@ -11702,3 +11702,42 @@ function alternarPainelComparacaoMaquinas(){
   botao.innerHTML=fechado?'Abrir comparação <span aria-hidden="true">⌄</span>':'Fechar comparação <span aria-hidden="true">⌃</span>';
 }
 </script>
+<style id="erimax-design-system-cards-2026">
+/* Sistema visual unificado dos cards, históricos e blocos de informação. Somente visual. */
+:root{--erimax-surface:#fff;--erimax-line:#dce6ec;--erimax-ink:#183f57;--erimax-card-shadow:0 5px 18px rgba(21,52,73,.055);--erimax-card-shadow-hover:0 11px 28px rgba(21,52,73,.095)}
+.tab-content .card,.tab-content .os-card,.tab-content .ranking-os-card,.tab-content .metrics-ranking-card,.tab-content .cadastro-area-card,.tab-content .cadastro-area-panel,.tab-content .cadastro-setores-shell,.tab-content .metrics-filter-card,.tab-content .metrics-compare-panel,.tab-content .metrics-compare-machine,#tab-presenca #listaPresenca>* ,#tab-ia #resultadoConsulta>*{border-color:var(--erimax-line);border-radius:16px;box-shadow:var(--erimax-card-shadow)}
+.tab-content .card,.tab-content .os-card,.tab-content .ranking-os-card,.tab-content .metrics-ranking-card,.tab-content .cadastro-area-card,.tab-content .cadastro-area-panel,.tab-content .cadastro-setores-shell,.tab-content .metrics-filter-card,.tab-content .metrics-compare-panel,.tab-content .metrics-compare-machine{background-color:var(--erimax-surface)}
+.tab-content .card :is(h2,h3,h4),.tab-content .os-card .os-id,.tab-content .ranking-os-card :is(h2,h3,h4){letter-spacing:-.025em}
+.tab-content .card :is(p,li),.tab-content .os-card :is(p,li),.tab-content .oa-more-content :is(p,div,li){overflow-wrap:anywhere}
+.tab-content :is(.os-resumo-info>span,.oa-card-meta>span,.oa-card-facts>span,.erimax-os-detail-cell){min-width:0;border:1px solid #e2eaf0;border-radius:11px;background:linear-gradient(150deg,#fff 0%,#f7fafc 100%)}
+.tab-content :is(.os-resumo-info small,.oa-card-meta small,.oa-card-facts small,.erimax-os-detail-cell small){color:#718696;font-size:.68rem;font-weight:800;letter-spacing:.055em}
+.tab-content :is(.os-resumo-info b,.oa-card-meta b,.oa-card-facts b,.erimax-os-detail-cell b){color:var(--erimax-ink);overflow-wrap:anywhere}
+#painelMaquinasSupervisor :is(.sv-metric,.sv-attention-item,.sv-os-card,.sv-history-item,.sv-sector,.sv-machine){border-color:var(--erimax-line);box-shadow:0 3px 12px rgba(21,52,73,.045)}
+#painelMaquinasSupervisor .sv-metric{border-radius:13px;background:linear-gradient(155deg,#fff 0%,#f7fafc 100%)}
+#painelMaquinasSupervisor :is(.sv-history-item,.sv-attention-item){border-radius:12px}
+#tab-cadastro :is(.cadastro-hub-tile,.cadastro-area-card,.cadastro-area-panel,.cadastro-setores-shell){border-radius:16px}
+#tab-metricas .metric-card{border:1px solid #e0e8ee;border-radius:14px;background:linear-gradient(155deg,#fff 0%,#f7fafc 100%);box-shadow:0 4px 14px rgba(21,52,73,.05)}
+#tab-metricas .metric-card .title{color:#718696}
+#tab-metricas .metric-card .value{font-variant-numeric:tabular-nums;letter-spacing:-.035em}
+.tab-content :is(.tbl-wrap,.table-responsive) table tbody tr:nth-child(even){background:#f8fafc}
+.tab-content :is(.tbl-wrap,.table-responsive) table tbody tr:hover{background:#eef5f8}
+.erimax-os-history-panel{border:1px solid #d8e3ea;border-radius:20px;box-shadow:0 24px 70px rgba(12,35,52,.24);overflow:hidden}
+.erimax-os-history-head{background:linear-gradient(120deg,#f7fafc 0%,#edf4f7 100%);border-bottom:1px solid #dce6ec}
+.erimax-os-history-head small{color:#668092;font-size:.66rem;font-weight:850;letter-spacing:.12em}
+.erimax-os-history-head h2{color:#173f59;font-weight:850;letter-spacing:-.035em}
+.erimax-os-history-content{background:#fff}
+.erimax-os-history-section{margin:0 0 14px;padding:17px;border:1px solid #e1e9ee;border-radius:14px;background:linear-gradient(155deg,#fff 0%,#fafcfd 100%)}
+.erimax-os-history-section h3{margin:0 0 12px;color:#214b64;font-size:.9rem;font-weight:850;letter-spacing:-.015em}
+.erimax-os-detail-grid{gap:10px}
+.erimax-os-detail-cell{padding:12px 13px}
+.erimax-os-detail-cell b{display:block;margin-top:5px;line-height:1.5}
+.erimax-os-timeline{padding-top:5px}
+.erimax-os-event{padding:0 0 19px;gap:13px}
+.erimax-os-event-dot{width:13px;height:13px;box-shadow:0 0 0 3px #eaf1f5}
+.erimax-os-event>div:not(.erimax-os-event-dot){min-width:0;padding:11px 13px;border:1px solid #e3ebf0;border-radius:11px;background:#fff}
+.erimax-os-event :is(b,strong){color:#1b465f}
+.erimax-os-event :is(p,small){color:#62798a;line-height:1.55}
+@media(min-width:768px){.tab-content .card,.tab-content .os-card,.tab-content .ranking-os-card,.tab-content .metrics-ranking-card,.tab-content .cadastro-area-card,.tab-content .cadastro-area-panel,.tab-content .cadastro-setores-shell,.tab-content .metrics-filter-card,.tab-content .metrics-compare-panel,.tab-content .metrics-compare-machine{border-radius:17px}}
+@media(hover:hover) and (pointer:fine){.tab-content .card,.tab-content .os-card,.tab-content .ranking-os-card,.tab-content .metrics-compare-machine,#painelMaquinasSupervisor :is(.sv-metric,.sv-attention-item,.sv-os-card,.sv-history-item,.sv-sector,.sv-machine){transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}.tab-content .card:hover,.tab-content .os-card:hover,.tab-content .ranking-os-card:hover,.tab-content .metrics-compare-machine:hover,#painelMaquinasSupervisor :is(.sv-metric,.sv-attention-item,.sv-os-card,.sv-history-item,.sv-sector,.sv-machine):hover{border-color:#c6d7e1;box-shadow:var(--erimax-card-shadow-hover)}}
+@media(max-width:600px){.erimax-os-history-section{padding:12px}.erimax-os-detail-grid{gap:7px}.erimax-os-detail-cell{padding:10px}.erimax-os-history-panel{border-radius:17px 17px 12px 12px}}
+</style>
