@@ -5471,7 +5471,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div class="container">
 <section id="erimaxDesktopPageHeader" aria-live="polite">
   <div class="erimax-pagehead-main">
-    <div class="erimax-pagehead-title-row"><div><h1 id="erimaxDesktopPageTitle">Abrir ordem de serviço</h1><p id="erimaxDesktopPageDescription">Registre uma ocorrência e encaminhe a manutenção com todas as informações necessárias.</p></div></div>
+    <div class="erimax-pagehead-title-row"><div><h1 id="erimaxDesktopPageTitle">Abrir ordem de serviço</h1></div></div>
   </div>
 </section>
 <!-- ABRIR OS -->
@@ -6169,22 +6169,19 @@ function voltarSistema(){
 }
 function atualizarCabecalhoDesktopEriMax(id){
   const titulo=document.getElementById('erimaxDesktopPageTitle');
-  const descricao=document.getElementById('erimaxDesktopPageDescription');
-  if(!titulo||!descricao)return;
+  if(!titulo)return;
   const paginas={
-    'abrir':['Abrir ordem de serviço','Registre uma ocorrência e encaminhe a manutenção com todas as informações necessárias.'],
-    'painel':['Supervisão','Acompanhe a situação das máquinas, as prioridades e a movimentação da manutenção.'],
-    'ordens-servico':['Ordens de serviço','Consulte registros, acompanhe atendimentos e encontre rapidamente qualquer ordem.'],
-    'ordens-abertas':['Ordens abertas','Visualize o que aguarda atendimento, o que está em execução e o que exige atenção.'],
-    'presenca':['Presença dos usuários','Acompanhe os usuários conectados ao EriMax e a atividade da equipe.'],
-    'cadastro':['Central de cadastros','Organize setores, máquinas, manutenções preventivas e acessos do sistema.'],
-    'metricas':['Indicadores de manutenção','Analise paradas, tempos de atendimento, causas e desempenho operacional.'],
-    'ranking-os':['Desempenho da equipe','Compare a quantidade de ordens concluídas por técnico no período selecionado.'],
-    'ia':['Consulta ao histórico','Investigue ocorrências anteriores e encontre padrões nos registros de manutenção.']
+    'abrir':'Abrir ordem de serviço',
+    'painel':'Supervisão',
+    'ordens-servico':'Ordens de serviço',
+    'ordens-abertas':'Ordens abertas',
+    'presenca':'Presença dos usuários',
+    'cadastro':'Central de cadastros',
+    'metricas':'Indicadores de manutenção',
+    'ranking-os':'Desempenho da equipe',
+    'ia':'Consulta ao histórico'
   };
-  const pagina=paginas[id]||paginas.abrir;
-  titulo.textContent=pagina[0];
-  descricao.textContent=pagina[1];
+  titulo.textContent=paginas[id]||paginas.abrir;
 }
 const erimaxAbaInicial=document.querySelector('.tab-content.active');
 atualizarCabecalhoDesktopEriMax(erimaxAbaInicial&&erimaxAbaInicial.id?erimaxAbaInicial.id.replace(/^tab-/,''):'abrir');
@@ -10323,7 +10320,6 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
   .erimax-pagehead-title-row{display:flex;align-items:center;gap:15px}
   .erimax-pagehead-mark{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:13px;background:var(--primary-dark);color:#fff;font-size:1.28rem;font-weight:950;box-shadow:0 5px 12px rgba(22,55,80,.16)}
   #erimaxDesktopPageTitle{margin:0!important;color:var(--primary-dark)!important;font-size:clamp(1.55rem,1.8vw,2.15rem)!important;font-weight:880!important;letter-spacing:-.05em!important;line-height:1.12!important}
-  #erimaxDesktopPageDescription{margin:6px 0 0!important;color:#667b8b!important;font-size:.88rem!important;line-height:1.45!important;max-width:76ch}
   .erimax-pagehead-meta{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto}
   .erimax-pagehead-version{display:inline-flex;align-items:center;min-height:30px;padding:6px 11px;border-radius:8px;background:var(--primary-dark);color:#fff;font-size:.68rem;font-weight:900;letter-spacing:.1em}
   .erimax-pagehead-context{color:#8495a2;font-size:.62rem;font-weight:850;letter-spacing:.09em;text-align:right}
