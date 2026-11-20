@@ -5469,6 +5469,13 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </nav>
 
 <div class="container">
+<section id="erimaxDesktopPageHeader" aria-live="polite">
+  <div class="erimax-pagehead-main">
+    <div class="erimax-pagehead-breadcrumb"><span>ERIMAX</span><span class="erimax-pagehead-sep">/</span><span>ESPAÇO DE TRABALHO</span></div>
+    <div class="erimax-pagehead-title-row"><span class="erimax-pagehead-mark" aria-hidden="true">E</span><div><h1 id="erimaxDesktopPageTitle">Abrir ordem de serviço</h1><p id="erimaxDesktopPageDescription">Registre uma ocorrência e encaminhe a manutenção com todas as informações necessárias.</p></div></div>
+  </div>
+  <div class="erimax-pagehead-meta"><span class="erimax-pagehead-version">ERIMAX 2.0</span><span class="erimax-pagehead-context">GESTÃO DE MANUTENÇÃO</span></div>
+</section>
 <!-- ABRIR OS -->
 <div id="tab-abrir" class="tab-content active">
 <div id="boxStatusTurno"></div>
@@ -6162,6 +6169,25 @@ function voltarSistema(){
   if(document.getElementById('tab-abrir')&&!document.getElementById('tab-abrir').classList.contains('active')){mudarAba('abrir');return;}
   atualizarBotaoVoltarSistema();
 }
+function atualizarCabecalhoDesktopEriMax(id){
+  const titulo=document.getElementById('erimaxDesktopPageTitle');
+  const descricao=document.getElementById('erimaxDesktopPageDescription');
+  if(!titulo||!descricao)return;
+  const paginas={
+    'abrir':['Abrir ordem de serviço','Registre uma ocorrência e encaminhe a manutenção com todas as informações necessárias.'],
+    'painel':['Supervisão','Acompanhe a situação das máquinas, as prioridades e a movimentação da manutenção.'],
+    'ordens-servico':['Ordens de serviço','Consulte registros, acompanhe atendimentos e encontre rapidamente qualquer ordem.'],
+    'ordens-abertas':['Ordens abertas','Visualize o que aguarda atendimento, o que está em execução e o que exige atenção.'],
+    'presenca':['Presença dos usuários','Acompanhe os usuários conectados ao EriMax e a atividade da equipe.'],
+    'cadastro':['Central de cadastros','Organize setores, máquinas, manutenções preventivas e acessos do sistema.'],
+    'metricas':['Indicadores de manutenção','Analise paradas, tempos de atendimento, causas e desempenho operacional.'],
+    'ranking-os':['Desempenho da equipe','Compare a quantidade de ordens concluídas por técnico no período selecionado.'],
+    'ia':['Consulta ao histórico','Investigue ocorrências anteriores e encontre padrões nos registros de manutenção.']
+  };
+  const pagina=paginas[id]||paginas.abrir;
+  titulo.textContent=pagina[0];
+  descricao.textContent=pagina[1];
+}
 function mudarAba(id,evt,opcoes={}){
   const abaAtual=document.querySelector('.tab-content.active');
   const idAtual=abaAtual&&abaAtual.id?abaAtual.id.replace(/^tab-/,''):'abrir';
@@ -6175,6 +6201,7 @@ function mudarAba(id,evt,opcoes={}){
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
+  atualizarCabecalhoDesktopEriMax(id);
   const precisaAtualizar=['painel','ordens-servico','ordens-abertas','metricas','ranking-os'].includes(id);
   const carregamento=precisaAtualizar?carregarDadosSupabase():Promise.resolve();
   if(id==='painel')renderPainelMaquinasSupervisor();
@@ -10272,6 +10299,67 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 </style>
 
+<style id="erimax-desktop-workspace-architecture-2026">
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  #erimaxDesktopPageHeader{
+    display:flex!important;align-items:center!important;justify-content:space-between!important;
+    gap:24px!important;width:100%!important;max-width:2048px!important;
+    margin:0 auto 25px!important;padding:23px 28px!important;
+    border:1px solid var(--border)!important;border-left:5px solid var(--primary)!important;
+    border-radius:17px!important;background:#fff!important;
+    box-shadow:0 7px 24px rgba(24,51,73,.055)!important;
+  }
+  .erimax-pagehead-main{min-width:0}
+  .erimax-pagehead-breadcrumb{display:flex;align-items:center;gap:9px;margin-bottom:9px;color:#6c8192;font-size:.67rem;font-weight:850;letter-spacing:.13em}
+  .erimax-pagehead-breadcrumb>span:first-child{color:var(--primary);font-weight:950}
+  .erimax-pagehead-sep{color:#a7b5c0}
+  .erimax-pagehead-title-row{display:flex;align-items:center;gap:15px}
+  .erimax-pagehead-mark{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:13px;background:var(--primary-dark);color:#fff;font-size:1.28rem;font-weight:950;box-shadow:0 5px 12px rgba(22,55,80,.16)}
+  #erimaxDesktopPageTitle{margin:0!important;color:var(--primary-dark)!important;font-size:clamp(1.55rem,1.8vw,2.15rem)!important;font-weight:880!important;letter-spacing:-.05em!important;line-height:1.12!important}
+  #erimaxDesktopPageDescription{margin:6px 0 0!important;color:#667b8b!important;font-size:.88rem!important;line-height:1.45!important;max-width:76ch}
+  .erimax-pagehead-meta{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto}
+  .erimax-pagehead-version{display:inline-flex;align-items:center;min-height:30px;padding:6px 11px;border-radius:8px;background:var(--primary-dark);color:#fff;font-size:.68rem;font-weight:900;letter-spacing:.1em}
+  .erimax-pagehead-context{color:#8495a2;font-size:.62rem;font-weight:850;letter-spacing:.09em;text-align:right}
+  /* O título principal agora pertence ao cabeçalho do espaço de trabalho. */
+  #tab-abrir>.card>h2,
+  #tab-ordens-servico .os-modern-heading h2,
+  #tab-ordens-abertas .oa-hero h2,
+  #tab-metricas .metrics-hero h2,
+  #tab-ranking-os .ranking-os-hero h2,
+  #tab-cadastro .cadastro-hub-hero h2,
+  #tab-presenca>.card h3,
+  #tab-ia>.card>h2{display:none!important}
+  #tab-abrir>.card{max-width:1680px!important;width:100%!important;margin:0 auto 20px!important}
+  #formOS{grid-template-columns:repeat(3,minmax(0,1fr))!important;column-gap:24px!important}
+  #formOS>.form-group{min-width:0!important}
+  #tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:17px!important}
+  #tab-metricas .metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #tab-presenca #listaPresenca{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  #tab-painel #painelMaquinasSupervisor{max-width:2048px;margin:0 auto}
+  #tab-painel #painelMaquinasSupervisor .sv-page{grid-template-columns:repeat(12,minmax(0,1fr))!important}
+  #tab-painel #painelMaquinasSupervisor .sv-hero,
+  #tab-painel #painelMaquinasSupervisor .sv-workspace,
+  #tab-painel #painelMaquinasSupervisor .sv-audit{grid-column:1/-1!important}
+  #tab-painel #painelMaquinasSupervisor .sv-attention{grid-column:span 5!important}
+  #tab-painel #painelMaquinasSupervisor .sv-movements{grid-column:span 7!important}
+}
+@media (min-width:1600px) and (hover:hover) and (pointer:fine){
+  #tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  #tab-metricas .metrics-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+  #tab-presenca #listaPresenca{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media (min-width:1024px) and (max-width:1279px) and (hover:hover) and (pointer:fine){
+  #erimaxDesktopPageHeader{padding:19px 21px!important}
+  .erimax-pagehead-mark{width:42px;height:42px;flex-basis:42px}
+  #formOS{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{grid-template-columns:1fr!important}
+  #tab-metricas .metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tab-presenca #listaPresenca{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tab-painel #painelMaquinasSupervisor .sv-attention,
+  #tab-painel #painelMaquinasSupervisor .sv-movements{grid-column:1/-1!important}
+}
+@media (max-width:1023px){#erimaxDesktopPageHeader{display:none!important}}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
