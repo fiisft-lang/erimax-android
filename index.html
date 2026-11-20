@@ -5128,6 +5128,25 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   .nav-tabs { transition:none!important; }
 }
 </style>
+<style id="erimax-os-nav-icon-only-2026">
+@media (min-width:1024px) {
+  /* No menu compacto, Ordens de Serviço fica representado pela chave inglesa. */
+  body.erimax-sidebar-collapsed .nav-tabs #tbOrdensServico {
+    justify-content:center!important;
+    gap:0!important;
+    font-size:0!important;
+  }
+  body.erimax-sidebar-collapsed .nav-tabs #tbOrdensServico > span:not(.tab-icon):not(.badge-count) {
+    display:none!important;
+  }
+  body.erimax-sidebar-collapsed .nav-tabs #tbOrdensServico .tab-icon {
+    display:flex!important;
+    flex:0 0 23px!important;
+    width:23px!important;
+    height:23px!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
