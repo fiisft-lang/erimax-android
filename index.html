@@ -7121,8 +7121,9 @@ async function retomarOS(id,evt){
     if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
     if(!st||!st.turno_ativo||st.status!=='ONLINE')return alert('Para retomar, você precisa estar ONLINE e sem outra O.S. em atendimento.');
   }
-  const {error}=await _supabase.from('os').update({status:'Em Atendimento',motivo_pausa:null,pausada_em:null}).eq('id',id).eq('status','Pausada');
+  const {data:retomada,error}=await _supabase.from('os').update({status:'Em Atendimento',motivo_pausa:null,pausada_em:null}).eq('id',id).eq('status','Pausada').select('id').maybeSingle();
   if(error)return alert('Não foi possível retomar a O.S.: '+error.message);
+  if(!retomada){await carregarDadosSupabase();return alert('Esta O.S. já foi retomada ou alterada por outra pessoa. A lista foi atualizada.');}
   if(registroAtivo){
     const {error:histError}=await _supabase.from('historico_pausas_os').update({retomada_em:new Date().toISOString()}).eq('id',registroAtivo.id);
     if(histError)console.error('A O.S. foi retomada, mas o histórico não foi atualizado:',histError.message);
@@ -7433,8 +7434,9 @@ async function cancelarOS(id){
   const os=chamados.find(c=>Number(c.id)===Number(id));if(!os)return;
   if(!['Aberta','Em Atendimento','Pausada'].includes(os.status))return alert('Esta O.S. não pode mais ser cancelada.');
   if(!confirm('Cancelar a O.S. #'+String(id).padStart(4,'0')+'? Ela continuará no histórico e não será apagada do banco de dados.'))return;
-  const {error}=await _supabase.from('os').update({status:'Cancelada'}).eq('id',id);
+  const {data:cancelada,error}=await _supabase.from('os').update({status:'Cancelada'}).eq('id',id).in('status',['Aberta','Em Atendimento','Pausada']).select('id').maybeSingle();
   if(error)return alert('Erro ao cancelar O.S.: '+error.message);
+  if(!cancelada){await carregarDadosSupabase();return alert('Esta O.S. já foi alterada e não pode mais ser cancelada neste estado. A lista foi atualizada.');}
   await carregarDadosSupabase();
 }
 
