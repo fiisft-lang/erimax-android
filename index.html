@@ -6088,7 +6088,7 @@ function renderPainelMaquinasSupervisor(){
   const maquinasComOS=itens.filter(x=>x.ativas.length).length;
   const tempoParadaTotal=chamados.reduce((total,os)=>{
     if(String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')!=='parado')return total;
-    const turno=Number((String(os.turno||'').match(/\\d+/)||[])[0])||null;
+    const turno=Number((String(os.turno||'').match(/\d+/)||[])[0])||null;
     try{return total+Math.max(0,Number(paradaProd(os,turno))||0)}catch(e){return total}
   },0);
   window.__erimaxSvMetricData={ativas,itens,concluidas:ordenarOSRecentes(osConcluidas),tempoParadaTotal};
@@ -6106,11 +6106,11 @@ function renderPainelMaquinasSupervisor(){
   let html='<div class="sv-page">';
   html+='<section class="sv-hero"><div class="sv-hero-top"><div><span class="sv-kicker">CENTRO DE CONTROLE</span><h2>Supervisão</h2><p>Acompanhamento das máquinas e ordens de serviço.</p></div><div class="sv-live"><span></span> Dados do sistema</div></div>';
   html+='<div class="sv-metrics">'
-    +'<button type="button" class="sv-metric" data-sv-metric="ativas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\\'ativas\\')"><span>Ordens ativas</span><strong>'+osAtivas+'</strong><small>Abertas, em atendimento e pausadas</small></button>'
-    +'<button type="button" class="sv-metric" data-sv-metric="maquinas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\\'maquinas\\')"><span>Máquinas com O.S.</span><strong>'+maquinasComOS+'</strong><small>Equipamentos com ordem não concluída</small></button>'
-    +'<button type="button" class="sv-metric" data-sv-metric="paradas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\\'paradas\\')"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Condição registrada nas ordens ativas</small></button>'
-    +'<button type="button" class="sv-metric" data-sv-metric="manutencao" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\\'manutencao\\')"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Atendimentos em andamento</small></button>'
-    +'<button type="button" class="sv-metric" data-sv-metric="concluidas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\\'concluidas\\')"><span>O.S. concluídas</span><strong>'+osConcluidas.length+'</strong><small>Histórico completo • toque para consultar</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="ativas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'ativas\')"><span>Ordens ativas</span><strong>'+osAtivas+'</strong><small>Abertas, em atendimento e pausadas</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="maquinas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'maquinas\')"><span>Máquinas com O.S.</span><strong>'+maquinasComOS+'</strong><small>Equipamentos com ordem não concluída</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="paradas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'paradas\')"><span>Paradas informadas</span><strong>'+qtd('Parada informada na O.S.')+'</strong><small>Condição registrada nas ordens ativas</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="manutencao" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'manutencao\')"><span>Em manutenção</span><strong>'+qtd('Manutenção em andamento')+'</strong><small>Atendimentos em andamento</small></button>'
+    +'<button type="button" class="sv-metric" data-sv-metric="concluidas" aria-expanded="false" onclick="abrirDetalheIndicadorSupervisor(\'concluidas\')"><span>O.S. concluídas</span><strong>'+osConcluidas.length+'</strong><small>Histórico completo • toque para consultar</small></button>'
     +'<div class="sv-metric sv-metric-static"><span>Tempo de parada registrado</span><strong>'+fmt(Math.round(tempoParadaTotal))+'</strong><small>Tempo produtivo calculado nas O.S. informadas como paradas</small></div>'
     +'</div></section><section id="svMetricDetail" class="sv-metric-detail" hidden></section>';
   html+='<section class="sv-attention"><div class="sv-attention-head"><div><span class="sv-kicker">AÇÃO DO SUPERVISOR</span><h3>O.S. que precisam de atenção</h3><p>Prioridades, máquinas paradas, ordens pausadas e ordens aguardando técnico.</p></div><strong>'+alertasSupervisor.length+'</strong></div>';
