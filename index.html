@@ -5739,17 +5739,17 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </div>
 
 <div id="login"><div class="box"><img class="logo" alt="Erimax" style="display:block;max-width:230px;width:80%;margin:0 auto 12px"><h2 style="text-align:center">Entrar</h2>
-<div class="form-group"><label>E-mail</label><input id="lgEmail" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
-<div class="form-group"><label>Senha</label><input id="lgSenha" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" onkeydown="if(event.key==='Enter')entrar()"></div>
+<div class="form-group"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
+<div class="form-group"><label for="lgSenha">Senha</label><input id="lgSenha" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" onkeydown="if(event.key==='Enter')entrar()"></div>
 <p id="lgErro" style="color:var(--danger);font-size:.8rem;margin-bottom:8px"></p>
 <button class="btn-submit" onclick="entrar()">Entrar</button></div></div>
 
 <div id="modal"><div class="box"><h2>Concluir OS</h2>
-<div class="form-group"><label>Causa da falha *</label><select id="mdCausa"></select></div>
-<div class="form-group"><label>Peça trocada (opcional)</label><input id="mdPeca" placeholder="Ex.: Rolamento 6204"></div>
-<div class="form-group"><label>Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
+<div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
+<div class="form-group"><label for="mdPeca">Peça trocada (opcional)</label><input id="mdPeca" placeholder="Ex.: Rolamento 6204"></div>
+<div class="form-group"><label for="mdServico">Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
 <div class="form-group"><label for="mdMecanicoAux">Mecânico auxiliar (opcional)</label><select id="mdMecanicoAux"><option value="">Nenhum auxiliar</option></select><small style="display:block;color:#64748b;margin-top:5px">Selecione somente se outro técnico participou desta manutenção.</small></div>
-<details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details>
+<details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" aria-label="Observação de máquina rodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details>
 <div class="form-group" id="mdMaquinasWrap" style="display:none"><label>Execução por máquina</label><p style="font-size:.75rem;color:#64748b;margin:4px 0 8px">Marque cada máquina somente depois de executar o serviço nela. A O.S. só poderá ser concluída quando todas estiverem marcadas.</p><div id="mdListaMaquinas"></div><button type="button" class="btn-submit" style="background:#0f766e;margin-top:8px" onclick="salvarProgressoMaquinas()">💾 Salvar andamento sem fechar a O.S.</button></div>
 <div class="form-group"><label>Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
@@ -5775,10 +5775,10 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <div id="modalDetalheMetrica" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1300;align-items:center;justify-content:center;padding:12px"><div class="box" style="width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><h2 id="tituloDetalheMetrica" style="font-size:1.08rem;color:var(--primary);margin:0">Detalhes da métrica</h2><small style="color:#64748b">Conforme os filtros selecionados</small></div><button class="btn-action btn-transferir" onclick="fecharDetalheMetrica()">Voltar ✕</button></div><p id="resumoDetalheMetrica" style="font-size:.84rem;color:#475569;line-height:1.5;margin:10px 0"></p><div class="chart-wrapper" style="height:280px;margin:8px 0 14px"><canvas id="chartDetalheMetrica"></canvas></div><h3 style="font-size:.92rem;color:var(--primary);margin:8px 0">Registros relacionados</h3><div id="listaDetalheMetrica"></div></div></div>
 <div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
-<div class="form-group"><label>Data e horário real em que a máquina parou / O.S. foi aberta</label><input id="hrAbertura" type="datetime-local" required></div>
-<div class="form-group"><label>Início do atendimento técnico (opcional enquanto não atendida)</label><input id="hrIni" type="datetime-local"></div>
-<div class="form-group"><label>Conclusão</label><input id="hrFim" type="datetime-local"></div>
-<div class="form-group"><label>Motivo principal *</label><select id="hrTipo"><option value="Esquecimento do operador">Esquecimento do operador ao abrir a O.S.</option><option value="Horário informado incorretamente">Horário informado incorretamente</option><option value="Outro motivo">Outro motivo</option></select></div><div class="form-group"><label>Detalhes / justificativa *</label><input id="hrMot" placeholder="Descreva o motivo da correção"></div>
+<div class="form-group"><label for="hrAbertura">Data e horário real em que a máquina parou / O.S. foi aberta</label><input id="hrAbertura" type="datetime-local" required></div>
+<div class="form-group"><label for="hrIni">Início do atendimento técnico (opcional enquanto não atendida)</label><input id="hrIni" type="datetime-local"></div>
+<div class="form-group"><label for="hrFim">Conclusão</label><input id="hrFim" type="datetime-local"></div>
+<div class="form-group"><label for="hrTipo">Motivo principal *</label><select id="hrTipo"><option value="Esquecimento do operador">Esquecimento do operador ao abrir a O.S.</option><option value="Horário informado incorretamente">Horário informado incorretamente</option><option value="Outro motivo">Outro motivo</option></select></div><div class="form-group"><label for="hrMot">Detalhes / justificativa *</label><input id="hrMot" placeholder="Descreva o motivo da correção"></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="modalHor.style.display='none'">Cancelar</button><button class="btn-submit" onclick="salvarHorarios()">Salvar</button></div></div></div>
 
 <div id="modalEditarEquipamentoOS" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1500;align-items:center;justify-content:center;padding:14px"><div class="box" style="width:100%;max-width:480px;max-height:90vh;overflow:auto"><h2 style="color:var(--primary)">Corrigir equipamento da O.S.</h2><p id="editarEquipamentoInfo" style="font-size:.8rem;color:#64748b;margin:6px 0 12px"></p><div class="form-group"><label for="editarEquipamentoSelect">EQUIPAMENTO CORRETO *</label><select id="editarEquipamentoSelect" required></select></div><p style="font-size:.72rem;color:#64748b">Somente o equipamento será alterado. O sistema registra quem fez a correção, a data e o nome anterior.</p><div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharEdicaoEquipamentoOS()">Cancelar</button><button type="button" class="btn-submit" onclick="salvarEdicaoEquipamentoOS()">Salvar correção</button></div></div></div>
@@ -5790,20 +5790,20 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
    <div class="form-group"><label for="ecSetor">Setor *</label><select id="ecSetor" required onchange="atualizarMaquinasEdicaoOS(true)"><option value="">Selecione o setor primeiro...</option></select></div>
    <div class="form-group"><label for="ecMaquina">Máquina *</label><select id="ecMaquina" required disabled><option value="">Escolha o setor primeiro</option></select></div>
-   <div class="form-group"><label>Turno *</label><select id="ecTurno"><option>1º Turno</option><option>2º Turno</option><option>3º Turno</option></select></div>
-   <div class="form-group"><label>Responsável técnico</label><input id="ecTecnico" placeholder="Nome do técnico"></div>
-   <div class="form-group"><label>Tipo *</label><input id="ecTipo"></div>
-   <div class="form-group"><label>Prioridade *</label><select id="ecPrioridade"><option>Baixa</option><option>Média</option><option>Alta</option><option>Urgente</option><option>Crítica</option></select></div>
-   <div class="form-group"><label>Situação da máquina *</label><select id="ecSituacao"><option>Parado</option><option>Rodando</option></select></div>
-   <div class="form-group"><label>Data/hora da abertura *</label><input id="ecAbertura" type="datetime-local"></div>
-   <div class="form-group"><label>Início do atendimento</label><input id="ecInicio" type="datetime-local"></div>
-   <div class="form-group"><label>Data/hora da conclusão</label><input id="ecConclusao" type="datetime-local"></div>
-   <div class="form-group" style="grid-column:1/-1"><label>Problema relatado *</label><textarea id="ecDescricao" rows="2"></textarea></div>
-   <div class="form-group" style="grid-column:1/-1"><label>Causa identificada</label><input id="ecCausa"></div>
-   <div class="form-group" style="grid-column:1/-1"><label>Serviço executado</label><textarea id="ecServico" rows="2"></textarea></div>
-   <div class="form-group"><label>Peça utilizada</label><input id="ecPeca"></div>
-   <div class="form-group"><label>Observação de máquina rodando</label><input id="ecObsRodando"></div>
-   <div class="form-group" style="grid-column:1/-1"><label>Justificativa da edição * (mínimo 8 caracteres)</label><textarea id="ecMotivo" rows="2" placeholder="Explique por que os dados precisam ser corrigidos"></textarea></div>
+   <div class="form-group"><label for="ecTurno">Turno *</label><select id="ecTurno"><option>1º Turno</option><option>2º Turno</option><option>3º Turno</option></select></div>
+   <div class="form-group"><label for="ecTecnico">Responsável técnico</label><input id="ecTecnico" placeholder="Nome do técnico"></div>
+   <div class="form-group"><label for="ecTipo">Tipo *</label><input id="ecTipo"></div>
+   <div class="form-group"><label for="ecPrioridade">Prioridade *</label><select id="ecPrioridade"><option>Baixa</option><option>Média</option><option>Alta</option><option>Urgente</option><option>Crítica</option></select></div>
+   <div class="form-group"><label for="ecSituacao">Situação da máquina *</label><select id="ecSituacao"><option>Parado</option><option>Rodando</option></select></div>
+   <div class="form-group"><label for="ecAbertura">Data/hora da abertura *</label><input id="ecAbertura" type="datetime-local"></div>
+   <div class="form-group"><label for="ecInicio">Início do atendimento</label><input id="ecInicio" type="datetime-local"></div>
+   <div class="form-group"><label for="ecConclusao">Data/hora da conclusão</label><input id="ecConclusao" type="datetime-local"></div>
+   <div class="form-group" style="grid-column:1/-1"><label for="ecDescricao">Problema relatado *</label><textarea id="ecDescricao" rows="2"></textarea></div>
+   <div class="form-group" style="grid-column:1/-1"><label for="ecCausa">Causa identificada</label><input id="ecCausa"></div>
+   <div class="form-group" style="grid-column:1/-1"><label for="ecServico">Serviço executado</label><textarea id="ecServico" rows="2"></textarea></div>
+   <div class="form-group"><label for="ecPeca">Peça utilizada</label><input id="ecPeca"></div>
+   <div class="form-group"><label for="ecObsRodando">Observação de máquina rodando</label><input id="ecObsRodando"></div>
+   <div class="form-group" style="grid-column:1/-1"><label for="ecMotivo">Justificativa da edição * (mínimo 8 caracteres)</label><textarea id="ecMotivo" rows="2" placeholder="Explique por que os dados precisam ser corrigidos"></textarea></div>
   </div>
   <p style="font-size:.72rem;color:#64748b">A edição não altera o status da O.S. nem apaga o histórico. Todos os valores anteriores e novos ficam registrados.</p>
   <div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharEdicaoCompletaOS()">Cancelar</button><button type="button" class="btn-submit" onclick="salvarEdicaoCompletaOS()">Salvar alterações</button></div>
