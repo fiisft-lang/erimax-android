@@ -5108,6 +5108,26 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 }
 </style>
 
+<style id="erimax-sidebar-smooth-2026">
+@media (min-width:1024px) {
+  /* Evita animar o recálculo de toda a página; a navegação faz uma transição curta. */
+  body { transition:none!important; }
+  .nav-tabs {
+    transition:width 150ms cubic-bezier(.2,.75,.25,1),
+               padding-left 150ms cubic-bezier(.2,.75,.25,1),
+               padding-right 150ms cubic-bezier(.2,.75,.25,1)!important;
+    box-shadow:5px 0 16px rgba(25,53,76,.09)!important;
+  }
+  body.erimax-sidebar-collapsed .nav-tabs {
+    transition:width 150ms cubic-bezier(.2,.75,.25,1),
+               padding-left 150ms cubic-bezier(.2,.75,.25,1),
+               padding-right 150ms cubic-bezier(.2,.75,.25,1)!important;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .nav-tabs { transition:none!important; }
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"><div class="hd">Gestão de<br>Manutenção</div></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
