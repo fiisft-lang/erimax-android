@@ -7482,19 +7482,13 @@ async function verHistorico(id){
     ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],
     ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
   ];
-  const montarDetalhes=itens=>itens.map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('');
-  const detalheHtml=montarDetalhes(detalhes);
+  const detalheHtml=detalhes.map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('');
   const eventoHtml=eventos.length?eventos.map((e,i)=>'<article class="erimax-os-event erimax-event-'+e.tipo+'"><span class="erimax-os-event-dot"></span><div><small>'+fmtData(e.ts)+'</small><b>'+safe(e.titulo)+'</b><p>'+safe(e.descricao)+'</p></div></article>').join(''):'<p class="erimax-os-empty">Ainda não há eventos registrados para esta O.S.</p>';
-  const situacao=String(os.status||'Sem status');
-  const classeStatus=situacao.replace(/\\s+/g,'');
-  const detalhesEquipamento=[['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento]];
-  const detalhesAtendimento=[['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]];
-  const detalhesAcompanhamento=[['Retomada da produção',fmtData(os.rodando_em)],['Tempo em observação',os.rodando_em?minutosFmt(new Date(os.data_conclusao||Date.now()).getTime()-new Date(os.rodando_em).getTime()):'—'],['Observação de acompanhamento',os.observacao_rodando]];
   let modal=document.getElementById('modalHistoricoOS');
   if(!modal){
     modal=document.createElement('div');modal.id='modalHistoricoOS';modal.className='erimax-os-history-modal';
     modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','tituloHistoricoOS');
-    modal.innerHTML='<section class="erimax-os-history-panel"><header class="erimax-os-history-head"><div><small>GESTÃO DA MANUTENÇÃO / ORDEM DE SERVIÇO</small><h2 id="tituloHistoricoOS"></h2><p class="erimax-os-history-subtitle">Visão completa do atendimento, equipamento e rastreabilidade</p></div><button type="button" class="erimax-os-history-close" aria-label="Fechar" onclick="fecharHistoricoOS()">×</button></header><div id="conteudoHistoricoOS" class="erimax-os-history-content"></div><footer><button type="button" class="btn-action btn-historico" onclick="fecharHistoricoOS()">Fechar detalhes</button></footer></section>';
+    modal.innerHTML='<section class="erimax-os-history-panel"><header class="erimax-os-history-head"><div><small>DETALHES DA ORDEM DE SERVIÇO</small><h2 id="tituloHistoricoOS"></h2></div><button type="button" class="erimax-os-history-close" aria-label="Fechar" onclick="fecharHistoricoOS()">×</button></header><div id="conteudoHistoricoOS" class="erimax-os-history-content"></div><footer><button type="button" class="btn-action btn-historico" onclick="fecharHistoricoOS()">Fechar</button></footer></section>';
     document.body.appendChild(modal);
     modal.addEventListener('click',e=>{if(e.target===modal)fecharHistoricoOS()});
   }
@@ -7502,14 +7496,12 @@ async function verHistorico(id){
   if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada');
   const conteudo=modal.querySelector('#conteudoHistoricoOS');
   if(conteudo)conteudo.innerHTML=
-    '<section class="erimax-os-overview"><div class="erimax-os-overview-main"><span class="erimax-os-overview-kicker">RESUMO OPERACIONAL</span><div class="erimax-os-overview-title"><span class="os-badge status-'+safe(classeStatus)+'">'+safe(situacao)+'</span><span class="erimax-os-priority">Prioridade: <b>'+safe(prioridade)+'</b></span></div><p>'+safe(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div><div class="erimax-os-overview-stats"><div><small>TEMPO EM PAUSA</small><b>'+minutosFmt(totalPausa)+'</b></div><div><small>RESPONSÁVEL</small><b>'+safe(os.tecnico||'Não atribuído')+'</b></div><div><small>SETOR</small><b>'+safe(os.setor||'Não informado')+'</b></div></div></section>'+
-    '<div class="erimax-os-history-layout"><main class="erimax-os-history-main">'+
-    '<section class="erimax-os-history-section erimax-os-section-equipment"><div class="erimax-os-section-heading"><span>01</span><div><h3>Equipamento e classificação</h3><p>Identificação e contexto da ocorrência</p></div></div><div class="erimax-os-detail-grid">'+montarDetalhes(detalhesEquipamento)+'</div></section>'+
-    '<section class="erimax-os-history-section"><div class="erimax-os-section-heading"><span>02</span><div><h3>Atendimento e equipe</h3><p>Responsáveis e marcos de execução</p></div></div><div class="erimax-os-detail-grid">'+montarDetalhes(detalhesAtendimento)+'</div></section>'+
-    '<section class="erimax-os-history-section"><div class="erimax-os-section-heading"><span>03</span><div><h3>Diagnóstico e execução</h3><p>O que foi identificado e realizado</p></div></div><div class="erimax-os-detail-grid">'+montarDetalhes([['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado],['Mecânico auxiliar',os.mecanico_auxiliar]])+'</div></section>'+
-    (os.rodando_em?'<section class="erimax-os-history-section"><div class="erimax-os-section-heading"><span>04</span><div><h3>Acompanhamento da produção</h3><p>Retomada e período em observação</p></div></div><div class="erimax-os-detail-grid">'+montarDetalhes(detalhesAcompanhamento)+'</div></section>':'')+
+    '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
+    '<h3>Resumo da O.S.</h3><div class="erimax-os-detail-grid">'+detalheHtml+'</div>'+
+    '<section class="erimax-os-history-section"><h3>Problema relatado</h3><p>'+safe(os.problema||os.descricao||os.defeito||'Não informado')+'</p></section>'+
+    '<section class="erimax-os-history-section"><h3>Diagnóstico e execução</h3><div class="erimax-os-detail-grid">'+[['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado],['Mecânico auxiliar',os.mecanico_auxiliar]].map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('')+'</div></section>'+
     (os.ajustado_em?'<p class="erimax-os-history-warning">Horário corrigido por '+safe(os.ajustado_por||'Gestor')+' em '+fmtData(os.ajustado_em)+'. Motivo: '+safe(os.ajuste_obs||'Não informado')+'</p>':'')+
-    '</main><aside class="erimax-os-history-rail"><section class="erimax-os-history-section erimax-os-timeline-section"><div class="erimax-os-section-heading"><span>05</span><div><h3>Linha do tempo</h3><p>Movimentações e auditoria da O.S.</p></div></div><div class="erimax-os-timeline">'+eventoHtml+'</div></section></aside></div>';
+    '<section class="erimax-os-history-section"><h3>Histórico de movimentações</h3><div class="erimax-os-timeline">'+eventoHtml+'</div></section>';
   modal.style.display='flex';
   document.body.style.overflow='hidden';
   modal.querySelector('.erimax-os-history-close')?.focus();
@@ -10351,99 +10343,9 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 @media (max-width:1023px){#erimaxDesktopPageHeader{display:none!important}}
 </style>
 
-<style id="erimax-os-history-premium-layout-2026">
-@media(min-width:900px){
- .erimax-os-history-modal{padding:24px;align-items:center;backdrop-filter:blur(7px);background:rgba(12,28,42,.58)}
- .erimax-os-history-panel{width:min(1280px,96vw);max-height:min(92vh,980px);border-radius:22px;overflow:hidden;box-shadow:0 28px 90px rgba(8,25,40,.28)}
- .erimax-os-history-head{padding:24px 30px 21px;background:linear-gradient(115deg,#fff 0%,#f4f8fb 100%);border-bottom:1px solid #e3ebf1}
- .erimax-os-history-head h2{margin:7px 0 0;font-size:1.45rem;letter-spacing:-.035em;color:#17354a}
- .erimax-os-history-subtitle{margin:5px 0 0;color:#718496;font-size:.78rem}
- .erimax-os-history-content{padding:22px 26px 28px;overflow:auto;background:#f5f8fb}
- .erimax-os-overview{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);gap:18px;padding:21px 23px;border:1px solid #dce7ee;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(19,48,69,.045)}
- .erimax-os-overview-kicker{font-size:.62rem;letter-spacing:.13em;font-weight:850;color:#6b8394}
- .erimax-os-overview-title{display:flex;align-items:center;flex-wrap:wrap;gap:11px;margin:9px 0}
- .erimax-os-priority{font-size:.76rem;color:#718496}
- .erimax-os-overview-main>p{margin:8px 0 0;color:#3b5365;font-size:.94rem;line-height:1.6}
- .erimax-os-overview-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch}
- .erimax-os-overview-stats>div{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:12px;border:1px solid #e5edf2;border-radius:12px;background:#f8fafc}
- .erimax-os-overview-stats small{font-size:.57rem;letter-spacing:.07em;font-weight:850;color:#8192a0}
- .erimax-os-overview-stats b{margin-top:6px;color:#1e4057;font-size:.88rem;overflow-wrap:anywhere}
- .erimax-os-history-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(330px,.85fr);gap:17px;margin-top:17px;align-items:start}
- .erimax-os-history-main,.erimax-os-history-rail{display:grid;gap:14px;min-width:0}
- .erimax-os-history-section{margin:0;padding:18px 19px 19px;border:1px solid #e0e8ee;border-radius:15px;background:#fff;box-shadow:0 4px 14px rgba(19,48,69,.035)}
- .erimax-os-section-heading{display:flex;align-items:center;gap:11px;margin-bottom:15px}
- .erimax-os-section-heading>span{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border-radius:9px;background:#eaf1f6;color:#42647a;font-size:.67rem;font-weight:900}
- .erimax-os-section-heading h3{margin:0;color:#203f55;font-size:.91rem;font-weight:850}
- .erimax-os-section-heading p{margin:3px 0 0;color:#8796a2;font-size:.68rem}
- .erimax-os-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- .erimax-os-detail-cell{padding:11px 12px;border-radius:10px;background:#f8fafc;border-color:#edf1f4}
- .erimax-os-detail-cell small{font-size:.58rem;letter-spacing:.07em}
- .erimax-os-detail-cell b{font-size:.78rem}
- .erimax-os-timeline-section{position:sticky;top:0;padding-bottom:20px}
- .erimax-os-timeline{margin-top:4px;padding-left:25px}
- .erimax-os-event{padding-bottom:19px;gap:10px}
- .erimax-os-event small{font-size:.65rem}
- .erimax-os-event b{font-size:.8rem}
- .erimax-os-event p{font-size:.74rem}
- .erimax-os-history-panel>footer{padding:13px 26px;background:#fff}
-}
-@media(min-width:900px) and (max-width:1100px){.erimax-os-history-layout{grid-template-columns:minmax(0,1.2fr) minmax(290px,.8fr)}.erimax-os-overview{grid-template-columns:1fr}.erimax-os-overview-stats{max-width:100%}}
-@media(max-width:899px){.erimax-os-overview{margin-bottom:14px;padding:14px;border:1px solid #e1e8ef;border-radius:13px;background:#fff}.erimax-os-overview-kicker{font-size:.59rem;font-weight:850;color:#71869a;letter-spacing:.1em}.erimax-os-overview-title{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}.erimax-os-priority{font-size:.72rem;color:#718496}.erimax-os-overview-main>p{margin:7px 0 0;font-size:.83rem;line-height:1.5;color:#405568}.erimax-os-overview-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:13px}.erimax-os-overview-stats>div{min-width:0;padding:9px;border:1px solid #e6edf2;border-radius:10px;background:#f8fafc}.erimax-os-overview-stats small{display:block;font-size:.52rem;letter-spacing:.04em;font-weight:850;color:#8293a0}.erimax-os-overview-stats b{display:block;margin-top:4px;font-size:.7rem;color:#29465b;overflow-wrap:anywhere}.erimax-os-history-layout{display:grid;gap:12px}.erimax-os-history-main,.erimax-os-history-rail{display:grid;gap:12px}.erimax-os-history-section{margin:0 0 12px;padding:13px;border-radius:12px}.erimax-os-section-heading{display:flex;align-items:center;gap:9px;margin-bottom:11px}.erimax-os-section-heading>span{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:#eaf1f6;color:#42647a;font-size:.62rem;font-weight:900}.erimax-os-section-heading h3{margin:0;font-size:.83rem}.erimax-os-section-heading p{margin:2px 0 0;font-size:.63rem;color:#8796a2}.erimax-os-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}}
-@media(max-width:380px){.erimax-os-overview-stats{grid-template-columns:1fr}.erimax-os-detail-grid{grid-template-columns:1fr}}
-</style>
 
-<style id="erimax-history-command-center-2026">
-/* EriMax 2.0 — central de comando visual do histórico de O.S. */
-@media (min-width: 1024px) and (hover:hover) and (pointer:fine){
- #modalHistoricoOS{padding:22px!important;background:rgba(7,20,32,.78)!important;backdrop-filter:blur(9px)!important}
- #modalHistoricoOS .erimax-os-history-panel{width:min(1480px,96vw)!important;height:min(94vh,1080px)!important;max-height:94vh!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:24px!important;background:#f2f6f9!important;box-shadow:0 35px 110px rgba(0,0,0,.42)!important}
- #modalHistoricoOS .erimax-os-history-head{min-height:92px!important;padding:22px 30px!important;background:linear-gradient(112deg,#102d43 0%,#174b67 58%,#236b83 100%)!important;border:0!important}
- #modalHistoricoOS .erimax-os-history-head small{color:#b9d4e1!important;letter-spacing:.16em!important}
- #modalHistoricoOS .erimax-os-history-head h2{color:#fff!important;font-size:1.55rem!important;letter-spacing:-.04em!important}
- #modalHistoricoOS .erimax-os-history-subtitle{color:#c3d7e2!important}
- #modalHistoricoOS .erimax-os-history-content{padding:24px 28px 30px!important;background:#f1f5f8!important}
- #modalHistoricoOS .erimax-os-overview{grid-template-columns:minmax(0,1.55fr) minmax(390px,1fr)!important;gap:24px!important;padding:27px 30px!important;border:0!important;border-radius:19px!important;background:linear-gradient(118deg,#153b56 0%,#1d5972 65%,#28768a 100%)!important;box-shadow:0 13px 30px rgba(16,53,75,.18)!important;color:#fff!important}
- #modalHistoricoOS .erimax-os-overview-kicker{color:#b7d2df!important;font-size:.68rem!important;letter-spacing:.18em!important}
- #modalHistoricoOS .erimax-os-overview-title{gap:14px!important;margin:13px 0!important}
- #modalHistoricoOS .erimax-os-overview-title .os-badge{padding:8px 13px!important;border-radius:9px!important;font-size:.76rem!important}
- #modalHistoricoOS .erimax-os-priority{color:#d2e2e9!important;font-size:.82rem!important}
- #modalHistoricoOS .erimax-os-priority b{color:#fff!important}
- #modalHistoricoOS .erimax-os-overview-main>p{max-width:850px!important;margin-top:13px!important;color:#f2f7fa!important;font-size:1.04rem!important;line-height:1.7!important}
- #modalHistoricoOS .erimax-os-overview-stats{gap:10px!important}
- #modalHistoricoOS .erimax-os-overview-stats>div{padding:15px!important;border:1px solid rgba(255,255,255,.17)!important;border-radius:13px!important;background:rgba(255,255,255,.10)!important}
- #modalHistoricoOS .erimax-os-overview-stats small{color:#c3dce6!important;font-size:.62rem!important}
- #modalHistoricoOS .erimax-os-overview-stats b{color:#fff!important;font-size:1rem!important}
- #modalHistoricoOS .erimax-os-history-layout{grid-template-columns:minmax(0,1.62fr) minmax(360px,.88fr)!important;gap:20px!important;margin-top:20px!important}
- #modalHistoricoOS .erimax-os-history-main{gap:16px!important}
- #modalHistoricoOS .erimax-os-history-rail{gap:16px!important}
- #modalHistoricoOS .erimax-os-history-section{padding:21px 22px 23px!important;border:1px solid #dce6ed!important;border-radius:17px!important;background:#fff!important;box-shadow:0 5px 17px rgba(18,48,68,.055)!important}
- #modalHistoricoOS .erimax-os-section-heading{gap:13px!important;margin-bottom:18px!important}
- #modalHistoricoOS .erimax-os-section-heading>span{width:35px!important;height:35px!important;flex-basis:35px!important;border-radius:11px!important;background:#e5eff5!important;color:#1e5874!important;font-size:.75rem!important}
- #modalHistoricoOS .erimax-os-section-heading h3{font-size:1rem!important;color:#183b52!important}
- #modalHistoricoOS .erimax-os-section-heading p{font-size:.73rem!important}
- #modalHistoricoOS .erimax-os-detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
- #modalHistoricoOS .erimax-os-detail-cell{padding:14px 15px!important;border:1px solid #e2eaf0!important;border-radius:12px!important;background:#f7fafc!important}
- #modalHistoricoOS .erimax-os-detail-cell small{font-size:.62rem!important;color:#74899a!important}
- #modalHistoricoOS .erimax-os-detail-cell b{font-size:.86rem!important;color:#1c4058!important}
- #modalHistoricoOS .erimax-os-timeline-section{position:sticky!important;top:0!important;padding:22px!important;background:#fff!important}
- #modalHistoricoOS .erimax-os-timeline{margin-top:8px!important;padding-left:29px!important}
- #modalHistoricoOS .erimax-os-event{padding-bottom:22px!important;gap:12px!important}
- #modalHistoricoOS .erimax-os-event-dot{left:-29px!important;width:14px!important;height:14px!important}
- #modalHistoricoOS .erimax-os-event small{font-size:.7rem!important;color:#8193a1!important}
- #modalHistoricoOS .erimax-os-event b{font-size:.9rem!important;color:#1c4058!important}
- #modalHistoricoOS .erimax-os-event p{font-size:.81rem!important;line-height:1.6!important;color:#526b7d!important}
- #modalHistoricoOS .erimax-os-history-panel>footer{padding:15px 28px!important;border-top:1px solid #dce6ed!important;background:#fff!important}
-}
-@media (min-width:1024px) and (max-width:1250px) and (hover:hover) and (pointer:fine){
- #modalHistoricoOS .erimax-os-history-layout{grid-template-columns:minmax(0,1.35fr) minmax(315px,.85fr)!important}
- #modalHistoricoOS .erimax-os-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
- #modalHistoricoOS .erimax-os-overview{grid-template-columns:1fr!important}
-}
-@media (max-width:1023px){
- #modalHistoricoOS .erimax-os-history-panel{max-width:100%!important}
- #modalHistoricoOS .erimax-os-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-}
-</style>
+
+
 
 <style id="erimax-desktop-command-center-2026">
 /* EriMax 2.0 — composição de trabalho desktop; mobile preservado. */
