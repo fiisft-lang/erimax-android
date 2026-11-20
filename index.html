@@ -9290,6 +9290,112 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 </style>
 
+
+<style id="erimax-premium-desktop-finish-2026">
+/* EriMax Premium Desktop Finish — densidade, nitidez e consistência em monitores HD/4K.
+   Não define novas cores de marca e não atua em telas touch/mobile. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine) {
+  :root{
+    --erp-space:clamp(18px,1.45vw,30px);
+    --erp-border:color-mix(in srgb,var(--border) 78%,#8ea5b8 22%);
+    --erp-elev-1:0 1px 2px rgba(18,42,60,.035),0 5px 18px rgba(18,42,60,.045);
+    --erp-elev-2:0 8px 24px rgba(18,42,60,.075),0 2px 5px rgba(18,42,60,.035);
+  }
+  body{background:var(--bg)!important}
+  .container{
+    width:100%!important;max-width:1920px!important;
+    padding:clamp(26px,2vw,42px) clamp(28px,2.6vw,58px) 64px!important;
+  }
+  .tab-content{
+    width:100%;max-width:100%;min-width:0;
+    color:var(--text)!important;font-size:clamp(14px,.78vw,16px)!important;
+    line-height:1.62!important;
+  }
+  .tab-content h1{font-size:clamp(1.8rem,1.8vw,2.35rem)!important;font-weight:790!important;letter-spacing:-.045em!important}
+  .tab-content h2{font-size:clamp(1.42rem,1.28vw,1.8rem)!important;font-weight:780!important;letter-spacing:-.035em!important}
+  .tab-content h3{font-size:clamp(1.02rem,.92vw,1.2rem)!important;font-weight:740!important;letter-spacing:-.02em!important}
+  .tab-content p{max-width:82ch}
+  .tab-content .card{
+    border-color:var(--erp-border)!important;
+    box-shadow:var(--erp-elev-1)!important;
+    transition:border-color .18s ease,box-shadow .18s ease!important;
+  }
+  .tab-content .card:hover{border-color:color-mix(in srgb,var(--primary) 24%,var(--erp-border))!important;box-shadow:var(--erp-elev-1)!important}
+  .tab-content .card>.card-header,.tab-content .card>.section-header{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .tab-content input:not([type=checkbox]):not([type=radio]):not([type=file]),
+  .tab-content select,.tab-content textarea{
+    min-height:45px!important;border-color:#d5e0e8!important;border-radius:10px!important;
+    box-shadow:0 1px 2px rgba(18,42,60,.025)!important;
+  }
+  .tab-content button{letter-spacing:.005em}
+  .tab-content button:not(:disabled):focus-visible{outline-offset:3px!important}
+  .tab-content .btn-submit{min-height:48px!important;border-radius:11px!important}
+  /* Títulos de página e áreas de conteúdo com alinhamento comum. */
+  #tab-painel,#tab-abrir,#tab-ordens-servico,#tab-ordens-abertas,
+  #tab-presenca,#tab-cadastro,#tab-metricas,#tab-ranking-os,#tab-ia{
+    min-width:0!important;gap:clamp(16px,1.2vw,24px)!important;
+  }
+  #tab-painel #painelMaquinasSupervisor{gap:clamp(16px,1.25vw,24px)!important}
+  #tab-painel #painelMaquinasSupervisor .sv-section,
+  #tab-painel #painelMaquinasSupervisor .sv-panel,
+  #tab-painel #painelMaquinasSupervisor .sv-workspace{
+    border:1px solid var(--erp-border)!important;box-shadow:var(--erp-elev-1)!important;
+  }
+  /* O.S.: cartões com informação escaneável e ritmo consistente. */
+  #tab-ordens-servico .os-modern-list,
+  #tab-ordens-abertas .oa-list{gap:clamp(12px,.9vw,18px)!important}
+  #tab-ordens-servico .os-modern-list .os-card,
+  #tab-ordens-abertas .oa-list .os-card{
+    border:1px solid var(--erp-border)!important;
+    box-shadow:0 2px 8px rgba(18,42,60,.04)!important;
+    transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease!important;
+  }
+  #tab-ordens-servico .os-modern-list .os-card:hover,
+  #tab-ordens-abertas .oa-list .os-card:hover{
+    transform:translateY(-2px)!important;border-color:color-mix(in srgb,var(--primary) 34%,var(--erp-border))!important;
+    box-shadow:var(--erp-elev-2)!important;
+  }
+  /* Métricas e ranking: visualização mais ampla sem esticar conteúdo textual. */
+  #tab-metricas #metricsDataContent,
+  #tab-ranking-os #rankingDataContent{width:100%;min-width:0}
+  #tab-metricas #metricsDataContent>.card,
+  #tab-ranking-os #rankingDataContent>.card{
+    border:1px solid var(--erp-border)!important;box-shadow:var(--erp-elev-1)!important;
+  }
+  #tab-metricas .chart-wrapper{min-height:260px}
+  #tab-metricas canvas{image-rendering:auto}
+  /* Tabelas: cabeçalhos discretos, linhas regulares e melhor leitura. */
+  .tab-content table{font-variant-numeric:tabular-nums}
+  .tab-content table th{font-size:.72rem!important;letter-spacing:.045em!important}
+  .tab-content table td{font-size:.84rem!important;line-height:1.5!important}
+  .tab-content table tbody tr{transition:background-color .12s ease}
+  /* Presença e cadastro aproveitam o monitor sem alargar cartões indefinidamente. */
+  #tab-presenca>#listaPresenca{gap:16px!important}
+  #tab-cadastro .cadastro-hub-nav{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  /* Camadas de diálogo e popups com foco visual no conteúdo. */
+  body>div[id^=modal] .box,body>div.modal .box{
+    border:1px solid rgba(210,224,234,.96)!important;
+    box-shadow:0 28px 90px rgba(15,37,55,.24)!important;
+  }
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:rgba(90,117,137,.32);border:3px solid transparent;background-clip:padding-box;border-radius:20px}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(90,117,137,.5);border:2px solid transparent;background-clip:padding-box}
+}
+@media (min-width:1920px) and (hover:hover) and (pointer:fine){
+  .container{max-width:2048px!important;padding-left:64px!important;padding-right:64px!important}
+  #tab-abrir>.card{max-width:1280px!important}
+  #tab-presenca>#listaPresenca{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #tab-metricas .metrics-filter-card{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+}
+@media (prefers-reduced-motion:reduce){
+  @media (min-width:1024px) and (hover:hover) and (pointer:fine){
+    .tab-content .card,.tab-content button,#tab-ordens-servico .os-modern-list .os-card,
+    #tab-ordens-abertas .oa-list .os-card{transition:none!important}
+  }
+}
+</style>
 </head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
 <style id="erimax-supervisao-tipografia-final">
 /* Supervisão: hierarquia discreta, com contraste suficiente para leitura */
