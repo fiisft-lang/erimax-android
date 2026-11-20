@@ -8346,6 +8346,10 @@ async function iniciarApp(user){
     localStorage.removeItem('erimax_os_acao_pendente');
     await executarLinkOS(osPendente,acaoPendente||'');
   }
+  // Gestores iniciam no painel de supervisão; links diretos para O.S. mantêm prioridade.
+  if(p==='gestor'&&!osDaNotificacao&&!osPendente){
+    mudarAba('painel',null,{fromHistory:true});
+  }
 }
 
 async function carregarMaquinas(){
