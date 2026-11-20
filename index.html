@@ -12105,3 +12105,210 @@ function alternarPainelComparacaoMaquinas(){
 }
 </style>
 
+
+
+<style id="erimax-workspace-unified-2026">
+/* EriMax Workspace — acabamento consistente em todas as áreas, preservando a paleta original. */
+:root{
+  --erimax-ui-border:#dce6eb;
+  --erimax-ui-ink:#183b50;
+  --erimax-ui-muted:#718593;
+  --erimax-ui-surface:#fff;
+  --erimax-ui-soft:#f6f9fa;
+  --erimax-ui-shadow:0 7px 22px rgba(19,49,66,.055);
+}
+.tab-content.active{min-width:0}
+.tab-content.active :is(.card,.os-card,.metrics-ranking-card,.ranking-os-card,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel){
+  min-width:0;box-sizing:border-box
+}
+.tab-content.active :is(.card,.os-card,.metrics-ranking-card,.ranking-os-card){
+  border-color:var(--erimax-ui-border);
+  border-radius:17px;
+  box-shadow:var(--erimax-ui-shadow);
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease
+}
+.tab-content.active :is(.card,.os-card,.metrics-ranking-card,.ranking-os-card):hover{
+  border-color:#c8d9e1;
+  box-shadow:0 11px 27px rgba(19,49,66,.085)
+}
+.erimax-card-collapse-head{position:relative;min-width:0}
+.erimax-card-collapse-head.erimax-card-heading-flex{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:12px!important;text-align:left!important
+}
+.erimax-card-collapse-head.erimax-card-heading-flex>*:first-child{min-width:0}
+.erimax-card-toggle{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  gap:7px!important;flex:0 0 auto!important;min-height:31px!important;
+  padding:5px 10px!important;border:1px solid var(--erimax-ui-border)!important;
+  border-radius:9px!important;background:#f7fafb!important;color:#476578!important;
+  font:700 11px/1.2 inherit!important;letter-spacing:.01em!important;
+  cursor:pointer!important;white-space:nowrap!important;
+  transition:background .16s ease,border-color .16s ease,color .16s ease!important
+}
+.erimax-card-toggle:hover{background:#edf4f6!important;border-color:#bfd2dc!important;color:var(--primary-dark,#17445b)!important}
+.erimax-card-toggle:focus-visible{outline:3px solid color-mix(in srgb,var(--secondary,#2b8790) 28%,transparent)!important;outline-offset:2px!important}
+.erimax-card-toggle-icon{font-size:15px!important;line-height:1!important}
+.erimax-card-collapsible-part{transition:opacity .16s ease}
+.erimax-card-collapsed>.erimax-card-collapsible-part{display:none!important}
+.erimax-card-collapsed{align-self:start}
+.erimax-card-collapsed .erimax-card-toggle{background:#edf5f6!important;border-color:#d3e3e7!important;color:#235d70!important}
+.erimax-card-collapsed .erimax-card-collapse-head{margin-bottom:0!important}
+.erimax-card-collapsed .erimax-card-collapse-head :is(h2,h3,h4,p){margin-bottom:0!important}
+.erimax-card-collapsed .erimax-card-collapse-head{padding-bottom:0!important;border-bottom:0!important}
+.erimax-card-collapsed .erimax-card-collapse-head:after{content:"Conteúdo recolhido";display:block;margin-top:5px;color:var(--erimax-ui-muted);font-size:10px;font-weight:600;letter-spacing:.02em}
+#tab-abrir #formOS{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+#tab-abrir #formOS>.form-group{min-width:0}
+#tab-abrir #formOS :is(#grupoOutroEquipamento,#grupoSituacaoEquipamento){min-width:0}
+#tab-abrir #formOS>.form-group:has(#descricao),
+#tab-abrir #formOS>.form-group:has(#foto),
+#tab-abrir #formOS>button[type=submit]{grid-column:1/-1}
+#tab-abrir>.card{max-width:1180px;margin-inline:auto;padding:clamp(20px,2.2vw,34px)}
+#tab-abrir>.card>h2{font-size:1.3rem!important;letter-spacing:-.025em}
+#tab-abrir #formOS label{font-size:.7rem;letter-spacing:.045em;color:#5e7482}
+#tab-abrir #formOS :is(input,select,textarea){min-height:43px;border-radius:10px}
+#tab-abrir #formOS textarea{min-height:100px}
+#tab-ordens-servico .os-modern-hero,#tab-ordens-abertas .oa-hero,
+#tab-metricas .metrics-hero,#tab-ranking-os .ranking-os-hero,
+#tab-cadastro .cadastro-hub-hero{
+  border-radius:20px;box-shadow:0 12px 30px rgba(18,53,72,.10)
+}
+#tab-ordens-servico .os-modern-controls,#tab-ordens-abertas .oa-list-panel,
+#tab-metricas .metrics-filter-card,#tab-metricas .metrics-compare-panel{
+  border:1px solid var(--erimax-ui-border);border-radius:17px;background:#fff;box-shadow:var(--erimax-ui-shadow)
+}
+#tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{
+  align-items:stretch;gap:14px
+}
+#tab-ordens-servico .os-card,#tab-ordens-abertas .os-card{
+  display:flex;flex-direction:column;min-width:0;height:100%;
+  border:1px solid var(--erimax-ui-border);border-radius:15px;background:#fff;
+  box-shadow:0 5px 16px rgba(20,49,68,.045)
+}
+#tab-ordens-servico .os-card .os-header,#tab-ordens-abertas .os-card .os-header,
+#tab-ordens-servico .os-card .oa-card-header,#tab-ordens-abertas .os-card .oa-card-header{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap
+}
+#tab-ordens-servico .os-card .erimax-card-toggle,#tab-ordens-abertas .os-card .erimax-card-toggle{margin-left:auto}
+#tab-ordens-abertas .os-card .oa-card-header{display:grid;grid-template-columns:minmax(0,1fr) auto}
+#tab-ordens-abertas .os-card .oa-card-machine{grid-column:1/-1}
+#tab-presenca #listaPresenca{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;align-items:stretch}
+#tab-presenca #listaPresenca>*{min-width:0}
+#tab-cadastro .cadastro-area-panel.active{min-width:0}
+#tab-cadastro .cadastro-area-panel .card{border:1px solid var(--erimax-ui-border);border-radius:17px;box-shadow:var(--erimax-ui-shadow)}
+#tab-ranking-os #rankingDataContent{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+#tab-ranking-os #rankingDataContent>*{grid-column:1/-1;min-width:0}
+#tab-ranking-os .ranking-os-card{padding:22px}
+#tab-ia>.card{max-width:1180px;margin-inline:auto;padding:clamp(20px,2.2vw,32px)}
+#tab-ia>.card .form-group{max-width:100%}
+#tab-ia #resultadoConsulta{min-width:0}
+@media(min-width:1200px) and (hover:hover) and (pointer:fine){
+  .container{width:min(100% - 52px,1880px);max-width:1880px}
+  #tab-abrir>.card,#tab-ia>.card{margin-top:8px}
+  #tab-presenca #listaPresenca{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #tab-metricas #metricsDataContent{gap:17px}
+}
+@media(max-width:767px){
+  #tab-abrir #formOS{display:block}
+  #tab-abrir>.card,#tab-ia>.card{padding:16px}
+  .erimax-card-toggle{min-height:29px!important;padding:4px 8px!important;font-size:10px!important}
+  .erimax-card-collapsed .erimax-card-collapse-head:after{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  .erimax-card-toggle,.erimax-card-collapsible-part,
+  .tab-content.active :is(.card,.os-card,.metrics-ranking-card,.ranking-os-card){transition:none!important}
+}
+</style>
+
+<script id="erimax-card-controls-all-pages-2026">
+(function(){
+  if(window.__erimaxCardControls2026)return;
+  window.__erimaxCardControls2026=true;
+  let seq=0;
+  const selector=[
+    '.tab-content .card','.tab-content .os-card','.tab-content .sv-os-card',
+    '.tab-content .sv-sector','.tab-content .sv-machine','.tab-content .presence-card',
+    '.tab-content .report-item','.tab-content .metric-card','.tab-content .oa-stat-card',
+    '.tab-content .metrics-ranking-card','.tab-content .ranking-os-card',
+    '.tab-content .os-modern-controls','.tab-content .oa-list-panel',
+    '.tab-content .metrics-filter-card','.tab-content .metrics-compare-panel',
+    '#modalEfOS .os-card','#modalHistoricoOS .erimax-os-history-section'
+  ].join(',');
+  const headers=[
+    '.oa-card-header','.os-header','.os-alert-head','.sv-machine-head',
+    '.sv-sector-head','.sv-os-head','.presence-card-head',
+    '.ranking-os-card-head','.cadastro-setores-heading','.cadastro-area-heading',
+    '.metrics-section-heading','.os-modern-control-head','.oa-list-heading',
+    '.metrics-compare-head','.erimax-os-section-heading',
+    '[data-card-title]','.title','h1','h2','h3','h4'
+  ];
+  const keepVisible=['.os-actions','.os-card-actions','.oa-card-actions','.card-actions','.erimax-card-actions'];
+  function findHeader(card){
+    const direct=Array.from(card.children);
+    for(const child of direct){
+      if(child.matches(headers.join(',')))return child;
+      if(child.querySelector&&child.querySelector(headers.join(','))){
+        const found=child.querySelector(headers.join(','));
+        if(found&&found.closest('.card,.os-card,.metrics-ranking-card,.ranking-os-card')===card)return child;
+      }
+    }
+    return null;
+  }
+  function isUseful(card,head){
+    if(!head)return false;
+    const content=Array.from(card.children).filter(el=>el!==head&&!el.matches('.erimax-card-toggle'));
+    return content.some(el=>!keepVisible.some(sel=>el.matches(sel)));
+  }
+  function install(card){
+    if(!(card instanceof HTMLElement)||card.dataset.erimaxCardControl==='ready')return;
+    if(card.closest('#login,#modal,.modal-login'))return;
+    const head=findHeader(card);
+    if(!isUseful(card,head))return;
+    card.dataset.erimaxCardControl='ready';
+    head.classList.add('erimax-card-collapse-head','erimax-card-heading-flex');
+    let firstContent=null;
+    Array.from(card.children).forEach(el=>{
+      if(el===head)return;
+      if(keepVisible.some(sel=>el.matches(sel))){el.classList.add('erimax-card-actions');return;}
+      el.classList.add('erimax-card-collapsible-part');
+      if(!firstContent)firstContent=el;
+    });
+    if(!firstContent){card.dataset.erimaxCardControl='';return;}
+    if(!firstContent.id)firstContent.id='erimax-card-content-'+(++seq);
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='erimax-card-toggle';
+    button.setAttribute('aria-expanded','true');
+    button.setAttribute('aria-label','Recolher informações deste card');
+    button.innerHTML='<span class="erimax-card-toggle-label">Recolher</span><span class="erimax-card-toggle-icon" aria-hidden="true">⌃</span>';
+    button.addEventListener('click',function(){
+      const closed=card.classList.toggle('erimax-card-collapsed');
+      button.setAttribute('aria-expanded',String(!closed));
+      button.setAttribute('aria-label',closed?'Expandir informações deste card':'Recolher informações deste card');
+      const label=button.querySelector('.erimax-card-toggle-label');
+      const icon=button.querySelector('.erimax-card-toggle-icon');
+      if(label)label.textContent=closed?'Expandir':'Recolher';
+      if(icon)icon.textContent=closed?'⌄':'⌃';
+    });
+    head.appendChild(button);
+  }
+  function scan(root){
+    if(!root||!(root instanceof Element||root instanceof Document))return;
+    if(root instanceof Element&&root.matches(selector))install(root);
+    if(root.querySelectorAll)root.querySelectorAll(selector).forEach(install);
+  }
+  function start(){
+    scan(document);
+    const observer=new MutationObserver(records=>{
+      for(const record of records){
+        record.addedNodes.forEach(node=>{
+          if(node.nodeType===1)scan(node);
+        });
+      }
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+})();
+</script>
