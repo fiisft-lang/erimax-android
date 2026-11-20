@@ -5574,7 +5574,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <!-- ALMOXARIFADO -->
 <div id="tab-almoxarifado" class="tab-content">
 <section class="almox-hero"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h2>Almoxarifado</h2><p>Consulta de materiais para a equipe e controle de estoque exclusivo do gestor.</p></div><button type="button" class="almox-refresh" onclick="carregarAlmoxarifado()">↻ Atualizar</button></section>
-<div id="almoxReadOnlyNotice" class="almox-readonly-note" style="display:none">Consulta liberada: você pode conferir o saldo das peças e avisar o gestor quando encontrar material faltando ou ainda não cadastrado. Cadastro e movimentações são exclusivos do gestor.</div><section class="almox-panel almox-summary-panel"><div class="almox-panel-head"><div><span class="almox-kicker">VISÃO GERAL</span><h3>Resumo do estoque</h3><p>Indicadores atualizados conforme entradas, saídas e consumo nas O.S.</p></div><span class="almox-panel-icon">▦</span></div><div class="almox-stats"><article><span>Materiais ativos</span><strong id="almoxTotal">0</strong><small>Itens cadastrados</small></article><article><span>Disponíveis</span><strong id="almoxDisponiveis">0</strong><small>Acima do mínimo</small></article><article><span>Estoque baixo</span><strong id="almoxBaixo">0</strong><small>No limite ou abaixo</small></article><article><span>Em falta</span><strong id="almoxZerado">0</strong><small>Saldo zerado</small></article><article><span>Pendências</span><strong id="almoxPendentes">0</strong><small>Cadastro ou estoque pendente</small></article></div></section><div id="almoxAlertasReposicao" class="almox-replenish-alert" style="display:none"></div>
+<div id="almoxReadOnlyNotice" class="almox-readonly-note" style="display:none">Consulta liberada: você pode conferir o saldo das peças e avisar o gestor quando encontrar material faltando ou ainda não cadastrado. Cadastro e movimentações são exclusivos do gestor.</div><section class="almox-panel almox-summary-panel"><div class="almox-panel-head"><div><span class="almox-kicker">VISÃO GERAL</span><h3>Resumo do estoque</h3><p>Indicadores atualizados conforme entradas, saídas e consumo nas O.S.</p></div><span class="almox-panel-icon">▦</span></div><div class="almox-stats"><article data-almox-kpi="total" role="button" tabindex="0" aria-expanded="false" aria-label="Ver todos os materiais ativos"><span>Materiais ativos</span><strong id="almoxTotal">0</strong><small>Itens cadastrados</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="disponivel" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais disponíveis"><span>Disponíveis</span><strong id="almoxDisponiveis">0</strong><small>Acima do mínimo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="baixo" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais com estoque baixo"><span>Estoque baixo</span><strong id="almoxBaixo">0</strong><small>No limite ou abaixo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="zerado" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais em falta"><span>Em falta</span><strong id="almoxZerado">0</strong><small>Saldo zerado</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="pendentes" role="button" tabindex="0" aria-expanded="false" aria-label="Ver pendências de cadastro ou estoque"><span>Pendências</span><strong id="almoxPendentes">0</strong><small>Cadastro ou estoque pendente</small><span class="almox-kpi-hint">Clique para ver as pendências</span></article></div><div id="almoxIndicadorDetalhe" class="almox-kpi-detail" hidden aria-live="polite"></div></section><div id="almoxAlertasReposicao" class="almox-replenish-alert" style="display:none"></div>
 <section class="almox-panel" id="almoxAdminCadastro"><div class="almox-panel-head"><div><span class="almox-kicker">CATÁLOGO</span><h3>Cadastrar material</h3><p>O cadastro começa com saldo zero. Registre a entrada inicial em Movimentar estoque.</p></div><span class="almox-panel-icon">＋</span></div>
 <form id="almoxFormMaterial" class="almox-form-grid" onsubmit="salvarMaterialAlmox(event)">
 <label>Nome do material *<input id="almoxNome" maxlength="160" required placeholder="Ex.: Rolamento 6204"></label><label>Código interno<input id="almoxCodigo" maxlength="60" placeholder="Opcional"></label><label>Categoria<input id="almoxCategoria" maxlength="80" placeholder="Ex.: Rolamentos"></label>
@@ -10422,6 +10422,31 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 @media (min-width:1024px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:reduce){.tab-content.active{animation:none!important}}
 </style>
 
+
+<script id="erimax-almox-kpi-details">
+(function(){
+ if(window.__erimaxAlmoxKpiDetails)return;window.__erimaxAlmoxKpiDetails=true;
+ const labels={total:'Todos os materiais ativos',disponivel:'Materiais disponíveis',baixo:'Materiais com estoque baixo',zerado:'Materiais em falta',pendentes:'Pendências de cadastro e estoque'};
+ function detalhe(tipo){
+  const box=document.getElementById('almoxIndicadorDetalhe');if(!box)return;
+  if(box.dataset.tipo===tipo&&!box.hidden){box.hidden=true;box.innerHTML='';box.dataset.tipo='';document.querySelectorAll('[data-almox-kpi]').forEach(x=>{x.classList.remove('is-selected');x.setAttribute('aria-expanded','false')});return}
+  const materiais=(window.ALMOX_MATERIAIS||[]).filter(x=>x.ativo);
+  let html='';
+  if(tipo==='pendentes'){
+   const pendencias=window.ALMOX_SOLICITACOES||[];
+   html=pendencias.length?pendencias.map(s=>'<article class="almox-kpi-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b></article>').join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
+  }else{
+   const lista= materiais.filter(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return tipo==='total'||(tipo==='disponivel'&&n>0&&(min<=0||n>min))||(tipo==='baixo'&&n>0&&min>0&&n<=min)||(tipo==='zerado'&&n<=0)}).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+   html=lista.length?lista.map(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return '<article class="almox-kpi-row"><div><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+' • Mínimo: '+min.toLocaleString('pt-BR')+'</small></div><b>'+n.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade||'un')+'</b></article>'}).join(''):'<p class="almox-empty">Nenhum material nesta situação.</p>';
+  }
+  box.dataset.tipo=tipo;box.innerHTML='<div class="almox-kpi-detail-head"><strong>'+labels[tipo]+'</strong><button type="button" aria-label="Fechar detalhes" class="almox-kpi-close">Fechar ×</button></div><div class="almox-kpi-detail-list">'+html+'</div>';box.hidden=false;
+  document.querySelectorAll('[data-almox-kpi]').forEach(x=>{const active=x.dataset.almoxKpi===tipo;x.classList.toggle('is-selected',active);x.setAttribute('aria-expanded',String(active))});
+  box.querySelector('.almox-kpi-close').addEventListener('click',()=>detalhe(tipo));
+ }
+ function ativar(){const root=document.getElementById('tab-almoxarifado');if(!root||root.dataset.kpiReady)return;root.dataset.kpiReady='1';root.addEventListener('click',e=>{const card=e.target.closest('[data-almox-kpi]');if(card)detalhe(card.dataset.almoxKpi)});root.addEventListener('keydown',e=>{const card=e.target.closest('[data-almox-kpi]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();detalhe(card.dataset.almoxKpi)}})}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ativar);else ativar();
+})();
+</script>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -12180,6 +12205,22 @@ function alternarPainelComparacaoMaquinas(){
 #almoxCardEstoqueCompleto .almox-panel-head{align-items:center}
 @media(max-width:900px){.almox-summary-panel .almox-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.almox-summary-panel .almox-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.almox-stock-head{align-items:stretch;flex-direction:column}.almox-stock-filters{width:100%;flex-direction:column;align-items:stretch}.almox-stock-filters input,.almox-stock-filters select{width:100%;max-width:none}.almox-material-list{grid-template-columns:1fr}}
+
+/* Indicadores do Almoxarifado: clique para detalhar e recolher */
+.almox-summary-panel .almox-stats article[data-almox-kpi]{position:relative;cursor:pointer;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease;outline:none}
+.almox-summary-panel .almox-stats article[data-almox-kpi]:hover,.almox-summary-panel .almox-stats article[data-almox-kpi]:focus-visible,.almox-summary-panel .almox-stats article[data-almox-kpi].is-selected{border-color:#8fb5c7;box-shadow:0 7px 20px rgba(25,75,100,.12);transform:translateY(-1px)}
+.almox-summary-panel .almox-stats article[data-almox-kpi].is-selected{background:#f2f8fa}
+.almox-kpi-hint{display:block;margin-top:8px;color:#648394!important;font-size:.63rem!important;font-weight:700!important}
+.almox-kpi-detail{margin-top:14px;padding:15px;border:1px solid #d9e6ec;border-radius:13px;background:#f8fbfc}
+.almox-kpi-detail[hidden]{display:none!important}
+.almox-kpi-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;color:#173d58}
+.almox-kpi-close{border:1px solid #d5e1e7;border-radius:8px;background:#fff;padding:6px 10px;color:#476578;font:inherit;font-size:.72rem;font-weight:750;cursor:pointer}
+.almox-kpi-detail-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.almox-kpi-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:10px 12px;border:1px solid #e1e9ee;border-radius:10px;background:#fff}
+.almox-kpi-row strong{display:block;color:#23455e;font-size:.8rem}
+.almox-kpi-row small{display:block;margin-top:3px;color:#718294;font-size:.68rem}
+.almox-kpi-row>b{flex:0 0 auto;color:#173d58;font-size:.82rem;font-variant-numeric:tabular-nums}
+@media(max-width:600px){.almox-kpi-detail-list{grid-template-columns:1fr}.almox-summary-panel .almox-stats article{padding:12px}}
 </style>
 
 <script id="erimax-card-controls-all-pages-2026">
