@@ -10424,7 +10424,13 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 
 
 
-\n<style id="erimax-almox-edicao-materiais-2026">\n.almox-edit-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:8px;padding:6px 10px;border:1px solid #cbd9e4;border-radius:8px;background:#fff;color:#24536e;font-size:.72rem;font-weight:800;cursor:pointer}.almox-edit-btn:hover{background:#edf5fa;border-color:#8eafc4}.almox-edit-cancel{padding:9px 13px;border:1px solid #cbd9e4;border-radius:9px;background:#fff;color:#526779;font-weight:750;cursor:pointer}.almox-edit-cancel[hidden]{display:none!important}\n@media(max-width:600px){.almox-edit-btn{padding:7px 9px}}\n</style>\n</body></html>`;
+\n<style id="erimax-almox-edicao-materiais-2026">\n.almox-edit-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:8px;padding:6px 10px;border:1px solid #cbd9e4;border-radius:8px;background:#fff;color:#24536e;font-size:.72rem;font-weight:800;cursor:pointer}.almox-edit-btn:hover{background:#edf5fa;border-color:#8eafc4}.almox-edit-cancel{padding:9px 13px;border:1px solid #cbd9e4;border-radius:9px;background:#fff;color:#526779;font-weight:750;cursor:pointer}.almox-edit-cancel[hidden]{display:none!important}\n@media(max-width:600px){.almox-edit-btn{padding:7px 9px}}\n</style>\n<style id="erimax-almox-edit-button-compact-2026">
+.almox-material-qty .almox-edit-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:30px!important;height:28px!important;min-width:30px!important;min-height:28px!important;margin:7px 0 0 auto!important;padding:0!important;border:1px solid #d7e1e9!important;border-radius:7px!important;background:transparent!important;color:#557187!important;font-size:14px!important;line-height:1!important;font-weight:600!important;box-shadow:none!important;cursor:pointer!important;transition:background .16s ease,border-color .16s ease,color .16s ease!important}
+.almox-material-qty .almox-edit-btn:hover{background:#edf4f8!important;border-color:#a9bfce!important;color:#244e68!important}
+.almox-material-qty .almox-edit-btn span{display:block;font-size:15px;line-height:1}
+@media(max-width:600px){.almox-material-qty .almox-edit-btn{width:30px!important;height:28px!important;min-width:30px!important;padding:0!important}}
+</style>
+</body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
     return;
@@ -10958,7 +10964,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<button type="button" class="almox-edit-btn" onclick="editarMaterialAlmox(\''+x.id+'\')">✎ Editar</button>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')"><span aria-hidden="true">✎</span></button>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
