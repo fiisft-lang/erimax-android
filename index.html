@@ -10430,6 +10430,11 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 .almox-material-qty .almox-edit-btn span{display:block;font-size:15px;line-height:1}
 @media(max-width:600px){.almox-material-qty .almox-edit-btn{width:30px!important;height:28px!important;min-width:30px!important;padding:0!important}}
 </style>
+
+<style id="erimax-almox-edit-label-2026">
+.almox-material-qty .almox-edit-btn{width:auto!important;min-width:0!important;height:25px!important;min-height:25px!important;padding:0 9px!important;margin:7px 0 0 auto!important;border:1px solid #dce5eb!important;border-radius:7px!important;background:#f8fafb!important;color:#62798a!important;font-size:11px!important;font-weight:650!important;letter-spacing:.01em!important;box-shadow:none!important}
+.almox-material-qty .almox-edit-btn:hover{background:#edf4f8!important;border-color:#c5d4de!important;color:#34566d!important}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -10964,7 +10969,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')"><span aria-hidden="true">✎</span></button>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')">Editar</button>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
