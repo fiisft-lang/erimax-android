@@ -10224,18 +10224,19 @@ function atualizarMetricasReais(){
     </article>`;
   }).join(''):'<div class="downtime-empty">Sem dados para os filtros selecionados.</div>';
 
-  // Ranking específico de reincidências para facilitar a cobrança de ações preventivas.
+  // Ranking de reincidências: a chave inclui setor para não misturar máquinas homônimas.
   const reincPorMaquina={};
   fIndicadores.forEach(os=>{
     const info=reincidenciasHistorico.get(String(os.id));if(!info)return;
-    const nome=os.maquina||'Máquina não informada';
-    if(!reincPorMaquina[nome])reincPorMaquina[nome]={setor:os.setor||'—',total:0,problemas:new Set()};
-    reincPorMaquina[nome].total++;
-    reincPorMaquina[nome].problemas.add(info.grupo);
+    const nome=os.maquina||'Máquina não informada',setorOS=os.setor||'—';
+    const chave=chaveMetricaMaq(setorOS,nome);
+    if(!reincPorMaquina[chave])reincPorMaquina[chave]={nome,setor:setorOS,total:0,problemas:new Set()};
+    reincPorMaquina[chave].total++;
+    reincPorMaquina[chave].problemas.add(info.grupo);
   });
-  const rankingReinc=Object.entries(reincPorMaquina).sort((a,b)=>b[1].total-a[1].total);
+  const rankingReinc=Object.values(reincPorMaquina).sort((a,b)=>b.total-a.total);
   const corpoRankingReinc=document.getElementById('tbRankingReincidencia');
-  if(corpoRankingReinc)corpoRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map(([nome,d])=>`<tr style="cursor:pointer" onclick="abrirDetalheMetrica('reincidencia')"><td><b>${escaparHtml(nome)}</b></td><td>${escaparHtml(d.setor)}</td><td style="font-weight:800;color:#dc3545">${d.total}</td><td>${escaparHtml([...d.problemas].join('; '))}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr>';
+  if(corpoRankingReinc)corpoRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map(d=>`<tr style="cursor:pointer" onclick="abrirDetalheMetrica('reincidencia')"><td><b>${escaparHtml(d.nome)}</b></td><td>${escaparHtml(d.setor)}</td><td style="font-weight:800;color:#dc3545">${d.total}</td><td>${escaparHtml([...d.problemas].join('; '))}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr>';
 
   // relatório
   const rel=document.getElementById('listaRelatorioProblemas');
