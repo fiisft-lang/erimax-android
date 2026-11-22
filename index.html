@@ -11709,21 +11709,25 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 </style>
 
 <style id="erimax-android-bottom-nav-browser-parity-2026">
-/* Android: card compacto, com altura total controlada e botões na mesma proporção do navegador. */
+/* Android: reduz a altura real do card e elimina o excesso de área abaixo dos três botões. */
 @media(max-width:1023px){
   html.erimax-app-android .erimax-mobile-bottom-nav{
     box-sizing:border-box!important;
-    min-height:68px!important;
-    height:68px!important;
-    padding:7px 9px!important;
-    border-radius:23px!important;
+    height:58px!important;
+    min-height:58px!important;
+    max-height:58px!important;
+    padding:4px 9px 2px!important;
+    grid-template-rows:48px!important;
+    align-items:center!important;
+    border-radius:20px!important;
   }
   html.erimax-app-android .erimax-mobile-nav-item{
     box-sizing:border-box!important;
-    min-height:52px!important;
-    height:52px!important;
-    padding:5px 4px!important;
-    border-radius:16px!important;
+    height:48px!important;
+    min-height:48px!important;
+    max-height:48px!important;
+    padding:3px 4px!important;
+    border-radius:14px!important;
   }
 }
 </style>
