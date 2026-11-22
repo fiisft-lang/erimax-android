@@ -10246,7 +10246,7 @@ function atualizarMetricasReais(){
   const maquinaReincidente=rankingReinc[0];
   if(maquinaReincidente){
     const [nome,d]=maquinaReincidente;
-    insightsExec.push({classe:'is-watch',rotulo:'Maior reincidência',titulo:nome,dесcricao:''});
+    insightsExec.push({classe:'is-watch',rotulo:'Maior reincidência',titulo:nome});
     insightsExec[insightsExec.length-1].descricao=d.total+' ocorrência(s) recorrente(s) identificada(s). Recomenda-se revisar causa raiz e ações anteriores.';
   }
   if(cs.length){
