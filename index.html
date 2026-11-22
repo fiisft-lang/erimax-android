@@ -9731,6 +9731,7 @@ function paradaProd(c,tn,periodoInicio,periodoFim){
 const charts={};
 const DETALHES_GRAFICOS={};
 let OS_PARADA_ATUAL=[];
+let OS_MTBF_ATUAL=[];
 let OS_PARADA_PARETO=[];
 const COR=['#2563eb','#0f9d8a','#d97706','#7c3aed','#e05b70','#0891b2','#64748b','#b08a3e'];
 const diaLocal=d=>new Date(d).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
@@ -9919,9 +9920,9 @@ function abrirDetalheMetrica(tipo){
   cfg={type:'bar',data:{labels:a.map(x=>x[0]),datasets:[{label:'Média em minutos',data:a.map(x=>Math.round(x[1])),backgroundColor:resp?'#2563eb':'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,title:{display:true,text:'minutos'}}}}};
   explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
  }else if(tipo==='mtbf'){
-  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(dados,c=>(c.maquina||'Máquina não informada')+' — '+(c.setor||'Setor não informado'),()=>1).slice(0,12);
+  titulo.textContent='MTBF — intervalo médio entre falhas';const mtbfDados=OS_MTBF_ATUAL||[];const g=agrupar(mtbfDados,c=>(c.maquina||'Máquina não informada')+' — '+(c.setor||'Setor não informado'),()=>1).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
-  lista=dados;explicacao='O MTBF geral mantém a fórmula atual baseada nas horas produtivas. O gráfico mostra a quantidade de falhas por máquina, sem inventar um MTBF individual sem base horária confiável.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma falha registrada.</p>';
+  lista=mtbfDados;explicacao='O gráfico e a lista usam exatamente as O.S. consideradas no MTBF geral: máquinas cadastradas dos setores produtivos com horário válido, respeitando período e turno selecionados.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma falha registrada na base produtiva com horário válido.</p>';
  }else if(tipo==='total'){
   titulo.textContent='Total de O.S.';const g={};todos.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g);
   cfg={type:'doughnut',data:{labels,datasets:[{data:labels.map(x=>g[x]),backgroundColor:labels.map((x,i)=>x==='Concluída'?'#16a34a':x==='Cancelada'?'#94a3b8':COR[i%COR.length]),borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'}}}};
@@ -10193,9 +10194,11 @@ function atualizarMetricasReais(){
   const base=maqsBase.reduce((t,m)=>t+baseDe(m.setor),0);
   const chavesMaquinasBase=new Set(maqsBase.map(m=>chaveMetricaMaq(m.setor,m.nome)));
   const metricasPorMaquinaTurno=new Map();
+  OS_MTBF_ATUAL=[];
   baseEscopo.forEach(os=>{
     const chave=chaveMetricaMaq(os.setor,os.maquina);
     if(!setoresComHorarioSet.has(os.setor)||!chavesMaquinasBase.has(chave)||!eventoNoPeriodo(os.created_at)||(tn!=='Todos'&&!eventoNoTurno(os,os.created_at)))return;
+    OS_MTBF_ATUAL.push(os);
     const info=metricasPorMaquinaTurno.get(chave)||{falhas:0,sRep:0,nRep:0,reinc:0};
     info.falhas++;
     if(os.data_atendimento&&os.data_conclusao){const tempo=min(os.data_atendimento,os.data_conclusao);if(tempo>=0){info.sRep+=tempo;info.nRep++}}
