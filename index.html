@@ -5486,6 +5486,82 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 <button id="tbVerificarAtualizacoes" class="tab-btn" type="button" onclick="fecharMenuLateral();if(window.erimaxOTA)window.erimaxOTA.checkForUpdate(true);else alert('Atualização não disponível nesta versão.')"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4.9 16.5A8 8 0 1 0 4 12"/></svg></span><span>Verificar atualizações</span></button>
 </nav>
 
+<nav class="erimax-mobile-bottom-nav" aria-label="Navegação principal">
+  <button type="button" class="erimax-mobile-nav-item is-active" id="erimaxMobileHome" onclick="irInicioEriMax()" aria-label="Início">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z"/></svg><span>Início</span>
+  </button>
+  <button type="button" class="erimax-mobile-nav-item" id="erimaxMobileOS" onclick="mudarAba('ordens-servico',event)" aria-label="Ordens de Serviço">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4l-3 3-3-3 3-3Z"/><path d="M14 4h6v6"/></svg><span>Ordens</span><b id="erimaxMobileOSBadge" aria-label="Ordens pendentes">0</b>
+  </button>
+  <button type="button" class="erimax-mobile-nav-item" id="erimaxMobileMenu" onclick="alternarMenuLateral()" aria-label="Abrir menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span>
+  </button>
+</nav>
+<style id="erimax-mobile-bottom-nav-2026">
+@media(max-width:1023px){
+  .nav-tabs #tbAbrirOS,.nav-tabs #tbOrdensServico{display:none!important}
+  .erimax-mobile-bottom-nav{
+    position:fixed!important;left:12px!important;right:12px!important;
+    bottom:calc(9px + env(safe-area-inset-bottom))!important;z-index:1105!important;
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
+    min-height:68px;padding:7px 9px!important;
+    border:1px solid rgba(215,225,237,.92);border-radius:23px;
+    background:rgba(255,255,255,.96);box-shadow:0 9px 30px rgba(26,54,93,.14);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
+  }
+  .erimax-mobile-nav-item{
+    position:relative;display:flex!important;min-width:0;min-height:52px;
+    flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    padding:5px 4px!important;border:0!important;border-radius:16px!important;
+    background:transparent!important;color:#68778b!important;
+    font:650 .68rem/1.1 inherit!important;cursor:pointer
+  }
+  .erimax-mobile-nav-item svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .erimax-mobile-nav-item span{white-space:nowrap}
+  .erimax-mobile-nav-item.is-active{background:var(--primary)!important;color:#fff!important;box-shadow:0 4px 12px color-mix(in srgb,var(--primary) 24%,transparent)}
+  .erimax-mobile-nav-item b{position:absolute;top:1px;right:calc(50% - 25px);min-width:16px;height:16px;padding:0 4px;border-radius:9px;background:var(--secondary);color:#fff;font-size:9px;line-height:16px}
+  .erimax-mobile-nav-item b:empty{display:none}
+  body.menu-lateral-aberto #erimaxMobileMenu{background:#eef3ff!important;color:var(--primary)!important}
+  body.menu-lateral-aberto .erimax-mobile-bottom-nav{z-index:1105!important}
+  body{padding-bottom:calc(94px + env(safe-area-inset-bottom))!important}
+  #toastOS{bottom:calc(92px + env(safe-area-inset-bottom))!important}
+  #menuBackdrop{z-index:1200!important}
+  .nav-tabs{z-index:1202!important}
+}
+@media(min-width:1024px){.erimax-mobile-bottom-nav{display:none!important}}
+@media(prefers-reduced-motion:no-preference){
+ .erimax-mobile-nav-item{transition:background .18s ease,color .18s ease,transform .18s ease}
+ .erimax-mobile-nav-item:active{transform:scale(.96)}
+}
+</style>
+<script id="erimax-mobile-bottom-nav-controller-2026">
+function irInicioEriMax(){
+  const perfil=(window.PERFIL&&window.PERFIL.perfil)||'';
+  mudarAba(perfil==='gestor'?'painel':'abrir',event);
+}
+function atualizarNavegacaoMobileEriMax(id){
+  const home=document.getElementById('erimaxMobileHome');
+  const os=document.getElementById('erimaxMobileOS');
+  const menu=document.getElementById('erimaxMobileMenu');
+  const perfil=(window.PERFIL&&window.PERFIL.perfil)||'';
+  if(home)home.classList.toggle('is-active',id===(perfil==='gestor'?'painel':'abrir'));
+  if(os)os.classList.toggle('is-active',id==='ordens-servico');
+  if(menu)menu.classList.remove('is-active');
+  const badge=document.getElementById('erimaxMobileOSBadge');
+  const original=document.getElementById('badgePendentes');
+  if(badge&&original){const n=Number(original.textContent)||0;badge.textContent=n>99?'99+':(n>0?String(n):'');badge.hidden=n<=0;}
+}
+(function instalarNavegacaoMobileEriMax(){
+  const menu=document.getElementById('erimaxMobileMenu');
+  if(menu){
+    const observer=new MutationObserver(()=>{const aberto=document.body.classList.contains('menu-lateral-aberto');menu.setAttribute('aria-expanded',aberto?'true':'false');menu.setAttribute('aria-label',aberto?'Fechar menu':'Abrir menu')});
+    observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+  }
+  const atual=document.querySelector('.tab-content.active');
+  atualizarNavegacaoMobileEriMax(atual?atual.id.replace(/^tab-/,''):'abrir');
+})();
+</script>
+
 <div class="container">
 <!-- ABRIR OS -->
 <div id="tab-abrir" class="tab-content active">
@@ -6219,6 +6295,7 @@ function mudarAba(id,evt,opcoes={}){
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
+  if(typeof atualizarNavegacaoMobileEriMax==='function')atualizarNavegacaoMobileEriMax(id);
 
   const precisaAtualizar=['painel','ordens-servico','ordens-abertas','metricas','ranking-os'].includes(id);
   const carregamento=id==='almoxarifado'?carregarAlmoxarifado():(precisaAtualizar?carregarDadosSupabase():Promise.resolve());
