@@ -9878,19 +9878,21 @@ function calcularReincidenciasHistorico(historico){
       if(descricaoNormalizada===candidato.descricaoNormalizada){grupo=candidato;break}
       if(tokens.length<2||candidato.tokens.length<2)continue;
       const comp=compararProblemasOS(tokens,candidato.tokens);
-      if(comp.comuns>=2&&comp.indice>=0.5){grupo=candidato;break}
+      if(comp.comuns>=2&&comp.indice>=0.67&&(!grupo||comp.indice>grupo.similaridade)){grupo=candidato;grupo.similaridade=comp.indice}
     }
     if(grupo){
       resultado.set(String(os.id),{grupo:grupo.rotulo,primeiraOS:grupo.primeiraOS});
       grupo.ocorrencias++;
     }else{
-      grupos.push({tokens,descricaoNormalizada,rotulo:tokens.length?tokens.join(' + '):descricaoNormalizada,primeiraOS:os,ocorrencias:1});
+      grupos.push({tokens,descricaoNormalizada,rotulo:String(os.descricao||'Problema não informado').trim()||descricaoNormalizada,primeiraOS:os,ocorrencias:1});
       porMaquina.set(chaveMaquina,grupos);
     }
   });
   return resultado;
 }
 
+let REINCIDENCIA_SELECAO=null;
+function abrirDetalheReincidenciaGrupo(setor,maquina,problema){REINCIDENCIA_SELECAO={setor,maquina,problema};abrirDetalheMetrica('reincidencia')}
 let chartDetalheMetrica=null;
 function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMetrica');if(m)m.style.display='none';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}}
 function abrirDetalheMetrica(tipo){
@@ -9939,7 +9941,8 @@ function abrirDetalheMetrica(tipo){
     if(!grupos[k])grupos[k]={maquina,setor,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
     grupos[k].os.push(os);
   });
-  const r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
+  let r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
+  if(REINCIDENCIA_SELECAO){const sel=REINCIDENCIA_SELECAO;REINCIDENCIA_SELECAO=null;r=r.filter(g=>g.setor===sel.setor&&g.maquina===sel.maquina&&g.problema===sel.problema)}
   const porMaquina=new Map();
   r.forEach(g=>{
     const chave=g.setor+'|'+g.maquina;
@@ -9955,7 +9958,7 @@ function abrirDetalheMetrica(tipo){
   box.innerHTML=maquinasOrdenadas.length?maquinasOrdenadas.map((maquina,idx)=>{
     const problemas=maquina.problemas.sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
     return '<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA '+String(idx+1).padStart(2,'0')+'</small><h3>'+escaparHtml(maquina.maquina)+'</h3><p>'+escaparHtml(maquina.setor)+'</p></div><strong>'+maquina.total+' reincidência(s)</strong></header>'+
-      problemas.map((g,i)=>'<article class="metrics-recurrence-detail-problem"><div class="metrics-recurrence-detail-problem-head"><b>'+String(i+1).padStart(2,'0')+' · '+escaparHtml(g.problema)+'</b><span>'+g.os.length+' repetição(ões)</span></div><div class="metrics-recurrence-detail-sequence">'+cronologica([g.primeiraOS,...g.os]).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).map((os,i)=>'<div class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(diaLocal(os.created_at)||'Data não informada')+'</b><p>'+escaparHtml(os.descricao||'Descrição não informada')+'</p><small>'+escaparHtml(os.status||'Status não informado')+'</small></div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>').join('')+'</div></article>').join('')+'</section>';
+      problemas.map((g,i)=>'<article class="metrics-recurrence-detail-problem"><button type="button" class="metrics-recurrence-detail-problem-head" onclick="abrirDetalheReincidenciaGrupo(\''+encodeURIComponent(g.setor).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.maquina).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.problema).replace(/'/g,'%27')+'\')"><b>'+String(i+1).padStart(2,'0')+' · '+escaparHtml(g.problema)+'</b><span>'+g.os.length+' repetição(ões) · abrir O.S.</span></button><div class="metrics-recurrence-detail-sequence">'+cronologica([g.primeiraOS,...g.os]).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).map((os,i)=>'<div class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(diaLocal(os.created_at)||'Data não informada')+'</b><p>'+escaparHtml(os.descricao||'Descrição não informada')+'</p><small>'+escaparHtml(os.status||'Status não informado')+'</small></div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>').join('')+'</div></article>').join('')+'</section>';
   }).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
  resumo.textContent=explicacao;document.body.appendChild(modal);modal.scrollTop=0;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
@@ -10281,7 +10284,7 @@ function atualizarMetricasReais(){
         <span class="metrics-recurrence-total"><b>${maquina.total}</b><small>reincidências</small></span>
       </button>
       <div class="metrics-recurrence-problems">${problemas.map((problema,i)=>`<div class="metrics-recurrence-problem">
-        <div class="metrics-recurrence-problem-head"><span>${i+1}. ${escaparHtml(problema.nome)}</span><b>${problema.total} repetição(ões)</b></div>
+        <button type="button" class="metrics-recurrence-problem-head" onclick="abrirDetalheReincidenciaGrupo('${encodeURIComponent(maquina.setor).replace(/'/g,'%27')}','${encodeURIComponent(maquina.nome).replace(/'/g,'%27')}','${encodeURIComponent(problema.nome).replace(/'/g,'%27')}')"><span>${i+1}. ${escaparHtml(problema.nome)}</span><b>${problema.total} repetição(ões) · abrir O.S.</b></button>
         <div class="metrics-recurrence-os-sequence">${[problema.primeiraOS,...problema.os].filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0)).map(os=>`<span>${escaparHtml(nOS(os))} · ${escaparHtml(diaLocal(os.created_at)||'Data não informada')}</span>`).join('<i aria-hidden="true">→</i>')}</div>
       </div>`).join('')}</div>
       <button type="button" class="metrics-recurrence-open" onclick="abrirDetalheMetrica('reincidencia')">Ver sequência completa das O.S. <span aria-hidden="true">›</span></button>
