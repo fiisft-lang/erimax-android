@@ -10160,7 +10160,8 @@ function atualizarMetricasReais(){
   cReinc.innerText=(fIndicadores.length?Math.round(reincOS/fIndicadores.length*100):0)+'%';
 
   // Ranking visual de máquinas: mesmos dados e cálculos, em cartões responsivos.
-  const rank=Object.entries(maq).sort((a,b)=>b[1].parada-a[1].parada);
+  // O ranking exibe disponibilidade e MTBF por máquina: mantém o mesmo escopo produtivo da base geral.
+  const rank=Object.entries(maq).filter(([nome,m])=>maqsBase.some(base=>base.nome===nome&&base.setor===m.setor)).sort((a,b)=>b[1].parada-a[1].parada);
   const tbRanking=document.getElementById('tbRanking');
   if(tbRanking)tbRanking.innerHTML=rank.length?rank.slice(0,30).map(([n,m],i)=>{
     const bd=baseDe(m.setor),rodou=Math.max(0,bd-m.parada),pct=bd?Math.max(0,Math.min(100,Math.round(rodou/bd*100))):0;
