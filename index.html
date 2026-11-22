@@ -10064,7 +10064,7 @@ function atualizarMetricasReais(){
     let p=0;
     trechos.forEach(t=>{
       if(t.fim<=t.ini)return;
-      const trechoOS={...c,created_at:new Date(t.ini).toISOString(),data_conclusao:new Date(t.fim).toISOString()};
+      const trechoOS={...c,created_at:new Date(t.ini).toISOString(),data_conclusao:new Date(t.fim).toISOString(),rodando_em:null};
       p+=paradaProd(trechoOS,tnum,pLimiteIni,pLimiteFim);
     });
     if(p>0)osParada.push({os:c,parada:p});
