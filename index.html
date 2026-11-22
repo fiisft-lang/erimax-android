@@ -7212,7 +7212,26 @@ body .tbl-wrap td{color:#344d5e}
   #tab-metricas #metricsDataContent .metrics-grid>.metric-card>.title>.erimax-card-toggle{min-height:27px!important;padding:4px 7px!important;font-size:10px!important}
 }
 </style>
-</head>
+<style id="erimax-reincidencias-agrupadas-2026">
+#cardRankingReincidencia{overflow:hidden}.metrics-recurrence-machines{display:grid;gap:12px}
+.metrics-recurrence-machine,.metrics-recurrence-detail-machine{border:1px solid #dce6ee;border-radius:14px;background:#fff;overflow:hidden}
+.metrics-recurrence-machine-head{display:flex;align-items:center;gap:11px;width:100%;padding:13px 15px;border:0;background:#f7fafc;text-align:left;cursor:pointer}
+.metrics-recurrence-rank{display:grid;place-items:center;width:31px;height:31px;flex:0 0 31px;border-radius:9px;background:#e8f0f7;color:#496b87;font-weight:850;font-size:.72rem}
+.metrics-recurrence-machine-title{display:grid;gap:3px;min-width:0;flex:1}.metrics-recurrence-machine-title strong{color:#193b54;font-size:.9rem;overflow-wrap:anywhere}.metrics-recurrence-machine-title small{color:#708295;font-size:.7rem}
+.metrics-recurrence-total{text-align:right;display:grid;gap:1px}.metrics-recurrence-total b{color:#c24141;font-size:1.12rem;font-variant-numeric:tabular-nums}.metrics-recurrence-total small{color:#7b8998;font-size:.63rem}
+.metrics-recurrence-problems{padding:0 14px}.metrics-recurrence-problem{padding:11px 0;border-top:1px solid #edf1f5}
+.metrics-recurrence-problem-head,.metrics-recurrence-detail-problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:9px;color:#304b62;font-size:.78rem;font-weight:750}
+.metrics-recurrence-problem-head b,.metrics-recurrence-detail-problem-head span{flex:0 0 auto;color:#b45309;font-size:.68rem}
+.metrics-recurrence-os-sequence{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px}.metrics-recurrence-os-sequence span{padding:5px 8px;border:1px solid #e1eaf1;border-radius:7px;background:#f8fafc;color:#536b80;font-size:.67rem;font-weight:700}.metrics-recurrence-os-sequence i{color:#9aa9b7;font-style:normal}
+.metrics-recurrence-open{display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 15px;border:0;border-top:1px solid #edf1f5;background:#fff;color:#3975a8;font-size:.72rem;font-weight:750;text-align:left;cursor:pointer}.metrics-recurrence-open span{font-size:1.1rem}
+.metrics-recurrence-empty{padding:22px;text-align:center;border:1px dashed #d6e0e9;border-radius:12px;color:#7b8998}
+.metrics-recurrence-detail-machine{margin:0 0 13px;padding:0 13px 12px}.metrics-recurrence-detail-machine>header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 -13px 8px;padding:13px;background:#f5f8fb;border-bottom:1px solid #e5edf3}
+.metrics-recurrence-detail-machine>header small{color:#8091a1;font-size:.62rem;font-weight:800;letter-spacing:.07em}.metrics-recurrence-detail-machine>header h3{margin:3px 0;color:#193b54;font-size:.95rem}.metrics-recurrence-detail-machine>header p{margin:0;color:#708295;font-size:.68rem}.metrics-recurrence-detail-machine>header>strong{color:#c24141;font-size:.75rem;text-align:right}
+.metrics-recurrence-detail-problem{padding:10px 0;border-top:1px solid #edf1f5}.metrics-recurrence-detail-problem-head{margin-bottom:7px}
+.metrics-recurrence-detail-order{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px dashed #e6edf2}.metrics-recurrence-step{display:grid;place-items:center;width:25px;height:25px;flex:0 0 25px;border-radius:8px;background:#eaf1f7;color:#52718c;font-size:.65rem;font-weight:800}
+.metrics-recurrence-detail-order>div{flex:1;min-width:0}.metrics-recurrence-detail-order>div>b{color:#304b62;font-size:.73rem}.metrics-recurrence-detail-order>div>p{margin:3px 0;color:#65798c;font-size:.72rem;overflow-wrap:anywhere}.metrics-recurrence-detail-order>div>small{color:#8997a4;font-size:.63rem}.metrics-recurrence-detail-order .btn-action{flex:0 0 auto;margin:0;padding:7px 9px;font-size:.67rem}
+@media(max-width:600px){.metrics-recurrence-machine-head{padding:11px}.metrics-recurrence-problems{padding:0 11px}.metrics-recurrence-detail-machine{padding:0 10px 9px}.metrics-recurrence-detail-machine>header{margin:0 -10px 7px;padding:11px}.metrics-recurrence-detail-order{align-items:flex-start;flex-wrap:wrap}.metrics-recurrence-detail-order>div{min-width:calc(100% - 40px)}.metrics-recurrence-detail-order .btn-action{margin-left:34px}}
+</style></head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
 <div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
@@ -7569,7 +7588,7 @@ function atualizarNavegacaoMobileEriMax(id){
 
 <div class="metrics-section-heading"><span>05</span><div><h3>Reincidências e histórico de máquinas</h3><p>Identifique problemas que voltam a ocorrer e consulte os diagnósticos e fechamentos do período</p></div></div>
 
-    <section class="card metrics-ranking-card" id="cardRankingReincidencia"><div class="ranking-os-card-head"><span>🔁</span><div><h3>Máquinas com mais reincidências</h3><p>Defeitos que voltaram na mesma máquina, mesmo quando a descrição foi escrita de outra forma. Toque para abrir o histórico.</p></div></div><div class="tbl-wrap"><table><thead><tr><th>Máquina</th><th>Setor</th><th>Reincidências</th><th>Problemas repetidos</th></tr></thead><tbody id="tbRankingReincidencia"><tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr></tbody></table></div></section>
+    <section class="card metrics-ranking-card" id="cardRankingReincidencia"><div class="ranking-os-card-head"><span>🔁</span><div><h3>Máquinas com mais reincidências</h3><p>Defeitos que voltaram na mesma máquina, mesmo quando a descrição foi escrita de outra forma. Toque para abrir o histórico.</p></div></div><div id="listaRankingReincidencia" class="metrics-recurrence-machines" aria-live="polite"><div class="metrics-recurrence-empty">Carregando reincidências do período…</div></div></section>
     <section class="card metrics-ranking-card"><div class="ranking-os-card-head"><span>📋</span><div><h3>Diagnósticos e fechamentos</h3><p>Histórico do que foi executado nas máquinas, conforme os filtros da página Métricas.</p></div></div><div id="listaRelatorioProblemas" class="ranking-os-report"></div></section>
 
     <section class="card metrics-executive-panel" id="metricsExecutiveInsights">
@@ -9919,13 +9938,24 @@ function abrirDetalheMetrica(tipo){
     if(!grupos[k])grupos[k]={maquina,setor,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
     grupos[k].os.push(os);
   });
-  const r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length);
-  const porMaquina={};r.forEach(g=>{const chave=g.setor+'|'+g.maquina;porMaquina[chave]=(porMaquina[chave]||0)+g.os.length});
-  const ranking=Object.entries(porMaquina).sort((a,b)=>b[1]-a[1]).slice(0,12);
-  cfg={type:'bar',data:{labels:ranking.map(x=>x[0].split('|').reverse().join(' — ')),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x[1]),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
-  lista=r.flatMap(g=>[g.primeiraOS,...g.os].filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i));
-  explicacao='Compara o histórico da mesma máquina dentro do mesmo setor, usando os termos relevantes da descrição do defeito. Variações como “a faca não estava cortando” e “faca parou de cortar” podem ser agrupadas. Descrições curtas ou ambíguas ficam sem classificação automática para evitar falsos positivos.';
-  box.innerHTML=r.length?r.map(g=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(g.maquina)+' • '+escaparHtml(g.setor)+' • '+escaparHtml(g.problema)+' • '+g.os.length+' reincidência(s)</b>'+ordenarOSRecentes([g.primeiraOS,...g.os]).map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
+  const r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
+  const porMaquina=new Map();
+  r.forEach(g=>{
+    const chave=g.setor+'|'+g.maquina;
+    if(!porMaquina.has(chave))porMaquina.set(chave,{maquina:g.maquina,setor:g.setor,total:0,problemas:[]});
+    const item=porMaquina.get(chave);item.total+=g.os.length;item.problemas.push(g);
+  });
+  const maquinasOrdenadas=[...porMaquina.values()].sort((a,b)=>b.total-a.total||a.maquina.localeCompare(b.maquina,'pt-BR'));
+  const ranking=maquinasOrdenadas.slice(0,12);
+  cfg={type:'bar',data:{labels:ranking.map(x=>x.maquina+' — '+x.setor),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x.total),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  lista=maquinasOrdenadas.flatMap(m=>m.problemas.flatMap(g=>[g.primeiraOS,...g.os])).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i);
+  explicacao='As ordens estão agrupadas primeiro por máquina e depois por tipo de problema. Dentro de cada problema, a sequência é cronológica e inclui a primeira ocorrência que originou a reincidência. A comparação considera a mesma máquina e o mesmo setor; descrições ambíguas não são classificadas automaticamente.';
+  const cronologica=arr=>arr.slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
+  box.innerHTML=maquinasOrdenadas.length?maquinasOrdenadas.map((maquina,idx)=>{
+    const problemas=maquina.problemas.sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
+    return '<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA '+String(idx+1).padStart(2,'0')+'</small><h3>'+escaparHtml(maquina.maquina)+'</h3><p>'+escaparHtml(maquina.setor)+'</p></div><strong>'+maquina.total+' reincidência(s)</strong></header>'+
+      problemas.map((g,i)=>'<article class="metrics-recurrence-detail-problem"><div class="metrics-recurrence-detail-problem-head"><b>'+String(i+1).padStart(2,'0')+' · '+escaparHtml(g.problema)+'</b><span>'+g.os.length+' repetição(ões)</span></div><div class="metrics-recurrence-detail-sequence">'+cronologica([g.primeiraOS,...g.os]).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).map((os,i)=>'<div class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(diaLocal(os.created_at)||'Data não informada')+'</b><p>'+escaparHtml(os.descricao||'Descrição não informada')+'</p><small>'+escaparHtml(os.status||'Status não informado')+'</small></div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>').join('')+'</div></article>').join('')+'</section>';
+  }).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
  resumo.textContent=explicacao;document.body.appendChild(modal);modal.scrollTop=0;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
 }
@@ -10224,19 +10254,36 @@ function atualizarMetricasReais(){
     </article>`;
   }).join(''):'<div class="downtime-empty">Sem dados para os filtros selecionados.</div>';
 
-  // Ranking de reincidências: a chave inclui setor para não misturar máquinas homônimas.
+  // Reincidências agrupadas por máquina e, dentro dela, por problema.
+  // A classificação continua vindo do histórico completo; a tela apenas organiza os resultados.
   const reincPorMaquina={};
   fIndicadores.forEach(os=>{
     const info=reincidenciasHistorico.get(String(os.id));if(!info)return;
     const nome=os.maquina||'Máquina não informada',setorOS=os.setor||'—';
     const chave=chaveMetricaMaq(setorOS,nome);
-    if(!reincPorMaquina[chave])reincPorMaquina[chave]={nome,setor:setorOS,total:0,problemas:new Set()};
-    reincPorMaquina[chave].total++;
-    reincPorMaquina[chave].problemas.add(info.grupo);
+    if(!reincPorMaquina[chave])reincPorMaquina[chave]={nome,setor:setorOS,total:0,problemas:new Map()};
+    const maquina=reincPorMaquina[chave];maquina.total++;
+    const chaveProblema=String(info.grupo||'Problema não identificado');
+    if(!maquina.problemas.has(chaveProblema))maquina.problemas.set(chaveProblema,{nome:chaveProblema,total:0,primeiraOS:info.primeiraOS,os:[]});
+    const problema=maquina.problemas.get(chaveProblema);problema.total++;problema.os.push(os);
   });
-  const rankingReinc=Object.values(reincPorMaquina).sort((a,b)=>b.total-a.total);
-  const corpoRankingReinc=document.getElementById('tbRankingReincidencia');
-  if(corpoRankingReinc)corpoRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map(d=>`<tr style="cursor:pointer" onclick="abrirDetalheMetrica('reincidencia')"><td><b>${escaparHtml(d.nome)}</b></td><td>${escaparHtml(d.setor)}</td><td style="font-weight:800;color:#dc3545">${d.total}</td><td>${escaparHtml([...d.problemas].join('; '))}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#64748b">Sem reincidências no filtro.</td></tr>';
+  const rankingReinc=Object.values(reincPorMaquina).sort((a,b)=>b.total-a.total||a.nome.localeCompare(b.nome,'pt-BR'));
+  const listaRankingReinc=document.getElementById('listaRankingReincidencia');
+  if(listaRankingReinc)listaRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map((maquina,idx)=>{
+    const problemas=[...maquina.problemas.values()].sort((a,b)=>b.total-a.total||a.nome.localeCompare(b.nome,'pt-BR'));
+    return `<article class="metrics-recurrence-machine">
+      <button type="button" class="metrics-recurrence-machine-head" onclick="abrirDetalheMetrica('reincidencia')" aria-label="Abrir histórico de reincidências de ${escaparHtml(maquina.nome)}">
+        <span class="metrics-recurrence-rank">${String(idx+1).padStart(2,'0')}</span>
+        <span class="metrics-recurrence-machine-title"><strong>${escaparHtml(maquina.nome)}</strong><small>${escaparHtml(maquina.setor)}</small></span>
+        <span class="metrics-recurrence-total"><b>${maquina.total}</b><small>reincidências</small></span>
+      </button>
+      <div class="metrics-recurrence-problems">${problemas.map((problema,i)=>`<div class="metrics-recurrence-problem">
+        <div class="metrics-recurrence-problem-head"><span>${i+1}. ${escaparHtml(problema.nome)}</span><b>${problema.total} repetição(ões)</b></div>
+        <div class="metrics-recurrence-os-sequence">${[problema.primeiraOS,...problema.os].filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0)).map(os=>`<span>${escaparHtml(nOS(os))} · ${escaparHtml(diaLocal(os.created_at)||'Data não informada')}</span>`).join('<i aria-hidden="true">→</i>')}</div>
+      </div>`).join('')}</div>
+      <button type="button" class="metrics-recurrence-open" onclick="abrirDetalheMetrica('reincidencia')">Ver sequência completa das O.S. <span aria-hidden="true">›</span></button>
+    </article>`;
+  }).join(''):'<div class="metrics-recurrence-empty">Nenhuma reincidência identificada neste filtro.</div>';
 
   // relatório
   const rel=document.getElementById('listaRelatorioProblemas');
