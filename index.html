@@ -13633,3 +13633,104 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  #modalDetalheMetrica .erimax-metric-history-content .chart-wrapper{height:240px!important}
 }
 </style>
+
+
+<style id="erimax-correcao-paineis-historico-sem-corte-2026">
+/* Correção de enquadramento: o overlay rola quando necessário e o painel nunca ultrapassa a viewport. */
+#modalEfOS,#modalDetalheMetrica{
+ box-sizing:border-box!important;
+ display:none;
+ position:fixed!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ padding:clamp(8px,2vw,20px)!important;
+ align-items:center!important;justify-content:center!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior:contain!important;
+}
+#modalEfOS[style*="display: flex"],#modalEfOS[style*="display:flex"],
+#modalDetalheMetrica[style*="display: flex"],#modalDetalheMetrica[style*="display:flex"]{
+ display:flex!important;
+}
+#modalEfOS>.efos-dialog{
+ box-sizing:border-box!important;
+ position:relative!important;flex:0 1 760px!important;
+ width:min(760px,100%)!important;max-width:760px!important;
+ min-width:0!important;min-height:0!important;
+ max-height:calc(100vh - 32px)!important;max-height:calc(100dvh - 32px)!important;
+ margin:auto!important;padding:0!important;
+ display:flex!important;flex-direction:column!important;
+ overflow:hidden!important;
+ border-radius:18px!important;background:#fff!important;
+}
+#modalEfOS .efos-header.erimax-os-history-head{
+ flex:0 0 auto!important;min-width:0!important;
+ min-height:76px!important;margin:0!important;
+ padding:14px 18px!important;overflow:visible!important;
+}
+#modalEfOS .efos-header.erimax-os-history-head>div{min-width:0!important;overflow-wrap:anywhere!important}
+#modalEfOS .efos-header.erimax-os-history-head .erimax-os-history-close{
+ flex:0 0 40px!important;width:40px!important;min-width:40px!important;
+ max-width:40px!important;height:40px!important;min-height:40px!important;
+ align-self:center!important;z-index:2!important;
+}
+#modalEfOS .efos-summary{
+ flex:0 0 auto!important;max-height:25vh!important;overflow-y:auto!important;
+}
+#modalEfOS .efos-list{
+ flex:1 1 auto!important;min-height:0!important;
+ max-height:none!important;height:auto!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+}
+#modalDetalheMetrica>.erimax-metric-history-dialog{
+ box-sizing:border-box!important;position:relative!important;
+ flex:0 1 760px!important;width:min(760px,100%)!important;
+ max-width:760px!important;min-width:0!important;min-height:0!important;
+ height:auto!important;max-height:calc(100vh - 32px)!important;
+ max-height:calc(100dvh - 32px)!important;
+ margin:auto!important;padding:0!important;overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;
+}
+#modalDetalheMetrica .erimax-metric-history-head{
+ box-sizing:border-box!important;flex:0 0 auto!important;
+ width:100%!important;min-width:0!important;min-height:76px!important;
+ padding:14px 18px!important;overflow:visible!important;
+}
+#modalDetalheMetrica .erimax-metric-history-head>div{
+ flex:1 1 auto!important;min-width:0!important;overflow-wrap:anywhere!important;
+}
+#modalDetalheMetrica .erimax-metric-history-head .erimax-os-history-close{
+ flex:0 0 40px!important;width:40px!important;min-width:40px!important;
+ max-width:40px!important;height:40px!important;min-height:40px!important;
+ align-self:center!important;z-index:2!important;
+}
+#modalDetalheMetrica .erimax-metric-history-content{
+ box-sizing:border-box!important;flex:1 1 auto!important;
+ width:100%!important;min-width:0!important;min-height:0!important;
+ max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;
+}
+@media(max-width:600px){
+ #modalEfOS,#modalDetalheMetrica{padding:8px!important;align-items:center!important}
+ #modalEfOS>.efos-dialog,#modalDetalheMetrica>.erimax-metric-history-dialog{
+  flex-basis:auto!important;width:100%!important;max-width:100%!important;
+  max-height:calc(100vh - 16px)!important;max-height:calc(100dvh - 16px)!important;
+  border-radius:15px!important;
+ }
+ #modalEfOS .efos-header.erimax-os-history-head,
+ #modalDetalheMetrica .erimax-metric-history-head{
+  min-height:68px!important;padding:12px 13px!important;gap:9px!important;
+ }
+ #modalEfOS .efos-header.erimax-os-history-head #modalEfOSTitulo,
+ #modalDetalheMetrica .erimax-metric-history-head h2{
+  font-size:clamp(.9rem,4vw,1.05rem)!important;overflow-wrap:anywhere!important;
+ }
+ #modalEfOS .efos-header.erimax-os-history-head .erimax-os-history-close,
+ #modalDetalheMetrica .erimax-metric-history-head .erimax-os-history-close{
+  flex-basis:36px!important;width:36px!important;min-width:36px!important;
+  max-width:36px!important;height:36px!important;min-height:36px!important;
+ }
+ #modalEfOS .efos-summary{padding:10px 13px 0!important}
+ #modalEfOS .efos-list{padding:8px 13px 13px!important}
+ #modalDetalheMetrica .erimax-metric-history-content{padding:11px 12px 14px!important}
+}
+</style>
