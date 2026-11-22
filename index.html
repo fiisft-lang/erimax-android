@@ -6428,33 +6428,33 @@ body{color:var(--ex-ink);-webkit-font-smoothing:antialiased}
 </style>
 
 <style id="erimax-android-header-safe-area-final-2026">
-/* Android WebView: descer a barra superior inteira para liberar o conteúdo
-   que ficava sob a área de status. Não altera o cabeçalho no navegador. */
-html.erimax-app-android body > header,
-html.erimax-app-android header{
+/* Android WebView: reserva espaço real acima do cabeçalho e desloca a barra
+   inteira para baixo, sem depender do safe-area do WebView. */
+html.erimax-app-android body > header{
+  position:sticky!important;
+  top:0!important;
+  margin-top:32px!important;
   box-sizing:border-box!important;
   min-height:108px!important;
-  padding-top:max(44px,calc(env(safe-area-inset-top,0px) + 28px))!important;
+  padding-top:44px!important;
   padding-bottom:12px!important;
   scroll-margin-top:0!important;
 }
-html.erimax-app-android header img.logo{
+html.erimax-app-android body > header img.logo{
   flex-shrink:0!important;
   max-height:44px!important;
   object-fit:contain!important;
 }
-html.erimax-app-android header .menu-control{
+html.erimax-app-android body > header .menu-control{
   margin-top:4px!important;
   transform:translateY(7px)!important;
 }
-html.erimax-app-android header #btnMenuLateral{
-  flex-shrink:0!important;
-}
+html.erimax-app-android body > header #btnMenuLateral{flex-shrink:0!important}
 @media(max-width:600px){
-  html.erimax-app-android body > header,
-  html.erimax-app-android header{
-    min-height:108px!important;
-    padding-top:max(44px,calc(env(safe-area-inset-top,0px) + 28px))!important;
+  html.erimax-app-android body > header{
+    margin-top:36px!important;
+    min-height:112px!important;
+    padding-top:48px!important;
     padding-bottom:12px!important;
   }
 }
