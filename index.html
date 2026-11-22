@@ -6288,6 +6288,52 @@ body{color:var(--ex-ink);-webkit-font-smoothing:antialiased}
 @media(max-width:360px){#painelMaquinasSupervisor .sv-metrics{grid-template-columns:1fr!important}#painelMaquinasSupervisor .sv-metric{min-height:88px!important}}
 @media(prefers-reduced-motion:reduce){#painelMaquinasSupervisor .sv-metric{transition:none!important}}
 </style>
+
+<style id="erimax-global-finish-pass-2026">
+/* EriMax 2.0 — acabamento transversal das dez áreas. Somente apresentação e acessibilidade visual. */
+:root{--erimax-surface:#fff;--erimax-line:#e3eaee;--erimax-muted:#71838e;--erimax-shadow:0 5px 18px rgba(24,52,68,.045)}
+.tab-content.active{color:var(--text,#263b48)}
+.tab-content.active :is(h1,h2,h3,h4){text-wrap:balance;letter-spacing:-.022em}
+.tab-content.active :is(p,small){line-height:1.55}
+.tab-content.active :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea){min-height:40px;border:1px solid #d9e3e8!important;border-radius:10px!important;background:#fff!important;color:var(--text,#263b48)!important;box-shadow:0 1px 2px rgba(20,45,60,.025)!important;transition:border-color .16s ease,box-shadow .16s ease!important}
+.tab-content.active textarea{min-height:88px;resize:vertical}
+.tab-content.active :is(input,select,textarea)::placeholder{color:#9aa8b0!important}
+.tab-content.active :is(input,select,textarea):focus-visible{outline:0!important;border-color:var(--primary,#47788f)!important;box-shadow:0 0 0 3px rgba(58,112,139,.14)!important}
+.tab-content.active :is(button,a,[role="button"],summary):focus-visible{outline:3px solid rgba(58,112,139,.35)!important;outline-offset:2px!important}
+.tab-content.active button:not(.btn-action):not(.tab-btn):not(.os-swipe-knob):not(.os-vertical-knob){transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background-color .16s ease}
+.tab-content.active :is(.maq-row,.os-card,.oa-card,.ranking-os-row,[class~="metric-card"],[class~="stat-card"],[class~="dashboard-card"]){border-color:var(--erimax-line)!important;border-radius:13px!important;box-shadow:var(--erimax-shadow)!important}
+.tab-content.active :is(.maq-row,.ranking-os-row){padding:12px 14px}
+.tab-content.active :is(table){border-collapse:separate!important;border-spacing:0!important}
+.tab-content.active :is(th){font-size:.7rem!important;font-weight:800!important;letter-spacing:.035em!important;color:#607785!important;background:#f5f8fa!important}
+.tab-content.active :is(td,th){padding:10px 12px!important;border-bottom:1px solid #e9eef1!important;vertical-align:middle}
+.tab-content.active :is(tbody tr):hover{background:#f8fafb}
+.tab-content.active :is(details)>summary{cursor:pointer}
+.tab-content.active :is(.maq-row,.os-card,.oa-card,.ranking-os-row) :is(button){min-height:36px}
+.tab-content.active :is(.empty-state,.empty,.no-data){border:1px dashed #d7e2e8!important;border-radius:13px!important;background:#f8fafb!important;color:#71838e!important}
+.tab-content.active :is(.alerta,.alert,.warning,.success){border-radius:10px}
+#tab-abrir :is(input,select,textarea){width:100%;max-width:100%}
+#tab-abrir :is(label){font-weight:700;color:#526b79}
+#tab-ordens-servico #listaOS,#tab-ordens-abertas #listaOSAbertas{min-width:0}
+#tab-ordens-servico .os-card,#tab-ordens-abertas .oa-card{overflow:hidden}
+#tab-presenca :is(button,input,select){min-height:40px}
+#tab-almoxarifado :is(input,select,textarea){max-width:100%}
+#tab-cadastro :is(input,select,textarea){max-width:100%}
+#tab-metricas :is(canvas,svg){max-width:100%}
+#tab-metricas :is(.chart-container,.grafico-container){min-width:0;max-width:100%;overflow:hidden}
+#tab-ranking-os :is(.ranking-os-row){display:flex;align-items:center;gap:12px}
+#tab-ia :is(pre,code,.ia-response,.ia-result){overflow-wrap:anywhere;word-break:break-word}
+@media(hover:hover) and (pointer:fine){
+ .tab-content.active button:not(:disabled):not(.btn-action):not(.tab-btn):hover{filter:brightness(.985)}
+ .tab-content.active :is(.maq-row,.os-card,.oa-card,.ranking-os-row):hover{border-color:#ccdbe2!important;box-shadow:0 9px 22px rgba(24,52,68,.075)!important}
+}
+@media(max-width:760px){
+ .tab-content.active :is(table){display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .tab-content.active :is(td,th){padding:9px 10px!important}
+ .tab-content.active :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea){font-size:16px!important}
+ #tab-ranking-os :is(.ranking-os-row){gap:8px;flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){.tab-content.active *{scroll-behavior:auto!important;transition:none!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
