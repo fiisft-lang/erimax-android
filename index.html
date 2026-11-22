@@ -5514,7 +5514,7 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
     flex-direction:column;align-items:center;justify-content:center;gap:4px;
     padding:5px 4px!important;border:0!important;border-radius:16px!important;
     background:transparent!important;color:#68778b!important;
-    font:650 .68rem/1.1 inherit!important;cursor:pointer
+    font-family:inherit!important;font-size:.68rem!important;line-height:1.1!important;font-weight:650!important;cursor:pointer
   }
   .erimax-mobile-nav-item svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   .erimax-mobile-nav-item span{white-space:nowrap}
@@ -5536,8 +5536,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 </style>
 <script id="erimax-mobile-bottom-nav-controller-2026">
 function irInicioEriMax(){
-  const perfil=(window.PERFIL&&window.PERFIL.perfil)||'';
-  mudarAba(perfil==='gestor'?'painel':'abrir',event);
+  const perfil=(typeof PERFIL!=='undefined'&&PERFIL&&PERFIL.perfil)||'';
+  mudarAba(perfil==='gestor'?'painel':'abrir');
 }
 function atualizarNavegacaoMobileEriMax(id){
   const home=document.getElementById('erimaxMobileHome');
