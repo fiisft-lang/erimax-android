@@ -7225,8 +7225,8 @@ body .tbl-wrap td{color:#344d5e}
 .metrics-recurrence-os-sequence{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px}.metrics-recurrence-os-sequence span{padding:5px 8px;border:1px solid #e1eaf1;border-radius:7px;background:#f8fafc;color:#536b80;font-size:.67rem;font-weight:700}.metrics-recurrence-os-sequence i{color:#9aa9b7;font-style:normal}
 .metrics-recurrence-open{display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 15px;border:0;border-top:1px solid #edf1f5;background:#fff;color:#3975a8;font-size:.72rem;font-weight:750;text-align:left;cursor:pointer}.metrics-recurrence-open span{font-size:1.1rem}
 .metrics-recurrence-empty{padding:22px;text-align:center;border:1px dashed #d6e0e9;border-radius:12px;color:#7b8998}
-.metrics-recurrence-detail-machine{margin:0 0 13px;padding:0 13px 12px}.metrics-recurrence-detail-machine>header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 -13px 8px;padding:13px;background:#f5f8fb;border-bottom:1px solid #e5edf3}
-.metrics-recurrence-detail-machine>header small{color:#8091a1;font-size:.62rem;font-weight:800;letter-spacing:.07em}.metrics-recurrence-detail-machine>header h3{margin:3px 0;color:#193b54;font-size:.95rem}.metrics-recurrence-detail-machine>header p{margin:0;color:#708295;font-size:.68rem}.metrics-recurrence-detail-machine>header>strong{color:#c24141;font-size:.75rem;text-align:right}
+.metrics-recurrence-detail-machine{margin:0 0 13px;padding:0 13px 12px}.metrics-recurrence-detail-machine>header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 -13px 8px;padding:13px;background:#18364f;border-bottom:1px solid #294d69;border-radius:10px 10px 0 0}
+.metrics-recurrence-detail-machine>header small{color:#d7e7f3;font-size:.66rem;font-weight:850;letter-spacing:.07em}.metrics-recurrence-detail-machine>header h3{margin:3px 0;color:#fff;font-size:1rem;font-weight:850}.metrics-recurrence-detail-machine>header p{margin:0;color:#e1edf6;font-size:.72rem}.metrics-recurrence-detail-machine>header>strong{color:#fff;font-size:.78rem;text-align:right}
 .metrics-recurrence-detail-problem{padding:10px 0;border-top:1px solid #edf1f5}.metrics-recurrence-detail-problem-head{margin-bottom:7px}
 .metrics-recurrence-detail-order{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px dashed #e6edf2}.metrics-recurrence-step{display:grid;place-items:center;width:25px;height:25px;flex:0 0 25px;border-radius:8px;background:#eaf1f7;color:#52718c;font-size:.65rem;font-weight:800}
 .metrics-recurrence-detail-order>div{flex:1;min-width:0}.metrics-recurrence-detail-order>div>b{color:#304b62;font-size:.73rem}.metrics-recurrence-detail-order>div>p{margin:3px 0;color:#65798c;font-size:.72rem;overflow-wrap:anywhere}.metrics-recurrence-detail-order>div>small{color:#8997a4;font-size:.63rem}.metrics-recurrence-detail-order .btn-action{flex:0 0 auto;margin:0;padding:7px 9px;font-size:.67rem}
@@ -9842,6 +9842,7 @@ function tokensProblemaOS(os){
   const texto=normalizarDescricaoProblemaOS(os&&os.descricao);
   const ignorar=new Set(['a','o','as','os','um','uma','de','do','da','dos','das','em','no','na','nos','nas','com','sem','para','por','que','e','ou','foi','esta','estava','estao','estao','ser','ter','tem','tinha','nao','muito','pouco','mais','menos','maquina','equipamento','problema','defeito','apresenta','apresentou','parou','parar','parada','voltou','ficou','fica','ficando','na','ao']);
   const sinonimos={
+    balancinha:'balancim',balancinho:'balancim',balancins:'balancim',balancim:'balancim',
     corta:'corte',cortar:'corte',cortando:'corte',cortou:'corte',cortado:'corte',cortada:'corte',
     trava:'travamento',travar:'travamento',travando:'travamento',travou:'travamento',travado:'travamento',travada:'travamento',
     quebra:'quebra',quebrar:'quebra',quebrando:'quebra',quebrou:'quebra',quebrado:'quebra',quebrada:'quebra',
@@ -9879,6 +9880,12 @@ function calcularReincidenciasHistorico(historico){
       // Descrição igual após normalização é reincidência mesmo quando só sobra um termo útil
       // (ex.: "Problema no datador" repetido). Para textos diferentes, mantém o critério conservador.
       if(descricaoNormalizada===candidato.descricaoNormalizada){grupo=candidato;break}
+      // Termo técnico único só é aceito quando pertence a uma equivalência explícita e específica.
+      // Isso reconhece balancinha/balancinho sem unir descrições genéricas de uma palavra.
+      const equivalenciasUnicasSeguras=new Set(['balancim']);
+      if(tokens.length===1&&candidato.tokens.length===1&&tokens[0]===candidato.tokens[0]&&equivalenciasUnicasSeguras.has(tokens[0])){
+        grupo=candidato;melhorSimilaridade=1;break;
+      }
       if(tokens.length<2||candidato.tokens.length<2)continue;
       const comp=compararProblemasOS(tokens,candidato.tokens);
       if(comp.comuns>=2&&comp.indice>=2/3&&comp.indice>melhorSimilaridade){
