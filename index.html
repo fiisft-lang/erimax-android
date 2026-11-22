@@ -6330,7 +6330,7 @@ async function carregarDadosSupabase(){
   HISTORICO_SITUACAO_OS=hs||[];
   if(auditoriaError)console.error('Erro ao carregar auditoria das O.S.:',auditoriaError.message);
   HISTORICO_EDICOES_OS=auditoria||[];
-  TODOS_USUARIOS=pf||[];TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||(x.id===MEU_ID&&x.perfil==='gestor'));USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e');
+  TODOS_USUARIOS=pf||[];TECNICOS=(pf||[]).filter(x=>x.perfil==='tecnico');USUARIOS_STATUS=(pf||[]).filter(x=>x.perfil==='tecnico');
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
   STATUS_TECNICOS=st||[];
   if(MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas();
