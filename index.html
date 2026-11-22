@@ -12840,6 +12840,8 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -16309,5 +16311,95 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  #modalDetalheMetrica .erimax-os-history-head{flex-wrap:wrap!important}
  #modalDetalheMetrica .erimax-recurrence-back{order:3;width:100%;margin-top:2px}
  #modalDetalheMetrica .erimax-os-history-close{margin-left:auto!important}
+}
+</style>
+
+<!-- Ajuste responsivo: cartões de Ordens Abertas em zoom reduzido -->
+
+<!-- Grade dinâmica para Ordens Abertas: acompanha a largura disponível e o zoom -->
+<style id="erimax-ordens-abertas-zoom-responsivo-2026">
+/* Zoom normal do navegador: a grade ganha colunas conforme a área CSS aumenta. */
+#tab-ordens-abertas .oa-list{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))!important;
+  align-items:start!important;
+  grid-auto-rows:min-content!important;
+  gap:14px!important;
+  min-width:0!important;
+}
+#tab-ordens-abertas .oa-list>.os-card{
+  min-width:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:fit-content!important;
+  align-self:start!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+}
+#tab-ordens-abertas .oa-list>.os-card{
+  container-name:oa-card;
+  container-type:inline-size;
+}
+#tab-ordens-abertas .os-card .oa-card-meta,
+#tab-ordens-abertas .os-card .oa-card-facts{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;
+}
+#tab-ordens-abertas .os-card .oa-card-meta>span,
+#tab-ordens-abertas .os-card .oa-card-facts>span{
+  min-width:0!important;
+  overflow-wrap:anywhere!important;
+}
+#tab-ordens-abertas .os-card .oa-card-meta b,
+#tab-ordens-abertas .os-card .oa-card-facts b,
+#tab-ordens-abertas .os-card .oa-card-machine,
+#tab-ordens-abertas .os-card .oa-card-problem p{
+  min-width:0!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+  line-height:1.4!important;
+}
+/* Quando o cartão fica estreito, reorganiza os dados sem comprimir as palavras. */
+@container oa-card (max-width:460px){
+  #tab-ordens-abertas .os-card .oa-card-meta,
+  #tab-ordens-abertas .os-card .oa-card-facts{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #tab-ordens-abertas .os-card .oa-card-meta>span:last-child,
+  #tab-ordens-abertas .os-card .oa-card-facts>span:last-child{
+    grid-column:1/-1!important;
+  }
+}
+#tab-ordens-abertas .os-card .os-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+#tab-ordens-abertas .os-card .os-actions .btn-action{
+  flex:0 1 auto!important;
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  line-height:1.35!important;
+}
+/* Reproduz os mesmos níveis de zoom por gesto já usados em Ordens de Serviço. */
+#tab-ordens-abertas[data-erimax-zoom-level="80"] .oa-list{
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr))!important;
+  gap:9px!important;
+}
+#tab-ordens-abertas[data-erimax-zoom-level="60"] .oa-list{
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,165px),1fr))!important;
+  gap:8px!important;
+}
+#tab-ordens-abertas[data-erimax-zoom-level="40"] .oa-list{
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,145px),1fr))!important;
+  gap:7px!important;
+}
+@media(max-width:600px){
+  #tab-ordens-abertas .oa-list{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #tab-ordens-abertas .oa-list>.os-card{padding:12px!important}
 }
 </style>
