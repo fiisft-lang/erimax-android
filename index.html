@@ -7127,6 +7127,42 @@ body .tbl-wrap td{color:#344d5e}
 
 </style>
 
+<style id="erimax-fase9-programacao-preventiva-2026">
+/* Fase 9 — visão gerencial da programação preventiva; leitura dos registros existentes. */
+#tab-metricas .metrics-schedule-panel{grid-column:1/-1;min-width:0;margin-top:3px;padding:clamp(17px,2vw,25px);border:1px solid #d6e4e9;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#f6fafb 100%);box-shadow:0 9px 28px rgba(18,51,70,.06)}
+#tab-metricas .metrics-schedule-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:17px}
+#tab-metricas .metrics-schedule-head h3{margin:0;color:#183f55;font-size:clamp(1.04rem,1.5vw,1.25rem);font-weight:850;letter-spacing:-.03em}
+#tab-metricas .metrics-schedule-head p{margin:5px 0 0;color:#718594;font-size:.77rem;line-height:1.55}
+#tab-metricas .metrics-schedule-live{flex:none;padding:7px 10px;border:1px solid #d7e7e9;border-radius:999px;background:#f0f8f7;color:#28736f;font-size:.67rem;font-weight:800}
+#tab-metricas .metrics-schedule-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:19px}
+#tab-metricas .metrics-schedule-kpi{min-width:0;padding:13px 14px;border:1px solid #e1e9ed;border-radius:13px;background:#fff}
+#tab-metricas .metrics-schedule-kpi small{display:block;color:#748795;font-size:.65rem;font-weight:800;letter-spacing:.045em;text-transform:uppercase}
+#tab-metricas .metrics-schedule-kpi strong{display:block;margin-top:5px;color:#183f55;font-size:1.55rem;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+#tab-metricas .metrics-schedule-kpi em{display:block;margin-top:5px;color:#81919c;font-size:.66rem;font-style:normal}
+#tab-metricas .metrics-schedule-kpi.is-overdue{border-color:#f0d8d4;background:#fff9f8}
+#tab-metricas .metrics-schedule-kpi.is-overdue strong{color:#b64e43}
+#tab-metricas .metrics-schedule-kpi.is-soon{border-color:#f0e3c9;background:#fffcf6}
+#tab-metricas .metrics-schedule-kpi.is-soon strong{color:#a66b19}
+#tab-metricas .metrics-schedule-list-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 1px 9px}
+#tab-metricas .metrics-schedule-list-head strong{color:#23465b;font-size:.84rem;font-weight:850}
+#tab-metricas .metrics-schedule-list-head span{color:#81919c;font-size:.68rem}
+#tab-metricas .metrics-schedule-list{display:grid;gap:8px}
+#tab-metricas .metrics-schedule-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border:1px solid #e2eaf0;border-radius:13px;background:#fff}
+#tab-metricas .metrics-schedule-item-main{min-width:0}
+#tab-metricas .metrics-schedule-item-title{display:block;color:#23465b;font-size:.83rem;font-weight:850;overflow-wrap:anywhere}
+#tab-metricas .metrics-schedule-item-meta{display:block;margin-top:4px;color:#718594;font-size:.69rem;line-height:1.5;overflow-wrap:anywhere}
+#tab-metricas .metrics-schedule-item-side{text-align:right}
+#tab-metricas .metrics-schedule-date{display:block;color:#294d62;font-size:.72rem;font-weight:850;white-space:nowrap}
+#tab-metricas .metrics-schedule-status{display:inline-flex;margin-top:5px;padding:4px 7px;border-radius:999px;background:#edf5f8;color:#456b7e;font-size:.62rem;font-weight:850;white-space:nowrap}
+#tab-metricas .metrics-schedule-status.is-overdue{background:#fff0ee;color:#b64e43}
+#tab-metricas .metrics-schedule-status.is-today{background:#fff5e5;color:#a66b19}
+#tab-metricas .metrics-schedule-status.is-soon{background:#eef8f5;color:#26776e}
+#tab-metricas .metrics-schedule-empty{margin:0;padding:18px;border:1px dashed #d8e4ea;border-radius:12px;color:#718594;text-align:center;font-size:.76rem;line-height:1.5}
+#tab-metricas .metrics-schedule-note{margin:12px 0 0;color:#7a8d98;font-size:.67rem;line-height:1.55}
+@media(max-width:760px){#tab-metricas .metrics-schedule-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#tab-metricas .metrics-schedule-head{flex-direction:column}#tab-metricas .metrics-schedule-live{align-self:flex-start}#tab-metricas .metrics-schedule-kpi{padding:11px}#tab-metricas .metrics-schedule-kpi strong{font-size:1.35rem}#tab-metricas .metrics-schedule-item{grid-template-columns:minmax(0,1fr);gap:8px}#tab-metricas .metrics-schedule-item-side{display:flex;align-items:center;justify-content:space-between;text-align:left}#tab-metricas .metrics-schedule-status{margin-top:0}}
+@media(prefers-reduced-motion:reduce){#tab-metricas .metrics-schedule-panel *{transition:none!important}}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -7506,6 +7542,16 @@ function atualizarNavegacaoMobileEriMax(id){
         <header class="metrics-preventive-head"><div><span class="metrics-executive-kicker">CONFIABILIDADE E PREVENÇÃO</span><h3>Radar preventivo das máquinas</h3><p>Compara os dois meses mais recentes com registros e destaca mudanças que merecem investigação.</p></div><span class="metrics-preventive-period" id="metricsPreventivePeriod">Histórico disponível</span></header>
         <div class="metrics-preventive-grid" id="metricsPreventiveGrid" aria-live="polite"><article class="metrics-preventive-card"><small>Comparação</small><strong>Calculando tendências</strong><p>Os sinais serão atualizados com os registros disponíveis.</p></article></div>
         <p class="metrics-preventive-note">Aumento ou redução representa quantidade de O.S. abertas no mês, não comprova causa nem prevê falha. Recomendações são sugestões de inspeção; valide com a equipe e com o histórico técnico antes de intervir.</p>
+      </section>
+      <section class="metrics-schedule-panel" id="metricsPreventiveSchedule">
+        <header class="metrics-schedule-head">
+          <div><span class="metrics-executive-kicker">ROTINA E CONFIABILIDADE</span><h3>Programação de manutenção preventiva</h3><p>Visão das atividades cadastradas, organizada por vencimento e responsável.</p></div>
+          <span class="metrics-schedule-live" id="metricsScheduleUpdated">Acompanhamento da programação</span>
+        </header>
+        <div class="metrics-schedule-kpis" id="metricsScheduleKpis" aria-live="polite"></div>
+        <div class="metrics-schedule-list-head"><strong>Próximas atividades</strong><span id="metricsScheduleCount">0 programadas</span></div>
+        <div class="metrics-schedule-list" id="metricsScheduleList" aria-live="polite"><p class="metrics-schedule-empty">Carregando programação preventiva…</p></div>
+        <p class="metrics-schedule-note">Os prazos são calculados a partir da próxima data prevista cadastrada. A conclusão e a atualização do próximo ciclo continuam seguindo o fluxo atual da O.S. preventiva.</p>
       </section>
   </div>
 
@@ -12861,6 +12907,53 @@ function resumoMaquinasPreventiva(p){
   const lista=maquinasDaPreventiva(p);
   return lista.length>1?lista.length+' máquinas do setor':(lista[0]||'Máquina não informada');
 }
+function renderPainelPreventivas(){
+  const kpis=document.getElementById('metricsScheduleKpis');
+  const lista=document.getElementById('metricsScheduleList');
+  const count=document.getElementById('metricsScheduleCount');
+  if(!kpis||!lista)return;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const itens=(Array.isArray(PREV)?PREV:[]).map(p=>{
+    let vencimento;
+    const origem=String(p.data_prevista||'').slice(0,10);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(origem)){
+      const partes=origem.split('-').map(Number);
+      vencimento=new Date(partes[0],partes[1]-1,partes[2]);
+    }else{
+      const baseISO=String(p.ultima||dataISOlocal(hoje)).slice(0,10);
+      const partes=baseISO.split('-').map(Number);
+      vencimento=new Date(partes[0],partes[1]-1,partes[2]);
+      vencimento.setDate(vencimento.getDate()+(Number(p.intervalo_dias)||30));
+    }
+    if(!Number.isFinite(vencimento.getTime()))return null;
+    vencimento.setHours(0,0,0,0);
+    const dias=Math.round((vencimento.getTime()-hoje.getTime())/86400000);
+    return {p,dias,vencimento};
+  }).filter(Boolean).sort((a,b)=>a.dias-b.dias);
+  const atrasadas=itens.filter(x=>x.dias<0).length;
+  const proximos7=itens.filter(x=>x.dias>=0&&x.dias<=7).length;
+  const proximos30=itens.filter(x=>x.dias>=8&&x.dias<=30).length;
+  const futuras=itens.filter(x=>x.dias>30).length;
+  const cards=[
+    ['Planos ativos',itens.length,'Preventivas cadastradas',''],
+    ['Atrasadas',atrasadas,'Precisam de acompanhamento',atrasadas?'is-overdue':''],
+    ['Próximos 7 dias',proximos7,'Inclui as previstas para hoje',proximos7?'is-soon':''],
+    ['De 8 a 30 dias',proximos30,'Programação seguinte','']
+  ];
+  kpis.innerHTML=cards.map(c=>'<article class="metrics-schedule-kpi '+c[3]+'"><small>'+c[0]+'</small><strong>'+c[1]+'</strong><em>'+c[2]+'</em></article>').join('');
+  if(count)count.textContent=itens.length+' '+(itens.length===1?'programada':'programadas')+(futuras?' • '+futuras+' além de 30 dias':'');
+  if(!itens.length){
+    lista.innerHTML='<p class="metrics-schedule-empty">Nenhuma preventiva cadastrada no momento. Quando houver planos registrados, a programação aparecerá aqui automaticamente.</p>';
+    return;
+  }
+  lista.innerHTML=itens.slice(0,8).map(x=>{
+    const p=x.p,maquinas=maquinasDaPreventiva(p);
+    const maquina=maquinas.length>1?maquinas.length+' máquinas • '+maquinas.join(', '):(maquinas[0]||p.maquina||'Máquina não informada');
+    const status=x.dias<0?'Atrasada '+Math.abs(x.dias)+' dia(s)':x.dias===0?'Vence hoje':x.dias===1?'Vence amanhã':x.dias<=7?'Em '+x.dias+' dias':x.dias<=30?'Próximos 30 dias':'Programada';
+    const classe=x.dias<0?'is-overdue':x.dias===0?'is-today':x.dias<=7?'is-soon':'';
+    return '<article class="metrics-schedule-item"><div class="metrics-schedule-item-main"><strong class="metrics-schedule-item-title">'+escaparHtml(p.descricao||'Manutenção programada')+'</strong><span class="metrics-schedule-item-meta">'+escaparHtml(p.setor||'Setor não informado')+' • '+escaparHtml(maquina)+'<br>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' • A cada '+(Number(p.intervalo_dias)||0)+' dia(s)</span></div><div class="metrics-schedule-item-side"><strong class="metrics-schedule-date">'+x.vencimento.toLocaleDateString('pt-BR')+'</strong><span class="metrics-schedule-status '+classe+'">'+status+'</span></div></article>';
+  }).join('');
+}
 async function addPrev(){
   const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value);
   if(!pvSetor.value)return alert('Escolha um setor.');
@@ -12897,6 +12990,7 @@ async function carregarPreventivas(){
   }
   PREV=data||[];
   renderAlertaPreventivas();
+  renderPainelPreventivas();
   listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
