@@ -5742,6 +5742,168 @@ body{
 }
 </style>
 
+
+<style id="erimax-os-almox-stage2-2026">
+/* Etapa 2 — leitura rápida das O.S. e do estoque. Somente apresentação. */
+@media (min-width:1280px){
+  #tab-ordens-servico .os-modern-list{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch;
+    gap:14px;
+  }
+}
+@media (min-width:1600px){
+  #tab-ordens-servico .os-modern-list{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:15px;
+  }
+}
+#tab-ordens-servico .os-card{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  padding:17px!important;
+  border:1px solid #dfe7ed!important;
+  border-radius:15px!important;
+  box-shadow:0 5px 18px rgba(20,48,68,.055)!important;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important;
+}
+#tab-ordens-servico .os-card:hover{
+  border-color:#c7d8e3!important;
+  box-shadow:0 9px 24px rgba(20,48,68,.09)!important;
+}
+#tab-ordens-servico .os-card .os-resumo-info>span{
+  border-color:#e7edf2;
+  background:linear-gradient(180deg,#fbfdfe,#f6f9fb);
+}
+#tab-ordens-servico .os-card .os-problema{
+  flex:1 0 auto;
+  border-color:#e5ebf0;
+  background:#f8fafc;
+}
+#tab-ordens-servico .os-card .os-actions{
+  margin-top:auto;
+  padding-top:12px;
+}
+#tab-ordens-servico .os-card .btn-action{
+  min-height:38px;
+  box-shadow:0 1px 2px rgba(18,43,60,.06);
+}
+.erimax-os-history-panel{
+  border-color:#d7e2eb;
+  box-shadow:0 28px 80px rgba(5,24,39,.32);
+}
+.erimax-os-history-content{
+  background:#f7f9fc;
+}
+.erimax-os-detail-cell{
+  box-shadow:0 2px 7px rgba(25,50,70,.025);
+}
+.erimax-os-history-section{
+  border-color:#e0e8ef;
+  box-shadow:0 2px 8px rgba(25,50,70,.025);
+}
+.erimax-os-event{
+  padding-bottom:19px;
+}
+.almox-hero{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.almox-hero:after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:240px;height:240px;
+  right:-72px;top:-125px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:50%;
+  box-shadow:0 0 0 24px rgba(255,255,255,.035),0 0 0 50px rgba(255,255,255,.025);
+  pointer-events:none;
+}
+.almox-stats article{
+  position:relative;
+  overflow:hidden;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.almox-stats article[role="button"]{cursor:pointer}
+.almox-stats article[role="button"]:hover{
+  transform:translateY(-2px);
+  border-color:#cbdce7;
+  box-shadow:0 8px 20px rgba(25,55,80,.08);
+}
+.almox-stats article:focus-visible{
+  outline:3px solid rgba(64,130,163,.35);
+  outline-offset:2px;
+}
+.almox-panel{
+  border-color:#dfe7ed;
+  box-shadow:0 5px 18px rgba(26,58,82,.05);
+}
+.almox-request{
+  padding:14px;
+  border-color:#e0e8ef;
+  background:linear-gradient(180deg,#fff,#fbfdff);
+  transition:border-color .16s ease,box-shadow .16s ease;
+}
+.almox-request:hover{
+  border-color:#cbdce7;
+  box-shadow:0 4px 12px rgba(26,58,82,.045);
+}
+.almox-material{
+  min-height:76px;
+  border-color:#e0e8ef;
+  background:#fff;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.almox-material:hover{
+  transform:translateY(-1px);
+  border-color:#cbdce7;
+  box-shadow:0 5px 14px rgba(26,58,82,.055);
+}
+.almox-material-qty{
+  min-width:76px;
+  padding:7px 9px;
+  border:1px solid #e7edf2;
+  border-radius:9px;
+  background:#f8fafc;
+}
+.almox-stock-low .almox-material-qty,
+.almox-stock-zero .almox-material-qty{
+  background:#fffaf1;
+  border-color:#f0dfbd;
+}
+.almox-stock-zero .almox-material-qty{
+  background:#fff7f6;
+  border-color:#f0d4d1;
+}
+.almox-history-row{
+  padding:13px 8px;
+  border-radius:9px;
+  transition:background .15s ease;
+}
+.almox-history-row:hover{background:#f7fafc}
+.almox-history-value{
+  padding:6px 9px;
+  border-radius:8px;
+  background:#f1f6f8;
+  font-variant-numeric:tabular-nums;
+}
+.almox-history-value.entrada{background:#edf8f1}
+.almox-history-value.saida{background:#fff1ef}
+.almox-history-value.ajuste{background:#fff7e8}
+@media(max-width:760px){
+  #tab-ordens-servico .os-modern-list{grid-template-columns:1fr}
+  #tab-ordens-servico .os-card{padding:14px!important}
+  .almox-hero{border-radius:15px}
+  .almox-history-row{padding:11px 6px}
+}
+@media(prefers-reduced-motion:reduce){
+  #tab-ordens-servico .os-card,.almox-stats article,.almox-request,.almox-material,.almox-history-row{transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
