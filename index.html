@@ -10224,7 +10224,7 @@ function atualizarMetricasReais(){
       wrapper.insertBefore(aviso,wrapper.firstChild);
     }
     wrapper.style.height=Math.max(220,arr.length*30+70+(avisos.length?100:0))+'px';
-    DETALHES_GRAFICOS[id]=(_ds,i)=>{const nome=arr[i]?.n;return{titulo:'O.S. da máquina/setor '+nome,lista:fIndicadores.filter(c=>id==='chEfMaq'?c.maquina===nome:c.setor===nome)}};
+    DETALHES_GRAFICOS[id]=(ds,i)=>{const nome=arr[i]?.n;const lista=ds===1?(OS_PARADA_ATUAL||[]).filter(x=>id==='chEfMaq'?x.os.maquina===nome:x.os.setor===nome).map(x=>x.os):[];return{titulo:ds===1?'O.S. com parada registrada — '+nome:'Tempo sem parada registrada — '+nome,lista}};
     mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Sem parada registrada (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada registrada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
   };
   const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
@@ -10459,6 +10459,8 @@ function atualizarMetricasReais(){
   DETALHES_GRAFICOS.chHora=(_ds,i)=>{const horaTxt=i+'h';return{titulo:'O.S. abertas às '+horaTxt,lista:fIndicadores.filter(c=>new Date(c.created_at).getHours()===i)}};
   mk('chHora',{type:'bar',data:{labels:hora.map((_,i)=>i+'h'),datasets:[{label:'OS abertas',data:hora,backgroundColor:'#0056b3'}]},options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
   atualizarSetoresComparacaoMaquinas();
+  const comparacaoAtual=document.getElementById('comparacaoMaquinas');
+  if(comparacaoAtual&&comparacaoAtual.selectedOptions.length>=2)renderizarComparacaoMaquinas();
 }
 
 /* ===== NOTIFICAÇÃO PUSH (só funciona dentro do APK) ===== */
@@ -14099,27 +14101,32 @@ function renderizarComparacaoMaquinas(){
   const dados=selecionadas.map(nome=>{
     const todos=chamados.filter(os=>os.maquina===nome&&os.setor===setor&&os.tipo!=='Preventiva'&&os.status!=='Cancelada'&&(tipo==='Todos'||os.tipo===tipo));
     const abertasPeriodo=todos.filter(os=>dentroData(os)&&(turno==='Todos'||os.turno===turno));
-    const concluidas=abertasPeriodo.filter(os=>os.status==='Concluída').length;
+    const listaConcluidas=abertasPeriodo.filter(os=>os.status==='Concluída');
+    const listaEmAberto=abertasPeriodo.filter(os=>os.status!=='Concluída');
+    const concluidas=listaConcluidas.length;
     let somaResp=0,nResp=0,somaMTTR=0,nMTTR=0;
     abertasPeriodo.forEach(os=>{
       if(os.data_atendimento){const v=min(os.created_at,os.data_atendimento);if(v>=0){somaResp+=v;nResp++}}
       if(os.data_atendimento&&os.data_conclusao){const v=min(os.data_atendimento,os.data_conclusao);if(v>=0){somaMTTR+=v;nMTTR++}}
     });
+    const listaMTTR=abertasPeriodo.filter(os=>os.data_atendimento&&os.data_conclusao&&min(os.data_atendimento,os.data_conclusao)>=0);
     const limiteIni=ini?ini.getTime():-Infinity,limiteFim=fim?Math.min(fim.getTime(),Date.now()):Date.now();
     const intervalos=todos.filter(os=>String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')==='parado'&&Number.isFinite(new Date(os.created_at).getTime()))
       .map(os=>({os,ini:Math.max(new Date(os.created_at).getTime(),limiteIni),fim:Math.min(new Date(os.rodando_em||os.data_conclusao||Date.now()).getTime(),limiteFim)}))
       .filter(x=>x.fim>x.ini).sort((a,b)=>a.ini-b.ini);
-    let parado=0,unidos=[];
+    let parado=0,unidos=[],listaParadas=[];
     intervalos.forEach(x=>{
       let partes=[{ini:x.ini,fim:x.fim}];
       unidos.forEach(u=>{partes=partes.flatMap(p=>u.fim<=p.ini||u.ini>=p.fim?[p]:[{ini:p.ini,fim:Math.min(p.fim,u.ini)},{ini:Math.max(p.ini,u.fim),fim:p.fim}].filter(z=>z.fim>z.ini))});
-      partes.forEach(p=>{const trecho={...x.os,created_at:new Date(p.ini).toISOString(),data_conclusao:new Date(p.fim).toISOString(),rodando_em:null};parado+=paradaProd(trecho,tnum,ini||null,fim?new Date(Math.min(fim.getTime(),Date.now())):null)});
+      partes.forEach(p=>{const trecho={...x.os,created_at:new Date(p.ini).toISOString(),data_conclusao:new Date(p.fim).toISOString(),rodando_em:null};const minutosTrecho=paradaProd(trecho,tnum,ini||null,fim?new Date(Math.min(fim.getTime(),Date.now())):null);parado+=minutosTrecho;if(minutosTrecho>0&&!listaParadas.some(os=>String(os.id)===String(x.os.id)))listaParadas.push(x.os)});
       unidos=[...unidos,{ini:x.ini,fim:x.fim}].sort((a,b)=>a.ini-b.ini).reduce((acc,v)=>{const last=acc[acc.length-1];if(last&&v.ini<=last.fim)last.fim=Math.max(last.fim,v.fim);else acc.push({...v});return acc},[]);
     });
     const causas={};abertasPeriodo.forEach(os=>{const c=os.causa||'Não informada';causas[c]=(causas[c]||0)+1});
     const principais=Object.entries(causas).sort((a,b)=>b[1]-a[1]).slice(0,3);
-    return{nome,total:abertasPeriodo.length,abertas:abertasPeriodo.length-concluidas,concluidas,parado,resp:media(somaResp,nResp),mttr:media(somaMTTR,nMTTR),causas:principais};
+    return{nome,total:abertasPeriodo.length,abertas:abertasPeriodo.length-concluidas,concluidas,parado,resp:media(somaResp,nResp),mttr:media(somaMTTR,nMTTR),causas:principais,listaConcluidas,listaEmAberto,listaParadas,listaMTTR};
   });
+  DETALHES_GRAFICOS.chComparacaoOS=(ds,i)=>{const d=dados[i];return{titulo:(ds===0?'O.S. concluídas — ':'O.S. em aberto — ')+(d?.nome||'máquina'),lista:d?(ds===0?d.listaConcluidas:d.listaEmAberto):[]}};
+  DETALHES_GRAFICOS.chComparacaoTempos=(ds,i)=>{const d=dados[i];return{titulo:(ds===0?'O.S. com parada — ':'O.S. com tempo de reparo — ')+(d?.nome||'máquina'),lista:d?(ds===0?d.listaParadas:d.listaMTTR):[]}};
   resultado.innerHTML='<div class="metrics-compare-grid">'+dados.map(d=>'<article class="metrics-compare-machine"><h4>'+escaparHtml(d.nome)+'</h4><div class="cmp-main"><span>O.S. no período</span><strong>'+d.total+'</strong></div><div class="cmp-main"><span>Concluídas / abertas</span><strong>'+d.concluidas+' / '+d.abertas+'</strong></div><div class="cmp-main"><span>Tempo parado</span><strong>'+fmt(d.parado)+'</strong></div><div class="cmp-main"><span>Tempo médio de resposta</span><strong>'+fmt(d.resp)+'</strong></div><div class="cmp-main"><span>MTTR médio</span><strong>'+fmt(d.mttr)+'</strong></div><div class="cmp-causes"><b>Principais causas:</b> '+(d.causas.length?d.causas.map(c=>escaparHtml(c[0])+' ('+c[1]+')').join(' • '):'Sem registros')+'</div></article>').join('')+'</div>';
   if(graficos)graficos.style.display='';
   mk('chComparacaoOS',{type:'bar',data:{labels:dados.map(d=>d.nome),datasets:[{label:'Concluídas',data:dados.map(d=>d.concluidas),backgroundColor:'#0f9d8a',borderRadius:6},{label:'Em aberto / atendimento',data:dados.map(d=>d.abertas),backgroundColor:'#d97706',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
