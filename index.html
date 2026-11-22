@@ -14193,7 +14193,7 @@ function renderizarComparacaoMaquinas(){
     const todos=chamados.filter(os=>os.maquina===nome&&os.setor===setor&&os.tipo!=='Preventiva'&&os.status!=='Cancelada'&&(tipo==='Todos'||os.tipo===tipo));
      const abertasPeriodo=todos.filter(os=>{
        const texto=String(os.turno??'').trim();
-       const numero=(texto.match(/(?:^|\\D)0?([1-3])(?:\\D|$)/)||[])[1];
+       const numero=(texto.match(/(?:^|\D)0?([1-3])(?:\D|$)/)||[])[1];
        const turnoNormalizado=numero?'Turno '+numero:(texto||'Não informado');
        return dentroData(os)&&(turno==='Todos'||turnoNormalizado===turno);
      });
@@ -14207,7 +14207,7 @@ function renderizarComparacaoMaquinas(){
     });
     const listaMTTR=abertasPeriodo.filter(os=>os.data_atendimento&&os.data_conclusao&&min(os.data_atendimento,os.data_conclusao)>=0);
     const limiteIni=ini?ini.getTime():-Infinity,limiteFim=fim?Math.min(fim.getTime(),Date.now()):Date.now();
-    const intervalos=todos.filter(os=>String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR')==='parado'&&Number.isFinite(new Date(os.created_at).getTime()))
+    const intervalos=todos.filter(os=>{const situacao=String(os.situacao_equipamento||'').trim().toLocaleLowerCase('pt-BR');const retomada=Number.isFinite(new Date(os.rodando_em).getTime());return (situacao==='parado'||retomada)&&Number.isFinite(new Date(os.created_at).getTime())})
       .map(os=>({os,ini:Math.max(new Date(os.created_at).getTime(),limiteIni),fim:Math.min(new Date(os.rodando_em||os.data_conclusao||Date.now()).getTime(),limiteFim)}))
       .filter(x=>x.fim>x.ini).sort((a,b)=>a.ini-b.ini);
     let parado=0,unidos=[],listaParadas=[];
