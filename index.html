@@ -6971,6 +6971,33 @@ body .tbl-wrap td{color:#344d5e}
 #tab-abrir>.card>h2{
   background:linear-gradient(112deg,#092b45 0%,#104d68 52%,#126f70 100%)!important;
 }
+
+<style id="erimax-central-decisoes-fase7-2026">
+/* Fase 7 — fila de atenção e perfis de máquina, derivados dos dados já carregados. */
+#tab-metricas .metrics-action-center{grid-column:1/-1;min-width:0;margin-top:3px;padding:clamp(17px,2vw,25px);border:1px solid #d6e4e9;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#f5f9fa 100%);box-shadow:0 9px 28px rgba(18,51,70,.065)}
+#tab-metricas .metrics-action-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:17px}
+#tab-metricas .metrics-action-head h3{margin:0;color:#183f55;font-size:clamp(1.04rem,1.5vw,1.25rem);font-weight:850;letter-spacing:-.03em}
+#tab-metricas .metrics-action-head p{margin:5px 0 0;color:#718594;font-size:.77rem;line-height:1.55}
+#tab-metricas .metrics-action-readonly{flex:none;padding:7px 10px;border:1px solid #d7e7e9;border-radius:999px;background:#f0f8f7;color:#28736f;font-size:.67rem;font-weight:800}
+#tab-metricas .metrics-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#tab-metricas .metrics-action-card{min-width:0;padding:15px;border:1px solid #e0e9ed;border-radius:15px;background:#fff;box-shadow:0 3px 12px rgba(20,54,72,.035)}
+#tab-metricas .metrics-action-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+#tab-metricas .metrics-action-card h4{margin:0;color:#183f55;font-size:.94rem;font-weight:850;overflow-wrap:anywhere}
+#tab-metricas .metrics-action-sector{display:block;margin-top:3px;color:#7b8d98;font-size:.69rem}
+#tab-metricas .metrics-action-tags{display:flex;flex-wrap:wrap;gap:6px;margin:11px 0}
+#tab-metricas .metrics-action-tag{padding:5px 8px;border-radius:999px;background:#f0f4f6;color:#506777;font-size:.65rem;font-weight:800}
+#tab-metricas .metrics-action-tag.is-alert{background:#fff1e9;color:#a94b19}
+#tab-metricas .metrics-action-tag.is-danger{background:#fff0f0;color:#b4232d}
+#tab-metricas .metrics-action-card p{margin:7px 0 0;color:#536b79;font-size:.75rem;line-height:1.5}
+#tab-metricas .metrics-action-card .metrics-action-suggestion{padding:9px 10px;border-left:3px solid #2b8b87;border-radius:0 9px 9px 0;background:#f1f8f7;color:#315d61}
+#tab-metricas .metrics-action-open{width:100%;margin-top:12px;padding:9px 11px;border:1px solid #d6e5e9;border-radius:10px;background:#f8fbfc;color:#17566a;font-size:.75rem;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s}
+#tab-metricas .metrics-action-open:hover{border-color:#9bc8cb;background:#edf7f7}
+#tab-metricas .metrics-action-empty{grid-column:1/-1;margin:0;padding:18px;border:1px dashed #cfdee4;border-radius:13px;color:#708491;text-align:center;font-size:.8rem}
+#tab-metricas .metrics-action-note{margin-top:13px;color:#7a8d98;font-size:.68rem;line-height:1.5}
+@media(max-width:720px){#tab-metricas .metrics-action-head{flex-direction:column}#tab-metricas .metrics-action-grid{grid-template-columns:minmax(0,1fr)}#tab-metricas .metrics-action-card{padding:13px}}
+@media(prefers-reduced-motion:reduce){#tab-metricas .metrics-action-open{transition:none}}
+</style>
+
 </style>
 
 <style id="erimax-historico-fase5-experiencia-2026">
@@ -7452,6 +7479,11 @@ function atualizarNavegacaoMobileEriMax(id){
       <div class="metrics-technician-wrap"><table class="metrics-technician-table"><thead><tr><th>TÉCNICO</th><th>ATENDIMENTOS INICIADOS</th><th>CONCLUÍDOS COM TEMPO</th><th>RESPOSTA MÉDIA</th><th>REPARO MÉDIO</th></tr></thead><tbody id="metricsTechnicianRows"><tr><td colspan="5">Aguardando dados do período.</td></tr></tbody></table></div>
       <p class="metrics-executive-footnote">Os tempos são médias dos intervalos registrados nas O.S. O volume de atendimentos não representa, isoladamente, produtividade ou qualidade individual. Registros incompletos não entram nas médias.</p>
     </section>
+      <section class="metrics-action-center" id="metricsActionCenter">
+        <header class="metrics-action-head"><div><span class="metrics-executive-kicker">CENTRAL DE DECISÕES</span><h3>Prioridades e plano de ação</h3><p>Máquinas que merecem investigação com base em parada, reincidência e ordens pendentes antigas.</p></div><span class="metrics-action-readonly">Análise automática · Somente leitura</span></header>
+        <div class="metrics-action-grid" id="metricsActionGrid" aria-live="polite"><p class="metrics-action-empty">Calculando prioridades do período…</p></div>
+        <div class="metrics-action-note">A ordem dos itens considera sinais observados nos registros, não uma pontuação de desempenho. As sugestões são pontos de partida para análise da equipe; não executam alterações nem abrem ações automaticamente.</div>
+      </section>
   </div>
 
 </div>
@@ -10258,6 +10290,45 @@ function atualizarMetricasReais(){
     insightsExec.push({classe:'is-watch',rotulo:'Fila com mais de 7 dias',titulo:abertasAcimaSete+' O.S. pendente(s)',descricao:'Há ordens abertas há mais de uma semana. Revise prioridade, dependências e previsão de atendimento.'});
   }else{
     insightsExec.push({classe:'is-positive',rotulo:'Envelhecimento da fila',titulo:'Sem O.S. acima de 7 dias',descricao:'Nenhuma ordem pendente nesta faixa de idade para o escopo atual.'});
+  }
+
+  // Fase 7 — central de decisões: sinais explícitos, sem score artificial ou escrita no banco.
+  const mapaPrioridades=new Map();
+  const obterPrioridade=nome=>{
+    if(!mapaPrioridades.has(nome))mapaPrioridades.set(nome,{nome,setor:'—',parada:0,falhas:0,reinc:0,pendentes:[],motivos:[]});
+    return mapaPrioridades.get(nome);
+  };
+  rank.forEach(([nome,d])=>{
+    if(!(Number(d.parada)>0))return;
+    const p=obterPrioridade(nome);p.setor=d.setor||p.setor;p.parada=Number(d.parada)||0;
+  });
+  rankingReinc.forEach(([nome,d])=>{
+    const p=obterPrioridade(nome);p.setor=d.setor||p.setor;p.reinc=d.total||0;
+  });
+  faixasIdade.slice(3).forEach(faixa=>faixa.lista.forEach(os=>{
+    const nome=os.maquina||'Máquina não informada';const p=obterPrioridade(nome);p.setor=os.setor||p.setor;
+    if(!p.pendentes.some(x=>String(x.id)===String(os.id)))p.pendentes.push(os);
+  }));
+  mapaPrioridades.forEach(p=>{p.falhas=f.filter(os=>os.maquina===p.nome).length;});
+  const prioridadesOrdenadas=[...mapaPrioridades.values()].map(p=>{
+    if(p.pendentes.length)p.motivos.push(p.pendentes.some(os=>{const dias=(agoraIdade-new Date(os.created_at).getTime())/86400000;return dias>15})?'O.S. há mais de 15 dias':'O.S. há mais de 7 dias');
+    if(p.reinc)p.motivos.push('Reincidência identificada');
+    if(p.parada>0)p.motivos.push('Tempo parado no período');
+    return p;
+  }).sort((a,b)=>b.motivos.length-a.motivos.length||b.pendentes.length-a.pendentes.length||b.reinc-a.reinc||b.parada-a.parada).slice(0,8);
+  const gradeAcoes=document.getElementById('metricsActionGrid');
+  if(gradeAcoes){
+    gradeAcoes.innerHTML=prioridadesOrdenadas.length?prioridadesOrdenadas.map((p,i)=>{
+      const tags=p.motivos.map(m=>'<span class="metrics-action-tag '+(m.includes('15 dias')?'is-danger':m.includes('7 dias')||m.includes('Reincidência')?'is-alert':'')+'">'+escaparHtml(m)+'</span>').join('');
+      const recomendacao=p.pendentes.length?'Revisar a O.S. pendente mais antiga, suas dependências e a previsão de atendimento.':p.reinc?'Investigar a causa raiz das reincidências e conferir se a solução anterior eliminou o problema.':'Avaliar o histórico das paradas e verificar se cabe uma ação preventiva.';
+      return '<article class="metrics-action-card"><div class="metrics-action-card-head"><div><h4>'+escaparHtml(p.nome)+'</h4><small class="metrics-action-sector">'+escaparHtml(p.setor)+'</small></div><span class="metrics-action-tag">#'+(i+1)+'</span></div><div class="metrics-action-tags">'+tags+'</div><p><b>Registros:</b> '+p.falhas+' falha(s) no recorte • '+p.reinc+' reincidência(s) identificada(s) • '+p.pendentes.length+' O.S. antiga(s) ainda pendente(s).</p><p class="metrics-action-suggestion"><b>Próximo passo sugerido:</b> '+escaparHtml(recomendacao)+'</p><button type="button" class="metrics-action-open" data-machine="'+escaparHtml(p.nome)+'">Ver histórico e O.S. da máquina</button></article>';
+    }).join(''):'<p class="metrics-action-empty">Nenhuma máquina com sinais de atenção identificados neste escopo. Isso não substitui a inspeção de rotina.</p>';
+    gradeAcoes.querySelectorAll('[data-machine]').forEach(btn=>btn.addEventListener('click',()=>{
+      const nome=btn.getAttribute('data-machine');
+      const lista=[...f,...baseEscopo.filter(os=>os.maquina===nome)].filter(os=>os.maquina===nome);
+      const unicas=lista.filter((os,idx,arr)=>arr.findIndex(x=>String(x.id)===String(os.id))===idx);
+      mostrarOSDetalhe('Histórico de '+nome,unicas);
+    }));
   }
   const gridInsights=document.getElementById('metricsInsightGrid');
   if(gridInsights)gridInsights.innerHTML=insightsExec.length?insightsExec.map(x=>'<article class="metrics-insight-card '+x.classe+'"><small>'+escaparHtml(x.rotulo)+'</small><strong>'+escaparHtml(x.titulo)+'</strong><p>'+escaparHtml(x.descricao)+'</p></article>').join(''):'<article class="metrics-insight-card"><small>Sem ocorrências</small><strong>Nenhum sinal calculável</strong><p>Não há O.S. suficientes para destacar prioridades neste recorte.</p></article>';
