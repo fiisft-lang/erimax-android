@@ -31,12 +31,12 @@ jobs:
           const fs = require('node:fs');
           const vm = require('node:vm');
           const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+          const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
           let checked = 0;
           for (const match of scripts) {
             const attrs = match[1];
             const source = match[2].trim();
-            if (!source || /\\bsrc\\s*=/.test(attrs) || /type\\s*=\\s*["']?(application\\/json|importmap)/i.test(attrs)) continue;
+            if (!source || /\bsrc\s*=/.test(attrs) || /type\s*=\s*["']?(application\/json|importmap)/i.test(attrs)) continue;
             new vm.Script(source, { filename: 'index.html:inline-script-' + (++checked) + '.js' });
           }
           for (const id of ['cardRankingReincidencia', 'listaRankingReincidencia']) {
