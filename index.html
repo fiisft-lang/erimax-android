@@ -9981,7 +9981,8 @@ function atualizarMetricasReais(){
   fpOrdenadas.forEach(c=>{
     const chave=String(c.maquina||'').trim()||'__maquina_nao_informada__';
     const inicio=new Date(c.created_at).getTime();
-    const fim=new Date(c.data_conclusao||Date.now()).getTime();
+    const retomada=c.rodando_em?new Date(c.rodando_em).getTime():NaN;
+    const fim=Number.isFinite(retomada)?retomada:new Date(c.data_conclusao||Date.now()).getTime();
     if(!(fim>inicio))return;
 
     const cobertos=intervalosCobertosPorMaquina.get(chave)||[];
