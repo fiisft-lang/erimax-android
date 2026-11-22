@@ -10279,7 +10279,7 @@ function atualizarMetricasReais(){
   // Evolução mensal: contar abertura e conclusão pela data de cada evento.
   // Assim, uma O.S. aberta em um mês e concluída em outro aparece nos dois meses corretos.
   const baseEscopo=chamados.filter(os=>
-    os.status!=='Cancelada'&&(tn==='Todos'||os.turno===tn)&&(st==='Todos'||os.setor===st)&&
+    os.status!=='Cancelada'&&(tn==='Todos'||normalizarTurnoMetrica(os.turno)===tn)&&(st==='Todos'||os.setor===st)&&
     (mq==='Todas'||os.maquina===mq)&&os.tipo!=='Preventiva'&&
     (tp==='Todos'||os.tipo===tp)
   );
