@@ -13429,3 +13429,43 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 </style>
 
 
+
+<style id="erimax-acabamento-presenca-consultas-2026">
+/* Presença: cabeçalho, cartões de usuários e estados vazios na mesma linguagem do restante do sistema. */
+#tab-presenca>.card{
+  position:relative!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;gap:7px!important;
+  padding:clamp(18px,1.8vw,26px)!important;border:1px solid var(--erimax-page-border,#dce6eb)!important;
+  border-radius:18px!important;background:linear-gradient(145deg,#fff 0%,#f8fbfc 100%)!important;
+  box-shadow:var(--erimax-page-shadow,0 6px 20px rgba(19,49,66,.055))!important;
+}
+#tab-presenca>.card:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,#2c9b91,#6c9eb2)}
+#tab-presenca>.card h3{margin:0!important;padding-left:3px!important;color:var(--erimax-page-ink,#183b50)!important;font-size:clamp(1.05rem,1.2vw,1.25rem)!important;font-weight:800!important;letter-spacing:-.035em!important}
+#tab-presenca>.card p{margin:0!important;padding-left:3px!important;color:var(--erimax-page-muted,#718593)!important;font-size:.84rem!important;line-height:1.6!important}
+#tab-presenca #listaPresenca{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,285px),1fr))!important;align-items:stretch!important;gap:14px!important;margin-top:16px!important;min-width:0!important}
+#tab-presenca #listaPresenca>:is(.card,.presence-card,div){min-width:0!important;box-sizing:border-box!important;border:1px solid #dce6eb!important;border-radius:15px!important;background:linear-gradient(155deg,#fff 0%,#fbfcfd 100%)!important;box-shadow:0 4px 14px rgba(19,49,66,.05)!important;overflow-wrap:anywhere!important}
+#tab-presenca #listaPresenca :is(h3,h4,b,strong){color:#244a61}
+#tab-presenca #listaPresenca :is(p,small){color:#718593;line-height:1.55}
+#tab-presenca #listaPresenca:empty{min-height:90px;padding:22px!important;border:1px dashed #cbd9e1;border-radius:14px;background:#f8fafb}
+#tab-presenca #listaPresenca:empty:before{content:"Aguardando informações de presença...";display:block;color:#718593;font-size:.82rem;text-align:center}
+/* Consultas do histórico: filtros organizados e resultados com leitura de relatório. */
+#tab-ia>.card{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:end!important;gap:15px!important;border:1px solid var(--erimax-page-border,#dce6eb)!important;border-radius:18px!important;background:linear-gradient(155deg,#fff 0%,#fbfcfd 100%)!important;box-shadow:var(--erimax-page-shadow,0 6px 20px rgba(19,49,66,.055))!important}
+#tab-ia>.card>h2,#tab-ia>.card>p,#tab-ia>.card>#resultadoConsulta{grid-column:1/-1!important;min-width:0!important}
+#tab-ia>.card>h2{margin:0!important;color:var(--erimax-page-ink,#183b50)!important;font-size:clamp(1.2rem,1.5vw,1.55rem)!important;font-weight:820!important;letter-spacing:-.04em!important}
+#tab-ia>.card>p{margin:0 0 3px!important;color:var(--erimax-page-muted,#718593)!important;font-size:.84rem!important;line-height:1.6!important}
+#tab-ia>.card .form-group{margin:0!important;min-width:0!important}
+#tab-ia>.card .form-group label{display:block;margin-bottom:7px!important;color:#607786!important;font-size:.69rem!important;font-weight:800!important;letter-spacing:.055em!important}
+#tab-ia>.card .form-group :is(input,select){width:100%!important;min-height:46px!important;border:1px solid #d9e4e9!important;border-radius:11px!important;background:#f9fbfc!important;padding:10px 12px!important;color:#29485d!important;box-sizing:border-box!important}
+#tab-ia>.card .btn-submit{grid-column:1/-1!important;justify-self:start!important;min-height:44px!important;border-radius:11px!important;padding:11px 18px!important;font-weight:780!important}
+#tab-ia #resultadoConsulta{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:4px!important}
+#tab-ia #resultadoConsulta>h4{grid-column:1/-1;color:#244a61;font-size:.95rem;line-height:1.5}
+#tab-ia #resultadoConsulta>.maq-row{min-width:0!important;padding:14px!important;border:1px solid #dce6eb!important;border-radius:13px!important;background:#fff!important;box-shadow:0 3px 11px rgba(19,49,66,.045)!important;overflow-wrap:anywhere!important}
+@media(min-width:1200px){#tab-presenca #listaPresenca{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:760px){
+ #tab-ia>.card{grid-template-columns:minmax(0,1fr)!important;gap:12px!important;padding:16px!important}
+ #tab-ia>.card>h2,#tab-ia>.card>p,#tab-ia>.card>#resultadoConsulta{grid-column:1!important}
+ #tab-ia>.card .btn-submit{grid-column:1!important;width:100%!important}
+ #tab-presenca #listaPresenca{grid-template-columns:minmax(0,1fr)!important;gap:11px!important}
+}
+@media(prefers-reduced-motion:reduce){#tab-presenca #listaPresenca>*,#tab-ia #resultadoConsulta>*{transition:none!important}}
+</style>
+
