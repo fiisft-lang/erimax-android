@@ -6800,13 +6800,17 @@ function renderStatusTurno(){
   const emServico=PERFIL.perfil==='tecnico'&&chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
   const status=emServico?'EM SERVIÇO':(ativa?'ONLINE':'OFFLINE');
   const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
-  box.innerHTML=`<div class="card" style="border-left:5px solid ${cor}">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div><h4 style="margin:0">Meu expediente</h4><p style="margin:5px 0 0;font-weight:800;color:${cor}">● ${status}</p></div>
-      <button class="btn-submit" style="width:auto;margin:0;background:${ativa?'#dc3545':'#168a45'};opacity:${emServico?'.55':'1'}" onclick="alternarTurno()" ${emServico?'disabled':''}>${emServico?'O.S. em serviço':ativa?'Encerrar turno':'Iniciar expediente'}</button>
+  const apoio=emServico?'Você está atendendo uma ordem de serviço.':ativa?'Expediente ativo. Você está disponível para receber novas ordens.':'Inicie seu expediente para ficar disponível para novas ordens.';
+  box.innerHTML=`<section class="erimax-home-shift" aria-label="Situação do expediente">
+    <div class="erimax-home-shift-top">
+      <div class="erimax-home-shift-identity">
+        <span class="erimax-home-shift-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <div><span class="erimax-home-eyebrow">MEU EXPEDIENTE</span><strong class="erimax-home-shift-state" style="--shift-status:${cor}"><i></i>${status}</strong></div>
+      </div>
+      <button class="erimax-home-shift-action" type="button" onclick="alternarTurno()" ${emServico?'disabled':''}>${emServico?'O.S. em serviço':ativa?'Encerrar turno':'Iniciar expediente'}<span aria-hidden="true">→</span></button>
     </div>
-    <p style="font-size:.72rem;color:#64748b;margin:8px 0 0">${emServico?'Conclua ou transfira a O.S. atual para voltar a ficar ONLINE e depois encerrar o turno.':ativa?'Você recebe avisos de novas O.S. quando estiver ONLINE ou EM SERVIÇO. Mesmo ocupado, o aviso toca; para assumir outra, precisa estar ONLINE.':'Você está OFFLINE e não receberá notificações de novas O.S.'}</p>
-  </div>`;
+    <p class="erimax-home-shift-help">${apoio}${emServico?' Conclua ou transfira a O.S. atual para encerrar o turno.':''}</p>
+  </section>`;
 }
 function silenciarAlarmeNativo(){
   desligarAlarme();
@@ -12550,3 +12554,52 @@ function alternarPainelComparacaoMaquinas(){
   sync();
 })();
 </script>
+
+<style id="erimax-mobile-home-premium-2026">
+@media(max-width:1023px){
+  #tab-abrir{padding-top:5px!important}
+  #boxStatusTurno{margin:5px 0 14px!important}
+  #boxTec2{margin:0 0 14px!important}
+  .erimax-home-shift{
+    position:relative;overflow:hidden;padding:17px 16px 14px;
+    border:1px solid color-mix(in srgb,var(--primary) 18%,var(--border));
+    border-radius:20px;background:var(--card);
+    box-shadow:0 7px 22px rgba(32,70,110,.07)
+  }
+  .erimax-home-shift:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--primary)}
+  .erimax-home-shift-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .erimax-home-shift-identity{display:flex;align-items:center;gap:11px;min-width:0}
+  .erimax-home-shift-icon{
+    display:grid;place-items:center;flex:0 0 43px;width:43px;height:43px;
+    border-radius:14px;background:color-mix(in srgb,var(--primary) 10%,var(--bg));color:var(--primary)
+  }
+  .erimax-home-shift-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .erimax-home-eyebrow{display:block;margin-bottom:4px;color:var(--muted,#718096);font-size:.64rem;font-weight:800;letter-spacing:.09em}
+  .erimax-home-shift-state{display:flex;align-items:center;gap:7px;color:var(--shift-status);font-size:.91rem;letter-spacing:.015em}
+  .erimax-home-shift-state i{width:8px;height:8px;border-radius:50%;background:var(--shift-status);box-shadow:0 0 0 4px color-mix(in srgb,var(--shift-status) 13%,transparent)}
+  .erimax-home-shift-action{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;
+    padding:0 13px;border:0;border-radius:12px;background:var(--primary);color:#fff;
+    font:700 .76rem/1.1 inherit;white-space:nowrap;box-shadow:0 4px 12px color-mix(in srgb,var(--primary) 22%,transparent)
+  }
+  .erimax-home-shift-action:disabled{opacity:.55;box-shadow:none}
+  .erimax-home-shift-action span{font-size:1.05rem}
+  .erimax-home-shift-help{margin:12px 0 0;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--primary) 10%,var(--border));color:var(--muted,#718096);font-size:.73rem;line-height:1.45}
+  #tab-abrir>.card{
+    margin-top:0!important;padding:20px 16px 17px!important;border-radius:21px!important;
+    box-shadow:0 9px 28px rgba(32,70,110,.075)!important
+  }
+  #tab-abrir>.card h2{display:flex;align-items:center;gap:9px;font-size:1.12rem!important}
+  #tab-abrir>.card h2:before{
+    content:"";display:inline-block;flex:0 0 4px;width:4px;height:22px;
+    border-radius:4px;background:var(--primary)
+  }
+  #tab-abrir>.card>p{font-size:.78rem!important;line-height:1.5}
+  #tab-abrir .form-group label{font-weight:750!important}
+  #tab-abrir .btn-submit{width:100%;min-height:55px!important;letter-spacing:.01em}
+}
+@media(max-width:380px){
+  .erimax-home-shift-top{align-items:flex-start;flex-direction:column}
+  .erimax-home-shift-action{width:100%}
+}
+</style>
