@@ -6411,6 +6411,21 @@ body{color:var(--ex-ink);-webkit-font-smoothing:antialiased}
   }
 }
 </style>
+<style id="erimax-supervisao-cabecalho-cor-correta-2026">
+/* Supervisão: restaura a faixa azul-petróleo prevista para o painel. */
+#painelMaquinasSupervisor .sv-hero{
+  background:linear-gradient(125deg,#102f45 0%,#174b65 58%,#226b78 100%)!important;
+  border:0!important;color:#fff!important;
+  box-shadow:0 10px 26px rgba(17,51,72,.18)!important;
+}
+#painelMaquinasSupervisor .sv-hero .sv-kicker{color:rgba(255,255,255,.76)!important}
+#painelMaquinasSupervisor .sv-hero h2{color:#fff!important}
+#painelMaquinasSupervisor .sv-hero p{color:rgba(255,255,255,.88)!important}
+#painelMaquinasSupervisor .sv-hero:after{
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:0 0 0 28px rgba(255,255,255,.04),0 0 0 58px rgba(255,255,255,.025)!important;
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
