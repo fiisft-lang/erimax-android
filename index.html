@@ -6810,6 +6810,49 @@ body .tbl-wrap td{color:#344d5e}
  #tab-ordens-servico .os-card,#formOS .form-group,#formOS button[type=submit]{transition:none}
 }
 </style>
+
+<style id="erimax-correcao-contraste-cabecalho-os-2026">
+/* Correção de contraste: cabeçalho da central de Ordens de Serviço */
+#tab-ordens-servico .os-modern-hero{
+  color:#fff!important;
+  background:linear-gradient(112deg,#123f5d 0%,#185a70 58%,#237b7c 100%)!important;
+  border:1px solid #245f73!important;
+  box-shadow:0 9px 25px rgba(17,55,77,.18)!important;
+}
+#tab-ordens-servico .os-modern-hero .os-modern-kicker{
+  color:#d5edf0!important;
+  opacity:1!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.12)
+}
+#tab-ordens-servico .os-modern-hero .os-modern-heading h2{
+  color:#fff!important;
+  opacity:1!important;
+  font-weight:900!important;
+  text-shadow:0 2px 5px rgba(0,0,0,.16)
+}
+#tab-ordens-servico .os-modern-hero .os-modern-heading p{
+  color:#e5f1f4!important;
+  opacity:1!important;
+  font-weight:550!important
+}
+#tab-ordens-servico .os-modern-hero .os-modern-total{
+  background:rgba(255,255,255,.13)!important;
+  border:1px solid rgba(255,255,255,.34)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+#tab-ordens-servico .os-modern-hero .os-modern-total span{
+  color:#e0eff2!important;font-weight:750!important;opacity:1!important
+}
+#tab-ordens-servico .os-modern-hero .os-modern-total b{
+  color:#fff!important;font-weight:900!important;opacity:1!important
+}
+@media(max-width:600px){
+  #tab-ordens-servico .os-modern-hero{padding:17px!important;border-radius:15px!important}
+  #tab-ordens-servico .os-modern-hero .os-modern-heading h2{font-size:1.45rem!important;line-height:1.2!important}
+  #tab-ordens-servico .os-modern-hero .os-modern-heading p{font-size:.78rem!important;line-height:1.45!important}
+  #tab-ordens-servico .os-modern-hero .os-modern-total{min-width:100px;padding:9px 11px!important}
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
