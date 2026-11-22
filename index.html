@@ -8342,6 +8342,8 @@ async function excluirOS(id){
 }
 
 async function verHistorico(id){
+  window.__erimaxHistoricoFocus=document.activeElement;
+  window.__erimaxHistoricoOverflow=document.body.style.overflow;
   const os=chamados.find(c=>Number(c.id)===Number(id));
   if(!os)return;
   const pausas=HISTORICO_PAUSAS.filter(p=>Number(p.os_id)===Number(id)).sort((a,b)=>new Date(a.pausada_em)-new Date(b.pausada_em));
@@ -8402,6 +8404,7 @@ async function verHistorico(id){
     modal.innerHTML='<section class="erimax-os-history-panel"><header class="erimax-os-history-head"><div><small>DETALHES DA ORDEM DE SERVIÇO</small><h2 id="tituloHistoricoOS"></h2></div><button type="button" class="erimax-os-history-close" aria-label="Fechar" onclick="fecharHistoricoOS()">×</button></header><div id="conteudoHistoricoOS" class="erimax-os-history-content"></div><footer><button type="button" class="btn-action btn-historico" onclick="fecharHistoricoOS()">Fechar</button></footer></section>';
     document.body.appendChild(modal);
     modal.addEventListener('click',e=>{if(e.target===modal)fecharHistoricoOS()});
+    modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fecharHistoricoOS()}});
   }
   const titulo=modal.querySelector('#tituloHistoricoOS');
   if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada');
@@ -8420,7 +8423,10 @@ async function verHistorico(id){
 function fecharHistoricoOS(){
   const modal=document.getElementById('modalHistoricoOS');
   if(modal)modal.style.display='none';
-  document.body.style.overflow='';
+  document.body.style.overflow=window.__erimaxHistoricoOverflow||'';
+  const foco=window.__erimaxHistoricoFocus;
+  window.__erimaxHistoricoFocus=null;
+  if(foco&&foco.isConnected&&typeof foco.focus==='function')foco.focus();
 }
 
 function atualizarMaquinasMetrica(){
