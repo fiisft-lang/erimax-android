@@ -13771,3 +13771,72 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  }
 }
 </style>
+
+<style id="erimax-varredura-neutraliza-sticky-global-nos-modais-2026">
+/* O header global do sistema é sticky; dentro destes modais deve ser normal. */
+#modalEfOS .efos-header,
+#modalEfOS .erimax-os-history-head,
+#modalDetalheMetrica header,
+#modalDetalheMetrica .erimax-metric-history-head{
+ position:relative!important;
+ inset:auto!important;
+ top:auto!important;
+ bottom:auto!important;
+ transform:none!important;
+ translate:none!important;
+ float:none!important;
+ z-index:2!important;
+ align-self:stretch!important;
+}
+/* Evita que qualquer ancestral corte a faixa superior ou o botão de fechar. */
+#modalEfOS,
+#modalDetalheMetrica{
+ display:none;
+ box-sizing:border-box!important;
+ align-items:flex-start!important;
+ justify-content:center!important;
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+}
+#modalEfOS>.efos-dialog,
+#modalDetalheMetrica>.erimax-metric-history-dialog{
+ box-sizing:border-box!important;
+ position:relative!important;
+ top:auto!important;
+ transform:none!important;
+ margin:16px auto!important;
+ max-height:none!important;
+ overflow:visible!important;
+ clip:auto!important;
+ clip-path:none!important;
+}
+#modalEfOS .efos-header,
+#modalDetalheMetrica .erimax-metric-history-head{
+ flex-shrink:0!important;
+ min-height:76px!important;
+ height:auto!important;
+ max-height:none!important;
+ overflow:visible!important;
+ visibility:visible!important;
+ opacity:1!important;
+}
+#modalEfOS .erimax-os-history-close,
+#modalDetalheMetrica .erimax-os-history-close{
+ position:relative!important;
+ top:auto!important;
+ right:auto!important;
+ bottom:auto!important;
+ left:auto!important;
+ transform:none!important;
+ flex-shrink:0!important;
+ visibility:visible!important;
+ opacity:1!important;
+ z-index:5!important;
+}
+@media(max-width:760px){
+ #modalEfOS>.efos-dialog,
+ #modalDetalheMetrica>.erimax-metric-history-dialog{
+  margin:10px auto!important;
+ }
+}
+</style>
