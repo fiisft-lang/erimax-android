@@ -6736,6 +6736,80 @@ body .tbl-wrap td{color:#344d5e}
 }
 </style>
 
+
+<style id="erimax-os-fase4-experiencia-2026">
+/* Fase 4 — experiência de abertura e acompanhamento de O.S.; camada exclusivamente visual */
+#tab-abrir>.card:has(#formOS){
+  max-width:1080px;margin:0 auto 18px;padding:clamp(18px,2.5vw,30px);
+  border:1px solid #dce6eb;border-radius:20px;
+  background:linear-gradient(145deg,#fff 0%,#fbfdfe 72%,#f3f8fa 100%);
+  box-shadow:0 10px 30px rgba(24,55,74,.07)
+}
+#tab-abrir>.card:has(#formOS)>h2{font-size:clamp(1.35rem,2.2vw,1.7rem)!important;font-weight:850;letter-spacing:-.035em;color:#173f5f!important}
+#tab-abrir>.card:has(#formOS)>p{max-width:680px;color:#637b8a!important;font-size:.88rem!important;line-height:1.55}
+#formOS{gap:16px 20px}
+#formOS .form-group{display:flex;flex-direction:column;gap:7px;min-width:0;margin:0;padding:13px 14px;border:1px solid #e5edf1;border-radius:13px;background:rgba(255,255,255,.88);transition:border-color .18s ease,box-shadow .18s ease}
+#formOS .form-group:focus-within{border-color:#8bb8ca;box-shadow:0 0 0 3px rgba(47,119,151,.09)}
+#formOS .form-group label{font-size:.67rem;line-height:1.35;letter-spacing:.055em;font-weight:850;color:#526d7d}
+#formOS input:not([type=file]),#formOS select,#formOS textarea{min-height:45px;padding:11px 12px;border:1px solid #d8e3e9;border-radius:9px;background:#f9fbfc;color:#18394d;font-size:.9rem;font-weight:550;box-shadow:none}
+#formOS textarea{min-height:104px;resize:vertical;line-height:1.5}
+#formOS input:focus,#formOS select:focus,#formOS textarea:focus{outline:0;border-color:#4c91ad;background:#fff;box-shadow:0 0 0 3px rgba(49,119,151,.11)}
+#formOS input[type=file]{width:100%;min-height:44px;padding:8px;border:1px dashed #b9cbd5;border-radius:9px;background:#f7fafb;color:#526d7d;font-size:.78rem}
+#formOS .form-group:has(#descricao),#formOS .form-group:has(#foto){grid-column:1/-1}
+#formOS button[type=submit]{min-height:52px;margin-top:2px;border:0;border-radius:12px;background:linear-gradient(105deg,#174b69,#236f82);box-shadow:0 7px 16px rgba(23,75,105,.18);font-size:.91rem;font-weight:800;letter-spacing:.01em;transition:transform .18s ease,box-shadow .18s ease}
+#formOS button[type=submit]:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(23,75,105,.22)}
+#tab-ordens-servico .os-modern-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
+#tab-ordens-servico .os-card{min-width:0;margin:0;padding:17px;border:1px solid #e0e9ee;border-left:4px solid #5d8da4;border-radius:15px;background:#fff;box-shadow:0 5px 17px rgba(24,55,74,.055);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+#tab-ordens-servico .os-card:hover{transform:translateY(-2px);box-shadow:0 10px 23px rgba(24,55,74,.09)}
+#tab-ordens-servico .os-card.prioridade-Alta{border-left-color:#c44f4f}
+#tab-ordens-servico .os-card.prioridade-Média{border-left-color:#c18a36}
+#tab-ordens-servico .os-card.prioridade-Baixa{border-left-color:#4c987a}
+#tab-ordens-servico .os-header{gap:10px;align-items:flex-start;padding-bottom:11px;border-bottom:1px solid #edf1f4}
+#tab-ordens-servico .os-id{color:#173f5f;font-size:.91rem;font-weight:850;line-height:1.4}
+#tab-ordens-servico .os-badge{flex:0 0 auto;padding:5px 9px;border-radius:7px;font-size:.66rem;font-weight:800;letter-spacing:.01em}
+#tab-ordens-servico .os-card>p{margin:10px 0!important;color:#667e8c!important;font-size:.73rem!important;line-height:1.5}
+#tab-ordens-servico .os-resumo-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;padding:11px;border:1px solid #edf1f4;border-radius:10px;background:#f8fafb}
+#tab-ordens-servico .os-resumo-info>span{display:grid;gap:4px;min-width:0}
+#tab-ordens-servico .os-resumo-info small{font-size:.57rem;font-weight:850;letter-spacing:.055em;color:#8093a0}
+#tab-ordens-servico .os-resumo-info b{overflow-wrap:anywhere;color:#29485b;font-size:.73rem;line-height:1.35}
+#tab-ordens-servico .os-actions{gap:7px;margin-top:13px;padding-top:11px;border-top:1px solid #edf1f4}
+#tab-ordens-servico .os-actions .btn-action{min-height:38px;padding:8px 10px;border:1px solid transparent;border-radius:8px;font-size:.69rem;font-weight:800;transition:filter .15s ease,transform .15s ease}
+#tab-ordens-servico .os-actions .btn-action:hover{filter:brightness(.96);transform:translateY(-1px)}
+#tab-ordens-abertas .oa-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
+#tab-ordens-abertas .oa-card{min-width:0;margin:0;padding:16px;border:1px solid #e0e9ee;border-radius:15px;background:#fff;box-shadow:0 5px 17px rgba(24,55,74,.055)}
+#tab-ordens-abertas .oa-card-header{padding-bottom:11px;border-bottom:1px solid #edf1f4}
+#tab-ordens-abertas .oa-card-top{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+#tab-ordens-abertas .oa-card-machine{margin-top:8px;color:#173f5f;font-size:1rem;font-weight:850;letter-spacing:-.02em;overflow-wrap:anywhere}
+#tab-ordens-abertas .oa-card-meta,#tab-ordens-abertas .oa-card-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:11px}
+#tab-ordens-abertas .oa-card-meta>span,#tab-ordens-abertas .oa-card-facts>span{display:grid;gap:4px;min-width:0}
+#tab-ordens-abertas .oa-card-meta small,#tab-ordens-abertas .oa-card-facts small{color:#8093a0;font-size:.56rem;font-weight:850;letter-spacing:.05em}
+#tab-ordens-abertas .oa-card-meta b,#tab-ordens-abertas .oa-card-facts b{color:#29485b;font-size:.72rem;line-height:1.35;overflow-wrap:anywhere}
+#tab-ordens-abertas .oa-card-problem{margin-top:12px;padding:11px 12px;border-radius:10px;background:#f7fafb}
+#tab-ordens-abertas .oa-card-problem>span{color:#8093a0;font-size:.57rem;font-weight:850;letter-spacing:.06em}
+#tab-ordens-abertas .oa-card-problem p{margin:5px 0 0;color:#38566a;font-size:.78rem;line-height:1.5;overflow-wrap:anywhere}
+#tab-ordens-abertas .oa-more{margin-top:10px;border-top:1px solid #edf1f4;padding-top:9px}
+#tab-ordens-abertas .oa-more summary{color:#28627d;font-size:.75rem;font-weight:800;cursor:pointer}
+@media(min-width:1500px){#tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){#tab-ordens-servico .os-modern-list,#tab-ordens-abertas .oa-list{grid-template-columns:1fr}}
+@media(max-width:760px){
+ #tab-abrir>.card:has(#formOS){padding:16px;border-radius:16px}
+ #formOS{grid-template-columns:1fr!important;gap:10px}
+ #formOS .form-group{padding:11px 12px;border-radius:11px}
+ #formOS .form-group:has(#descricao),#formOS .form-group:has(#foto){grid-column:1}
+ #formOS button[type=submit]{min-height:50px}
+ #tab-ordens-servico .os-card,#tab-ordens-abertas .oa-card{padding:13px;border-radius:13px}
+ #tab-ordens-servico .os-resumo-info,#tab-ordens-abertas .oa-card-meta,#tab-ordens-abertas .oa-card-facts{gap:6px;padding:9px}
+ #tab-ordens-servico .os-resumo-info b,#tab-ordens-abertas .oa-card-meta b,#tab-ordens-abertas .oa-card-facts b{font-size:.67rem}
+ #tab-ordens-servico .os-actions .btn-action{flex:1 1 calc(50% - 7px);min-width:0;min-height:42px}
+}
+@media(max-width:380px){
+ #tab-ordens-servico .os-resumo-info,#tab-ordens-abertas .oa-card-meta,#tab-ordens-abertas .oa-card-facts{grid-template-columns:1fr 1fr}
+ #tab-ordens-servico .os-id{font-size:.82rem}
+}
+@media(prefers-reduced-motion:reduce){
+ #tab-ordens-servico .os-card,#formOS .form-group,#formOS button[type=submit]{transition:none}
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
