@@ -7164,16 +7164,14 @@ body .tbl-wrap td{color:#344d5e}
 @media(prefers-reduced-motion:reduce){#tab-metricas .metrics-schedule-panel *{transition:none!important}}
 </style>
 
-<style id="erimax-indicador-disponibilidade-toggle-correcao-2026">
-/* Painel 1 > Indicadores-chave > Disponibilidade registrada.
-   O controle pertence ao título do KPI metricHorarioDisp, não ao gráfico da seção 2. */
-#tab-metricas #metricsDataContent #metricHorarioDisp{
+<style id="erimax-metricas-kpi-cabecalhos-e-toggle-2026">
+/* Painel 1: todos os KPIs usam a mesma estrutura de título + controle. */
+#tab-metricas #metricsDataContent .metrics-grid>.metric-card{
   box-sizing:border-box!important;
-  width:100%!important;
   min-width:0!important;
   max-width:100%!important;
 }
-#tab-metricas #metricsDataContent #metricHorarioDisp > .title{
+#tab-metricas #metricsDataContent .metrics-grid>.metric-card>.title{
   display:flex!important;
   flex-direction:column!important;
   align-items:flex-start!important;
@@ -7187,7 +7185,7 @@ body .tbl-wrap td{color:#344d5e}
   overflow-wrap:anywhere!important;
   text-align:left!important;
 }
-#tab-metricas #metricsDataContent #metricHorarioDisp > .title > .erimax-card-toggle{
+#tab-metricas #metricsDataContent .metrics-grid>.metric-card>.title>.erimax-card-toggle{
   position:static!important;
   display:inline-flex!important;
   align-self:flex-start!important;
@@ -7204,10 +7202,14 @@ body .tbl-wrap td{color:#344d5e}
   overflow-wrap:anywhere!important;
   transform:none!important;
 }
-#tab-metricas #metricsDataContent #metricHorarioDisp > .title > .erimax-card-toggle .erimax-card-toggle-label{
+#tab-metricas #metricsDataContent .metrics-grid>.metric-card>.title>.erimax-card-toggle .erimax-card-toggle-label{
   min-width:0!important;
   white-space:normal!important;
   overflow-wrap:anywhere!important;
+}
+@media(max-width:600px){
+  #tab-metricas #metricsDataContent .metrics-grid>.metric-card>.title{gap:6px!important}
+  #tab-metricas #metricsDataContent .metrics-grid>.metric-card>.title>.erimax-card-toggle{min-height:27px!important;padding:4px 7px!important;font-size:10px!important}
 }
 </style>
 </head>
@@ -14734,6 +14736,10 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
       button.type='button';
       button.className='erimax-card-toggle';
       button.innerHTML='<span class="erimax-card-toggle-label">Recolher</span><span class="erimax-card-toggle-icon" aria-hidden="true">⌃</span>';
+      button.addEventListener('keydown',function(event){
+        /* O botão vive dentro de um KPI clicável: não propaga Enter/Espaço ao card pai. */
+        if(event.key==='Enter'||event.key===' ')event.stopPropagation();
+      });
       button.addEventListener('click',function(event){
         event.preventDefault();
         event.stopPropagation();
