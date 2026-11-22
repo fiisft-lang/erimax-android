@@ -1574,7 +1574,7 @@ html.erimax-app-android .os-card .os-vertical-hint{position:absolute;top:8px;lef
  --erimax-line:#e4ebf0;--erimax-shadow:0 8px 24px rgba(17,43,63,.065);
 }
 html,body{min-height:100%;background:#eef2f5!important;color:#1c2d3b!important}
-body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;letter-spacing:-.01em}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 header{background:linear-gradient(110deg,#102f49 0%,#174b66 72%,#1d626c 100%)!important;border:0!important;box-shadow:0 8px 24px rgba(13,43,64,.18)!important}
 header img.logo{height:47px!important;width:230px!important;max-width:min(58vw,230px)!important;filter:drop-shadow(0 2px 4px rgba(0,0,0,.1))}
 header .hd{color:#e4edf2!important;letter-spacing:.1em!important;font-size:.65rem!important}
@@ -12236,6 +12236,104 @@ function alternarPainelComparacaoMaquinas(){
   --erimax-ui-surface:#fff;
   --erimax-ui-soft:#f6f9fa;
   --erimax-ui-shadow:0 7px 22px rgba(19,49,66,.055);
+  --erimax-ui-shadow-hover:0 14px 34px rgba(19,49,66,.10);
+  --erimax-ui-radius:18px;
+  --erimax-ui-font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+html{font-family:var(--erimax-ui-font);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--erimax-ui-font);font-kerning:normal}
+::selection{background:rgba(44,155,145,.20);color:var(--erimax-ui-ink)}
+/* Tipografia: hierarquia consistente e leitura confortável em todas as telas */
+.tab-content.active :is(h1,h2,h3,h4){
+  color:var(--erimax-ui-ink);
+  font-family:var(--erimax-ui-font);
+  font-weight:760;
+  letter-spacing:-.032em;
+  line-height:1.22;
+  text-wrap:balance;
+}
+.tab-content.active :is(p,li,dd){line-height:1.55}
+.tab-content.active small{line-height:1.4}
+/* Ícones vetoriais da navegação: traço uniforme e melhor definição */
+.nav-tabs .tab-icon{display:inline-flex;align-items:center;justify-content:center}
+.nav-tabs .tab-icon svg{
+  display:block;width:21px;height:21px;
+  fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+}
+/* Superfícies e cabeçalhos dos painéis */
+.tab-content.active :is(.card,.os-card,.metrics-ranking-card,.ranking-os-card){
+  border-radius:var(--erimax-ui-radius);
+  box-shadow:var(--erimax-ui-shadow);
+}
+.tab-content.active .card> :is(h2,h3,h4){
+  color:var(--erimax-ui-ink);
+  font-weight:760;
+  letter-spacing:-.035em;
+}
+.tab-content.active :is(.card,.os-card) :is(.card-header,.panel-header,.section-header){
+  min-width:0;gap:12px;
+}
+@media(hover:hover) and (pointer:fine){
+  .tab-content.active :is(.card,.os-card,.metrics-ranking-card,.ranking-os-card):hover{
+    box-shadow:var(--erimax-ui-shadow-hover);
+  }
+}
+/* Campos: bordas, foco e altura tátil padronizados sem mudar seus valores */
+.tab-content.active :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){
+  font-family:var(--erimax-ui-font);
+  border-color:#d5e0e7;
+  border-radius:11px;
+  color:#203b4d;
+  transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+}
+.tab-content.active :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select){
+  min-height:43px;
+}
+.tab-content.active :is(input,select,textarea):focus-visible{
+  outline:0;
+  border-color:var(--primary,#173f5f);
+  box-shadow:0 0 0 3px rgba(44,155,145,.16);
+}
+.tab-content.active textarea{line-height:1.55}
+/* Botões de ação: acabamento consistente, mantendo cores e funções atuais */
+.tab-content.active :is(.btn,.btn-action,.btn-submit){
+  font-family:var(--erimax-ui-font);
+  font-weight:740;
+  letter-spacing:-.012em;
+  border-radius:11px;
+  transition:filter .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.tab-content.active :is(.btn,.btn-action,.btn-submit):focus-visible{
+  outline:3px solid rgba(44,155,145,.28);
+  outline-offset:2px;
+}
+@media(hover:hover) and (pointer:fine){
+  .tab-content.active :is(.btn,.btn-action,.btn-submit):hover{filter:brightness(1.035)}
+}
+/* Tabelas e históricos: contraste leve, leitura por linha e números alinhados */
+.tab-content.active :is(.tbl-wrap,.table-responsive,.table-wrapper){
+  border:1px solid var(--erimax-ui-border);
+  border-radius:14px;
+  background:#fff;
+}
+.tab-content.active :is(.tbl-wrap,.table-responsive,.table-wrapper) table{
+  border-collapse:separate;border-spacing:0;
+  font-variant-numeric:tabular-nums;
+}
+.tab-content.active :is(.tbl-wrap,.table-responsive,.table-wrapper) th{
+  color:#3d596b;
+  font-size:.72rem;
+  font-weight:780;
+  letter-spacing:.025em;
+}
+.tab-content.active :is(.tbl-wrap,.table-responsive,.table-wrapper) td{
+  color:#304858;
+  line-height:1.45;
+}
+@media(prefers-reduced-motion:reduce){
+  .tab-content.active :is(input,select,textarea,.btn,.btn-action,.btn-submit){transition:none!important}
 }
 .tab-content.active{min-width:0}
 .tab-content.active :is(.card,.os-card,.metrics-ranking-card,.ranking-os-card,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel){
