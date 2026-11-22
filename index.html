@@ -6509,6 +6509,92 @@ html.erimax-app-android body > header img.logo{
 }
 @media(max-width:360px){#tab-metricas .erimax-history-report-times{grid-template-columns:1fr}}
 </style>
+<style id="erimax-design-foundation-3-0-2026">
+/* EriMax 3.0 — fundação tipográfica e tokens globais. Mantém a paleta e os fluxos existentes. */
+:root{
+  --erimax-font-ui:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --erimax-type-xs:.6875rem;
+  --erimax-type-sm:.8125rem;
+  --erimax-type-md:.9375rem;
+  --erimax-type-lg:1.125rem;
+  --erimax-type-xl:1.375rem;
+  --erimax-leading-tight:1.25;
+  --erimax-leading-normal:1.5;
+  --erimax-leading-relaxed:1.65;
+  --erimax-space-1:4px;
+  --erimax-space-2:8px;
+  --erimax-space-3:12px;
+  --erimax-space-4:16px;
+  --erimax-space-5:20px;
+  --erimax-space-6:24px;
+  --erimax-radius-sm:8px;
+  --erimax-radius-md:12px;
+  --erimax-radius-lg:16px;
+  --erimax-radius-xl:20px;
+  --erimax-focus-ring:0 0 0 3px rgba(40,120,184,.2);
+  --erimax-motion-fast:140ms ease;
+  --erimax-motion-standard:200ms ease;
+}
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body{
+  font-family:var(--erimax-font-ui);
+  font-optical-sizing:auto;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+button,input,select,textarea{
+  font-family:var(--erimax-font-ui);
+  letter-spacing:inherit;
+}
+h1,h2,h3,h4,h5,h6{
+  text-wrap:pretty;
+  line-height:var(--erimax-leading-tight);
+}
+p,li,dd,dt,td,th{
+  line-height:var(--erimax-leading-normal);
+}
+button,[role="button"],input,select,textarea{
+  -webkit-tap-highlight-color:transparent;
+}
+:where(button,a,input,select,textarea,[tabindex]:not([tabindex="-1"])):focus-visible{
+  outline:2px solid var(--primary,#2878b8);
+  outline-offset:2px;
+  box-shadow:var(--erimax-focus-ring);
+}
+:where(input,select,textarea):focus-visible{
+  border-color:var(--primary,#2878b8);
+}
+button:disabled,[role="button"][aria-disabled="true"]{
+  cursor:not-allowed;
+}
+::selection{background:rgba(40,120,184,.18);color:inherit}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+
+<style id="erimax-components-polish-stage2-2026">
+/* EriMax 3.0 — acabamento dos componentes e suavização dos degradês. */
+:root{--erimax-surface-border:#e3eaf0;--erimax-surface-shadow:0 3px 12px rgba(25,52,70,.045);--erimax-surface-shadow-hover:0 8px 20px rgba(25,52,70,.075);--erimax-gradient-blue:linear-gradient(112deg,#2878b8 0%,#2d73a6 100%);--erimax-gradient-orange:linear-gradient(112deg,#ee984f 0%,#e88736 100%);--erimax-gradient-card:linear-gradient(145deg,#fff 0%,#fbfcfd 100%)}
+body>header{background:var(--erimax-gradient-blue);box-shadow:0 2px 10px rgba(24,66,96,.12)}
+body .card:not(.os-card){border-color:var(--erimax-surface-border);border-radius:var(--erimax-radius-lg);background:var(--erimax-gradient-card);box-shadow:var(--erimax-surface-shadow)}
+body .os-card{border-radius:var(--erimax-radius-lg);background:var(--erimax-gradient-card);box-shadow:var(--erimax-surface-shadow);transition:box-shadow var(--erimax-motion-standard),border-color var(--erimax-motion-standard),transform var(--erimax-motion-standard)}
+body .metric-card{border-color:var(--erimax-surface-border);border-radius:var(--erimax-radius-md);background:var(--erimax-gradient-card)}
+body button.btn-submit,body button.btn-assumir{background:var(--erimax-gradient-blue);border-radius:var(--erimax-radius-md);box-shadow:0 2px 5px rgba(35,104,153,.12);transition:filter var(--erimax-motion-fast),box-shadow var(--erimax-motion-fast),transform var(--erimax-motion-fast)}
+body button.btn-concluir{background:var(--erimax-gradient-orange);border-radius:var(--erimax-radius-md);box-shadow:0 2px 5px rgba(206,119,49,.12);transition:filter var(--erimax-motion-fast),box-shadow var(--erimax-motion-fast),transform var(--erimax-motion-fast)}
+body button.btn-action,body button.btn-transferir,body button.btn-historico,body button.btn-excluir{min-height:36px;border-radius:var(--erimax-radius-sm);transition:filter var(--erimax-motion-fast),box-shadow var(--erimax-motion-fast),transform var(--erimax-motion-fast)}
+body input:not([type="checkbox"]):not([type="radio"]),body select,body textarea{border-radius:var(--erimax-radius-sm);border-color:#dce5ec;transition:border-color var(--erimax-motion-fast),box-shadow var(--erimax-motion-fast),background-color var(--erimax-motion-fast)}
+body label{letter-spacing:.012em}
+body .tbl-wrap{border:1px solid var(--erimax-surface-border);border-radius:var(--erimax-radius-md);background:#fff}
+body .tbl-wrap table{border-collapse:separate;border-spacing:0}
+body .tbl-wrap th{background:#f3f7fa;color:#526b7c;font-weight:750;letter-spacing:.025em}
+body .tbl-wrap td{color:#344d5e}
+@media(hover:hover) and (pointer:fine){body .card:not(.os-card):hover,body .os-card:hover{box-shadow:var(--erimax-surface-shadow-hover)}body button.btn-submit:hover,body button.btn-assumir:hover,body button.btn-concluir:hover,body button.btn-action:hover{filter:brightness(1.035);box-shadow:0 4px 10px rgba(28,70,96,.13)}}
+@media(max-width:767px){body .card:not(.os-card),body .os-card{border-radius:var(--erimax-radius-md)}body .tbl-wrap{border-radius:10px}}
+@media(prefers-reduced-motion:reduce){body .os-card,body button.btn-submit,body button.btn-assumir,body button.btn-concluir,body button.btn-action,body input,body select,body textarea{transition:none!important}}
+</style>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -10725,70 +10811,7 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 }
 </style>
 
-<style id="erimax-design-foundation-3-0-2026">
-/* EriMax 3.0 — fundação tipográfica e tokens globais. Mantém a paleta e os fluxos existentes. */
-:root{
-  --erimax-font-ui:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --erimax-type-xs:.6875rem;
-  --erimax-type-sm:.8125rem;
-  --erimax-type-md:.9375rem;
-  --erimax-type-lg:1.125rem;
-  --erimax-type-xl:1.375rem;
-  --erimax-leading-tight:1.25;
-  --erimax-leading-normal:1.5;
-  --erimax-leading-relaxed:1.65;
-  --erimax-space-1:4px;
-  --erimax-space-2:8px;
-  --erimax-space-3:12px;
-  --erimax-space-4:16px;
-  --erimax-space-5:20px;
-  --erimax-space-6:24px;
-  --erimax-radius-sm:8px;
-  --erimax-radius-md:12px;
-  --erimax-radius-lg:16px;
-  --erimax-radius-xl:20px;
-  --erimax-focus-ring:0 0 0 3px rgba(40,120,184,.2);
-  --erimax-motion-fast:140ms ease;
-  --erimax-motion-standard:200ms ease;
-}
-html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-body{
-  font-family:var(--erimax-font-ui);
-  font-optical-sizing:auto;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  text-rendering:optimizeLegibility;
-}
-button,input,select,textarea{
-  font-family:var(--erimax-font-ui);
-  letter-spacing:inherit;
-}
-h1,h2,h3,h4,h5,h6{
-  text-wrap:pretty;
-  line-height:var(--erimax-leading-tight);
-}
-p,li,dd,dt,td,th{
-  line-height:var(--erimax-leading-normal);
-}
-button,[role="button"],input,select,textarea{
-  -webkit-tap-highlight-color:transparent;
-}
-:where(button,a,input,select,textarea,[tabindex]:not([tabindex="-1"])):focus-visible{
-  outline:2px solid var(--primary,#2878b8);
-  outline-offset:2px;
-  box-shadow:var(--erimax-focus-ring);
-}
-:where(input,select,textarea):focus-visible{
-  border-color:var(--primary,#2878b8);
-}
-button:disabled,[role="button"][aria-disabled="true"]{
-  cursor:not-allowed;
-}
-::selection{background:rgba(40,120,184,.18);color:inherit}
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-}
-</style>
+
 </head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
 <style id="erimax-supervisao-tipografia-final">
 /* Supervisão: hierarquia discreta, com contraste suficiente para leitura */
