@@ -13275,3 +13275,157 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 }
 </style>
 
+<style id="erimax-padrao-global-todas-paginas-2026">
+/* EriMax — padrão global de páginas. Mantém identidade, conteúdo, permissões e fluxos existentes. */
+:root{
+ --erimax-page-gap:18px;
+ --erimax-page-radius:17px;
+ --erimax-page-border:#dce6eb;
+ --erimax-page-shadow:0 6px 20px rgba(19,49,66,.055);
+ --erimax-page-ink:#183b50;
+ --erimax-page-muted:#718593;
+}
+.container{min-width:0}
+.tab-content{min-width:0;box-sizing:border-box}
+.tab-content.active{
+ width:100%;
+ max-width:1880px;
+ margin-inline:auto;
+ min-width:0;
+}
+.tab-content.active>:where(section,article,.card,.almox-panel,.oa-list-panel,.os-modern-controls){
+ min-width:0;
+ box-sizing:border-box;
+}
+.tab-content.active>:where(section,article,.card,.almox-panel,.oa-list-panel,.os-modern-controls)+:where(section,article,.card,.almox-panel,.oa-list-panel,.os-modern-controls){
+ margin-top:var(--erimax-page-gap);
+}
+/* Cartões e superfícies de conteúdo: uma linguagem visual em todas as abas. */
+.tab-content.active :where(.card,.almox-panel,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel,.ranking-os-card,.cadastro-area-panel,.cadastro-setores-shell){
+ min-width:0;
+ border:1px solid var(--erimax-page-border);
+ border-radius:var(--erimax-page-radius);
+ background:#fff;
+ box-shadow:var(--erimax-page-shadow);
+}
+.tab-content.active :where(.card,.almox-panel,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel,.ranking-os-card){
+ padding:clamp(15px,1.5vw,24px);
+}
+.tab-content.active :where(.card,.almox-panel,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel,.ranking-os-card) :where(h2,h3,h4){
+ color:var(--erimax-page-ink);
+ letter-spacing:-.025em;
+ line-height:1.25;
+}
+.tab-content.active :where(.card,.almox-panel,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel,.ranking-os-card) :where(p,.muted,.hint){
+ color:var(--erimax-page-muted);
+}
+.tab-content.active :where(.card,.almox-panel,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel,.ranking-os-card) :where(img,canvas,svg,video){
+ max-width:100%;
+}
+/* Cabeçalhos de página mantêm suas cores próprias, mas seguem a mesma escala. */
+.tab-content.active :where(.os-modern-hero,.oa-hero,.metrics-hero,.ranking-os-hero,.cadastro-hub-hero,.almox-hero){
+ box-sizing:border-box;
+ min-width:0;
+ border-radius:20px;
+}
+.tab-content.active :where(.os-modern-hero,.oa-hero,.metrics-hero,.ranking-os-hero,.cadastro-hub-hero,.almox-hero) h2{
+ font-size:clamp(1.35rem,1.7vw,1.9rem);
+ font-weight:780;
+ letter-spacing:-.045em;
+ line-height:1.16;
+}
+.tab-content.active :where(.os-modern-hero,.oa-hero,.metrics-hero,.ranking-os-hero,.cadastro-hub-hero,.almox-hero) p{
+ max-width:78ch;
+ line-height:1.55;
+}
+/* Formulários e filtros com alturas, cantos e foco previsíveis. */
+.tab-content.active :where(.form-group,.metrics-filter-card,.almox-stock-filters,.os-modern-field){
+ min-width:0;
+}
+.tab-content.active :where(.form-group) label{
+ display:block;
+ margin-bottom:6px;
+ color:#5e7482;
+ font-size:.72rem;
+ font-weight:760;
+ letter-spacing:.035em;
+}
+.tab-content.active :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){
+ max-width:100%;
+ box-sizing:border-box;
+}
+.tab-content.active :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select){
+ min-height:43px;
+}
+.tab-content.active :where(textarea){min-height:88px}
+.tab-content.active :where(input,select,textarea,button):focus-visible{
+ outline:3px solid rgba(44,155,145,.25);
+ outline-offset:2px;
+}
+/* Listas, resultados e históricos não podem estourar a largura do painel. */
+.tab-content.active :where([id^=lista],[id^=resultado],[id^=historico],[id^=conteudo]){
+ min-width:0;
+ overflow-wrap:anywhere;
+}
+.tab-content.active :where(.os-modern-list,.oa-list,.almox-material-list,.almox-history,.ranking-os-report){
+ min-width:0;
+ gap:14px;
+}
+.tab-content.active :where(.os-card,.sv-os-card,.sv-history-item,.almox-material-card,.ranking-os-card){
+ min-width:0;
+ overflow-wrap:anywhere;
+}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper){
+ max-width:100%;
+ overflow-x:auto;
+ -webkit-overflow-scrolling:touch;
+ border:1px solid var(--erimax-page-border);
+ border-radius:13px;
+}
+.tab-content.active table{max-width:100%}
+.tab-content.active :where(th,td){vertical-align:middle}
+.tab-content.active :where(.empty-state,.empty,.almox-empty){
+ color:var(--erimax-page-muted);
+}
+/* Botões de ação e atalhos: sem alterar rótulos, cores funcionais ou eventos. */
+.tab-content.active :where(button,.btn,.btn-action,.btn-submit,.almox-refresh,.os-quick,.oa-clear-filter){
+ font-family:var(--erimax-ui-font,inherit);
+}
+.tab-content.active :where(button,.btn,.btn-action,.btn-submit,.almox-refresh,.os-quick,.oa-clear-filter):disabled{
+ cursor:not-allowed;
+ opacity:.62;
+}
+@media(hover:hover) and (pointer:fine){
+ .tab-content.active :where(.card,.almox-panel,.os-modern-controls,.oa-list-panel,.ranking-os-card):hover{
+  border-color:#d1dfe6;
+ }
+}
+@media(min-width:1200px) and (hover:hover) and (pointer:fine){
+ .tab-content.active{padding-bottom:30px}
+ .tab-content.active>:where(section,article,.card,.almox-panel,.oa-list-panel,.os-modern-controls){
+  margin-bottom:0;
+ }
+}
+@media(max-width:767px){
+ :root{--erimax-page-gap:12px;--erimax-page-radius:14px}
+ .tab-content.active{padding-inline:0}
+ .tab-content.active :where(.card,.almox-panel,.os-modern-controls,.oa-list-panel,.metrics-filter-card,.metrics-compare-panel,.ranking-os-card){
+  padding:15px;
+  border-radius:14px;
+ }
+ .tab-content.active :where(.os-modern-hero,.oa-hero,.metrics-hero,.ranking-os-hero,.cadastro-hub-hero,.almox-hero){
+  border-radius:15px;
+ }
+ .tab-content.active :where(.os-modern-hero,.oa-hero,.metrics-hero,.ranking-os-hero,.cadastro-hub-hero,.almox-hero) h2{
+  font-size:1.35rem;
+ }
+ .tab-content.active :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){
+  font-size:16px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .tab-content.active :where(button,input,select,textarea,.card,.os-card){scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+
+
