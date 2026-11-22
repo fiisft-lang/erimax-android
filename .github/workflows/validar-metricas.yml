@@ -39,6 +39,7 @@ jobs:
             if (!source || /\bsrc\s*=/.test(attrs) || /type\s*=\s*["']?(application\/json|importmap)/i.test(attrs)) continue;
             new vm.Script(source, { filename: 'index.html:inline-script-' + (++checked) + '.js' });
           }
+          if (!checked) throw new Error('Nenhum script inline foi encontrado para validação');
           for (const id of ['cardRankingReincidencia', 'listaRankingReincidencia']) {
             if (!html.includes('id="' + id + '"')) throw new Error('Elemento obrigatório ausente: ' + id);
           }
