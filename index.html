@@ -13994,3 +13994,53 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  }
 }
 </style>
+
+
+<style id="erimax-modal-ajuste-celular-e-cabecalho-desktop-2026">
+/* Celular: descer só mais um pouco. Desktop: restaurar o cabeçalho azul e seus contrastes. */
+@media(max-width:760px){
+ #modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal{
+  padding:max(62px,env(safe-area-inset-top)) 8px max(12px,env(safe-area-inset-bottom))!important;
+ }
+ #modalEfOS>.efos-dialog,
+ #modalDetalheMetrica>.erimax-metric-history-dialog,
+ .erimax-os-history-modal>.erimax-os-history-panel{
+  max-height:calc(100dvh - 74px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ }
+}
+@media(min-width:761px){
+ #modalEfOS .efos-header.erimax-os-history-head,
+ #modalEfOS .erimax-os-history-head,
+ #modalDetalheMetrica .erimax-metric-history-head,
+ #modalDetalheMetrica .erimax-os-history-head,
+ .erimax-os-history-modal .erimax-os-history-head{
+  background:linear-gradient(115deg,#153b59,#245b7b)!important;
+  color:#fff!important;
+ }
+ #modalEfOS .erimax-os-history-head small,
+ #modalDetalheMetrica .erimax-metric-history-head small,
+ #modalDetalheMetrica .erimax-os-history-head small,
+ .erimax-os-history-modal .erimax-os-history-head small{
+  color:#c5d8e7!important;
+  -webkit-text-fill-color:#c5d8e7!important;
+ }
+ #modalEfOS .erimax-os-history-head h2,
+ #modalDetalheMetrica .erimax-metric-history-head h2,
+ #modalDetalheMetrica .erimax-os-history-head h2,
+ .erimax-os-history-modal .erimax-os-history-head h2{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+ }
+ #modalDetalheMetrica .erimax-metric-history-head p{
+  color:#d5e3ec!important;
+  -webkit-text-fill-color:#d5e3ec!important;
+ }
+ #modalEfOS .erimax-os-history-close,
+ #modalDetalheMetrica .erimax-os-history-close,
+ .erimax-os-history-modal .erimax-os-history-close{
+  border:1px solid rgba(255,255,255,.4)!important;
+  background:rgba(255,255,255,.13)!important;
+  color:#fff!important;
+ }
+}
+</style>
