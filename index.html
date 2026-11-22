@@ -11707,6 +11707,16 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 html{background:#fafbfc!important}
 html body,html.erimax-app-android body{background:#fafbfc!important}
 </style>
+
+<style id="erimax-android-bottom-nav-browser-parity-2026">
+/* Android: iguala a altura visual inferior da barra ao navegador, sem área branca extra. */
+@media(max-width:767px){
+  html.erimax-app-android .erimax-mobile-bottom-nav{
+    box-sizing:border-box!important;
+    padding-bottom:7px!important;
+  }
+}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
