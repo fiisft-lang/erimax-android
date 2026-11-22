@@ -9896,7 +9896,7 @@ function atualizarMetricasReais(){
   const agora=new Date().toISOString();
   const normalizarTurnoMetrica=valor=>{
     const texto=String(valor??'').trim();
-    const numero=(texto.match(/(?:^|\\D)([1-3])(?:\\D|$)/)||[])[1];
+    const numero=(texto.match(/(?:^|\D)([1-3])(?:\D|$)/)||[])[1];
     return numero?'Turno '+numero:(texto||'Não informado');
   };
   const f=chamados.filter(c=>{
