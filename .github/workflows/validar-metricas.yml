@@ -1,0 +1,47 @@
+name: Validar EriMax - Métricas
+
+on:
+  push:
+    branches:
+      - melhoria/reincidencias-agrupadas-2026-11-22
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+      - name: Compilar pacote web
+        run: npm run build
+      - name: Verificar scripts e estrutura da página Métricas
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+          let checked = 0;
+          for (const match of scripts) {
+            const attrs = match[1];
+            const source = match[2].trim();
+            if (!source || /\\bsrc\\s*=/.test(attrs) || /type\\s*=\\s*["']?(application\\/json|importmap)/i.test(attrs)) continue;
+            new vm.Script(source, { filename: 'index.html:inline-script-' + (++checked) + '.js' });
+          }
+          for (const id of ['cardRankingReincidencia', 'listaRankingReincidencia']) {
+            if (!html.includes('id="' + id + '"')) throw new Error('Elemento obrigatório ausente: ' + id);
+          }
+          if (!html.includes('function abrirDetalheMetrica')) throw new Error('Função de detalhe das métricas ausente');
+          console.log('OK: ' + checked + ' scripts inline verificados e estrutura da página Métricas encontrada.');
+          NODE
