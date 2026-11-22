@@ -6880,6 +6880,80 @@ body .tbl-wrap td{color:#344d5e}
   #tab-abrir>.card>h2{min-height:82px!important;border-radius:13px 13px 0 0!important}
 }
 </style>
+
+<style id="erimax-cabecalho-abrir-os-impacto-2026">
+/* Cabeçalho de Abrir O.S. — hierarquia visual e legibilidade reforçadas */
+#tab-abrir>.card>h2{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  min-height:104px!important;
+  margin:0 0 12px!important;
+  padding:24px 30px 24px 34px!important;
+  overflow:hidden!important;
+  border:1px solid #164d68!important;
+  border-left:7px solid #65d7ce!important;
+  border-radius:16px!important;
+  background:linear-gradient(112deg,#0b2f4a 0%,#104d68 54%,#137b7b 100%)!important;
+  color:#fff!important;
+  font-size:clamp(1.55rem,2.2vw,2rem)!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  letter-spacing:-.035em!important;
+  text-shadow:0 2px 8px rgba(0,0,0,.32)!important;
+  box-shadow:0 12px 26px rgba(9,45,68,.2),inset 0 1px 0 rgba(255,255,255,.16)!important;
+  isolation:isolate!important;
+}
+#tab-abrir>.card>h2:before{
+  content:""!important;
+  position:absolute!important;
+  z-index:-1!important;
+  left:auto!important;
+  right:-34px!important;
+  top:-54px!important;
+  width:210px!important;
+  height:210px!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(110,225,215,.2),rgba(110,225,215,0) 68%)!important;
+  box-shadow:0 0 0 22px rgba(255,255,255,.035),0 0 0 45px rgba(255,255,255,.025)!important;
+}
+#tab-abrir>.card>h2:after{
+  content:""!important;
+  position:absolute!important;
+  z-index:-1!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  height:3px!important;
+  background:linear-gradient(90deg,#79e0d5,rgba(255,255,255,.25),transparent 78%)!important;
+}
+#tab-abrir>.card>p{
+  margin:0 0 22px!important;
+  padding:11px 15px!important;
+  border:1px solid #dce8ed!important;
+  border-radius:10px!important;
+  background:#f4f8fa!important;
+  color:#29495d!important;
+  font-size:.9rem!important;
+  font-weight:600!important;
+  line-height:1.5!important;
+}
+@media(max-width:600px){
+  #tab-abrir>.card>h2{
+    min-height:82px!important;
+    padding:18px 18px 18px 21px!important;
+    border-left-width:5px!important;
+    border-radius:13px!important;
+    font-size:1.35rem!important;
+    letter-spacing:-.025em!important;
+  }
+  #tab-abrir>.card>p{font-size:.84rem!important;margin-bottom:18px!important}
+}
+@media(prefers-reduced-motion:no-preference){
+  #tab-abrir>.card>h2{transition:box-shadow .2s ease,filter .2s ease!important}
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
