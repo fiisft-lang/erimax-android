@@ -6481,6 +6481,34 @@ html.erimax-app-android body > header img.logo{
   }
 }
 </style>
+<style id="erimax-historico-relatorio-leitura-2026">
+/* Relatório de manutenção: separar identificação, tempos e conteúdo técnico sem alterar os dados. */
+#tab-metricas .erimax-history-report-card{display:flex!important;flex-direction:column!important;gap:13px!important;min-width:0!important;padding:16px!important;border:1px solid #e0e9ee!important;border-radius:14px!important;background:#fff!important;box-shadow:0 3px 12px rgba(22,49,66,.045)!important;overflow-wrap:anywhere!important}
+#tab-metricas .erimax-history-report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0;padding-bottom:11px;border-bottom:1px solid #edf1f4}
+#tab-metricas .erimax-history-report-head>div{min-width:0}
+#tab-metricas .erimax-history-report-id{display:inline-flex;align-items:center;min-height:23px;padding:4px 8px;border:1px solid #dce8ed;border-radius:7px;background:#f2f7f9;color:#416477;font-size:.65rem;font-weight:850;letter-spacing:.035em}
+#tab-metricas .erimax-history-report-head h4{margin:7px 0 3px;color:#24465c;font-size:.91rem;font-weight:850;line-height:1.35;overflow-wrap:anywhere}
+#tab-metricas .erimax-history-report-head p{margin:0;color:#788b98;font-size:.69rem;line-height:1.4}
+#tab-metricas .erimax-history-report-status{flex:none;padding:5px 9px;border:1px solid #cce7d8;border-radius:999px;background:#eff8f2;color:#23734b;font-size:.62rem;font-weight:850}
+#tab-metricas .erimax-history-report-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#tab-metricas .erimax-history-report-times>div{display:flex;flex-direction:column;gap:4px;min-width:0;padding:9px 10px;border:1px solid #e8eef1;border-radius:9px;background:#fafcfd}
+#tab-metricas .erimax-history-report-times small,#tab-metricas .erimax-history-report-content section>small{color:#7a8d99;font-size:.59rem;font-weight:850;letter-spacing:.055em;line-height:1.35}
+#tab-metricas .erimax-history-report-times b{color:#35566b;font-size:.75rem;font-weight:800;font-variant-numeric:tabular-nums}
+#tab-metricas .erimax-history-report-times .erimax-history-report-downtime{background:#f5f9fa}
+#tab-metricas .erimax-history-report-content{display:grid;gap:9px;min-width:0}
+#tab-metricas .erimax-history-report-content section{min-width:0;padding:10px 11px;border:1px solid #e8eef1;border-radius:10px;background:#fff}
+#tab-metricas .erimax-history-report-content section p{margin:5px 0 0;color:#455f70;font-size:.75rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+#tab-metricas .erimax-history-report-content .erimax-history-report-solution{border-color:#d8e9e4;background:#f8fbfa}
+#tab-metricas .erimax-history-report-content .erimax-history-report-solution>small{color:#397666}
+#tab-metricas .erimax-history-report-adjustment{margin:0;padding:9px 11px;border:1px solid #f0dfbd;border-radius:9px;background:#fff9ed;color:#91631d;font-size:.68rem;line-height:1.5;overflow-wrap:anywhere}
+#tab-metricas .erimax-history-report-empty{grid-column:1/-1;margin:0;padding:18px;border:1px dashed #dce6eb;border-radius:12px;background:#fafcfd;color:#7a8b97;text-align:center;font-size:.78rem}
+@media(max-width:760px){
+ #tab-metricas .erimax-history-report-card{padding:13px!important;gap:11px!important}
+ #tab-metricas .erimax-history-report-times{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-metricas .erimax-history-report-head h4{font-size:.86rem}
+}
+@media(max-width:360px){#tab-metricas .erimax-history-report-times{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -9366,7 +9394,22 @@ function atualizarMetricasReais(){
   // relatório
   const rel=document.getElementById('listaRelatorioProblemas');
   const fechadas=ordenarOSRecentes(f.filter(c=>c.status==='Concluída'));
-  rel.innerHTML=fechadas.length?fechadas.map(c=>`<div class="report-item"><b>${escaparHtml(nOS(c))} (${escaparHtml(c.maquina)})</b> — ${escaparHtml(c.turno)} • ${escaparHtml(c.setor)}<br><b>Aberta:</b> ${escaparHtml(hm(c.created_at))} • <b>Início:</b> ${escaparHtml(hm(c.data_atendimento))} • <b>Fechada:</b> ${escaparHtml(hm(c.data_conclusao))}${c.data_conclusao?' ('+escaparHtml(fmt(paradaProd(c)))+' parados em horário de produção)':''}${c.ajustado_por?`<br><small style="color:#b45309">✏️ Horário ajustado por ${escaparHtml(c.ajustado_por)} em ${escaparHtml(hm(c.ajustado_em))}${c.ajuste_obs?' — '+escaparHtml(c.ajuste_obs):''}</small>`:''}<br><b>Problema:</b> ${escaparHtml(c.descricao)}<br>${c.causa?`<b>Causa:</b> ${escaparHtml(c.causa)}<br>`:''}${c.peca?`<b>Peça:</b> ${escaparHtml(c.peca)}<br>`:''}<b>Solução (${escaparHtml(c.tecnico||'Técnico')}):</b> ${escaparHtml(c.servico_executado)}</div>`).join(''):'<p style="color:#64748b;text-align:center">Nenhum chamado concluído no filtro selecionado.</p>';
+  rel.innerHTML=fechadas.length?fechadas.map(c=>`<article class="report-item erimax-history-report-card">
+    <header class="erimax-history-report-head"><div><span class="erimax-history-report-id">${escaparHtml(nOS(c))}</span><h4>${escaparHtml(c.maquina||'Máquina não informada')}</h4><p>${escaparHtml(c.turno||'Turno não informado')} • ${escaparHtml(c.setor||'Setor não informado')}</p></div><span class="erimax-history-report-status">Concluída</span></header>
+    <div class="erimax-history-report-times">
+      <div><small>ABERTA</small><b>${escaparHtml(hm(c.created_at)||'—')}</b></div>
+      <div><small>INÍCIO DO ATENDIMENTO</small><b>${escaparHtml(hm(c.data_atendimento)||'—')}</b></div>
+      <div><small>CONCLUÍDA</small><b>${escaparHtml(hm(c.data_conclusao)||'—')}</b></div>
+      <div class="erimax-history-report-downtime"><small>PARADA NA PRODUÇÃO</small><b>${c.data_conclusao?escaparHtml(fmt(paradaProd(c))):'—'}</b></div>
+    </div>
+    <div class="erimax-history-report-content">
+      <section><small>PROBLEMA RELATADO</small><p>${escaparHtml(c.descricao||'Não informado')}</p></section>
+      ${c.causa?`<section><small>CAUSA IDENTIFICADA</small><p>${escaparHtml(c.causa)}</p></section>`:''}
+      ${c.peca?`<section><small>PEÇA UTILIZADA</small><p>${escaparHtml(c.peca)}</p></section>`:''}
+      <section class="erimax-history-report-solution"><small>SOLUÇÃO EXECUTADA · ${escaparHtml(c.tecnico||'Técnico não informado')}</small><p>${escaparHtml(c.servico_executado||'Não informado')}</p></section>
+    </div>
+    ${c.ajustado_por?`<p class="erimax-history-report-adjustment">✏️ Horário ajustado por ${escaparHtml(c.ajustado_por)} em ${escaparHtml(hm(c.ajustado_em))}${c.ajuste_obs?' — '+escaparHtml(c.ajuste_obs):''}</p>`:''}
+  </article>`).join(''):'<p class="erimax-history-report-empty">Nenhum chamado concluído no filtro selecionado.</p>';
 
   // Evolução por setor: visão diária para períodos longos e detalhamento horário ao selecionar um dia.
   const eventosPorDia={};
