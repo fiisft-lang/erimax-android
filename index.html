@@ -5880,9 +5880,9 @@ function atualizarNavegacaoMobileEriMax(id){
   </div>
 </div>
 
-<div id="modalEfOS" role="dialog" aria-modal="true" aria-labelledby="modalEfOSTitulo" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box efos-dialog"><div class="efos-header"><h2 id="modalEfOSTitulo">Ordens de serviço relacionadas</h2><button type="button" class="btn-action btn-transferir efos-close" onclick="fecharModalEfOS()">Fechar ✕</button></div><p id="resumoEfOS" class="efos-summary"></p><div id="listaEfOS" class="efos-list"></div></div></div>
+<div id="modalEfOS" role="dialog" aria-modal="true" aria-labelledby="modalEfOSTitulo" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box efos-dialog"><div class="efos-header erimax-os-history-head"><div><small>CONSULTA DE INDICADORES</small><h2 id="modalEfOSTitulo">Ordens de serviço relacionadas</h2></div><button type="button" class="erimax-os-history-close" aria-label="Fechar consulta" onclick="fecharModalEfOS()">×</button></div><p id="resumoEfOS" class="efos-summary"></p><div id="listaEfOS" class="efos-list"></div></div></div>
 
-<div id="modalDetalheMetrica" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1300;align-items:center;justify-content:center;padding:12px"><div class="box" style="width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><h2 id="tituloDetalheMetrica" style="font-size:1.08rem;color:var(--primary);margin:0">Detalhes da métrica</h2><small style="color:#64748b">Conforme os filtros selecionados</small></div><button class="btn-action btn-transferir" onclick="fecharDetalheMetrica()">Voltar ✕</button></div><p id="resumoDetalheMetrica" style="font-size:.84rem;color:#475569;line-height:1.5;margin:10px 0"></p><div class="chart-wrapper" style="height:280px;margin:8px 0 14px"><canvas id="chartDetalheMetrica"></canvas></div><h3 style="font-size:.92rem;color:var(--primary);margin:8px 0">Registros relacionados</h3><div id="listaDetalheMetrica"></div></div></div>
+<div id="modalDetalheMetrica" role="dialog" aria-modal="true" aria-labelledby="tituloDetalheMetrica" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1300;align-items:center;justify-content:center;padding:12px"><div class="box erimax-metric-history-dialog" style="width:100%;max-width:760px;max-height:92vh;overflow:hidden;padding:0"><header class="erimax-os-history-head erimax-metric-history-head"><div><small>ANÁLISE DE MANUTENÇÃO</small><h2 id="tituloDetalheMetrica">Detalhes da métrica</h2><p>Conforme os filtros selecionados</p></div><button type="button" class="erimax-os-history-close" aria-label="Fechar detalhes da métrica" onclick="fecharDetalheMetrica()">×</button></header><div class="erimax-os-history-content erimax-metric-history-content"><p id="resumoDetalheMetrica" style="font-size:.84rem;color:#475569;line-height:1.5;margin:0 0 10px"></p><div class="chart-wrapper" style="height:280px;margin:8px 0 14px"><canvas id="chartDetalheMetrica"></canvas></div><h3 style="font-size:.92rem;color:var(--primary);margin:8px 0">Registros relacionados</h3><div id="listaDetalheMetrica"></div></div></div></div>
 <div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
 <div class="form-group"><label for="hrAbertura">Data e horário real em que a máquina parou / O.S. foi aberta</label><input id="hrAbertura" type="datetime-local" required></div>
@@ -13549,4 +13549,87 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 }
 @media(max-width:380px){.erimax-os-detail-grid{grid-template-columns:1fr!important}#painelMaquinasSupervisor .sv-audit-detail{padding:10px!important}}
 @media(prefers-reduced-motion:reduce){#painelMaquinasSupervisor .sv-audit-row,#painelMaquinasSupervisor .sv-history-item,#painelMaquinasSupervisor .sv-movement-item{transition:none!important}}
+</style>
+
+
+<style id="erimax-padrao-cabecalho-historicos-metricas-2026">
+/* Um único padrão de cabeçalho para consultas, históricos e detalhes de métricas. */
+#modalEfOS .efos-header.erimax-os-history-head{
+ position:relative!important;display:flex!important;align-items:center!important;
+ justify-content:space-between!important;gap:14px!important;width:100%!important;
+ min-height:82px!important;margin:0!important;padding:17px 20px!important;
+ border:0!important;border-radius:0!important;
+ background:linear-gradient(115deg,#153b59,#245b7b)!important;color:#fff!important;
+ box-shadow:none!important;overflow:visible!important;
+}
+#modalEfOS .efos-header.erimax-os-history-head>div{flex:1 1 auto;min-width:0}
+#modalEfOS .efos-header.erimax-os-history-head small,
+#modalDetalheMetrica .erimax-metric-history-head small{
+ display:block!important;margin:0 0 5px!important;color:#c5d8e7!important;
+ font-size:.65rem!important;font-weight:800!important;letter-spacing:.12em!important;
+}
+#modalEfOS .efos-header.erimax-os-history-head #modalEfOSTitulo,
+#modalDetalheMetrica .erimax-metric-history-head h2{
+ margin:0!important;padding:0!important;color:#fff!important;
+ font-size:1.08rem!important;font-weight:850!important;line-height:1.3!important;
+}
+#modalEfOS .efos-header.erimax-os-history-head .erimax-os-history-close,
+#modalDetalheMetrica .erimax-metric-history-head .erimax-os-history-close{
+ position:static!important;inset:auto!important;transform:none!important;float:none!important;
+ display:grid!important;place-items:center!important;flex:0 0 38px!important;
+ width:38px!important;min-width:38px!important;max-width:38px!important;
+ height:38px!important;min-height:38px!important;margin:0!important;padding:0!important;
+ border:1px solid rgba(255,255,255,.35)!important;border-radius:11px!important;
+ background:rgba(255,255,255,.12)!important;color:#fff!important;
+ font-size:1.55rem!important;font-weight:400!important;line-height:1!important;
+ box-shadow:none!important;cursor:pointer!important;opacity:1!important;visibility:visible!important;
+}
+#modalEfOS .efos-header.erimax-os-history-head .erimax-os-history-close:hover,
+#modalDetalheMetrica .erimax-metric-history-head .erimax-os-history-close:hover{
+ background:rgba(255,255,255,.23)!important;border-color:rgba(255,255,255,.65)!important;
+}
+#modalEfOS>.efos-dialog{padding:0!important}
+#modalEfOS .efos-summary{padding:12px 20px 0!important;margin:0!important}
+#modalEfOS .efos-list{padding:10px 20px 18px!important}
+#modalDetalheMetrica>.erimax-metric-history-dialog{
+ display:flex!important;flex-direction:column!important;min-height:0!important;
+ max-height:92dvh!important;padding:0!important;overflow:hidden!important;
+ border:1px solid #dbe4ed!important;border-top:0!important;border-radius:19px!important;
+ background:#f7f9fc!important;
+}
+#modalDetalheMetrica .erimax-metric-history-head{
+ flex:0 0 auto!important;position:relative!important;top:auto!important;
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:14px!important;min-height:82px!important;margin:0!important;padding:17px 20px!important;
+ background:linear-gradient(115deg,#153b59,#245b7b)!important;color:#fff!important;
+}
+#modalDetalheMetrica .erimax-metric-history-head>div{flex:1 1 auto;min-width:0}
+#modalDetalheMetrica .erimax-metric-history-head p{
+ margin:4px 0 0!important;color:#d5e3ec!important;font-size:.72rem!important;line-height:1.4!important;
+}
+#modalDetalheMetrica .erimax-metric-history-content{
+ flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;
+ padding:17px 20px 20px!important;background:#f7f9fc!important;
+ overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+}
+#modalDetalheMetrica .erimax-metric-history-content .chart-wrapper{
+ border:1px solid #e1e8ef!important;border-radius:13px!important;background:#fff!important;
+ padding:10px!important;
+}
+#modalDetalheMetrica .erimax-metric-history-content #listaDetalheMetrica{
+ display:grid;gap:9px;min-width:0;
+}
+#modalDetalheMetrica .erimax-metric-history-content #listaDetalheMetrica>.os-card{
+ margin:0!important;border:1px solid #e1e8ef!important;border-radius:12px!important;
+ box-shadow:0 2px 8px rgba(20,48,65,.035)!important;
+}
+@media(max-width:600px){
+ #modalEfOS .efos-header.erimax-os-history-head,
+ #modalDetalheMetrica .erimax-metric-history-head{min-height:74px!important;padding:14px 15px!important}
+ #modalEfOS .efos-summary{padding:11px 15px 0!important}
+ #modalEfOS .efos-list{padding:9px 15px 15px!important}
+ #modalDetalheMetrica>.erimax-metric-history-dialog{max-height:94dvh!important;border-radius:17px!important}
+ #modalDetalheMetrica .erimax-metric-history-content{padding:13px 13px 17px!important}
+ #modalDetalheMetrica .erimax-metric-history-content .chart-wrapper{height:240px!important}
+}
 </style>
