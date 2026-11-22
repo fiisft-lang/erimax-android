@@ -5628,6 +5628,120 @@ body{
 }
 </style>
 
+
+<style id="erimax-navigation-polish-stage-2026">
+/* Etapa de navegação: acabamento visual sem alterar eventos, permissões ou fluxo de telas. */
+.nav-tabs .tab-btn{
+  position:relative;
+  min-height:46px;
+  border-radius:10px!important;
+  transition:background .16s ease,color .16s ease,transform .16s ease,box-shadow .16s ease!important;
+}
+.nav-tabs .tab-btn .tab-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 23px;
+}
+.nav-tabs .tab-btn .tab-icon svg{
+  display:block;
+  width:21px;
+  height:21px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.nav-tabs .tab-btn:focus-visible{
+  outline:3px solid color-mix(in srgb,var(--secondary) 72%,white)!important;
+  outline-offset:2px;
+}
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  .nav-tabs{
+    gap:6px!important;
+    padding-top:24px!important;
+    padding-bottom:24px!important;
+  }
+  .nav-tabs .tab-btn{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:12px!important;
+    width:100%!important;
+    min-height:48px!important;
+    padding:10px 13px!important;
+    border:1px solid transparent!important;
+    border-left:3px solid transparent!important;
+    border-radius:11px!important;
+    color:rgba(255,255,255,.82)!important;
+    background:transparent!important;
+    font-size:.83rem!important;
+    font-weight:650!important;
+    letter-spacing:.005em;
+    text-align:left!important;
+  }
+  .nav-tabs .tab-btn:hover{
+    color:#fff!important;
+    background:rgba(255,255,255,.085)!important;
+    transform:translateX(2px);
+  }
+  .nav-tabs .tab-btn.active{
+    color:#fff!important;
+    background:rgba(255,255,255,.14)!important;
+    border-color:rgba(255,255,255,.09)!important;
+    border-left-color:var(--secondary)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 4px 12px rgba(8,27,44,.10)!important;
+    font-weight:780!important;
+  }
+  .nav-tabs .tab-btn.active .tab-icon{color:#ffd09e}
+  .nav-tabs .tab-btn .badge-count{
+    margin-left:auto!important;
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 2px 7px rgba(8,27,44,.16);
+  }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-btn{
+    min-height:49px!important;
+    border:1px solid transparent!important;
+    border-left:3px solid transparent!important;
+    padding:10px 8px!important;
+  }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-btn:hover{
+    transform:translateY(-1px);
+  }
+  body.erimax-sidebar-collapsed .nav-tabs .tab-btn.active{
+    border-left-color:var(--secondary)!important;
+    background:rgba(255,255,255,.15)!important;
+  }
+  header #btnMenuLateral{
+    transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
+  }
+  header #btnMenuLateral:hover{
+    background:#fff!important;
+    border-color:color-mix(in srgb,var(--primary) 38%,white)!important;
+    box-shadow:0 5px 14px rgba(23,63,99,.12)!important;
+    transform:translateY(-1px);
+  }
+  header .menu-caption{
+    letter-spacing:.015em;
+  }
+}
+@media (max-width:1023px){
+  .nav-tabs{
+    padding-top:82px!important;
+    padding-bottom:max(24px,env(safe-area-inset-bottom))!important;
+  }
+  .nav-tabs .tab-btn{
+    min-height:49px!important;
+    border-radius:11px!important;
+  }
+  .nav-tabs .tab-btn:active{transform:scale(.985)}
+}
+@media (prefers-reduced-motion:reduce){
+  .nav-tabs .tab-btn,header #btnMenuLateral{transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
