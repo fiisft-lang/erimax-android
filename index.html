@@ -9905,13 +9905,18 @@ function calcularReincidenciasHistorico(historico){
 }
 
 let REINCIDENCIA_SELECAO=null;
-function abrirDetalheReincidenciaMaquina(setor,maquina){REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),problema:null};abrirDetalheMetrica('reincidencia')}
+let REINCIDENCIA_MAQUINA_ABERTA=false;
+function abrirDetalheReincidenciaMaquina(setor,maquina){REINCIDENCIA_MAQUINA_ABERTA=true;REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),problema:null};abrirDetalheMetrica('reincidencia')}
+function voltarGraficoReincidencias(){REINCIDENCIA_MAQUINA_ABERTA=false;REINCIDENCIA_SELECAO=null;abrirDetalheMetrica('reincidencia')}
 function abrirDetalheReincidenciaGrupo(setor,maquina,problema){REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),problema:decodeURIComponent(problema)};abrirDetalheMetrica('reincidencia')}
 let chartDetalheMetrica=null;
 function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMetrica');if(m)m.style.display='none';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}}
 function abrirDetalheMetrica(tipo){
  const modal=document.getElementById('modalDetalheMetrica'),titulo=document.getElementById('tituloDetalheMetrica'),resumo=document.getElementById('resumoDetalheMetrica'),box=document.getElementById('listaDetalheMetrica'),canvas=document.getElementById('chartDetalheMetrica');
  if(!modal||!canvas)return;
+ const cabecalho=modal.querySelector('.erimax-os-history-head');
+ if(cabecalho&&!cabecalho.querySelector('#btnVoltarGraficoReincidencias')){const voltar=document.createElement('button');voltar.id='btnVoltarGraficoReincidencias';voltar.type='button';voltar.className='erimax-recurrence-back';voltar.textContent='← Voltar ao gráfico';voltar.onclick=voltarGraficoReincidencias;cabecalho.insertBefore(voltar,cabecalho.querySelector('.erimax-os-history-close'));}
+ const botaoVoltar=modal.querySelector('#btnVoltarGraficoReincidencias');if(botaoVoltar)botaoVoltar.style.display=tipo==='reincidencia'&&REINCIDENCIA_MAQUINA_ABERTA?'inline-flex':'none';
  const todos=ordenarOSRecentes(FILTRADAS_TODAS||FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada'));
  const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
  const agrupar=(arr,key,val)=>{const g={};arr.forEach(x=>{const k=key(x)||'Não informado';g[k]=(g[k]||0)+val(x)});return Object.entries(g).sort((a,b)=>b[1]-a[1])};
@@ -16218,5 +16223,22 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   background:rgba(255,255,255,.13)!important;
   border-color:rgba(255,255,255,.4)!important;
  }
+}
+</style>
+
+<style id="erimax-voltar-grafico-reincidencias-2026">
+#modalDetalheMetrica .erimax-os-history-head{gap:10px!important}
+#modalDetalheMetrica .erimax-recurrence-back{
+ display:none;align-items:center;justify-content:center;flex:0 0 auto;
+ min-height:36px;padding:7px 12px;border:1px solid rgba(255,255,255,.42);
+ border-radius:10px;background:rgba(255,255,255,.13);color:#fff!important;
+ -webkit-text-fill-color:#fff!important;font-size:.76rem;font-weight:800;
+ cursor:pointer;white-space:nowrap
+}
+#modalDetalheMetrica .erimax-recurrence-back:hover{background:rgba(255,255,255,.23)!important}
+@media(max-width:520px){
+ #modalDetalheMetrica .erimax-os-history-head{flex-wrap:wrap!important}
+ #modalDetalheMetrica .erimax-recurrence-back{order:3;width:100%;margin-top:2px}
+ #modalDetalheMetrica .erimax-os-history-close{margin-left:auto!important}
 }
 </style>
