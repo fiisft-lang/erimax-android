@@ -6800,7 +6800,18 @@ function renderStatusTurno(){
   const emServico=PERFIL.perfil==='tecnico'&&chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
   const status=emServico?'EM SERVIÇO':(ativa?'ONLINE':'OFFLINE');
   const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
+  const nome=String(PERFIL.nome||'Usuário').trim();
+  const escapar=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const nomeSeguro=escapar(nome);
+  const inicio=st&&st.turno_inicio?new Date(st.turno_inicio):null;
+  const fim=st&&st.turno_fim?new Date(st.turno_fim):null;
+  const dataValida=d=>d&&Number.isFinite(d.getTime());
+  const horaInicio=dataValida(inicio)?inicio.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  const horaFim=dataValida(fim)?fim.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
   const apoio=emServico?'Você está atendendo uma ordem de serviço.':ativa?'Expediente ativo. Você está disponível para receber novas ordens.':'Inicie seu expediente para ficar disponível para novas ordens.';
+  const identificacao=ativa
+    ?'<div class="erimax-home-shift-details"><div><span>RESPONSÁVEL</span><strong>'+nomeSeguro+'</strong></div><div><span>INÍCIO DO EXPEDIENTE</span><strong>'+horaInicio+'</strong></div></div>'
+    :(st&&st.turno_fim?'<div class="erimax-home-shift-details"><div><span>ÚLTIMO EXPEDIENTE</span><strong>'+nomeSeguro+'</strong></div><div><span>ENCERRADO EM</span><strong>'+horaFim+'</strong></div></div>':'');
   box.innerHTML=`<section class="erimax-home-shift" aria-label="Situação do expediente">
     <div class="erimax-home-shift-top">
       <div class="erimax-home-shift-identity">
@@ -6809,6 +6820,7 @@ function renderStatusTurno(){
       </div>
       <button class="erimax-home-shift-action" type="button" onclick="alternarTurno()" ${emServico?'disabled':''}>${emServico?'O.S. em serviço':ativa?'Encerrar turno':'Iniciar expediente'}<span aria-hidden="true">→</span></button>
     </div>
+    ${identificacao}
     <p class="erimax-home-shift-help">${apoio}${emServico?' Conclua ou transfira a O.S. atual para encerrar o turno.':''}</p>
   </section>`;
 }
@@ -12601,5 +12613,20 @@ function alternarPainelComparacaoMaquinas(){
 @media(max-width:380px){
   .erimax-home-shift-top{align-items:flex-start;flex-direction:column}
   .erimax-home-shift-action{width:100%}
+}
+</style>
+
+
+<style id="erimax-mobile-shift-identity-2026">
+@media(max-width:1023px){
+  .erimax-home-shift-details{
+    display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+    gap:9px;margin-top:15px;padding-top:13px;
+    border-top:1px solid color-mix(in srgb,var(--primary) 12%,var(--border))
+  }
+  .erimax-home-shift-details>div{min-width:0;padding:10px 11px;border-radius:12px;background:color-mix(in srgb,var(--primary) 5%,var(--bg))}
+  .erimax-home-shift-details span{display:block;margin-bottom:5px;color:var(--muted,#718096);font-size:.58rem;font-weight:800;letter-spacing:.065em}
+  .erimax-home-shift-details strong{display:block;overflow-wrap:anywhere;color:var(--text);font-size:.83rem;font-weight:800;line-height:1.35}
+  @media(max-width:380px){.erimax-home-shift-details{grid-template-columns:1fr}}
 }
 </style>
