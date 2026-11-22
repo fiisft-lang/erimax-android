@@ -9840,7 +9840,7 @@ function normalizarDescricaoProblemaOS(descricao){
 }
 function tokensProblemaOS(os){
   const texto=normalizarDescricaoProblemaOS(os&&os.descricao);
-  const ignorar=new Set(['a','o','as','os','um','uma','de','do','da','dos','das','em','no','na','nos','nas','com','sem','para','por','que','e','ou','foi','esta','estava','estao','estao','ser','ter','tem','tinha','nao','muito','pouco','mais','menos','maquina','equipamento','problema','defeito','apresenta','apresentou','parou','parar','parada','voltou','ficou','fica','ficando','na','ao']);
+  const ignorar=new Set(['a','o','as','os','um','uma','de','do','da','dos','das','em','no','na','nos','nas','com','sem','para','por','que','e','ou','foi','esta','estava','estao','estao','ser','ter','tem','tinha','nao','muito','pouco','mais','menos','maquina','equipamento','problema','defeito','apresenta','apresentou','parou','parar','parada','voltou','ficou','fica','ficando','ajustar','ajusta','ajustando','subindo','sobe','subir','na','ao']);
   const sinonimos={
     balancinha:'balancim',balancinho:'balancim',balancins:'balancim',balancim:'balancim',
     corta:'corte',cortar:'corte',cortando:'corte',cortou:'corte',cortado:'corte',cortada:'corte',
@@ -16193,3 +16193,30 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 
 
 
+
+<style id="erimax-cabecalho-reincidencia-desktop-fix-2026">
+@media(min-width:761px){
+ #modalDetalheMetrica .erimax-metric-history-head,
+ #modalDetalheMetrica .erimax-os-history-head{
+  background-color:#183f5c!important;
+  background-image:linear-gradient(115deg,#153b59 0%,#245b7b 100%)!important;
+  color:#fff!important;
+ }
+ #modalDetalheMetrica .erimax-metric-history-head *,
+ #modalDetalheMetrica .erimax-os-history-head *{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+ }
+ #modalDetalheMetrica .erimax-metric-history-head p{
+  color:#e2edf5!important;
+  -webkit-text-fill-color:#e2edf5!important;
+ }
+ #modalDetalheMetrica .erimax-metric-history-head button,
+ #modalDetalheMetrica .erimax-os-history-head button{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  background:rgba(255,255,255,.13)!important;
+  border-color:rgba(255,255,255,.4)!important;
+ }
+}
+</style>
