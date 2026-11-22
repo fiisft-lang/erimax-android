@@ -9874,14 +9874,17 @@ function calcularReincidenciasHistorico(historico){
     const tokens=tokensProblemaOS(os);
     if(!maquina||!descricaoNormalizada)return;
     const grupos=porMaquina.get(chaveMaquina)||[];
-    let grupo=null;
+    let grupo=null,melhorSimilaridade=0;
     for(const candidato of grupos){
       // Descrição igual após normalização é reincidência mesmo quando só sobra um termo útil
       // (ex.: "Problema no datador" repetido). Para textos diferentes, mantém o critério conservador.
       if(descricaoNormalizada===candidato.descricaoNormalizada){grupo=candidato;break}
       if(tokens.length<2||candidato.tokens.length<2)continue;
       const comp=compararProblemasOS(tokens,candidato.tokens);
-      if(comp.comuns>=2&&comp.indice>=0.67&&(!grupo||comp.indice>grupo.similaridade)){grupo=candidato;grupo.similaridade=comp.indice}
+      if(comp.comuns>=2&&comp.indice>=0.67&&comp.indice>melhorSimilaridade){
+        grupo=candidato;
+        melhorSimilaridade=comp.indice;
+      }
     }
     if(grupo){
       resultado.set(String(os.id),{grupo:grupo.rotulo,primeiraOS:grupo.primeiraOS});
