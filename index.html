@@ -7988,21 +7988,21 @@ function mostrarOSParada(lista){
   const itens=ordenarOSRecentes((lista||[]).map(x=>x.os)).map(os=>({os,parada:(lista||[]).find(x=>Number(x.os.id)===Number(os.id))?.parada||0}));
   resumoEfOS.textContent=itens.length?itens.length+' OS com tempo de parada no período e filtros selecionados.':'Nenhuma OS com parada foi encontrada neste filtro.';
   listaEfOS.innerHTML=itens.length?itens.map(({os,parada})=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(os.status).replace(/\s+/g,'')+'">'+escaparHtml(os.status)+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor)+' • '+escaparHtml(os.turno)+' • '+hm(os.created_at)+'</p><p style="font-size:.8rem;margin:6px 0"><b>Parada considerada:</b> '+fmt(parada)+'</p><p style="font-size:.82rem"><b>Defeito:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+(os.data_conclusao?' • Concluída em '+hm(os.data_conclusao):' • Ainda não concluída')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta OS no painel</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma OS com parada neste filtro.</p>';
-  modalEfOS.style.display='flex';
+  document.body.appendChild(modalEfOS);modalEfOS.scrollTop=0;modalEfOS.style.display='flex';
 }
 function mostrarMaquinasRodando(lista){
   const itens=(lista||[]).filter(x=>x&&x.rodou>0).sort((a,b)=>b.rodou-a.rodou);
   modalEfOSTitulo.textContent='Máquinas sem parada registrada';
   resumoEfOS.textContent=itens.length?itens.length+' máquinas com tempo previsto sem parada registrada no período e filtros selecionados.':'Nenhuma máquina com tempo rodando foi encontrada neste filtro.';
   listaEfOS.innerHTML=itens.length?itens.map(m=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(m.nome)+'</span><span class="os-badge" style="background:#dcfce7;color:#166534">Sem parada registrada</span></div><p style="font-size:.82rem;margin:6px 0"><b>Tempo sem parada registrada:</b> '+fmt(m.rodou)+'</p><p style="font-size:.78rem;color:#64748b">Setor: '+escaparHtml(m.setor||'Não informado')+' • Disponibilidade registrada: '+m.pct+'%</p></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma máquina com tempo rodando neste filtro.</p>';
-  modalEfOS.style.display='flex';
+  document.body.appendChild(modalEfOS);modalEfOS.scrollTop=0;modalEfOS.style.display='flex';
 }
 function mostrarOSDetalhe(titulo,lista){
   const itens=ordenarOSRecentes(lista);
   modalEfOSTitulo.textContent=titulo||'Ordens de serviço relacionadas';
   resumoEfOS.textContent=itens.length?itens.length+' O.S. encontradas com os filtros selecionados.':'Nenhuma O.S. encontrada para este item.';
   listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • Aberta: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'horário não informado')+(os.data_conclusao?' • Concluída: '+new Date(os.data_conclusao).toLocaleString('pt-BR'):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p>'+(os.servico_executado?'<p style="font-size:.82rem;margin:6px 0"><b>O que foi feito:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'<button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
-  modalEfOS.style.display='flex';
+  document.body.appendChild(modalEfOS);modalEfOS.scrollTop=0;modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 
@@ -8116,7 +8116,7 @@ function abrirDetalheMetrica(tipo){
   explicacao='Compara o histórico da mesma máquina, usando os termos relevantes da descrição do defeito. Variações como “a faca não estava cortando” e “faca parou de cortar” podem ser agrupadas. Descrições curtas ou ambíguas ficam sem classificação automática para evitar falsos positivos.';
   box.innerHTML=r.length?r.map(g=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(g.maquina)+' • '+escaparHtml(g.problema)+' • '+g.os.length+' reincidência(s)</b>'+ordenarOSRecentes([g.primeiraOS,...g.os]).map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
- resumo.textContent=explicacao;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
+ resumo.textContent=explicacao;document.body.appendChild(modal);modal.scrollTop=0;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
 }
 
 function atualizarMetricasReais(){
@@ -13837,6 +13837,57 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  #modalEfOS>.efos-dialog,
  #modalDetalheMetrica>.erimax-metric-history-dialog{
   margin:10px auto!important;
+ }
+}
+</style>
+
+
+<style id="erimax-modal-portal-body-fix-2026">
+/* Os modais são movidos para o body ao abrir: escapam de transform/overflow dos painéis da aplicação. */
+#modalEfOS,#modalDetalheMetrica{
+ position:fixed!important;inset:0!important;
+ width:100vw!important;height:100vh!important;height:100dvh!important;
+ box-sizing:border-box!important;
+ display:none;align-items:flex-start!important;justify-content:center!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ padding: max(24px,env(safe-area-inset-top)) 12px max(16px,env(safe-area-inset-bottom))!important;
+}
+#modalEfOS[style*="display: flex"],#modalEfOS[style*="display:flex"],
+#modalDetalheMetrica[style*="display: flex"],#modalDetalheMetrica[style*="display:flex"]{display:flex!important}
+#modalEfOS>.efos-dialog,#modalDetalheMetrica>.erimax-metric-history-dialog{
+ position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+ transform:none!important;translate:none!important;
+ flex:0 0 auto!important;align-self:flex-start!important;
+ width:min(760px,100%)!important;max-width:760px!important;
+ max-height:calc(100dvh - 40px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ height:auto!important;min-height:0!important;
+ margin:0 auto 16px!important;
+ display:flex!important;flex-direction:column!important;
+ overflow:hidden!important;
+}
+#modalEfOS .efos-header.erimax-os-history-head,#modalDetalheMetrica .erimax-metric-history-head{
+ position:relative!important;top:auto!important;transform:none!important;
+ flex:0 0 auto!important;min-height:76px!important;height:auto!important;
+ overflow:visible!important;
+}
+#modalEfOS .efos-list,#modalDetalheMetrica .erimax-metric-history-content{
+ flex:1 1 auto!important;min-height:0!important;
+ max-height:calc(100dvh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+}
+@media(max-width:760px){
+ #modalEfOS,#modalDetalheMetrica{padding: max(20px,env(safe-area-inset-top)) 8px max(12px,env(safe-area-inset-bottom))!important}
+ #modalEfOS>.efos-dialog,#modalDetalheMetrica>.erimax-metric-history-dialog{
+  width:100%!important;max-width:100%!important;
+  max-height:calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+  margin:0 auto 12px!important;border-radius:14px!important;
+ }
+ #modalEfOS .efos-header.erimax-os-history-head,#modalDetalheMetrica .erimax-metric-history-head{
+  min-height:70px!important;padding:13px 14px!important;
+ }
+ #modalEfOS .efos-list,#modalDetalheMetrica .erimax-metric-history-content{
+  max-height:calc(100dvh - 165px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
  }
 }
 </style>
