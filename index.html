@@ -9832,6 +9832,9 @@ function mostrarOSDetalhe(titulo,lista){
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 
 /* ===== IDENTIFICAÇÃO AUTOMÁTICA DE REINCIDÊNCIA (SEM CATÁLOGO OU SERVIÇO EXTERNO) ===== */
+function normalizarIdentificadorReincidencia(valor){
+  return String(valor||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\s+/g,' ');
+}
 function normalizarDescricaoProblemaOS(descricao){
   return String(descricao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
 }
@@ -9864,8 +9867,8 @@ function calcularReincidenciasHistorico(historico){
   const ordenadas=(historico||[]).filter(c=>c&&c.status!=='Cancelada'&&c.tipo!=='Preventiva'&&c.id!=null)
     .slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
   ordenadas.forEach(os=>{
-    const maquina=String(os.maquina||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
-    const setor=String(os.setor||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
+    const maquina=normalizarIdentificadorReincidencia(os.maquina);
+    const setor=normalizarIdentificadorReincidencia(os.setor);
     const chaveMaquina=maquina+'|'+setor;
     const descricaoNormalizada=normalizarDescricaoProblemaOS(os.descricao);
     const tokens=tokensProblemaOS(os);
@@ -9937,7 +9940,7 @@ function abrirDetalheMetrica(tipo){
   titulo.textContent='Reincidência por defeito';const mapa=calcularReincidenciasHistorico(chamados),grupos={};
   dados.forEach(os=>{
     const info=mapa.get(String(os.id));if(!info)return;
-    const maquina=os.maquina||'Máquina não informada',setor=os.setor||'Setor não informado',k=setor+' • '+maquina+' • '+info.grupo;
+    const maquina=os.maquina||'Máquina não informada',setor=os.setor||'Setor não informado',k=normalizarIdentificadorReincidencia(setor)+'|'+normalizarIdentificadorReincidencia(maquina)+'|'+info.grupo;
     if(!grupos[k])grupos[k]={maquina,setor,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
     grupos[k].os.push(os);
   });
@@ -10266,7 +10269,7 @@ function atualizarMetricasReais(){
   fIndicadores.forEach(os=>{
     const info=reincidenciasHistorico.get(String(os.id));if(!info)return;
     const nome=os.maquina||'Máquina não informada',setorOS=os.setor||'—';
-    const chave=chaveMetricaMaq(setorOS,nome);
+    const chave=normalizarIdentificadorReincidencia(setorOS)+'|'+normalizarIdentificadorReincidencia(nome);
     if(!reincPorMaquina[chave])reincPorMaquina[chave]={nome,setor:setorOS,total:0,problemas:new Map()};
     const maquina=reincPorMaquina[chave];maquina.total++;
     const chaveProblema=String(info.grupo||'Problema não identificado');
