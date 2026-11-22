@@ -7164,6 +7164,52 @@ body .tbl-wrap td{color:#344d5e}
 @media(prefers-reduced-motion:reduce){#tab-metricas .metrics-schedule-panel *{transition:none!important}}
 </style>
 
+<style id="erimax-indicador-disponibilidade-toggle-correcao-2026">
+/* Painel 1 > Indicadores-chave > Disponibilidade registrada.
+   O controle pertence ao título do KPI metricHorarioDisp, não ao gráfico da seção 2. */
+#tab-metricas #metricsDataContent #metricHorarioDisp{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+#tab-metricas #metricsDataContent #metricHorarioDisp > .title{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  text-align:left!important;
+}
+#tab-metricas #metricsDataContent #metricHorarioDisp > .title > .erimax-card-toggle{
+  position:static!important;
+  display:inline-flex!important;
+  align-self:flex-start!important;
+  flex:0 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:auto!important;
+  min-height:29px!important;
+  margin:0!important;
+  padding:4px 8px!important;
+  box-sizing:border-box!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  transform:none!important;
+}
+#tab-metricas #metricsDataContent #metricHorarioDisp > .title > .erimax-card-toggle .erimax-card-toggle-label{
+  min-width:0!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -12615,52 +12661,7 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
-<style id="erimax-indicador-disponibilidade-toggle-correcao-2026">
-/* Painel 1 > Indicadores-chave > Disponibilidade registrada.
-   O controle pertence ao título do KPI metricHorarioDisp, não ao gráfico da seção 2. */
-#tab-metricas #metricsDataContent #metricHorarioDisp{
-  box-sizing:border-box!important;
-  width:100%!important;
-  min-width:0!important;
-  max-width:100%!important;
-}
-#tab-metricas #metricsDataContent #metricHorarioDisp > .title{
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:flex-start!important;
-  justify-content:flex-start!important;
-  gap:7px!important;
-  box-sizing:border-box!important;
-  width:100%!important;
-  min-width:0!important;
-  max-width:100%!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere!important;
-  text-align:left!important;
-}
-#tab-metricas #metricsDataContent #metricHorarioDisp > .title > .erimax-card-toggle{
-  position:static!important;
-  display:inline-flex!important;
-  align-self:flex-start!important;
-  flex:0 1 auto!important;
-  width:auto!important;
-  min-width:0!important;
-  max-width:100%!important;
-  height:auto!important;
-  min-height:29px!important;
-  margin:0!important;
-  padding:4px 8px!important;
-  box-sizing:border-box!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere!important;
-  transform:none!important;
-}
-#tab-metricas #metricsDataContent #metricHorarioDisp > .title > .erimax-card-toggle .erimax-card-toggle-label{
-  min-width:0!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere!important;
-}
-</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
