@@ -13715,5 +13715,114 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 </style>
 
 
+<style id="erimax-modal-geometria-unica-2026">
+/* EriMax — correção estrutural definitiva: uma única geometria para os modais de histórico. */
+/* O overlay cobre a viewport inteira. Não reservar espaço para o cabeçalho da página:
+   o overlay já está acima dele e essa reserva era a origem do conflito de alturas. */
+#modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal{
+ box-sizing:border-box!important;
+ position:fixed!important;
+ inset:0!important;
+ width:100%!important;
+ height:100vh!important;
+ height:100dvh!important;
+ min-width:0!important;
+ min-height:0!important;
+ padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;
+ display:none;
+ align-items:center!important;
+ justify-content:center!important;
+ overflow:hidden!important;
+}
+#modalEfOS[style*="display: flex"],#modalEfOS[style*="display:flex"],
+#modalDetalheMetrica[style*="display: flex"],#modalDetalheMetrica[style*="display:flex"],
+.erimax-os-history-modal[style*="display: flex"],.erimax-os-history-modal[style*="display:flex"]{
+ display:flex!important;
+}
+#modalEfOS>.efos-dialog,
+#modalDetalheMetrica>.erimax-metric-history-dialog,
+.erimax-os-history-modal>.erimax-os-history-panel{
+ box-sizing:border-box!important;
+ position:relative!important;
+ inset:auto!important;
+ top:auto!important;
+ left:auto!important;
+ right:auto!important;
+ transform:none!important;
+ translate:none!important;
+ flex:0 1 auto!important;
+ align-self:center!important;
+ width:min(760px,100%)!important;
+ max-width:760px!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ margin:0!important;
+ padding:0!important;
+ display:flex!important;
+ flex-direction:column!important;
+ overflow:hidden!important;
+}
+#modalEfOS .erimax-os-history-head,
+#modalDetalheMetrica .erimax-os-history-head,
+.erimax-os-history-modal .erimax-os-history-head{
+ position:relative!important;
+ inset:auto!important;
+ top:auto!important;
+ bottom:auto!important;
+ transform:none!important;
+ flex:0 0 auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ overflow:visible!important;
+}
+#modalEfOS .erimax-os-history-close,
+#modalDetalheMetrica .erimax-os-history-close,
+.erimax-os-history-modal .erimax-os-history-close{
+ position:static!important;
+ inset:auto!important;
+ transform:none!important;
+ flex:0 0 38px!important;
+ width:38px!important;
+ min-width:38px!important;
+ max-width:38px!important;
+ height:38px!important;
+ min-height:38px!important;
+ margin:0!important;
+}
+#modalEfOS .efos-summary,
+#modalEfOS .efos-list,
+#modalDetalheMetrica .erimax-metric-history-content,
+.erimax-os-history-modal .erimax-os-history-content{
+ box-sizing:border-box!important;
+ flex:0 1 auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+ overscroll-behavior:contain!important;
+ -webkit-overflow-scrolling:touch!important;
+}
+.erimax-os-history-modal .erimax-os-history-panel>footer{flex:0 0 auto!important}
+@media(max-width:760px){
+ #modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal{
+  padding:max(8px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom))!important;
+ }
+ #modalEfOS>.efos-dialog,
+ #modalDetalheMetrica>.erimax-metric-history-dialog,
+ .erimax-os-history-modal>.erimax-os-history-panel{
+  width:100%!important;
+  max-width:100%!important;
+  max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+  margin:0!important;
+  border-radius:15px!important;
+ }
+ #modalEfOS .erimax-os-history-head,
+ #modalDetalheMetrica .erimax-os-history-head,
+ .erimax-os-history-modal .erimax-os-history-head{
+  padding:15px 16px!important;
+  gap:12px!important;
+ }
+}
+</style>
 
- 
