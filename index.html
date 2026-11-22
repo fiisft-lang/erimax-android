@@ -12506,3 +12506,47 @@ function alternarPainelComparacaoMaquinas(){
   #tab-abrir .btn-submit{transition:none}
 }
 </style>
+
+<style id="erimax-mobile-navigation-refinement-2026">
+@media(max-width:1023px){
+  header .menu-control{display:none!important}
+  header #btnMenuLateral{display:none!important}
+  .erimax-mobile-bottom-nav{z-index:1204!important}
+  #menuBackdrop{z-index:1200!important}
+  .nav-tabs{z-index:1202!important}
+  body.menu-lateral-aberto .erimax-mobile-bottom-nav{z-index:1204!important}
+  body.menu-lateral-aberto #erimaxMobileMenu{
+    background:var(--primary)!important;color:#fff!important;
+    box-shadow:0 4px 13px color-mix(in srgb,var(--primary) 28%,transparent)!important
+  }
+  body.menu-lateral-aberto #erimaxMobileMenu svg{transform:rotate(90deg)}
+  #erimaxMobileMenu svg{transition:transform .2s ease}
+  .erimax-mobile-bottom-nav{
+    border-color:color-mix(in srgb,var(--primary) 13%,#d7e1ed)!important;
+    box-shadow:0 10px 32px rgba(26,54,93,.17)!important
+  }
+}
+</style>
+<script id="erimax-mobile-navigation-refinement-2026">
+(function(){
+  const home=document.getElementById('erimaxMobileHome');
+  if(home){
+    home.setAttribute('aria-label','Início — Abrir O.S. e iniciar turno');
+    home.onclick=function(){mudarAba('abrir')};
+  }
+  const menu=document.getElementById('erimaxMobileMenu');
+  function sync(){
+    const aberto=document.body.classList.contains('menu-lateral-aberto');
+    if(menu){
+      menu.setAttribute('aria-expanded',aberto?'true':'false');
+      menu.setAttribute('aria-label',aberto?'Fechar menu':'Abrir menu');
+      menu.classList.toggle('is-active',aberto);
+    }
+  }
+  if(menu){
+    menu.addEventListener('click',function(){requestAnimationFrame(sync)});
+    new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+  }
+  sync();
+})();
+</script>
