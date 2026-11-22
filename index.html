@@ -10410,7 +10410,7 @@ function atualizarMetricasReais(){
     {nome:'8–15 dias',min:7,max:15,lista:[]},
     {nome:'Mais de 15 dias',min:15,max:Infinity,lista:[]}
   ];
-  baseEscopo.filter(os=>!['concluída','cancelada'].includes(String(os.status||'').trim().toLocaleLowerCase('pt-BR'))).forEach(os=>{
+  baseEscopo.filter(os=>(tn==='Todos'||normalizarTurnoMetrica(os.turno)===tn)&&!['concluída','cancelada'].includes(String(os.status||'').trim().toLocaleLowerCase('pt-BR'))).forEach(os=>{
     const inicio=new Date(os.created_at).getTime();
     if(!Number.isFinite(inicio))return;
     const idade=Math.max(0,(agoraIdade-inicio)/86400000);
