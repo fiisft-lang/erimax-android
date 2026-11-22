@@ -7107,6 +7107,24 @@ body .tbl-wrap td{color:#344d5e}
  #tab-metricas .metrics-insight-grid{grid-template-columns:minmax(0,1fr)!important}
  #tab-metricas .metrics-insight-card{min-height:0!important}
 }
+
+/* Fase 8 — radar preventivo baseado na comparação dos dois meses mais recentes com registros. */
+#tab-metricas .metrics-preventive-panel{grid-column:1/-1;min-width:0;margin-top:3px;padding:clamp(17px,2vw,25px);border:1px solid #d6e4e9;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#f5f9fa 100%);box-shadow:0 9px 28px rgba(18,51,70,.065)}
+#tab-metricas .metrics-preventive-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+#tab-metricas .metrics-preventive-head h3{margin:0;color:#183f55;font-size:clamp(1.04rem,1.5vw,1.25rem);font-weight:850;letter-spacing:-.03em}
+#tab-metricas .metrics-preventive-head p{margin:5px 0 0;color:#718594;font-size:.77rem;line-height:1.55}
+#tab-metricas .metrics-preventive-period{flex:none;padding:7px 10px;border:1px solid #d7e7e9;border-radius:999px;background:#f0f8f7;color:#28736f;font-size:.67rem;font-weight:800}
+#tab-metricas .metrics-preventive-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#tab-metricas .metrics-preventive-card{min-width:0;padding:14px;border:1px solid #e0e9ed;border-radius:14px;background:#fff}
+#tab-metricas .metrics-preventive-card small{display:block;color:#7b8d98;font-size:.66rem;font-weight:800;letter-spacing:.045em;text-transform:uppercase}
+#tab-metricas .metrics-preventive-card strong{display:block;margin:7px 0;color:#183f55;font-size:1rem;font-weight:850;overflow-wrap:anywhere}
+#tab-metricas .metrics-preventive-card p{margin:4px 0 0;color:#536b79;font-size:.74rem;line-height:1.5}
+#tab-metricas .metrics-preventive-card .metrics-preventive-up{color:#b45309}
+#tab-metricas .metrics-preventive-card .metrics-preventive-down{color:#16845b}
+#tab-metricas .metrics-preventive-note{margin:12px 0 0;color:#7a8d98;font-size:.68rem;line-height:1.55}
+@media(max-width:760px){#tab-metricas .metrics-preventive-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#tab-metricas .metrics-preventive-head{flex-direction:column}#tab-metricas .metrics-preventive-period{align-self:flex-start}#tab-metricas .metrics-preventive-grid{grid-template-columns:minmax(0,1fr)}}
+
 </style>
 
 </head>
@@ -7483,6 +7501,11 @@ function atualizarNavegacaoMobileEriMax(id){
         <header class="metrics-action-head"><div><span class="metrics-executive-kicker">CENTRAL DE DECISÕES</span><h3>Prioridades e plano de ação</h3><p>Máquinas que merecem investigação com base em parada, reincidência e ordens pendentes antigas.</p></div><span class="metrics-action-readonly">Análise automática · Somente leitura</span></header>
         <div class="metrics-action-grid" id="metricsActionGrid" aria-live="polite"><p class="metrics-action-empty">Calculando prioridades do período…</p></div>
         <div class="metrics-action-note">A ordem dos itens considera sinais observados nos registros, não uma pontuação de desempenho. As sugestões são pontos de partida para análise da equipe; não executam alterações nem abrem ações automaticamente.</div>
+      </section>
+      <section class="metrics-preventive-panel" id="metricsPreventiveRadar">
+        <header class="metrics-preventive-head"><div><span class="metrics-executive-kicker">CONFIABILIDADE E PREVENÇÃO</span><h3>Radar preventivo das máquinas</h3><p>Compara os dois meses mais recentes com registros e destaca mudanças que merecem investigação.</p></div><span class="metrics-preventive-period" id="metricsPreventivePeriod">Histórico disponível</span></header>
+        <div class="metrics-preventive-grid" id="metricsPreventiveGrid" aria-live="polite"><article class="metrics-preventive-card"><small>Comparação</small><strong>Calculando tendências</strong><p>Os sinais serão atualizados com os registros disponíveis.</p></article></div>
+        <p class="metrics-preventive-note">Aumento ou redução representa quantidade de O.S. abertas no mês, não comprova causa nem prevê falha. Recomendações são sugestões de inspeção; valide com a equipe e com o histórico técnico antes de intervir.</p>
       </section>
   </div>
 
@@ -10330,6 +10353,36 @@ function atualizarMetricasReais(){
       mostrarOSDetalhe('Histórico de '+nome,unicas);
     }));
   }
+  // Fase 8 — comparação histórica simples para sinalizar tendências, sem previsão artificial.
+  const mesesPreventivos=[...new Set(baseEscopo.filter(os=>os.status!=='Cancelada'&&os.created_at).map(os=>diaLocal(os.created_at).slice(0,7)).filter(Boolean))].sort();
+  const gradePreventiva=document.getElementById('metricsPreventiveGrid');
+  const periodoPreventivo=document.getElementById('metricsPreventivePeriod');
+  if(mesesPreventivos.length>=2){
+    const mesAtualPrev=mesesPreventivos[mesesPreventivos.length-1],mesAnteriorPrev=mesesPreventivos[mesesPreventivos.length-2];
+    const registrosMesPrev=mes=>baseEscopo.filter(os=>os.status!=='Cancelada'&&os.created_at&&diaLocal(os.created_at).startsWith(mes));
+    const atualPrev=registrosMesPrev(mesAtualPrev),anteriorPrev=registrosMesPrev(mesAnteriorPrev);
+    const porMaquinaPrev=arr=>{const mapa={};arr.forEach(os=>{const nome=os.maquina||'Máquina não informada';mapa[nome]=(mapa[nome]||0)+1});return mapa};
+    const maqAtualPrev=porMaquinaPrev(atualPrev),maqAnteriorPrev=porMaquinaPrev(anteriorPrev);
+    const evolucaoPrev=Object.keys({...maqAtualPrev,...maqAnteriorPrev}).map(nome=>({nome,atual:maqAtualPrev[nome]||0,anterior:maqAnteriorPrev[nome]||0,diff:(maqAtualPrev[nome]||0)-(maqAnteriorPrev[nome]||0)})).sort((a,b)=>b.diff-a.diff||b.atual-a.atual);
+    const maiorAltaPrev=evolucaoPrev.find(x=>x.diff>0);
+    const maiorQuedaPrev=evolucaoPrev.filter(x=>x.diff<0).sort((a,b)=>a.diff-b.diff)[0];
+    const causasAtualPrev={};atualPrev.forEach(os=>{const causaNome=os.causa||'Não informada';causasAtualPrev[causaNome]=(causasAtualPrev[causaNome]||0)+1});
+    const causaLiderPrev=Object.entries(causasAtualPrev).sort((a,b)=>b[1]-a[1])[0];
+    const labelMesPrev=mes=>{const [ano,numero]=mes.split('-');return numero+'/'+ano};
+    if(periodoPreventivo)periodoPreventivo.textContent=labelMesPrev(mesAnteriorPrev)+' → '+labelMesPrev(mesAtualPrev);
+    if(gradePreventiva){
+      const cardsPrev=[];
+      cardsPrev.push('<article class="metrics-preventive-card"><small>Maior aumento de O.S.</small><strong class="metrics-preventive-up">'+(maiorAltaPrev?escaparHtml(maiorAltaPrev.nome):'Sem aumento')+'</strong><p>'+(maiorAltaPrev?'+ '+maiorAltaPrev.diff+' O.S. ('+maiorAltaPrev.anterior+' → '+maiorAltaPrev.atual+'). Investigue o que mudou e confira os relatos.':'Nenhuma máquina teve aumento em relação ao mês anterior.')+'</p></article>');
+      cardsPrev.push('<article class="metrics-preventive-card"><small>Maior redução de O.S.</small><strong class="metrics-preventive-down">'+(maiorQuedaPrev?escaparHtml(maiorQuedaPrev.nome):'Sem redução')+'</strong><p>'+(maiorQuedaPrev?Math.abs(maiorQuedaPrev.diff)+' O.S. a menos ('+maiorQuedaPrev.anterior+' → '+maiorQuedaPrev.atual+'). Confirme se a melhora se mantém nos próximos períodos.':'Não há redução comparável entre as máquinas neste par de meses.')+'</p></article>');
+      cardsPrev.push('<article class="metrics-preventive-card"><small>Causa mais registrada no mês recente</small><strong>'+ (causaLiderPrev?escaparHtml(causaLiderPrev[0]):'Sem causa registrada')+'</strong><p>'+(causaLiderPrev?causaLiderPrev[1]+' O.S. no mês recente. Revise os relatos e avalie uma inspeção direcionada.':'Não há causas registradas neste mês.')+'</p></article>');
+      cardsPrev.push('<article class="metrics-preventive-card"><small>Volume no mês recente</small><strong>'+atualPrev.length+' O.S.</strong><p>Comparado a '+anteriorPrev.length+' O.S. no mês anterior ('+(atualPrev.length-anteriorPrev.length>0?'+':'')+(atualPrev.length-anteriorPrev.length)+' no total).</p></article>');
+      gradePreventiva.innerHTML=cardsPrev.join('');
+    }
+  }else{
+    if(periodoPreventivo)periodoPreventivo.textContent='Histórico insuficiente';
+    if(gradePreventiva)gradePreventiva.innerHTML='<article class="metrics-preventive-card"><small>Comparação mensal</small><strong>Precisamos de dois meses com registros</strong><p>Quando houver dados em pelo menos dois meses, o radar mostrará aumentos, reduções e causas mais registradas.</p></article>';
+  }
+
   const gridInsights=document.getElementById('metricsInsightGrid');
   if(gridInsights)gridInsights.innerHTML=insightsExec.length?insightsExec.map(x=>'<article class="metrics-insight-card '+x.classe+'"><small>'+escaparHtml(x.rotulo)+'</small><strong>'+escaparHtml(x.titulo)+'</strong><p>'+escaparHtml(x.descricao)+'</p></article>').join(''):'<article class="metrics-insight-card"><small>Sem ocorrências</small><strong>Nenhum sinal calculável</strong><p>Não há O.S. suficientes para destacar prioridades neste recorte.</p></article>';
   const linhasTecnicos=document.getElementById('metricsTechnicianRows');
