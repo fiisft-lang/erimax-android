@@ -14191,7 +14191,12 @@ function renderizarComparacaoMaquinas(){
   const dentroData=os=>{const d=os.created_at?new Date(os.created_at):null;return !!d&&(!ini||d>=ini)&&(!fim||d<fim)};
   const dados=selecionadas.map(nome=>{
     const todos=chamados.filter(os=>os.maquina===nome&&os.setor===setor&&os.tipo!=='Preventiva'&&os.status!=='Cancelada'&&(tipo==='Todos'||os.tipo===tipo));
-    const abertasPeriodo=todos.filter(os=>dentroData(os)&&(turno==='Todos'||os.turno===turno));
+     const abertasPeriodo=todos.filter(os=>{
+       const texto=String(os.turno??'').trim();
+       const numero=(texto.match(/(?:^|\\D)0?([1-3])(?:\\D|$)/)||[])[1];
+       const turnoNormalizado=numero?'Turno '+numero:(texto||'Não informado');
+       return dentroData(os)&&(turno==='Todos'||turnoNormalizado===turno);
+     });
     const listaConcluidas=abertasPeriodo.filter(os=>os.status==='Concluída');
     const listaEmAberto=abertasPeriodo.filter(os=>os.status!=='Concluída');
     const concluidas=listaConcluidas.length;
