@@ -6595,6 +6595,147 @@ body .tbl-wrap td{color:#344d5e}
 @media(prefers-reduced-motion:reduce){body .os-card,body button.btn-submit,body button.btn-assumir,body button.btn-concluir,body button.btn-action,body input,body select,body textarea{transition:none!important}}
 </style>
 
+<style id="erimax-supervisao-fase3-experiencia-2026">
+/* Fase 3 — Supervisão: composição executiva, leitura rápida e áreas operacionais.
+   Somente apresentação; mantém os dados, ações, filtros e permissões existentes. */
+#painelMaquinasSupervisor{width:100%;max-width:100%;color:#20394b!important}
+#painelMaquinasSupervisor .sv-page{
+  display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;
+  gap:18px!important;align-items:start!important;padding:2px 0 22px!important;
+}
+#painelMaquinasSupervisor .sv-page>.sv-hero,
+#painelMaquinasSupervisor .sv-page>#svMetricDetail,
+#painelMaquinasSupervisor .sv-page>.sv-workspace,
+#painelMaquinasSupervisor .sv-page>.sv-audit{grid-column:1/-1!important;min-width:0!important}
+#painelMaquinasSupervisor .sv-page>.sv-attention{grid-column:span 5!important;min-width:0!important}
+#painelMaquinasSupervisor .sv-page>.sv-movements{grid-column:span 7!important;min-width:0!important}
+#painelMaquinasSupervisor .sv-hero{
+  padding:27px 29px!important;border-radius:19px!important;
+  background:linear-gradient(125deg,#153b52 0%,#1c536c 58%,#286d78 100%)!important;
+  border:1px solid rgba(25,75,99,.16)!important;
+  box-shadow:0 9px 25px rgba(21,55,75,.12)!important;
+}
+#painelMaquinasSupervisor .sv-hero h2{font-size:clamp(1.7rem,2.2vw,2.25rem)!important;letter-spacing:-.045em!important}
+#painelMaquinasSupervisor .sv-hero p{font-size:.9rem!important;line-height:1.5!important}
+#painelMaquinasSupervisor .sv-metrics{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:11px!important;margin-top:21px!important;
+}
+#painelMaquinasSupervisor .sv-metric{
+  min-height:112px!important;padding:15px 17px!important;border-radius:13px!important;
+  background:rgba(255,255,255,.97)!important;border:1px solid rgba(222,233,239,.95)!important;
+  box-shadow:0 2px 8px rgba(15,44,62,.045)!important;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease!important;
+}
+#painelMaquinasSupervisor .sv-metric strong{font-size:clamp(1.65rem,2vw,2.1rem)!important;letter-spacing:-.045em!important}
+#painelMaquinasSupervisor .sv-metric small{line-height:1.4!important}
+#painelMaquinasSupervisor .sv-metric:not(.sv-metric-static){cursor:pointer!important}
+#painelMaquinasSupervisor .sv-metric[aria-expanded="true"]{border-color:#80a9bd!important;box-shadow:0 0 0 3px rgba(115,164,187,.15)!important}
+#painelMaquinasSupervisor .sv-attention,
+#painelMaquinasSupervisor .sv-movements,
+#painelMaquinasSupervisor .sv-audit,
+#painelMaquinasSupervisor .sv-workspace{
+  min-width:0!important;padding:22px!important;border:1px solid #dfe7ed!important;
+  border-radius:16px!important;background:#fff!important;
+  box-shadow:0 3px 13px rgba(24,49,68,.045)!important;
+}
+#painelMaquinasSupervisor .sv-attention-head h3,
+#painelMaquinasSupervisor .sv-section-head h3{font-size:1.08rem!important;letter-spacing:-.025em!important;color:#203f55!important}
+#painelMaquinasSupervisor .sv-attention-head p,
+#painelMaquinasSupervisor .sv-section-head p{font-size:.78rem!important;line-height:1.5!important}
+#painelMaquinasSupervisor .sv-attention-item{
+  border:1px solid #e4eaf0!important;border-radius:11px!important;background:#f8fafc!important;
+  transition:background .15s ease,border-color .15s ease,transform .15s ease!important;
+}
+#painelMaquinasSupervisor .sv-movement-item{border-bottom:1px solid #edf1f4!important}
+#painelMaquinasSupervisor .sv-audit-filters{
+  display:grid!important;grid-template-columns:minmax(240px,2fr) repeat(2,minmax(145px,1fr))!important;
+  gap:12px!important;margin:17px 0!important;
+}
+#painelMaquinasSupervisor .sv-audit-filters label{min-width:0!important}
+#painelMaquinasSupervisor .sv-audit-filters input,
+#painelMaquinasSupervisor .sv-search input{
+  min-height:43px!important;border:1px solid #dce5eb!important;border-radius:9px!important;
+  background:#fbfcfd!important;box-shadow:none!important;
+}
+#painelMaquinasSupervisor .sv-search{min-width:min(100%,280px)!important}
+#painelMaquinasSupervisor .sv-filter-row{display:flex!important;flex-wrap:wrap!important;gap:8px!important;margin:14px 0!important}
+#painelMaquinasSupervisor .sv-filter{
+  min-height:36px!important;padding:7px 11px!important;border:1px solid #e0e7ec!important;
+  border-radius:9px!important;background:#f8fafb!important;
+}
+#painelMaquinasSupervisor .sv-filter.active{border-color:#9bb8c8!important;background:#edf4f7!important;color:#214e68!important}
+#painelMaquinasSupervisor .sv-sector-grid{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;align-items:start!important;margin-top:14px!important;
+}
+#painelMaquinasSupervisor .sv-sector{
+  min-width:0!important;border:1px solid #dfe7ed!important;border-radius:13px!important;
+  background:#fff!important;box-shadow:0 2px 8px rgba(24,49,68,.035)!important;
+}
+#painelMaquinasSupervisor .sv-sector>summary{
+  min-height:68px!important;padding:13px 15px!important;background:#f7f9fb!important;
+  transition:background .15s ease!important;
+}
+#painelMaquinasSupervisor .sv-machine-list{display:grid!important;gap:8px!important;padding:10px!important}
+#painelMaquinasSupervisor .sv-machine{
+  border:1px solid #e5ebef!important;border-radius:10px!important;background:#fff!important;
+}
+#painelMaquinasSupervisor .sv-machine>summary{min-height:58px!important;padding:10px 12px!important}
+#painelMaquinasSupervisor .sv-machine-detail{padding:12px!important;background:#f8fafb!important}
+#painelMaquinasSupervisor .sv-os-card,
+#painelMaquinasSupervisor .sv-history-item{
+  border:1px solid #e2e9ee!important;border-radius:9px!important;background:#fff!important;
+  transition:border-color .15s ease,box-shadow .15s ease!important;
+}
+#painelMaquinasSupervisor .sv-metric:focus-visible,
+#painelMaquinasSupervisor .sv-attention-item:focus-visible,
+#painelMaquinasSupervisor .sv-movement-item:focus-visible,
+#painelMaquinasSupervisor .sv-filter:focus-visible,
+#painelMaquinasSupervisor .sv-os-card:focus-visible,
+#painelMaquinasSupervisor .sv-history-item:focus-visible{
+  outline:3px solid rgba(63,126,158,.28)!important;outline-offset:2px!important;
+}
+@media(min-width:1440px){
+ #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+ #painelMaquinasSupervisor .sv-sector-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(min-width:1024px) and (max-width:1279px){
+ #painelMaquinasSupervisor .sv-page>.sv-attention,
+ #painelMaquinasSupervisor .sv-page>.sv-movements{grid-column:1/-1!important}
+ #painelMaquinasSupervisor .sv-sector-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:760px){
+ #painelMaquinasSupervisor .sv-page{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+ #painelMaquinasSupervisor .sv-page>.sv-hero,
+ #painelMaquinasSupervisor .sv-page>#svMetricDetail,
+ #painelMaquinasSupervisor .sv-page>.sv-attention,
+ #painelMaquinasSupervisor .sv-page>.sv-movements,
+ #painelMaquinasSupervisor .sv-page>.sv-audit,
+ #painelMaquinasSupervisor .sv-page>.sv-workspace{grid-column:1!important}
+ #painelMaquinasSupervisor .sv-hero{padding:17px!important;border-radius:15px!important}
+ #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ #painelMaquinasSupervisor .sv-metric{min-height:96px!important;padding:11px!important}
+ #painelMaquinasSupervisor .sv-attention,
+ #painelMaquinasSupervisor .sv-movements,
+ #painelMaquinasSupervisor .sv-audit,
+ #painelMaquinasSupervisor .sv-workspace{padding:14px!important;border-radius:13px!important}
+ #painelMaquinasSupervisor .sv-audit-filters{grid-template-columns:1fr!important;gap:9px!important}
+ #painelMaquinasSupervisor .sv-sector-grid{grid-template-columns:1fr!important;gap:9px!important}
+ #painelMaquinasSupervisor .sv-attention-item{grid-template-columns:28px minmax(0,1fr)!important}
+ #painelMaquinasSupervisor .sv-attention-open{grid-column:2!important}
+ #painelMaquinasSupervisor .sv-section-head{align-items:flex-start!important;flex-wrap:wrap!important}
+ #painelMaquinasSupervisor .sv-search{width:100%!important;min-width:0!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #painelMaquinasSupervisor .sv-metric,
+ #painelMaquinasSupervisor .sv-attention-item,
+ #painelMaquinasSupervisor .sv-movement-item,
+ #painelMaquinasSupervisor .sv-filter,
+ #painelMaquinasSupervisor .sv-os-card,
+ #painelMaquinasSupervisor .sv-history-item{transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
