@@ -11709,11 +11709,18 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 </style>
 
 <style id="erimax-android-bottom-nav-browser-parity-2026">
-/* Android: iguala a altura visual inferior da barra ao navegador, sem área branca extra. */
-@media(max-width:767px){
+/* Android: replica exatamente o espaçamento da barra no navegador; remove o padding inferior extra do safe-area. */
+@media(max-width:1023px){
   html.erimax-app-android .erimax-mobile-bottom-nav{
     box-sizing:border-box!important;
-    padding-bottom:7px!important;
+    min-height:68px!important;
+    padding:7px 9px!important;
+    border-radius:23px!important;
+  }
+  html.erimax-app-android .erimax-mobile-nav-item{
+    min-height:52px!important;
+    padding:5px 4px!important;
+    border-radius:16px!important;
   }
 }
 </style>
