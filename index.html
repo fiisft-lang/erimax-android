@@ -9937,7 +9937,8 @@ function atualizarMetricasReais(){
   if(resumoFiltros)resumoFiltros.textContent=[periodoResumo,tn==='Todos'?'Todos os turnos':tn,st==='Todos'?'Todos os setores':st,mq==='Todas'?'Todas as máquinas':mq,tp==='Todos'?'Todos os tipos':tp].join('  •  ');
   const avisoHorario=document.getElementById('metricsHorarioAviso');
   const turnoNum=tn==='Todos'?null:+tn.slice(-1);
-  const maquinasMetricaEscopo=MAQUINAS.filter(m=>(st==='Todos'||m.setor===st)&&(mq==='Todas'||m.nome===mq));
+  // Disponibilidade e MTBF consideram apenas equipamentos da produção; Manutenção Predial fica fora dessa base.
+  const maquinasMetricaEscopo=MAQUINAS.filter(m=>m.setor!=='Manutenção Predial'&&(st==='Todos'||m.setor===st)&&(mq==='Todas'||m.nome===mq));
   const setoresEscopo=[...new Set(maquinasMetricaEscopo.map(m=>m&&m.setor).filter(Boolean))];
   const setoresComHorarioFiltro=setoresEscopo.filter(setor=>periodoPersonalizado?setorTemHorarioConfirmadoPeriodo(setor,turnoNum,dataInicio,dataFim):setorTemHorarioConfirmado(setor,turnoNum,dia||null));
   const setoresComHorarioSet=new Set(setoresComHorarioFiltro);
