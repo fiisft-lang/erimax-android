@@ -7798,11 +7798,11 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       b+='<button type="button" class="btn-action btn-assumir" onclick="assumirOS('+id+')">✓ Aceitar O.S.</button>';
       b+='<button type="button" class="btn-action btn-transferir" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">🔕 Silenciar alerta</button>';
     }
-    else if(status==='Aberta'&&gestor)b+='<button class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir O.S.</button>';
+    else if(status==='Aberta'&&gestor)b+='<button type="button" class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir O.S.</button>';
     else if(status==='Em Atendimento'){
-      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
-      if(podeConcluir)b+='<button class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
-      if(gestor||tecnicoAtual)b+='<button class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
+      if(gestor||tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
+      if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
+      if(gestor||tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
         b+='<button type="button" class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>';
         b+='<button type="button" class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';
@@ -7813,10 +7813,10 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
     }
     if(status.trim().normalize('NFC').toLocaleLowerCase('pt-BR')==='concluída'&&gestor)b+='<button type="button" class="btn-action btn-transferir" style="background:#d97706;color:#fff" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
-    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
+    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
     if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="abrirEdicaoCompletaOS('+id+')">✏️ Editar O.S.</button>';
-    b+='<button class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
-    if(PERFIL&&PERFIL.perfil==='gestor')b+='<button class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
+    b+='<button type="button" class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
+    if(PERFIL&&PERFIL.perfil==='gestor')b+='<button type="button" class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     const androidApp=document.documentElement.classList.contains('erimax-app-android');
     const listaAbertasCompacta=destino==='listaOSAbertas';
