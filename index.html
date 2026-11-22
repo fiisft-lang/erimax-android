@@ -9971,14 +9971,41 @@ function atualizarMetricasReais(){
   FILTRADAS_TODAS=f;
   FILTRADAS=fIndicadores;
   // Escopo pelas dimensões não temporais: cada evento entra quando sua própria data pertence ao período.
+  // A evolução registra cada acontecimento no turno em que ele realmente ocorreu,
+  // não no turno de abertura da O.S. (que pode ser diferente do turno da conclusão).
   const baseEscopo=chamados.filter(os=>
-    os.status!=='Cancelada'&&(tn==='Todos'||normalizarTurnoMetrica(os.turno)===tn)&&(st==='Todos'||os.setor===st)&&
+    os.status!=='Cancelada'&&(st==='Todos'||os.setor===st)&&
     (mq==='Todas'||os.maquina===mq)&&os.tipo!=='Preventiva'&&(tp==='Todos'||os.tipo===tp)
   );
   const eventoNoPeriodo=data=>{
     if(!data)return false;
     const d=diaLocal(data);
     return periodoPersonalizado?(d>=dataInicio&&d<=dataFim):dia?d===dia:mes?d.startsWith(mes):true;
+  };
+  const eventoNoTurno=(os,data)=>{
+    if(tn==='Todos')return true;
+    if(!os||!os.setor||!data)return false;
+    const instante=new Date(data).getTime();
+    if(!Number.isFinite(instante))return false;
+    const diaEvento=new Date(instante);diaEvento.setHours(0,0,0,0);
+    // Inclui o dia anterior para reconhecer turnos noturnos que atravessam a meia-noite.
+    for(let desloc=-1;desloc<=0;desloc++){
+      const inicioDia=new Date(diaEvento);inicioDia.setDate(inicioDia.getDate()+desloc);
+      const horarios=horariosDoDia(os.setor,inicioDia).filter(h=>+h.numero_turno===turnoNum);
+      for(const h of horarios){
+        const inicio=new Date(inicioDia);inicio.setHours(0,0,0,0);inicio.setMinutes(minutosHora(h.hora_inicio));
+        const fim=inicio.getTime()+minutosTurno(h)*60000;
+        if(instante<inicio.getTime()||instante>=fim)continue;
+        if(h.intervalo_ativo&&h.intervalo_inicio&&h.intervalo_fim){
+          const pausa=intervaloTurnoOffsets(h);
+          const pausaIni=inicio.getTime()+pausa.inicio*60000;
+          const pausaFim=inicio.getTime()+pausa.fim*60000;
+          if(instante>=pausaIni&&instante<pausaFim)continue;
+        }
+        return true;
+      }
+    }
+    return false;
   };
   // agregadores
   let parada=0,sResp=0,nResp=0,sRep=0,nRep=0,concl=0,abertas=0;
@@ -10220,8 +10247,8 @@ function atualizarMetricasReais(){
     if(!ponto.lista.some(item=>String(item.id)===String(os.id)))ponto.lista.push(os);
   };
   baseEscopo.forEach(os=>{
-    if(eventoNoPeriodo(os.created_at))registrarEvento(os,os.created_at,'abertura');
-    if(os.status==='Concluída'&&eventoNoPeriodo(os.data_conclusao))registrarEvento(os,os.data_conclusao,'conclusao');
+    if(eventoNoPeriodo(os.created_at)&&eventoNoTurno(os,os.created_at))registrarEvento(os,os.created_at,'abertura');
+    if(os.status==='Concluída'&&eventoNoPeriodo(os.data_conclusao)&&eventoNoTurno(os,os.data_conclusao))registrarEvento(os,os.data_conclusao,'conclusao');
   });
   const paletaSetores=['#2563eb','#0f9d8a','#d97706','#7c3aed','#0891b2','#db2777','#64748b','#65a30d','#9333ea','#0f766e'];
   const nomesSetores=Object.keys(eventosPorDia).sort((a,b)=>a.localeCompare(b,'pt-BR'));
@@ -10348,12 +10375,12 @@ function atualizarMetricasReais(){
   // Assim, uma O.S. aberta em um mês e concluída em outro aparece nos dois meses corretos.
   const porMes={};
   baseEscopo.forEach(os=>{
-    if(eventoNoPeriodo(os.created_at)){
+    if(eventoNoPeriodo(os.created_at)&&eventoNoTurno(os,os.created_at)){
       const m=diaLocal(os.created_at).slice(0,7);
       if(!porMes[m])porMes[m]={abertas:0,concluidas:0,listaAbertas:[],listaConcluidas:[]};
       porMes[m].abertas++;porMes[m].listaAbertas.push(os);
     }
-    if(os.status==='Concluída'&&eventoNoPeriodo(os.data_conclusao)){
+    if(os.status==='Concluída'&&eventoNoPeriodo(os.data_conclusao)&&eventoNoTurno(os,os.data_conclusao)){
       const m=diaLocal(os.data_conclusao).slice(0,7);
       if(!porMes[m])porMes[m]={abertas:0,concluidas:0,listaAbertas:[],listaConcluidas:[]};
       porMes[m].concluidas++;porMes[m].listaConcluidas.push(os);
