@@ -6954,6 +6954,24 @@ body .tbl-wrap td{color:#344d5e}
   #tab-abrir>.card>h2{transition:box-shadow .2s ease,filter .2s ease!important}
 }
 </style>
+
+<style id="erimax-legibilidade-texto-cabecalho-abrir-os-2026">
+/* Garante letras brancas sólidas sobre o degradê do cabeçalho */
+#tab-abrir>.card>h2,
+#tab-abrir>.card>h2 *{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  background-image:none!important;
+  background-color:transparent!important;
+  -webkit-background-clip:border-box!important;
+  background-clip:border-box!important;
+  opacity:1!important;
+  text-shadow:0 2px 5px rgba(0,0,0,.38)!important;
+}
+#tab-abrir>.card>h2{
+  background:linear-gradient(112deg,#092b45 0%,#104d68 52%,#126f70 100%)!important;
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
