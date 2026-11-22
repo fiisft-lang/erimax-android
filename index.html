@@ -9844,10 +9844,12 @@ function calcularReincidenciasHistorico(historico){
     .slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
   ordenadas.forEach(os=>{
     const maquina=String(os.maquina||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
+    const setor=String(os.setor||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('pt-BR');
+    const chaveMaquina=maquina+'|'+setor;
     const descricaoNormalizada=normalizarDescricaoProblemaOS(os.descricao);
     const tokens=tokensProblemaOS(os);
     if(!maquina||!descricaoNormalizada)return;
-    const grupos=porMaquina.get(maquina)||[];
+    const grupos=porMaquina.get(chaveMaquina)||[];
     let grupo=null;
     for(const candidato of grupos){
       // Descrição igual após normalização é reincidência mesmo quando só sobra um termo útil
@@ -9862,7 +9864,7 @@ function calcularReincidenciasHistorico(historico){
       grupo.ocorrencias++;
     }else{
       grupos.push({tokens,descricaoNormalizada,rotulo:tokens.length?tokens.join(' + '):descricaoNormalizada,primeiraOS:os,ocorrencias:1});
-      porMaquina.set(maquina,grupos);
+      porMaquina.set(chaveMaquina,grupos);
     }
   });
   return resultado;
@@ -9912,17 +9914,17 @@ function abrirDetalheMetrica(tipo){
   titulo.textContent='Reincidência por defeito';const mapa=calcularReincidenciasHistorico(chamados),grupos={};
   dados.forEach(os=>{
     const info=mapa.get(String(os.id));if(!info)return;
-    const maquina=os.maquina||'Máquina não informada',k=maquina+' • '+info.grupo;
-    if(!grupos[k])grupos[k]={maquina,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
+    const maquina=os.maquina||'Máquina não informada',setor=os.setor||'Setor não informado',k=setor+' • '+maquina+' • '+info.grupo;
+    if(!grupos[k])grupos[k]={maquina,setor,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
     grupos[k].os.push(os);
   });
   const r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length);
-  const porMaquina={};r.forEach(g=>{porMaquina[g.maquina]=(porMaquina[g.maquina]||0)+g.os.length});
+  const porMaquina={};r.forEach(g=>{const chave=g.setor+'|'+g.maquina;porMaquina[chave]=(porMaquina[chave]||0)+g.os.length});
   const ranking=Object.entries(porMaquina).sort((a,b)=>b[1]-a[1]).slice(0,12);
-  cfg={type:'bar',data:{labels:ranking.map(x=>x[0]),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x[1]),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  cfg={type:'bar',data:{labels:ranking.map(x=>x[0].split('|').reverse().join(' — ')),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x[1]),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=r.flatMap(g=>[g.primeiraOS,...g.os].filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i));
-  explicacao='Compara o histórico da mesma máquina, usando os termos relevantes da descrição do defeito. Variações como “a faca não estava cortando” e “faca parou de cortar” podem ser agrupadas. Descrições curtas ou ambíguas ficam sem classificação automática para evitar falsos positivos.';
-  box.innerHTML=r.length?r.map(g=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(g.maquina)+' • '+escaparHtml(g.problema)+' • '+g.os.length+' reincidência(s)</b>'+ordenarOSRecentes([g.primeiraOS,...g.os]).map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
+  explicacao='Compara o histórico da mesma máquina dentro do mesmo setor, usando os termos relevantes da descrição do defeito. Variações como “a faca não estava cortando” e “faca parou de cortar” podem ser agrupadas. Descrições curtas ou ambíguas ficam sem classificação automática para evitar falsos positivos.';
+  box.innerHTML=r.length?r.map(g=>'<b style="display:block;color:#b91c1c;margin:12px 0 4px">'+escaparHtml(g.maquina)+' • '+escaparHtml(g.setor)+' • '+escaparHtml(g.problema)+' • '+g.os.length+' reincidência(s)</b>'+ordenarOSRecentes([g.primeiraOS,...g.os]).map(itemOS).join('')).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
  resumo.textContent=explicacao;document.body.appendChild(modal);modal.scrollTop=0;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
 }
