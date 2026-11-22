@@ -10193,11 +10193,11 @@ function atualizarMetricasReais(){
 
   // Ranking visual de máquinas: mesmos dados e cálculos, em cartões responsivos.
   // O ranking exibe disponibilidade e MTBF por máquina: mantém o mesmo escopo produtivo da base geral.
-  const chavesRank=new Set([...Object.keys(maq),...metricasPorMaquinaTurno.keys()]);
+  const chavesRank=new Set([...metricasPorMaquinaTurno.keys(),...(OS_PARADA_ATUAL||[]).map(x=>chaveMetricaMaq(x.os.setor,x.os.maquina))]);
   const rank=[...chavesRank].map(chave=>{
     const dados=maq[chave]||{},metricas=metricasPorMaquinaTurno.get(chave)||{},[setor,nome]=JSON.parse(chave);
     return{nome:dados.nome||nome,setor:dados.setor||setor,parada:dados.parada||0,sRep:metricas.sRep||0,nRep:metricas.nRep||0,reinc:metricas.reinc||0,falhas:metricas.falhas||0};
-  }).filter(m=>maqsBase.some(base=>base.nome===m.nome&&base.setor===m.setor)).sort((a,b)=>b.parada-a.parada);
+  }).filter(m=>maqsBase.some(base=>base.nome===m.nome&&base.setor===m.setor)&&(m.falhas>0||m.parada>0)).sort((a,b)=>b.parada-a.parada);
   const tbRanking=document.getElementById('tbRanking');
   if(tbRanking)tbRanking.innerHTML=rank.length?rank.slice(0,30).map((m,i)=>{
     const n=m.nome,qtd=maqsBase.filter(base=>base.nome===n&&base.setor===m.setor).length,bd=baseDe(m.setor)*qtd,rodou=Math.max(0,bd-m.parada),pct=bd?Math.max(0,Math.min(100,Math.round(rodou/bd*100))):0;
