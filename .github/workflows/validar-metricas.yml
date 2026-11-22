@@ -44,5 +44,6 @@ jobs:
             if (!html.includes('id="' + id + '"')) throw new Error('Elemento obrigatório ausente: ' + id);
           }
           if (!html.includes('function abrirDetalheMetrica')) throw new Error('Função de detalhe das métricas ausente');
-          console.log('OK: ' + checked + ' scripts inline verificados e estrutura da página Métricas encontrada.');
+          if (!html.includes('OS_MTBF_ATUAL.push(os)') || !html.includes('lista=mtbfDados')) throw new Error('Detalhe do MTBF não está usando a mesma base produtiva do indicador');
+          console.log('OK: ' + checked + ' scripts inline, estrutura da página Métricas e escopo do detalhe MTBF verificados.');
           NODE
