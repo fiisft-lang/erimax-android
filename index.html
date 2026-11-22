@@ -6426,6 +6426,39 @@ body{color:var(--ex-ink);-webkit-font-smoothing:antialiased}
   box-shadow:0 0 0 28px rgba(255,255,255,.04),0 0 0 58px rgba(255,255,255,.025)!important;
 }
 </style>
+
+<style id="erimax-android-header-safe-area-final-2026">
+/* Android WebView: descer a barra superior inteira para liberar o conteúdo
+   que ficava sob a área de status. Não altera o cabeçalho no navegador. */
+html.erimax-app-android body > header,
+html.erimax-app-android header{
+  box-sizing:border-box!important;
+  min-height:108px!important;
+  padding-top:max(44px,calc(env(safe-area-inset-top,0px) + 28px))!important;
+  padding-bottom:12px!important;
+  scroll-margin-top:0!important;
+}
+html.erimax-app-android header img.logo{
+  flex-shrink:0!important;
+  max-height:44px!important;
+  object-fit:contain!important;
+}
+html.erimax-app-android header .menu-control{
+  margin-top:4px!important;
+  transform:translateY(7px)!important;
+}
+html.erimax-app-android header #btnMenuLateral{
+  flex-shrink:0!important;
+}
+@media(max-width:600px){
+  html.erimax-app-android body > header,
+  html.erimax-app-android header{
+    min-height:108px!important;
+    padding-top:max(44px,calc(env(safe-area-inset-top,0px) + 28px))!important;
+    padding-bottom:12px!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
