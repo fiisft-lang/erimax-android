@@ -10151,7 +10151,7 @@ function atualizarMetricasReais(){
         <div><small>Rodou</small><strong>${fmt(rodou)}</strong></div>
         <div><small>Falhas</small><strong>${m.falhas}</strong></div>
         <div><small>MTTR</small><strong>${fmt(media(m.sRep,m.nRep))}</strong></div>
-        <div><small>MTBF</small><strong>${fmt(Math.max(0,mt))}</strong></div>
+        <div><small>MTBF</small><strong>${bd&&m.falhas?fmt(Math.max(0,mt)):'—'}</strong></div>
         <div><small>Reincidências</small><strong class="${m.reinc?'downtime-repeat-alert':''}">${m.reinc}</strong></div>
       </div>
     </article>`;
