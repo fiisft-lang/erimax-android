@@ -7545,7 +7545,7 @@ function atualizarNavegacaoMobileEriMax(id){
 
 <div class="card" style="border:1px solid #d7e5f5;background:linear-gradient(120deg,#f0f7ff,#f8fbff);padding:12px 14px;margin-bottom:12px;border-radius:12px"><p style="margin:0;color:#1e40af;font-size:.84rem;line-height:1.5;text-align:center"><b>👆 DICA: os gráficos são interativos!</b><br>Toque em uma barra, fatia colorida ou ponto do gráfico para abrir as O.S. e os detalhes relacionados ao item selecionado. Os resultados respeitam o período e os filtros aplicados.</p></div>
 <div class="metrics-section-heading"><span>02</span><div><h3>Disponibilidade e paradas</h3><p>Quanto tempo estava previsto, quanto foi perdido e onde a parada se concentra</p></div></div>
-<div class="card metricas-com-horario" id="cardHorarioEfGeral"><h4>Disponibilidade registrada</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Verde: tempo previsto sem parada registrada • vermelho: parada registrada em O.S. Toque no vermelho para ver os registros.</p><p style="font-size:.72rem;color:#92400e;background:#fffbeb;border-radius:7px;padding:8px;margin:8px 0 0">Este indicador considera somente paradas registradas em O.S. e os horários cadastrados. Paradas sem O.S. não entram no cálculo; portanto, ainda não representa a produção real da máquina.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div>
+<div class="card metricas-com-horario" id="cardHorarioEfGeral"><h4>Disponibilidade registrada</h4><p style="font-size:.75rem;color:#64748b;text-align:center">Verde: tempo previsto sem parada registrada • vermelho: parada registrada em O.S. Toque no vermelho para ver os registros.</p><p style="font-size:.72rem;color:#92400e;background:#fffbeb;border-radius:7px;padding:8px;margin:8px 0 0">Este indicador considera paradas registradas em O.S. de máquinas cadastradas na base produtiva e os horários cadastrados. Equipamentos sem cadastro ficam fora da disponibilidade e do MTBF até serem cadastrados. O Pareto considera as O.S. dos setores de produção, inclusive esses registros.</p><div class="chart-wrapper" style="height:270px"><canvas id="chEfGeral"></canvas></div>
 </div>
 <section class="card metrics-ranking-card metricas-com-horario" id="cardHorarioRanking"><div class="ranking-os-card-head"><span>⏱️</span><div><h3>Máquinas com maior tempo de parada</h3><p>Ranking por tempo parado, com os mesmos indicadores e filtros de antes.</p></div></div><div id="tbRanking" class="downtime-ranking-list" aria-live="polite"></div></section>
 
@@ -9712,6 +9712,7 @@ function paradaProd(c,tn,periodoInicio,periodoFim){
 const charts={};
 const DETALHES_GRAFICOS={};
 let OS_PARADA_ATUAL=[];
+let OS_PARADA_PARETO=[];
 const COR=['#2563eb','#0f9d8a','#d97706','#7c3aed','#e05b70','#0891b2','#64748b','#b08a3e'];
 const diaLocal=d=>new Date(d).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso local
 const min=(a,b)=>(new Date(b)-new Date(a))/60000;
@@ -10117,12 +10118,18 @@ function atualizarMetricasReais(){
     });
     intervalosCobertosPorMaquina.set(chave,mesclados);
   });
-  osParada.forEach(({os,parada:p})=>{
+  // O Pareto considera todas as O.S. dos setores produtivos com horário válido.
+  // Disponibilidade e MTBF usam apenas ativos cadastrados, para não dividir horas
+  // de máquinas conhecidas por paradas/falhas de equipamentos sem cadastro.
+  OS_PARADA_PARETO=osParada;
+  const chavesMaquinasCadastradas=new Set(maquinasMetricaEscopo.map(m=>chaveMetricaMaq(m.setor,m.nome)));
+  const osParadaCadastradas=osParada.filter(x=>chavesMaquinasCadastradas.has(chaveMetricaMaq(x.os.setor,x.os.maquina)));
+  osParadaCadastradas.forEach(({os,parada:p})=>{
     const chave=chaveMetricaMaq(os.setor,os.maquina);
     const m=maq[chave]||(maq[chave]={nome:os.maquina,falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:os.setor});
     parada+=p;m.parada+=p;setor[os.setor]=(setor[os.setor]||0)+p;
   });
-  OS_PARADA_ATUAL=osParada;
+  OS_PARADA_ATUAL=osParadaCadastradas;
 
   // Compara cada O.S. filtrada com todo o histórico anterior da mesma máquina.
   // A classificação usa descrição normalizada e só conta quando há termos suficientes em comum.
@@ -10154,7 +10161,8 @@ function atualizarMetricasReais(){
   maqsBase.forEach(m=>{const chave=chaveMetricaMaq(m.setor,m.nome),grupo=gruposMaqBase.get(chave)||{nome:m.nome,setor:m.setor,quantidade:0};grupo.quantidade++;gruposMaqBase.set(chave,grupo)});
   const maqsBaseAgrupadas=[...gruposMaqBase.values()];
   const base=maqsBase.reduce((t,m)=>t+baseDe(m.setor),0);
-  const falhasComHorario=baseEscopo.filter(os=>setoresComHorarioSet.has(os.setor)&&eventoNoPeriodo(os.created_at)&&(tn==='Todos'||eventoNoTurno(os,os.created_at))).length;
+  const chavesMaquinasBase=new Set(maqsBase.map(m=>chaveMetricaMaq(m.setor,m.nome)));
+  const falhasComHorario=baseEscopo.filter(os=>setoresComHorarioSet.has(os.setor)&&chavesMaquinasBase.has(chaveMetricaMaq(os.setor,os.maquina))&&eventoNoPeriodo(os.created_at)&&(tn==='Todos'||eventoNoTurno(os,os.created_at))).length;
   const disp=base>0?Math.max(0,Math.min(100,Math.round((1-parada/base)*100))):null;
   const mtbf=falhasComHorario>0&&base>0?Math.max(0,(base-parada)/falhasComHorario):null;
 
@@ -10327,10 +10335,10 @@ function atualizarMetricasReais(){
   renderTendenciaDia();
 
   const paradasPorCausa={};
-  (OS_PARADA_ATUAL||[]).forEach(x=>{const nome=x.os.causa||'Não informada';paradasPorCausa[nome]=(paradasPorCausa[nome]||0)+x.parada});
+  (OS_PARADA_PARETO||[]).forEach(x=>{const nome=x.os.causa||'Não informada';paradasPorCausa[nome]=(paradasPorCausa[nome]||0)+x.parada});
   const causasPareto=Object.entries(paradasPorCausa).sort((a,b)=>b[1]-a[1]),totalParadasCausa=causasPareto.reduce((s,x)=>s+x[1],0)||1;
   let acumuladoCausa=0;
-  DETALHES_GRAFICOS.chPareto=(_ds,i)=>{const nome=causasPareto[i]?.[0];return{titulo:'O.S. paradas por causa: '+nome,lista:OS_PARADA_ATUAL.filter(x=>(x.os.causa||'Não informada')===nome).map(x=>x.os)}};
+  DETALHES_GRAFICOS.chPareto=(_ds,i)=>{const nome=causasPareto[i]?.[0];return{titulo:'O.S. paradas por causa: '+nome,lista:OS_PARADA_PARETO.filter(x=>(x.os.causa||'Não informada')===nome).map(x=>x.os)}};
   mk('chPareto',{type:'bar',data:{labels:causasPareto.map(x=>x[0]),datasets:[
     {type:'bar',label:'Minutos parados',data:causasPareto.map(x=>Math.round(x[1])),backgroundColor:'#e87924',borderRadius:6,yAxisID:'y'},
     {type:'line',label:'% acumulado',data:causasPareto.map(x=>Math.round((acumuladoCausa+=x[1])/totalParadasCausa*100)),borderColor:'#245b91',backgroundColor:'#245b91',pointRadius:4,pointHoverRadius:6,borderWidth:3,tension:.2,yAxisID:'y1'}]},
