@@ -7486,6 +7486,13 @@ function atualizarNavegacaoMobileEriMax(id){
     <div class="cadastro-setor-create-fields"><input id="novoSetor" aria-label="Nome do novo setor" placeholder="Ex.: Usinagem, Montagem..." maxlength="60"><button class="btn-submit" onclick="adicionarSetor()"><span aria-hidden="true">＋</span> Adicionar setor</button></div>
   </div>
   <div class="cadastro-setores-list-heading"><strong>Áreas cadastradas</strong><span>Gerencie horários e configurações</span></div>
+  <div style="display:flex;justify-content:flex-end;margin:10px 0">
+    <button type="button" class="btn-submit" style="max-width:260px;background:var(--secondary)" onclick="alternarPainelExcecoes()">📅 Exceções e feriados <span id="excecoesContagem" style="margin-left:5px;padding:2px 7px;border-radius:20px;background:#ffffff26">0</span></button>
+  </div>
+  <section id="painelExcecoesGeral" hidden style="border:1px solid var(--border,#dbe3eb);border-radius:12px;padding:14px;margin:0 0 14px;background:var(--card,#fff)">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px"><div><strong>Calendário de exceções</strong><small style="display:block;color:var(--muted,#64748b)">Feriados, dias sem produção e horários especiais de todos os setores</small></div><button type="button" class="btn-action" onclick="alternarPainelExcecoes()">Fechar ✕</button></div>
+    <div id="listaExcecoesGeral"></div>
+  </section>
   <div id="listaCfg"></div>
 </div>
 </section><section id="cadastro-area-maquinas" class="cadastro-area-panel">
@@ -7777,7 +7784,7 @@ const ordenarOSRecentes=lista=>(lista||[]).filter(Boolean).slice().sort((a,b)=>{
 });
 const hm=x=>x?new Date(x).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const CAUSAS=['Desgaste','Falta de lubrificação','Quebra','Ajuste / regulagem','Sensor / falha elétrica','Vazamento pneumático','Erro de operação','Sujeira / limpeza','Falta de preventiva','Outra'];
-let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};let SETOR_EM_EDICAO=null;const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
+let CFG={};let TURNOS_CFG={};let HORARIOS_SEMANAIS={};let EXCECOES_HORARIO={};let SETOR_EM_EDICAO=null;let EXCECOES_PAINEL_ABERTO=false;const CFG_PADRAO={horas:9,turnos:1,dias:'12345',inicio:'06:00'}; // horário de produção por setor (editável em Cadastro)
 const SETORES_PADRAO=['Costura','Corte de atadura','Corte de compressas','Flowpack','Gaze algodonada','Empacotamento','Enfardamento','Tecelagem','Selovac','Queijo','Seladora','Manutenção Predial'];
 let SETORES=[...SETORES_PADRAO];
 
@@ -12950,6 +12957,45 @@ function renderCfg(){
     else h+='<div class="cadastro-setor-protected"><span aria-hidden="true">🔒</span><span>Horários protegidos</span><small>Toque no relógio para editar dias e turnos.</small></div>';
     return h+'</article>';
   }).join('');
+  renderPainelExcecoesGeral();
+}
+function alternarPainelExcecoes(){
+  EXCECOES_PAINEL_ABERTO=!EXCECOES_PAINEL_ABERTO;
+  const painel=document.getElementById('painelExcecoesGeral');
+  if(painel)painel.hidden=!EXCECOES_PAINEL_ABERTO;
+  renderPainelExcecoesGeral();
+  if(EXCECOES_PAINEL_ABERTO&&painel)painel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function renderPainelExcecoesGeral(){
+  const lista=document.getElementById('listaExcecoesGeral'),contador=document.getElementById('excecoesContagem'),painel=document.getElementById('painelExcecoesGeral');
+  if(!lista||!contador||!painel)return;
+  const registros=Object.values(EXCECOES_HORARIO).sort((a,b)=>String(a.data_excecao).localeCompare(String(b.data_excecao))||String(a.setor).localeCompare(String(b.setor),'pt-BR'));
+  contador.textContent=String(registros.length);
+  painel.hidden=!EXCECOES_PAINEL_ABERTO;
+  if(!registros.length){lista.innerHTML='<p style="margin:8px 0;color:#64748b;font-size:.85rem">Nenhuma exceção ou feriado cadastrado.</p>';return;}
+  lista.innerHTML=registros.map(r=>{
+    const i=SETORES.indexOf(r.setor),data=String(r.data_excecao).split('-').reverse().join('/');
+    const turnos=(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(' • ');
+    const detalhe=turnos||(r.observacao||'Dia sem produção');
+    return '<article style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--border,#e2e8f0)"><div style="min-width:180px;flex:1"><strong>'+data+' · '+escaparHtml(r.setor)+'</strong><small style="display:block;color:var(--muted,#64748b);margin-top:3px">'+escaparHtml(r.observacao||detalhe)+(turnos?' · '+escaparHtml(turnos):'')+'</small></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn-action btn-transferir" onclick="editarExcecaoHorario('+i+',\''+String(r.data_excecao)+'\')">Editar</button><button type="button" class="btn-action btn-excluir" onclick="excluirExcecaoHorario('+i+',\''+String(r.data_excecao)+'\')">Excluir</button></div></article>';
+  }).join('');
+}
+function editarExcecaoHorario(i,data){
+  const setor=SETORES[i],registro=EXCECOES_HORARIO[normSetor(setor)+'|'+data];
+  if(!registro)return alert('Não foi possível localizar essa exceção. Atualize a tela e tente novamente.');
+  SETOR_EM_EDICAO=setor;renderCfg();
+  const card=document.getElementById('listaCfg').children[i];
+  card.querySelector('#exc-data-'+i).value=data;
+  card.querySelector('#exc-obs-'+i).value=registro.observacao||'';
+  for(let n=1;n<=3;n++){
+    const turno=(registro.horarios||[]).find(x=>+x.numero_turno===n);
+    card.querySelector('.exc-ini[data-turno="'+n+'"]').value=turno?.hora_inicio||'';
+    card.querySelector('.exc-fim[data-turno="'+n+'"]').value=turno?.hora_fim||'';
+    card.querySelector('.exc-int-ativo[data-turno="'+n+'"]').checked=turno?.intervalo_ativo===true;
+    card.querySelector('.exc-int-ini[data-turno="'+n+'"]').value=turno?.intervalo_inicio||'';
+    card.querySelector('.exc-int-fim[data-turno="'+n+'"]').value=turno?.intervalo_fim||'';
+  }
+  card.scrollIntoView({behavior:'smooth',block:'start'});
 }
 async function salvarHorarioSemanal(i){
   const s=SETORES[i],card=document.getElementById('listaCfg').children[i],linhas=[...card.querySelectorAll('.cfg-semana')],dados=[];
