@@ -1480,36 +1480,8 @@ header .hd{
 /* Ajuste exclusivo do APK: botão mais baixo, com legenda discreta e área de toque confortável. */
 .menu-control{display:contents}
 .menu-caption{display:none}
-html.erimax-app-android header{
-  min-height:82px;
-  padding-top:26px;
-  padding-bottom:12px;
-}
-html.erimax-app-android .menu-control{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  margin-top:6px;
-  transform:translateY(12px);
-  flex:0 0 48px;
-}
-html.erimax-app-android #btnMenuLateral{
-  width:48px;
-  height:48px;
-  flex:0 0 48px;
-  margin-top:0;
-  touch-action:manipulation;
-}
-html.erimax-app-android .menu-caption{
-  display:none;
-}
-@media(max-width:600px){
-  html.erimax-app-android header{min-height:82px;padding-top:26px;padding-bottom:12px}
-  html.erimax-app-android .menu-control{margin-top:6px}
-  html.erimax-app-android #btnMenuLateral{width:48px;height:48px;flex-basis:48px;margin-top:0}
-}
+/* O Android usa a mesma geometria do cabeçalho web; só preserva o menu compacto. */
+html.erimax-app-android .menu-caption{display:none}
 /* Navegação lateral compacta */
 header{position:sticky;top:0;z-index:1205;min-height:64px;gap:14px}
 header img.logo{height:44px;width:220px;max-width:min(58vw,220px);object-fit:contain;object-position:left center}
@@ -6428,35 +6400,31 @@ body{color:var(--ex-ink);-webkit-font-smoothing:antialiased}
 </style>
 
 <style id="erimax-android-header-safe-area-final-2026">
-/* Android WebView: reserva espaço real acima do cabeçalho e desloca a barra
-   inteira para baixo, sem depender do safe-area do WebView. */
+/* Android: espelha a geometria do cabeçalho do navegador. Sem margens extras,
+   sem deslocamento vertical do menu e sem altura/padding artificiais. */
 html.erimax-app-android body > header{
-  position:sticky!important;
-  top:0!important;
-  margin-top:32px!important;
   box-sizing:border-box!important;
-  min-height:108px!important;
-  padding-top:44px!important;
-  padding-bottom:12px!important;
-  scroll-margin-top:0!important;
-}
-html.erimax-app-android body > header img.logo{
-  flex-shrink:0!important;
-  max-height:44px!important;
-  object-fit:contain!important;
+  min-height:64px!important;
+  margin-top:0!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
 }
 html.erimax-app-android body > header .menu-control{
-  margin-top:4px!important;
-  transform:translateY(7px)!important;
+  display:contents!important;
+  margin:0!important;
+  transform:none!important;
+  flex:initial!important;
 }
-html.erimax-app-android body > header #btnMenuLateral{flex-shrink:0!important}
-@media(max-width:600px){
-  html.erimax-app-android body > header{
-    margin-top:36px!important;
-    min-height:112px!important;
-    padding-top:48px!important;
-    padding-bottom:12px!important;
-  }
+html.erimax-app-android body > header #btnMenuLateral{
+  width:42px!important;
+  height:42px!important;
+  flex:0 0 42px!important;
+  margin:0!important;
+}
+html.erimax-app-android body > header img.logo{
+  height:44px!important;
+  max-height:44px!important;
+  object-fit:contain!important;
 }
 </style>
 </head>
