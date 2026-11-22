@@ -6457,6 +6457,30 @@ html.erimax-app-android body > header img.logo{
 </style>
 
 
+
+<style id="erimax-android-bottom-nav-browser-parity-2026">
+/* Android: card compacto aplicado à página principal, não ao HTML de impressão. */
+@media(max-width:1023px){
+  html.erimax-app-android .erimax-mobile-bottom-nav{
+    box-sizing:border-box!important;
+    height:58px!important;
+    min-height:58px!important;
+    max-height:58px!important;
+    padding:4px 9px 2px!important;
+    grid-template-rows:48px!important;
+    align-items:center!important;
+    border-radius:20px!important;
+  }
+  html.erimax-app-android .erimax-mobile-nav-item{
+    box-sizing:border-box!important;
+    height:48px!important;
+    min-height:48px!important;
+    max-height:48px!important;
+    padding:3px 4px!important;
+    border-radius:14px!important;
+  }
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -11708,29 +11732,7 @@ html{background:#fafbfc!important}
 html body,html.erimax-app-android body{background:#fafbfc!important}
 </style>
 
-<style id="erimax-android-bottom-nav-browser-parity-2026">
-/* Android: reduz a altura real do card e elimina o excesso de área abaixo dos três botões. */
-@media(max-width:1023px){
-  html.erimax-app-android .erimax-mobile-bottom-nav{
-    box-sizing:border-box!important;
-    height:58px!important;
-    min-height:58px!important;
-    max-height:58px!important;
-    padding:4px 9px 2px!important;
-    grid-template-rows:48px!important;
-    align-items:center!important;
-    border-radius:20px!important;
-  }
-  html.erimax-app-android .erimax-mobile-nav-item{
-    box-sizing:border-box!important;
-    height:48px!important;
-    min-height:48px!important;
-    max-height:48px!important;
-    padding:3px 4px!important;
-    border-radius:14px!important;
-  }
-}
-</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
