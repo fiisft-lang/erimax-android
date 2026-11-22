@@ -7721,7 +7721,7 @@ const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
 const {createClient}=supabase;
 const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
-let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
+let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],FILTRADAS_TODAS=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
 let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
 let SETOR_MAQUINAS_EM_EDICAO=null;
 let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,intervaloStatusTecnicos=null,atualizacaoStatusEmCurso=false,ultimoIdOSRealtime=null,intervaloSincronizacaoFallback=null,sincronizacaoFallbackEmCurso=false;
@@ -9873,7 +9873,7 @@ function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMet
 function abrirDetalheMetrica(tipo){
  const modal=document.getElementById('modalDetalheMetrica'),titulo=document.getElementById('tituloDetalheMetrica'),resumo=document.getElementById('resumoDetalheMetrica'),box=document.getElementById('listaDetalheMetrica'),canvas=document.getElementById('chartDetalheMetrica');
  if(!modal||!canvas)return;
- const todos=ordenarOSRecentes(FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada'));
+ const todos=ordenarOSRecentes(FILTRADAS_TODAS||FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada'));
  const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
  const agrupar=(arr,key,val)=>{const g={};arr.forEach(x=>{const k=key(x)||'Não informado';g[k]=(g[k]||0)+val(x)});return Object.entries(g).sort((a,b)=>b[1]-a[1])};
  let cfg={type:'bar',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}},explicacao='',lista=[];
@@ -9961,7 +9961,18 @@ function atualizarMetricasReais(){
   });
 
   const fIndicadores=f.filter(c=>c.status!=='Cancelada');
+  FILTRADAS_TODAS=f;
   FILTRADAS=fIndicadores;
+  // Escopo pelas dimensões não temporais: cada evento entra quando sua própria data pertence ao período.
+  const baseEscopo=chamados.filter(os=>
+    os.status!=='Cancelada'&&(tn==='Todos'||normalizarTurnoMetrica(os.turno)===tn)&&(st==='Todos'||os.setor===st)&&
+    (mq==='Todas'||os.maquina===mq)&&os.tipo!=='Preventiva'&&(tp==='Todos'||os.tipo===tp)
+  );
+  const eventoNoPeriodo=data=>{
+    if(!data)return false;
+    const d=diaLocal(data);
+    return periodoPersonalizado?(d>=dataInicio&&d<=dataFim):dia?d===dia:mes?d.startsWith(mes):true;
+  };
   // agregadores
   let parada=0,sResp=0,nResp=0,sRep=0,nRep=0,concl=0,abertas=0;
   const maq={},setor={},tec={},tipo={},causa={},turno={'Turno 1':0,'Turno 2':0,'Turno 3':0},hora=Array(24).fill(0),aberDia={},conclDia={};
@@ -10201,9 +10212,9 @@ function atualizarMetricasReais(){
     if(tipo==='abertura')ponto.aberturas++;else ponto.conclusoes++;
     if(!ponto.lista.some(item=>String(item.id)===String(os.id)))ponto.lista.push(os);
   };
-  fIndicadores.forEach(os=>{
-    registrarEvento(os,os.created_at,'abertura');
-    if(os.status==='Concluída')registrarEvento(os,os.data_conclusao,'conclusao');
+  baseEscopo.forEach(os=>{
+    if(eventoNoPeriodo(os.created_at))registrarEvento(os,os.created_at,'abertura');
+    if(os.status==='Concluída'&&eventoNoPeriodo(os.data_conclusao))registrarEvento(os,os.data_conclusao,'conclusao');
   });
   const paletaSetores=['#2563eb','#0f9d8a','#d97706','#7c3aed','#0891b2','#db2777','#64748b','#65a30d','#9333ea','#0f766e'];
   const nomesSetores=Object.keys(eventosPorDia).sort((a,b)=>a.localeCompare(b,'pt-BR'));
@@ -10322,22 +10333,12 @@ function atualizarMetricasReais(){
     }).join(''):'<p class="metrics-heat-empty">Sem máquinas com horário de produção confirmado neste filtro.</p>';
     heatmap.querySelectorAll('[data-machine]').forEach(btn=>btn.addEventListener('click',()=>{
       const nome=btn.getAttribute('data-machine');
-      mostrarOSDetalhe('O.S. da máquina '+nome,(FILTRADAS||[]).filter(os=>os.maquina===nome));
+      mostrarOSDetalhe('O.S. com parada registrada — '+nome,(OS_PARADA_ATUAL||[]).filter(item=>item.os&&item.os.maquina===nome).map(item=>item.os));
     }));
   }
 
   // Evolução mensal: contar abertura e conclusão pela data de cada evento.
   // Assim, uma O.S. aberta em um mês e concluída em outro aparece nos dois meses corretos.
-  const baseEscopo=chamados.filter(os=>
-    os.status!=='Cancelada'&&(tn==='Todos'||normalizarTurnoMetrica(os.turno)===tn)&&(st==='Todos'||os.setor===st)&&
-    (mq==='Todas'||os.maquina===mq)&&os.tipo!=='Preventiva'&&
-    (tp==='Todos'||os.tipo===tp)
-  );
-  const eventoNoPeriodo=data=>{
-    if(!data)return false;
-    const d=diaLocal(data);
-    return periodoPersonalizado?(d>=dataInicio&&d<=dataFim):dia?d===dia:mes?d.startsWith(mes):true;
-  };
   const porMes={};
   baseEscopo.forEach(os=>{
     if(eventoNoPeriodo(os.created_at)){
