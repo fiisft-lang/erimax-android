@@ -13127,3 +13127,90 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   #tab-ordens-abertas .os-card{transition:none!important}
 }
 </style>
+
+<style id="erimax-modal-padrao-sticky-etapa3">
+/* ETAPA 3 — padrão de navegação: cabeçalho e ações sempre acessíveis,
+   com rolagem restrita ao conteúdo de cada janela. */
+:where(#modal,#modalReabrirOS,#modalDetalheMetrica,#modalHor,#modalEditarEquipamentoOS,#modalEditarOSCompleta) > .box,
+:where(#modalDetalheMetrica,#modalHor,#modalEditarEquipamentoOS,#modalEditarOSCompleta) > div > .box {
+  box-sizing:border-box!important;
+  max-height:min(92dvh,900px)!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-gutter:stable;
+  -webkit-overflow-scrolling:touch;
+}
+:where(#modal,#modalReabrirOS,#modalHor,#modalEditarEquipamentoOS,#modalEditarOSCompleta) .box > h2:first-child,
+#modalDetalheMetrica > .box > div:first-child,
+#modalEditarOSCompleta > .box > div:first-child {
+  position:sticky!important;
+  top:calc(-1 * clamp(18px,3vw,26px))!important;
+  z-index:8!important;
+  background:#fff!important;
+  padding:12px 0 13px!important;
+  margin:0 0 10px!important;
+  border-bottom:1px solid #e4ebef!important;
+}
+#modalEditarOSCompleta > .box > div:first-child {
+  top:-16px!important;
+  margin:-16px -16px 10px!important;
+  padding:16px!important;
+}
+#modalDetalheMetrica > .box > div:first-child {
+  top:-16px!important;
+  margin:-16px -16px 10px!important;
+  padding:16px!important;
+}
+:where(#modal,#modalReabrirOS,#modalHor,#modalEditarEquipamentoOS,#modalEditarOSCompleta) .box > div:last-child,
+#modalEditarOSCompleta > .box > div:last-child {
+  position:sticky!important;
+  bottom:calc(-1 * clamp(18px,3vw,26px))!important;
+  z-index:7!important;
+  background:#fff!important;
+  padding:12px 0 2px!important;
+  margin-top:12px!important;
+  border-top:1px solid #e4ebef!important;
+}
+#modalHistoricoOS .erimax-os-history-panel {
+  display:flex!important;
+  flex-direction:column!important;
+  max-height:min(92dvh,900px)!important;
+  overflow:hidden!important;
+}
+#modalHistoricoOS .erimax-os-history-head,
+#modalHistoricoOS .erimax-os-history-panel>footer {
+  position:relative!important;
+  z-index:3!important;
+  flex:0 0 auto!important;
+}
+#modalHistoricoOS .erimax-os-history-content {
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch;
+}
+#modalEfOS>.efos-dialog {
+  max-height:min(92dvh,900px)!important;
+}
+@media(max-width:760px) {
+  :where(#modal,#modalReabrirOS,#modalDetalheMetrica,#modalHor,#modalEditarEquipamentoOS,#modalEditarOSCompleta) {
+    padding:8px!important;
+    align-items:center!important;
+  }
+  :where(#modal,#modalReabrirOS,#modalHor,#modalEditarEquipamentoOS,#modalEditarOSCompleta) > .box,
+  :where(#modalDetalheMetrica,#modalHor,#modalEditarEquipamentoOS,#modalEditarOSCompleta) > div > .box {
+    width:100%!important;
+    max-width:100%!important;
+    max-height:calc(100dvh - 16px)!important;
+    border-radius:16px!important;
+  }
+  #modalHistoricoOS .erimax-os-history-panel {
+    max-height:calc(100dvh - 14px)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  #modalHistoricoOS .erimax-os-history-content {scroll-behavior:auto!important}
+}
+</style>
+
