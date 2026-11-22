@@ -10162,13 +10162,17 @@ function atualizarMetricasReais(){
   const maqsBaseAgrupadas=[...gruposMaqBase.values()];
   const base=maqsBase.reduce((t,m)=>t+baseDe(m.setor),0);
   const chavesMaquinasBase=new Set(maqsBase.map(m=>chaveMetricaMaq(m.setor,m.nome)));
-  const falhasPorMaquinaTurno=new Map();
+  const metricasPorMaquinaTurno=new Map();
   baseEscopo.forEach(os=>{
     const chave=chaveMetricaMaq(os.setor,os.maquina);
     if(!setoresComHorarioSet.has(os.setor)||!chavesMaquinasBase.has(chave)||!eventoNoPeriodo(os.created_at)||(tn!=='Todos'&&!eventoNoTurno(os,os.created_at)))return;
-    falhasPorMaquinaTurno.set(chave,(falhasPorMaquinaTurno.get(chave)||0)+1);
+    const info=metricasPorMaquinaTurno.get(chave)||{falhas:0,sRep:0,nRep:0,reinc:0};
+    info.falhas++;
+    if(os.data_atendimento&&os.data_conclusao){const tempo=min(os.data_atendimento,os.data_conclusao);if(tempo>=0){info.sRep+=tempo;info.nRep++}}
+    if(reincidenciasHistorico.has(String(os.id)))info.reinc++;
+    metricasPorMaquinaTurno.set(chave,info);
   });
-  const falhasComHorario=[...falhasPorMaquinaTurno.values()].reduce((s,n)=>s+n,0);
+  const falhasComHorario=[...metricasPorMaquinaTurno.values()].reduce((s,m)=>s+m.falhas,0);
   const disp=base>0?Math.max(0,Math.min(100,Math.round((1-parada/base)*100))):null;
   const mtbf=falhasComHorario>0&&base>0?Math.max(0,(base-parada)/falhasComHorario):null;
 
@@ -10189,10 +10193,10 @@ function atualizarMetricasReais(){
 
   // Ranking visual de máquinas: mesmos dados e cálculos, em cartões responsivos.
   // O ranking exibe disponibilidade e MTBF por máquina: mantém o mesmo escopo produtivo da base geral.
-  const chavesRank=new Set([...Object.keys(maq),...falhasPorMaquinaTurno.keys()]);
+  const chavesRank=new Set([...Object.keys(maq),...metricasPorMaquinaTurno.keys()]);
   const rank=[...chavesRank].map(chave=>{
-    const dados=maq[chave]||{},[setor,nome]=JSON.parse(chave);
-    return{nome:dados.nome||nome,setor:dados.setor||setor,parada:dados.parada||0,sRep:dados.sRep||0,nRep:dados.nRep||0,reinc:dados.reinc||0,falhas:falhasPorMaquinaTurno.get(chave)||0};
+    const dados=maq[chave]||{},metricas=metricasPorMaquinaTurno.get(chave)||{},[setor,nome]=JSON.parse(chave);
+    return{nome:dados.nome||nome,setor:dados.setor||setor,parada:dados.parada||0,sRep:metricas.sRep||0,nRep:metricas.nRep||0,reinc:metricas.reinc||0,falhas:metricas.falhas||0};
   }).filter(m=>maqsBase.some(base=>base.nome===m.nome&&base.setor===m.setor)).sort((a,b)=>b.parada-a.parada);
   const tbRanking=document.getElementById('tbRanking');
   if(tbRanking)tbRanking.innerHTML=rank.length?rank.slice(0,30).map((m,i)=>{
