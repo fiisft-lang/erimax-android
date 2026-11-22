@@ -47,3 +47,40 @@ jobs:
           if (!html.includes('OS_MTBF_ATUAL.push(os)') || !html.includes('lista=mtbfDados')) throw new Error('Detalhe do MTBF não está usando a mesma base produtiva do indicador');
           console.log('OK: ' + checked + ' scripts inline, estrutura da página Métricas e escopo do detalhe MTBF verificados.');
           NODE
+
+      - name: Testar classificação automática de reincidências
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const start = html.indexOf('function normalizarIdentificadorReincidencia');
+          const end = html.indexOf('let REINCIDENCIA_SELECAO=null;', start);
+          if (start < 0 || end < 0) throw new Error('Classificador de reincidências não encontrado');
+          const source = html.slice(start, end) + '\n globalThis.api = { calcularReincidenciasHistorico };';
+          const context = {};
+          vm.createContext(context);
+          vm.runInContext(source, context);
+          const os = (id, maquina, setor, descricao, dia) => ({
+            id, maquina, setor, descricao, status: 'Concluída', tipo: 'Corretiva',
+            created_at: '2026-11-' + dia + 'T08:00:00'
+          });
+          const casos = [
+            os(1, 'Flowpack 5', 'Corte atadura', 'Problema no datador', '01'),
+            os(2, 'Flowpack 5', 'Corte atadura', ' PROBLEMA   NO DATADOR! ', '02'),
+            os(3, 'Flowpack 7', 'Corte atadura', 'Problema no datador', '03'),
+            os(4, 'Flowpack 5', 'Outro setor', 'Problema no datador', '04'),
+            os(5, 'Flowpack 8', 'Corte atadura', 'Esteira travando', '05'),
+            os(6, 'Flowpack 8', 'Corte atadura', 'Esteira travada', '06'),
+            os(7, 'Flowpack 9', 'Corte atadura', 'Faca de trás', '07'),
+            os(8, 'Flowpack 9', 'Corte atadura', 'Faca cortando errado', '08')
+          ];
+          const resultado = context.api.calcularReincidenciasHistorico(casos);
+          const assert = (ok, message) => { if (!ok) throw new Error(message); };
+          assert(resultado.has('2') && resultado.get('2').primeiraOS.id === 1, 'Não agrupou descrição idêntica normalizada com a primeira O.S.');
+          assert(!resultado.has('3'), 'Misturou máquinas diferentes');
+          assert(!resultado.has('4'), 'Misturou setores diferentes');
+          assert(resultado.has('6') && resultado.get('6').primeiraOS.id === 5, 'Não reconheceu variação verbal segura');
+          assert(!resultado.has('8'), 'Agrupou defeitos diferentes por palavra genérica');
+          console.log('OK: normalização, agrupamento automático, escopo máquina/setor e prevenção de falso positivo.');
+          NODE
