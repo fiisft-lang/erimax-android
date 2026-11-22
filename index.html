@@ -13469,3 +13469,84 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 @media(prefers-reduced-motion:reduce){#tab-presenca #listaPresenca>*,#tab-ia #resultadoConsulta>*{transition:none!important}}
 </style>
 
+
+
+<style id="erimax-historicos-listas-tabelas-premium-2026">
+/* Acabamento de leitura para históricos, tabelas e listas. Somente CSS. */
+:root{--erimax-record-line:#e2eaf0;--erimax-record-ink:#24465c;--erimax-record-muted:#718493}
+#painelMaquinasSupervisor .sv-audit-results{gap:10px!important}
+#painelMaquinasSupervisor .sv-audit-row{border:1px solid var(--erimax-record-line)!important;border-radius:13px!important;background:#fff!important;box-shadow:0 2px 8px rgba(22,49,66,.035)!important;transition:border-color .18s ease,box-shadow .18s ease}
+#painelMaquinasSupervisor .sv-audit-row[open]{border-color:#c7d9e2!important;box-shadow:0 7px 18px rgba(22,49,66,.065)!important}
+#painelMaquinasSupervisor .sv-audit-row>summary{position:relative;grid-template-columns:minmax(125px,160px) minmax(0,1fr) auto!important;gap:5px 14px!important;padding:14px 16px!important}
+#painelMaquinasSupervisor .sv-audit-row>summary:after{content:"⌄";grid-column:3;grid-row:1/3;align-self:center;color:#8196a3;font-size:1rem;font-weight:800;transition:transform .18s ease}
+#painelMaquinasSupervisor .sv-audit-row[open]>summary:after{transform:rotate(180deg)}
+#painelMaquinasSupervisor .sv-audit-date{color:#82929d!important;font-size:.69rem!important;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.45}
+#painelMaquinasSupervisor .sv-audit-row>summary>b{color:var(--erimax-record-ink)!important;font-size:.79rem!important;font-weight:800}
+#painelMaquinasSupervisor .sv-audit-row>summary>small{color:var(--erimax-record-muted)!important;font-size:.69rem!important;line-height:1.45}
+#painelMaquinasSupervisor .sv-audit-row>summary>em{grid-column:2!important;grid-row:3!important;text-align:left!important;color:#347b79!important;font-size:.67rem!important}
+#painelMaquinasSupervisor .sv-audit-detail{padding:12px 16px 15px!important;border-top:1px solid #edf2f5!important;background:#f8fafb!important}
+#painelMaquinasSupervisor .sv-audit-detail p{align-items:baseline;margin:7px 0!important;font-size:.73rem!important}
+#painelMaquinasSupervisor .sv-audit-detail button{min-height:36px;margin-top:10px!important;padding:8px 12px!important;border-radius:9px!important;font-size:.72rem!important}
+#painelMaquinasSupervisor .sv-history{margin-top:12px!important;border:1px solid var(--erimax-record-line)!important;border-radius:12px!important;background:#fbfcfd!important;overflow:hidden}
+#painelMaquinasSupervisor .sv-history>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px!important;color:var(--erimax-record-ink)!important;font-size:.75rem!important;font-weight:800;cursor:pointer}
+#painelMaquinasSupervisor .sv-history>summary span{display:grid;place-items:center;min-width:25px;height:25px;padding:0 6px;border-radius:8px;background:#eaf1f5;color:#42677d;font-size:.68rem}
+#painelMaquinasSupervisor .sv-history-item{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:4px!important;width:calc(100% - 18px)!important;margin:0 9px 8px!important;padding:11px 12px!important;border:1px solid #e4ebef!important;border-radius:10px!important;background:#fff!important;text-align:left!important}
+#painelMaquinasSupervisor .sv-history-item b{font-size:.74rem!important;color:#294c62!important}
+#painelMaquinasSupervisor .sv-history-item small{font-size:.68rem!important;line-height:1.5!important;color:#718493!important}
+#painelMaquinasSupervisor .sv-no-history,#painelMaquinasSupervisor .sv-history-more{display:block;padding:11px 13px!important;color:#82919c!important;font-size:.7rem!important}
+#painelMaquinasSupervisor .sv-movement-list{gap:8px!important}
+#painelMaquinasSupervisor .sv-movement-item{grid-template-columns:12px minmax(0,1fr) minmax(105px,auto)!important;gap:11px!important;padding:12px 14px!important;border:1px solid #e5edf1!important;border-radius:12px!important;background:#fff!important}
+#painelMaquinasSupervisor .sv-movement-main b{font-size:.76rem!important;color:#294b61!important}
+#painelMaquinasSupervisor .sv-movement-main small{font-size:.68rem!important;line-height:1.45!important;color:#788b98!important}
+#painelMaquinasSupervisor .sv-movement-item time{color:#81919d!important;font-size:.66rem!important;font-variant-numeric:tabular-nums}
+#painelMaquinasSupervisor .sv-attention-item{border:1px solid #e8e4dc!important;border-radius:12px!important;box-shadow:0 2px 7px rgba(45,48,38,.025)}
+#painelMaquinasSupervisor .sv-metric-detail-list{gap:9px!important}
+.erimax-os-history-content{scrollbar-gutter:stable}
+.erimax-os-history-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:11px 13px!important;border:1px solid #e1eaf0!important;border-radius:12px!important;background:#f7fafc!important}
+.erimax-os-detail-grid{gap:9px!important}
+.erimax-os-detail-cell{min-width:0;padding:12px!important;border:1px solid #e4ebef!important;border-radius:11px!important;background:linear-gradient(145deg,#fff,#fbfcfd)!important}
+.erimax-os-history-section{margin-top:13px!important;padding:14px 15px!important;border-color:#e3ebef!important;border-radius:14px!important;box-shadow:0 2px 8px rgba(20,48,65,.025)}
+.erimax-os-history-section>h3{margin:0 0 10px!important;color:#31556b!important;font-size:.78rem!important;font-weight:850!important;letter-spacing:.025em}
+.erimax-os-history-section>p{font-size:.8rem!important;line-height:1.65!important}
+.erimax-os-timeline{margin-top:8px!important;padding-left:25px!important}
+.erimax-os-timeline:before{left:5px!important;background:linear-gradient(#8eb3c0,#e2ebef)!important}
+.erimax-os-event{padding:0 0 19px!important;gap:10px!important}
+.erimax-os-event>div:last-child{min-width:0;padding:10px 12px;border:1px solid #e7edf1;border-radius:11px;background:#fff}
+.erimax-os-event small{font-size:.66rem!important}
+.erimax-os-event b{font-size:.78rem!important}
+.erimax-os-event p{font-size:.74rem!important;line-height:1.55!important}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper){border-color:#e0e9ee!important;border-radius:13px!important;box-shadow:0 2px 9px rgba(22,49,66,.025)}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper) table{width:100%;border-collapse:separate!important;border-spacing:0!important;font-variant-numeric:tabular-nums}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper) thead th{position:sticky;top:0;z-index:1;padding:12px 13px!important;background:#f3f7f9!important;color:#4e6878!important;border-bottom:1px solid #dfe8ed!important;font-size:.68rem!important;font-weight:850!important;letter-spacing:.035em}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper) tbody td{padding:11px 13px!important;border-bottom:1px solid #edf1f4!important;color:#40596a;font-size:.73rem!important;line-height:1.45}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper) tbody tr:last-child td{border-bottom:0!important}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper) tbody tr:nth-child(even){background:#fafcfd}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper) tbody tr:hover{background:#f2f8fa}
+.tab-content.active :where(.tbl-wrap,.table-responsive,.table-wrapper) tbody td :where(b,strong){color:#294c62}
+#tab-metricas .downtime-ranking-list{gap:8px!important}
+#tab-metricas .downtime-ranking-list>*{min-width:0;padding:12px 14px!important;border:1px solid #e4ebef!important;border-radius:11px!important;background:#fff!important}
+#tab-almoxarifado .almox-history{gap:7px!important}
+#tab-almoxarifado .almox-history-row{grid-template-columns:minmax(118px,145px) minmax(0,1fr) auto!important;gap:12px!important;padding:12px 13px!important;border:1px solid #e5edf1!important;border-radius:11px!important;background:#fff!important}
+#tab-almoxarifado .almox-history-row time{font-size:.68rem!important;font-variant-numeric:tabular-nums}
+#tab-almoxarifado .almox-history-row strong{font-size:.76rem!important}
+#tab-almoxarifado .almox-history-row small{font-size:.68rem!important;line-height:1.45}
+#tab-almoxarifado .almox-history-value{min-width:54px;text-align:right;font-size:.88rem!important}
+@media(hover:hover) and (pointer:fine){
+ #painelMaquinasSupervisor .sv-audit-row:hover,#painelMaquinasSupervisor .sv-history-item:hover,#painelMaquinasSupervisor .sv-movement-item:hover{border-color:#cbdce4!important;box-shadow:0 6px 15px rgba(22,49,66,.06)!important}
+}
+@media(max-width:760px){
+ #painelMaquinasSupervisor .sv-audit-row>summary{grid-template-columns:minmax(0,1fr) auto!important;padding:12px!important}
+ #painelMaquinasSupervisor .sv-audit-date{grid-column:1/-1!important;grid-row:auto!important}
+ #painelMaquinasSupervisor .sv-audit-row>summary>b,#painelMaquinasSupervisor .sv-audit-row>summary>small,#painelMaquinasSupervisor .sv-audit-row>summary>em{grid-column:1!important;grid-row:auto!important}
+ #painelMaquinasSupervisor .sv-audit-row>summary:after{grid-column:2!important;grid-row:2/5!important}
+ #painelMaquinasSupervisor .sv-movement-item{grid-template-columns:10px minmax(0,1fr)!important;gap:8px 10px!important}
+ #painelMaquinasSupervisor .sv-movement-item time{grid-column:2!important}
+ #tab-almoxarifado .almox-history-row{grid-template-columns:minmax(0,1fr) auto!important;gap:5px 9px!important}
+ #tab-almoxarifado .almox-history-row time{grid-column:1/-1}
+ #tab-almoxarifado .almox-history-row>div{min-width:0}
+ .erimax-os-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .erimax-os-event>div:last-child{padding:9px 10px}
+}
+@media(max-width:380px){.erimax-os-detail-grid{grid-template-columns:1fr!important}#painelMaquinasSupervisor .sv-audit-detail{padding:10px!important}}
+@media(prefers-reduced-motion:reduce){#painelMaquinasSupervisor .sv-audit-row,#painelMaquinasSupervisor .sv-history-item,#painelMaquinasSupervisor .sv-movement-item{transition:none!important}}
+</style>
