@@ -13948,3 +13948,26 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 }
 </style>
 
+
+
+<style id="erimax-modal-recuo-superior-extra-2026">
+/* Pequeno ajuste adicional: descer os modais sem alterar o conteúdo interno. */
+#modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal{
+ padding:60px 12px 18px!important;
+}
+#modalEfOS>.efos-dialog,
+#modalDetalheMetrica>.erimax-metric-history-dialog,
+.erimax-os-history-modal>.erimax-os-history-panel{
+ max-height:calc(100dvh - 78px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+}
+@media(max-width:760px){
+ #modalEfOS,#modalDetalheMetrica,.erimax-os-history-modal{
+  padding:max(48px,env(safe-area-inset-top)) 8px max(12px,env(safe-area-inset-bottom))!important;
+ }
+ #modalEfOS>.efos-dialog,
+ #modalDetalheMetrica>.erimax-metric-history-dialog,
+ .erimax-os-history-modal>.erimax-os-history-panel{
+  max-height:calc(100dvh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ }
+}
+</style>
