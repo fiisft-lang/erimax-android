@@ -16318,13 +16318,14 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 
 <style id="erimax-ordens-abertas-zoom-responsivo-2026">
 /* Mantém os cartões legíveis quando o zoom do navegador amplia a área CSS disponível. */
+/* Prioriza duas ou mais O.S. lado a lado em telas médias e grandes. */
 #tab-ordens-abertas .oa-list,
 #tab-ordens-abertas[data-erimax-zoom] .oa-list,
 #tab-ordens-abertas[data-erimax-zoom-level="80"] .oa-list,
 #tab-ordens-abertas[data-erimax-zoom-level="60"] .oa-list,
 #tab-ordens-abertas[data-erimax-zoom-level="40"] .oa-list {
   display:grid!important;
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,390px),1fr))!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))!important;
   align-items:start!important;
   grid-auto-rows:min-content!important;
   gap:14px!important;
