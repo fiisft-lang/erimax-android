@@ -11709,7 +11709,23 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 </style>
 
 <style id="erimax-android-bottom-nav-browser-parity-2026">
-/* Android: não sobrescreve a barra mobile. Herda integralmente o espaçamento e o safe-area da regra compartilhada com o navegador. */
+/* Android: card compacto, com altura total controlada e botões na mesma proporção do navegador. */
+@media(max-width:1023px){
+  html.erimax-app-android .erimax-mobile-bottom-nav{
+    box-sizing:border-box!important;
+    min-height:68px!important;
+    height:68px!important;
+    padding:7px 9px!important;
+    border-radius:23px!important;
+  }
+  html.erimax-app-android .erimax-mobile-nav-item{
+    box-sizing:border-box!important;
+    min-height:52px!important;
+    height:52px!important;
+    padding:5px 4px!important;
+    border-radius:16px!important;
+  }
+}
 </style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
