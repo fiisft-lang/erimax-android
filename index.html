@@ -13212,5 +13212,66 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 @media(prefers-reduced-motion:reduce) {
   #modalHistoricoOS .erimax-os-history-content {scroll-behavior:auto!important}
 }
+
+/* Cobertura complementar após conferência do HTML real das janelas. */
+#modalEfOS>.efos-dialog{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  max-height:min(92dvh,900px)!important;
+}
+#modalEfOS .efos-header{
+  position:sticky!important;
+  top:0!important;
+  z-index:9!important;
+  flex:0 0 auto!important;
+  background:#fff!important;
+  padding:12px 0!important;
+  border-bottom:1px solid #e4ebef!important;
+}
+#modalEfOS .efos-list{
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch;
+}
+#modalDetalheMetrica>.box{
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#modalDetalheMetrica>.box>div:first-child{
+  flex:0 0 auto!important;
+  position:sticky!important;
+  top:0!important;
+  margin:0!important;
+  padding:0 0 12px!important;
+}
+#modalDetalheMetrica #listaDetalheMetrica{
+  min-height:0!important;
+}
+#modalHor>.box,
+#modalReabrirOS>.box,
+#modalEditarEquipamentoOS>.box,
+#modalEditarOSCompleta>.box{
+  display:flex!important;
+  flex-direction:column!important;
+}
+#modalHor>.box>h2:first-child,
+#modalReabrirOS>.box>h2:first-child,
+#modalEditarEquipamentoOS>.box>h2:first-child{
+  flex:0 0 auto!important;
+}
+@media(max-width:760px){
+  #modalEfOS>.efos-dialog{
+    width:100%!important;
+    max-width:100%!important;
+    max-height:calc(100dvh - 16px)!important;
+  }
+  #modalDetalheMetrica>.box{
+    max-height:calc(100dvh - 16px)!important;
+  }
+}
 </style>
 
