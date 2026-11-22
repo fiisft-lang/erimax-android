@@ -10056,7 +10056,7 @@ function atualizarMetricasReais(){
     // O histórico do período não pode depender do turno de abertura selecionado:
     // uma O.S. aberta no Turno 1 pode gerar parada atribuída ao Turno 2.
     const chamadosEscopo=chamados.filter(c=>
-      c.tipo!=='Preventiva'&&c.status!=='Cancelada'&&
+      setoresEscopo.includes(c.setor)&&c.tipo!=='Preventiva'&&c.status!=='Cancelada'&&
       (st==='Todos'||c.setor===st)&&(mq==='Todas'||c.maquina===mq)&&(tp==='Todos'||c.tipo===tp)
     );
     pIni=chamadosEscopo.length?new Date(Math.min(...chamadosEscopo.map(c=>new Date(c.created_at)))):new Date(hoje);
