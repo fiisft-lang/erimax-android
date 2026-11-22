@@ -12840,6 +12840,87 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+<!-- Ajuste responsivo: cartões de Ordens Abertas em zoom reduzido -->
+
+<style id="erimax-ordens-abertas-zoom-responsivo-2026">
+/* Mantém os cartões legíveis quando o zoom do navegador amplia a área CSS disponível. */
+#tab-ordens-abertas .oa-list,
+#tab-ordens-abertas[data-erimax-zoom] .oa-list,
+#tab-ordens-abertas[data-erimax-zoom-level="80"] .oa-list,
+#tab-ordens-abertas[data-erimax-zoom-level="60"] .oa-list,
+#tab-ordens-abertas[data-erimax-zoom-level="40"] .oa-list {
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,390px),1fr))!important;
+  align-items:start!important;
+  grid-auto-rows:min-content!important;
+  gap:14px!important;
+}
+#tab-ordens-abertas .oa-list>.os-card {
+  min-width:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:fit-content!important;
+  align-self:start!important;
+  box-sizing:border-box!important;
+  padding:15px!important;
+}
+#tab-ordens-abertas .os-card.oa-card,
+#tab-ordens-abertas .os-card {
+  container-name:oa-card;
+  container-type:inline-size;
+}
+#tab-ordens-abertas .oa-card-meta,
+#tab-ordens-abertas .oa-card-facts {
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;
+}
+#tab-ordens-abertas .oa-card-meta>span,
+#tab-ordens-abertas .oa-card-facts>span {
+  min-width:0!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+}
+#tab-ordens-abertas .oa-card-meta b,
+#tab-ordens-abertas .oa-card-facts b,
+#tab-ordens-abertas .oa-card-machine,
+#tab-ordens-abertas .oa-card-problem p {
+  min-width:0!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+  line-height:1.45!important;
+}
+@container oa-card (max-width:430px) {
+  #tab-ordens-abertas .oa-card-meta,
+  #tab-ordens-abertas .oa-card-facts {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #tab-ordens-abertas .oa-card-meta>span:last-child,
+  #tab-ordens-abertas .oa-card-facts>span:last-child {
+    grid-column:1/-1!important;
+  }
+}
+#tab-ordens-abertas .os-card .os-actions {
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+#tab-ordens-abertas .os-card .os-actions .btn-action {
+  flex:0 1 auto!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+  line-height:1.35!important;
+}
+@media(max-width:600px) {
+  #tab-ordens-abertas .oa-list,
+  #tab-ordens-abertas[data-erimax-zoom] .oa-list {
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #tab-ordens-abertas .oa-list>.os-card {padding:12px!important}
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
