@@ -7539,7 +7539,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('mttr')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('mttr')}"><div class="title">MTTR</div><div class="value" id="cMTTR" style="color:#28a745">0 min</div><div class="sub">Aceite → conclusão (média)</div></div>
 <div class="metric-card metricas-com-horario" id="metricHorarioMTBF" role="button" tabindex="0" onclick="abrirDetalheMetrica('mtbf')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('mtbf')}"><div class="title">MTBF</div><div class="value" id="cMTBF">-</div><div class="sub">Tempo médio entre falhas</div></div>
 <div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('total')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('total')}"><div class="title">Total de OS</div><div class="value" id="cTotal">0</div><div class="sub" id="cTotalSub">0 abertas</div></div>
-<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('conclusao')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('conclusao')}"><div class="title">Taxa de conclusão</div><div class="value" id="cTaxa" style="color:#28a745">0%</div><div class="sub">Concluídas ÷ total</div></div>
+<div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('conclusao')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('conclusao')}"><div class="title">Taxa de conclusão</div><div class="value" id="cTaxa" style="color:#28a745">0%</div><div class="sub">Concluídas ÷ O.S. não canceladas</div></div>
 <div class="metric-card" role="button" tabindex="0" onclick="abrirDetalheMetrica('reincidencia')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalheMetrica('reincidencia')}"><div class="title">Reincidência</div><div class="value" id="cReinc" style="color:#dc3545">0%</div><div class="sub">Mesmo defeito na mesma máquina</div></div>
 </div>
 
@@ -9891,19 +9891,23 @@ function abrirDetalheMetrica(tipo){
   box.innerHTML=lista.length?lista.map(itemOS).join(''):'<p>Nenhuma O.S. com parada neste filtro.</p>';
  }else if(tipo==='resposta'||tipo==='mttr'){
   const resp=tipo==='resposta';titulo.textContent=resp?'Tempo de resposta':'MTTR — tempo de reparo';
-  lista=dados.filter(c=>c.data_atendimento&&(!resp?c.data_conclusao:true));const g={};
+  lista=dados.filter(c=>c.data_atendimento&&(!resp?c.data_conclusao:true)&&min(resp?c.created_at:c.data_atendimento,resp?c.data_atendimento:c.data_conclusao)>=0);const g={};
   lista.forEach(c=>{const n=c.tecnico||'Sem técnico',v=min(resp?c.created_at:c.data_atendimento,resp?c.data_atendimento:c.data_conclusao);if(v>=0){if(!g[n])g[n]={s:0,n:0};g[n].s+=v;g[n].n++}});
   const a=Object.entries(g).map(([n,v])=>[n,v.n?v.s/v.n:0]).sort((x,y)=>y[1]-x[1]);
   cfg={type:'bar',data:{labels:a.map(x=>x[0]),datasets:[{label:'Média em minutos',data:a.map(x=>Math.round(x[1])),backgroundColor:resp?'#2563eb':'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,title:{display:true,text:'minutos'}}}}};
   explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
  }else if(tipo==='mtbf'){
-  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(todos,c=>c.maquina,()=>1).slice(0,12);
+  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(dados,c=>c.maquina,()=>1).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=dados;explicacao='O MTBF geral mantém a fórmula atual baseada nas horas produtivas. O gráfico mostra a quantidade de falhas por máquina, sem inventar um MTBF individual sem base horária confiável.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma falha registrada.</p>';
- }else if(tipo==='total'||tipo==='conclusao'){
-  titulo.textContent=tipo==='total'?'Total de O.S.':'Taxa de conclusão';const g={};todos.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g);
+ }else if(tipo==='total'){
+  titulo.textContent='Total de O.S.';const g={};todos.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g);
   cfg={type:'doughnut',data:{labels,datasets:[{data:labels.map(x=>g[x]),backgroundColor:labels.map((x,i)=>x==='Concluída'?'#16a34a':x==='Cancelada'?'#94a3b8':COR[i%COR.length]),borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'}}}};
-  lista=todos;explicacao='A taxa mantém a fórmula atual: O.S. concluídas divididas pelo total de O.S. no filtro. O gráfico separa as demais situações.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. neste filtro.</p>';
+  lista=todos;explicacao='Distribuição de todas as O.S. do filtro, incluindo as canceladas.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. neste filtro.</p>';
+ }else if(tipo==='conclusao'){
+  titulo.textContent='Taxa de conclusão';const g={};dados.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g),totalValidas=dados.length;
+  cfg={type:'doughnut',data:{labels,datasets:[{data:labels.map(x=>g[x]),backgroundColor:labels.map((x,i)=>x==='Concluída'?'#16a34a':COR[i%COR.length]),borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom'}}}};
+  lista=dados;explicacao='A taxa é calculada por O.S. concluídas divididas pelas O.S. não canceladas ('+totalValidas+' no filtro). As canceladas ficam fora do cálculo.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. válida neste filtro.</p>';
  }else if(tipo==='reincidencia'){
   titulo.textContent='Reincidência por defeito';const mapa=calcularReincidenciasHistorico(chamados),grupos={};
   dados.forEach(os=>{
@@ -10517,7 +10521,7 @@ function atualizarMetricasReais(){
     const t=tec[nome];
     return '<tr><td>'+escaparHtml(nome)+'</td><td>'+(t.nR||0)+'</td><td>'+(t.nP||0)+'</td><td>'+((t.nR||0)?escaparHtml(fmt(media(t.sR,t.nR))):'—')+'</td><td>'+((t.nP||0)?escaparHtml(fmt(media(t.sP,t.nP))):'—')+'</td></tr>';
   }).join(''):'<tr><td colspan="5">Sem tempos de atendimento registrados para os filtros selecionados.</td></tr>';
-  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const lista=fIndicadores.filter(c=>c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao));return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
+  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const lista=fIndicadores.filter(c=>c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao)&&min(ds===0?c.created_at:c.data_atendimento,ds===0?c.data_atendimento:c.data_conclusao)>=0);return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
   mk('chTecnico',{type:'bar',data:{labels:tn_,datasets:[
     {label:'Resposta (min)',data:tn_.map(t=>Math.round(media(tec[t].sR,tec[t].nR))),backgroundColor:'#0056b3'},
     {label:'Reparo (min)',data:tn_.map(t=>Math.round(media(tec[t].sP,tec[t].nP))),backgroundColor:'#28a745'}]}});
