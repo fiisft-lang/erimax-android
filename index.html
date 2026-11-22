@@ -9887,7 +9887,7 @@ function abrirDetalheMetrica(tipo){
   explicacao='Usa a mesma base de horas do indicador principal. Considera somente paradas registradas em O.S. dentro do horário de produção.';
   box.innerHTML=lista.length?lista.map(os=>{const x=(OS_PARADA_ATUAL||[]).find(v=>Number(v.os.id)===Number(os.id));return '<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina)+'</b><p>Parada considerada: '+fmt(x?.parada||0)+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>'}).join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
  }else if(tipo==='parada'){
-  titulo.textContent='Tempo total parado';const g=agrupar(OS_PARADA_ATUAL||[],x=>x.os.maquina,x=>x.parada).slice(0,12);
+  titulo.textContent='Tempo total parado';const g=agrupar(OS_PARADA_ATUAL||[],x=>(x.os.maquina||'Máquina não informada')+' — '+(x.os.setor||'Setor não informado'),x=>x.parada).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
   lista=ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os));
   explicacao='Considera somente horários produtivos e evita duplicar minutos de O.S. sobrepostas na mesma máquina.';
@@ -9900,7 +9900,7 @@ function abrirDetalheMetrica(tipo){
   cfg={type:'bar',data:{labels:a.map(x=>x[0]),datasets:[{label:'Média em minutos',data:a.map(x=>Math.round(x[1])),backgroundColor:resp?'#2563eb':'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,title:{display:true,text:'minutos'}}}}};
   explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
  }else if(tipo==='mtbf'){
-  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(dados,c=>c.maquina,()=>1).slice(0,12);
+  titulo.textContent='MTBF — intervalo médio entre falhas';const g=agrupar(dados,c=>(c.maquina||'Máquina não informada')+' — '+(c.setor||'Setor não informado'),()=>1).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=dados;explicacao='O MTBF geral mantém a fórmula atual baseada nas horas produtivas. O gráfico mostra a quantidade de falhas por máquina, sem inventar um MTBF individual sem base horária confiável.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma falha registrada.</p>';
  }else if(tipo==='total'){
@@ -10550,12 +10550,13 @@ function atualizarMetricasReais(){
     }));
   }
   // Fase 8 — comparação histórica simples para sinalizar tendências, sem previsão artificial.
-  const mesesPreventivos=[...new Set(baseEscopo.filter(os=>os.status!=='Cancelada'&&os.created_at).map(os=>diaLocal(os.created_at).slice(0,7)).filter(Boolean))].sort();
+  const baseEscopoAberturas=baseEscopo.filter(os=>tn==='Todos'||normalizarTurnoMetrica(os.turno)===tn);
+  const mesesPreventivos=[...new Set(baseEscopoAberturas.filter(os=>os.status!=='Cancelada'&&os.created_at).map(os=>diaLocal(os.created_at).slice(0,7)).filter(Boolean))].sort();
   const gradePreventiva=document.getElementById('metricsPreventiveGrid');
   const periodoPreventivo=document.getElementById('metricsPreventivePeriod');
   if(mesesPreventivos.length>=2){
     const mesAtualPrev=mesesPreventivos[mesesPreventivos.length-1],mesAnteriorPrev=mesesPreventivos[mesesPreventivos.length-2];
-    const registrosMesPrev=mes=>baseEscopo.filter(os=>os.status!=='Cancelada'&&os.created_at&&diaLocal(os.created_at).startsWith(mes));
+    const registrosMesPrev=mes=>baseEscopoAberturas.filter(os=>os.status!=='Cancelada'&&os.created_at&&diaLocal(os.created_at).startsWith(mes));
     const atualPrev=registrosMesPrev(mesAtualPrev),anteriorPrev=registrosMesPrev(mesAnteriorPrev);
     const porMaquinaPrev=arr=>{const mapa={};arr.forEach(os=>{const nome=os.maquina||'Máquina não informada';mapa[nome]=(mapa[nome]||0)+1});return mapa};
     const maqAtualPrev=porMaquinaPrev(atualPrev),maqAnteriorPrev=porMaquinaPrev(anteriorPrev);
