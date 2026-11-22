@@ -9881,7 +9881,7 @@ function calcularReincidenciasHistorico(historico){
       if(descricaoNormalizada===candidato.descricaoNormalizada){grupo=candidato;break}
       if(tokens.length<2||candidato.tokens.length<2)continue;
       const comp=compararProblemasOS(tokens,candidato.tokens);
-      if(comp.comuns>=2&&comp.indice>=0.67&&comp.indice>melhorSimilaridade){
+      if(comp.comuns>=2&&comp.indice>=2/3&&comp.indice>melhorSimilaridade){
         grupo=candidato;
         melhorSimilaridade=comp.indice;
       }
@@ -9964,7 +9964,7 @@ function abrirDetalheMetrica(tipo){
   const cronologica=arr=>arr.slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
   box.innerHTML=maquinasOrdenadas.length?maquinasOrdenadas.map((maquina,idx)=>{
     const problemas=maquina.problemas.sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
-    return '<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA '+String(idx+1).padStart(2,'0')+'</small><h3>'+escaparHtml(maquina.maquina)+'</h3><p>'+escaparHtml(maquina.setor)+'</p></div><strong>'+maquina.total+' reincidência(s)</strong></header>'+
+    return '<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA SELECIONADA</small><h3>'+escaparHtml(maquina.maquina)+'</h3><p>'+escaparHtml(maquina.setor)+'</p></div><strong>'+maquina.total+' reincidência(s)</strong></header>'+
       problemas.map((g,i)=>'<article class="metrics-recurrence-detail-problem"><button type="button" class="metrics-recurrence-detail-problem-head" onclick="abrirDetalheReincidenciaGrupo(\''+encodeURIComponent(g.setor).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.maquina).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.problema).replace(/'/g,'%27')+'\')"><b>'+String(i+1).padStart(2,'0')+' · '+escaparHtml(g.problema)+'</b><span>'+g.os.length+' repetição(ões) · abrir O.S.</span></button><div class="metrics-recurrence-detail-sequence">'+cronologica([g.primeiraOS,...g.os]).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).map((os,i)=>'<div class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(diaLocal(os.created_at)||'Data não informada')+'</b><p>'+escaparHtml(os.descricao||'Descrição não informada')+'</p><small>'+escaparHtml(os.status||'Status não informado')+'</small></div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>').join('')+'</div></article>').join('')+'</section>';
   }).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
