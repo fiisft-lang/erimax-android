@@ -11701,6 +11701,12 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 }
 </style>
 
+
+<style id="erimax-fundo-claro-ajuste-sutil-2026">
+/* Clareia somente o canvas geral; cards, menus, cabeçalhos e indicadores preservam suas cores. */
+html{background:#fafbfc!important}
+html body,html.erimax-app-android body{background:#fafbfc!important}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
