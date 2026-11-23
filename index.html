@@ -11172,10 +11172,10 @@ function renderMaquinasAgrupadas(){
   const setores=[...new Set([...SETORES,...MAQUINAS.map(m=>m.setor)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
   listaMaquinas.innerHTML=setores.length?setores.map((nome,i)=>{
     const edit=SETOR_MAQUINAS_EM_EDICAO===nome,lista=MAQUINAS.filter(m=>m.setor===nome);
-    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span><b>'+escaparHtml(nome)+'</b><small style="display:block;color:#64748b;margin-top:3px">'+lista.length+' máquina(s) cadastrada(s)</small></span><button class="btn-action btn-transferir" title="Abrir máquinas do setor" aria-label="Abrir máquinas do setor" style="min-width:42px;flex:none" onclick="editarMaquinasSetor('+i+')">🛠️</button></div>';
+    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span><b>'+escaparHtml(nome)+'</b><small style="display:block;color:#64748b;margin-top:3px">'+lista.length+' máquina(s) cadastrada(s)</small></span><button class="btn-action btn-transferir" title="Abrir máquinas do setor" aria-label="Abrir máquinas do setor" style="min-width:42px;flex:none" onclick="editarMaquinasSetor('+i+')">Editar</button></div>';
     if(edit){
       h+='<div style="border-top:1px solid #e2e8f0;padding-top:10px;margin-top:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>Máquinas de '+escaparHtml(nome)+'</b><button type="button" class="btn-action" style="width:auto;min-width:0;flex:none" onclick="fecharMaquinasSetor()">Fechar ✕</button></div>';
-      h+=lista.length?lista.map(m=>'<div class="maq-row" style="gap:6px;margin-top:7px"><span style="flex:1;min-width:100px"><b>'+escaparHtml(m.nome)+'</b></span><input value="'+escaparHtml(m.prefixo||'')+'" placeholder="MTC-11" maxlength="9" aria-label="Código da máquina" style="width:105px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo('+m.id+',this.value)"><button class="btn-action btn-excluir" aria-label="Excluir máquina" style="flex:none;min-width:0" onclick="delMaquina('+m.id+')">🗑️</button></div>').join(''):'<p style="font-size:.78rem;color:#64748b">Nenhuma máquina cadastrada neste setor.</p>';
+      h+=lista.length?lista.map(m=>'<div class="maq-row" style="gap:6px;margin-top:7px"><span style="flex:1;min-width:100px"><b>'+escaparHtml(m.nome)+'</b></span><input value="'+escaparHtml(m.prefixo||'')+'" placeholder="MTC-11" maxlength="9" aria-label="Código da máquina" style="width:105px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo('+m.id+',this.value)"><button class="btn-action btn-excluir" aria-label="Excluir máquina" style="flex:none;min-width:0" onclick="delMaquina('+m.id+')">Apagar</button></div>').join(''):'<p style="font-size:.78rem;color:#64748b">Nenhuma máquina cadastrada neste setor.</p>';
       h+='<div style="border-top:1px solid #e2e8f0;margin-top:12px;padding-top:10px"><b>➕ Cadastrar máquina neste setor</b><div class="form-group"><label for="maq-nome-'+i+'">Nome da máquina</label><input id="maq-nome-'+i+'" placeholder="Ex.: Tearcrochet 11"></div><div class="form-group"><label for="maq-codigo-'+i+'">Código da máquina</label><input id="maq-codigo-'+i+'" maxlength="9" placeholder="Ex.: MTC-11" style="text-transform:uppercase"></div><button class="btn-submit" onclick="addMaquina('+i+')">➕ Cadastrar máquina</button></div>';
       h+='<button class="btn-action" style="margin-top:9px;width:auto" onclick="fecharMaquinasSetor()">Fechar setor</button></div>';
     }else h+='<p style="font-size:.75rem;color:#64748b;margin-top:8px">🔒 Lista recolhida • Toque na ferramenta para visualizar e editar.</p>';
@@ -11853,6 +11853,82 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 </style>
 
 
+
+<style id="erimax-cadastro-hierarquia-e-acoes-20261123">
+/* Cadastro: hierarquia única para cards, registros e ações textuais. */
+#tab-cadastro .cadastro-area-heading,
+#tab-cadastro .cadastro-setores-heading,
+#tab-cadastro .cadastro-area-card-heading,
+#tab-cadastro .cadastro-setores-list-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;
+}
+#tab-cadastro .cadastro-area-heading h3,
+#tab-cadastro .cadastro-setores-heading h3{margin:0;color:#174b66;line-height:1.25;letter-spacing:-.02em}
+#tab-cadastro .cadastro-area-heading p,
+#tab-cadastro .cadastro-setores-heading p{margin:5px 0 0;color:#647b8d;line-height:1.5;font-size:.82rem}
+#tab-cadastro .cadastro-area-panel>.card,
+#tab-cadastro .cadastro-area-panel .cadastro-area-card,
+#tab-cadastro .cadastro-area-panel #pvFormCard,
+#tab-cadastro .cadastro-area-panel #pvListaCard{
+  min-width:0;border:1px solid #e2eaf2;border-radius:15px;
+  background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+  box-shadow:0 4px 14px rgba(24,59,99,.055);
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row,
+#tab-cadastro #listaCfg .cadastro-setor-item{
+  box-sizing:border-box;min-width:0;margin:9px 0;padding:12px 14px;
+  border:1px solid #e1e9f0;border-radius:12px;background:#fff;
+  box-shadow:0 2px 8px rgba(24,59,99,.035);
+  align-items:center;gap:10px;
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>span{
+  min-width:0;flex:1 1 220px;line-height:1.45;overflow-wrap:anywhere;
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>span>b{
+  display:inline-block;color:#244b65;font-size:.88rem;font-weight:800;
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row small{
+  line-height:1.5;overflow-wrap:anywhere;
+}
+#tab-cadastro .cadastro-setor-actions .btn-action,
+#tab-cadastro :is(#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>.btn-action,
+#tab-cadastro #listaCfg .maq-row>.btn-action{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:auto;min-width:76px;min-height:38px;height:auto;padding:0 12px;
+  flex:0 0 auto;border:1px solid #d8e4ec;border-radius:9px;
+  background:#f3f8fb;color:#285f7b;font-size:.76rem;line-height:1.2;
+  font-weight:800;white-space:nowrap;
+}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-delete,
+#tab-cadastro :is(#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>.btn-excluir,
+#tab-cadastro #listaCfg .maq-row>.btn-excluir{
+  border-color:#f0d9d7;background:#fff6f5;color:#a94340;
+}
+#tab-cadastro #listaUsuarios .maq-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,180px) auto auto}
+#tab-cadastro #listaUsuarios .maq-row>small{grid-column:1/-1}
+#tab-cadastro #listaUsuarios .maq-row>input,
+#tab-cadastro #listaUsuarios .maq-row>select{width:100%;min-width:0;min-height:40px}
+#tab-cadastro #listaUsuarios .maq-row>.btn-action{min-width:100px;padding:0 11px}
+#tab-cadastro #listaUsuarios .maq-row>.btn-transferir{min-width:122px}
+#tab-cadastro .cadastro-setor-actions{gap:7px}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-edit{min-width:76px}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-delete{min-width:76px}
+@media(max-width:600px){
+  #tab-cadastro .cadastro-area-heading{align-items:flex-start}
+  #tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row,
+  #tab-cadastro #listaCfg .cadastro-setor-item{padding:11px;gap:8px}
+  #tab-cadastro #listaUsuarios .maq-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  #tab-cadastro #listaUsuarios .maq-row>small{grid-column:1/-1}
+  #tab-cadastro #listaUsuarios .maq-row>input{grid-column:1/-1}
+  #tab-cadastro #listaUsuarios .maq-row>select{grid-column:1;grid-row:auto}
+  #tab-cadastro #listaUsuarios .maq-row>.btn-action{width:100%;min-width:0;padding:0 8px}
+  #tab-cadastro .cadastro-setor-actions .btn-action{min-width:74px;padding:0 10px}
+}
+@media(max-width:380px){
+  #tab-cadastro .cadastro-setor-actions{gap:5px}
+  #tab-cadastro .cadastro-setor-actions .btn-action{min-width:68px;padding:0 8px;font-size:.7rem}
+}
+</style>
 </head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
 <style id="erimax-supervisao-tipografia-final">
 /* Supervisão: hierarquia discreta, com contraste suficiente para leitura */
@@ -13183,7 +13259,7 @@ function renderEditorSetor(s,i){
   h+='</div><button class="btn-submit" style="max-width:260px;background:var(--secondary)" onclick="salvarExcecaoHorario('+i+')">➕ Salvar data especial</button>';
   const ex=Object.values(EXCECOES_HORARIO).filter(r=>r.setor===s).sort((a,b)=>String(a.data_excecao).localeCompare(String(b.data_excecao)));
   h+='<div style="margin-top:12px"><b style="font-size:.8rem">Datas especiais cadastradas</b>';
-  h+=ex.length?ex.map(r=>'<div class="maq-row" style="margin-top:6px;gap:8px"><span style="flex:1"><b>'+String(r.data_excecao).split('-').reverse().join('/')+'</b><small style="display:block;color:#64748b">'+escaparHtml(r.observacao||((r.horarios||[]).length?'Horário especial':'Sem produção'))+' • '+(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(', ')+'</small></span><button class="btn-action btn-excluir" style="min-width:0;flex:none" onclick="excluirExcecaoHorario('+i+',\''+r.data_excecao+'\')">🗑️</button></div>').join(''):'<p style="font-size:.75rem;color:#64748b;margin-top:6px">Nenhuma data especial cadastrada.</p>';
+  h+=ex.length?ex.map(r=>'<div class="maq-row" style="margin-top:6px;gap:8px"><span style="flex:1"><b>'+String(r.data_excecao).split('-').reverse().join('/')+'</b><small style="display:block;color:#64748b">'+escaparHtml(r.observacao||((r.horarios||[]).length?'Horário especial':'Sem produção'))+' • '+(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(', ')+'</small></span><button class="btn-action btn-excluir" style="min-width:0;flex:none" onclick="excluirExcecaoHorario('+i+',\''+r.data_excecao+'\')">Apagar</button></div>').join(''):'<p style="font-size:.75rem;color:#64748b;margin-top:6px">Nenhuma data especial cadastrada.</p>';
   h+='</div></div>';
   return h;
 }
@@ -13191,7 +13267,7 @@ function renderCfg(){
   listaCfg.innerHTML=SETORES.map((s,i)=>{
     const edit=SETOR_EM_EDICAO===s;
     const qtd=turnosDoSetor(s).length||1;
-    let h='<article class="cadastro-setor-item"><div class="cadastro-setor-item-head"><div class="cadastro-setor-identity"><span class="cadastro-setor-item-icon" aria-hidden="true">▦</span><div class="cadastro-setor-name"><strong>'+escaparHtml(s)+'</strong><small>'+qtd+' turno(s) configurado(s)</small></div></div><div class="cadastro-setor-actions"><button class="btn-action btn-transferir cadastro-setor-edit" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" onclick="editarHorarioSetor('+i+')">◷</button><button class="btn-action btn-excluir cadastro-setor-delete" title="Excluir setor" aria-label="Excluir setor '+escaparHtml(s)+'" onclick="apagarSetor('+i+')">×</button></div></div>';
+    let h='<article class="cadastro-setor-item"><div class="cadastro-setor-item-head"><div class="cadastro-setor-identity"><span class="cadastro-setor-item-icon" aria-hidden="true">▦</span><div class="cadastro-setor-name"><strong>'+escaparHtml(s)+'</strong><small>'+qtd+' turno(s) configurado(s)</small></div></div><div class="cadastro-setor-actions"><button class="btn-action btn-transferir cadastro-setor-edit" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" onclick="editarHorarioSetor('+i+')">Editar</button><button class="btn-action btn-excluir cadastro-setor-delete" title="Excluir setor" aria-label="Excluir setor '+escaparHtml(s)+'" onclick="apagarSetor('+i+')">Apagar</button></div></div>';
     if(edit)h+='<div class="cadastro-setor-edit-close"><span>Configuração de horários</span><button type="button" class="btn-action" onclick="cancelarEdicaoHorario()">Fechar edição ✕</button></div>'+renderEditorSetor(s,i);
     else h+='<div class="cadastro-setor-protected"><span aria-hidden="true">🔒</span><span>Horários protegidos</span><small>Toque no relógio para editar dias e turnos.</small></div>';
     return h+'</article>';
@@ -13311,7 +13387,7 @@ async function carregarUsuarios(){
   if(!erimaxExigirGestorCadastro())return;
   const {data,error}=await _supabase.from('perfis').select('*').order('nome');
   if(error){listaUsuarios.innerHTML='<p class="alerta">Erro: '+error.message+'</p>';return}
-  listaUsuarios.innerHTML=(data||[]).map(u=>`<div class="maq-row" style="flex-wrap:wrap;gap:6px"><small style="flex:1 1 100%;color:#64748b">${u.email||''}${u.id===MEU_ID?' (você)':''}</small><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" style="flex:1;padding:8px" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><select aria-label="Perfil de acesso do usuário" style="width:120px;padding:8px" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<button type="button" aria-label="Redefinir senha do usuário" title="Redefinir senha" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="redefinirSenha('${u.id}')">🔑</button><button type="button" aria-label="Excluir usuário" title="Excluir usuário" class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarUsuario('${u.id}')">🗑️</button>`}</div>`).join('')||'<p style="color:#64748b;text-align:center">Nenhum usuário.</p>';
+  listaUsuarios.innerHTML=(data||[]).map(u=>`<div class="maq-row" style="flex-wrap:wrap;gap:6px"><small style="flex:1 1 100%;color:#64748b">${u.email||''}${u.id===MEU_ID?' (você)':''}</small><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" style="flex:1;padding:8px" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><select aria-label="Perfil de acesso do usuário" style="width:120px;padding:8px" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<button type="button" aria-label="Redefinir senha do usuário" title="Redefinir senha" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="redefinirSenha('${u.id}')">Redefinir senha</button><button type="button" aria-label="Excluir usuário" title="Excluir usuário" class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarUsuario('${u.id}')">Apagar</button>`}</div>`).join('')||'<p style="color:#64748b;text-align:center">Nenhum usuário.</p>';
 }
 async function criarUsuario(){
   if(!erimaxExigirGestorCadastro())return;
@@ -13555,7 +13631,7 @@ async function carregarPreventivas(){
   PREV=data||[];
   renderAlertaPreventivas();
   renderPainelPreventivas();
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Remover preventiva">🗑️</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Apagar preventiva">Apagar</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
     let base;
