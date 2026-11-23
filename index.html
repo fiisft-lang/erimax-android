@@ -8886,8 +8886,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
     }
     if(status==='Em Atendimento'){
+      if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir os-action-primary" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
-      if(podeConcluir)adicionarOpcao('<button type="button" class="btn-action btn-concluir" role="menuitem" onclick="concluirOS('+id+')">Concluir</button>');
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="transferirOS('+id+')">🔄 Transferir</button>');
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
         adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>');
@@ -12866,6 +12866,14 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+<style id="erimax-modal-conclusao-mobile-2026">
+/* O modal de conclusão deve ficar acima da navegação fixa do Android.
+   O conteúdo permanece rolável quando o formulário é maior que a tela. */
+#modal{z-index:1306!important;overflow-y:auto!important;padding: max(12px,env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom))!important}
+#modal .box{width:min(100%,560px)!important;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow-y:auto!important;padding:20px 18px calc(22px + env(safe-area-inset-bottom))!important;overscroll-behavior:contain}
+@media(max-width:767px){#modal{align-items:flex-start!important}#modal .box{margin:auto 0!important;border-radius:16px!important}}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
