@@ -1007,6 +1007,37 @@ details>summary:focus-visible{outline-offset:-3px}
  *,*::before,*::after{animation:none!important;transition:none!important}
 }
 
+
+/* Modal de conclusão no Android: respeita a barra fixa e mantém o botão acessível. */
+@media(max-width:1023px){
+  #modal{
+    z-index:1103!important;
+    box-sizing:border-box!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    overflow-y:auto!important;
+    padding:12px 12px calc(94px + env(safe-area-inset-bottom))!important;
+  }
+  #modal .box{
+    box-sizing:border-box!important;
+    width:min(100%,560px)!important;
+    max-height:calc(100vh - 112px - env(safe-area-inset-bottom))!important;
+    max-height:calc(100dvh - 112px - env(safe-area-inset-bottom))!important;
+    overflow-y:auto!important;
+    margin:0 auto!important;
+    padding:20px 18px 12px!important;
+    overscroll-behavior:contain;
+  }
+  #modal .box>div:last-child{
+    position:sticky!important;
+    bottom:0!important;
+    z-index:3!important;
+    padding:12px 0 max(8px,env(safe-area-inset-bottom))!important;
+    margin:10px 0 0!important;
+    background:#fff!important;
+    box-shadow:0 -8px 14px rgba(255,255,255,.96)!important;
+  }
+}
 </style>
 
 <style id="erimax-terceira-etapa">
@@ -8886,8 +8917,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
     }
     if(status==='Em Atendimento'){
+      if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir os-action-primary" onclick="concluirOS('+id+')">Concluir</button>';
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
-      if(podeConcluir)adicionarOpcao('<button type="button" class="btn-action btn-concluir" role="menuitem" onclick="concluirOS('+id+')">Concluir</button>');
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="transferirOS('+id+')">🔄 Transferir</button>');
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
         adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>');
@@ -12866,6 +12897,7 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -16724,5 +16756,35 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   #tab-abrir #boxStatusTurno .erimax-home-shift-top{align-items:flex-start;flex-direction:column}
   #tab-abrir #boxStatusTurno .erimax-home-shift-action{width:100%}
   #tab-abrir #boxStatusTurno .erimax-home-shift-details{grid-template-columns:1fr}
+}
+</style>
+
+
+<style id="erimax-concluir-modal-mobile-final">
+/* Posicionamento final do modal de conclusão: abaixo da área superior do Android. */
+@media(max-width:760px){
+  #modal{
+    box-sizing:border-box!important;
+    display:none;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    padding:calc(64px + env(safe-area-inset-top)) 12px calc(96px + env(safe-area-inset-bottom))!important;
+    overflow-y:auto!important;
+  }
+  #modal[style*="display: flex"],#modal[style*="display:flex"]{
+    display:flex!important;
+  }
+  #modal>.box{
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:560px!important;
+    max-height:calc(100dvh - 176px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+    margin:0 auto!important;
+    overflow-y:auto!important;
+  }
+  #modal>.box>h2:first-child{
+    top:0!important;
+    margin-top:0!important;
+  }
 }
 </style>
