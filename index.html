@@ -7562,7 +7562,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group"><label for="pvTecnico">Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div></div>
-<div class="card" id="pvListaCard"><h4>Preventivas cadastradas</h4><div id="listaPrev"></div></div>
+<div class="card" id="pvListaCard"><h4 class="cadastro-preventivas-list-head">Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 </section><section id="cadastro-area-usuarios" class="cadastro-area-panel">
 <div class="cadastro-area-heading"><span class="cadastro-area-heading-icon" aria-hidden="true">👥</span><div><span class="cadastro-area-eyebrow">ACESSO E PERMISSÕES</span><h3>Gestão de usuários</h3><p>Cadastre pessoas, atualize perfis e administre o acesso ao EriMax.</p></div></div>
 <div class="card cadastro-area-card cadastro-usuario-form">
@@ -11172,7 +11172,7 @@ function renderMaquinasAgrupadas(){
   const setores=[...new Set([...SETORES,...MAQUINAS.map(m=>m.setor)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
   listaMaquinas.innerHTML=setores.length?setores.map((nome,i)=>{
     const edit=SETOR_MAQUINAS_EM_EDICAO===nome,lista=MAQUINAS.filter(m=>m.setor===nome);
-    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span><b>'+escaparHtml(nome)+'</b><small style="display:block;color:#64748b;margin-top:3px">'+lista.length+' máquina(s) cadastrada(s)</small></span><button class="btn-action btn-transferir" title="Abrir máquinas do setor" aria-label="Abrir máquinas do setor" style="min-width:42px;flex:none" onclick="editarMaquinasSetor('+i+')">Editar</button></div>';
+    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div class="cadastro-machine-sector-head"><span><b>'+escaparHtml(nome)+'</b><small style="display:block;color:#64748b;margin-top:3px">'+lista.length+' máquina(s) cadastrada(s)</small></span><button class="btn-action btn-transferir" title="Abrir máquinas do setor" aria-label="Abrir máquinas do setor" style="min-width:42px;flex:none" onclick="editarMaquinasSetor('+i+')">Editar</button></div>';
     if(edit){
       h+='<div style="border-top:1px solid #e2e8f0;padding-top:10px;margin-top:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>Máquinas de '+escaparHtml(nome)+'</b><button type="button" class="btn-action" style="width:auto;min-width:0;flex:none" onclick="fecharMaquinasSetor()">Fechar ✕</button></div>';
       h+=lista.length?lista.map(m=>'<div class="maq-row" style="gap:6px;margin-top:7px"><span style="flex:1;min-width:100px"><b>'+escaparHtml(m.nome)+'</b></span><input value="'+escaparHtml(m.prefixo||'')+'" placeholder="MTC-11" maxlength="9" aria-label="Código da máquina" style="width:105px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo('+m.id+',this.value)"><button class="btn-action btn-excluir" aria-label="Apagar máquina" style="flex:none;min-width:0" onclick="delMaquina('+m.id+')">Apagar</button></div>').join(''):'<p style="font-size:.78rem;color:#64748b">Nenhuma máquina cadastrada neste setor.</p>';
@@ -13220,6 +13220,26 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
     margin-bottom:9px!important;
   }
 }
+</style>
+
+<style id="cadastro-sticky-e-proporcao-global-20261123">
+#tab-cadastro,#tab-cadastro .cadastro-area-panel,#tab-cadastro .cadastro-area-panel>.card,#tab-cadastro .cadastro-area-panel>.cadastro-area-card,#tab-cadastro .cadastro-setores-shell,#tab-cadastro #listaCfg,#tab-cadastro .cadastro-setor-item,#tab-cadastro #listaMaquinas,#tab-cadastro #listaPrev,#tab-cadastro #listaUsuarios{overflow:visible!important}
+#tab-cadastro :is(.cadastro-area-heading,.cadastro-area-card-heading,.cadastro-setores-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head,.pv-form-heading,.cadastro-preventivas-list-head){position:-webkit-sticky!important;position:sticky!important;top:calc(72px + env(safe-area-inset-top,0px))!important;z-index:90!important;box-sizing:border-box!important;min-height:54px!important;padding:10px 12px!important;margin-top:0!important;margin-bottom:10px!important;border:1px solid #d8e7e9!important;border-radius:12px!important;background:linear-gradient(115deg,#e8f3f8 0%,#e4f3ef 100%)!important;box-shadow:0 5px 14px rgba(24,55,78,.13)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);scroll-margin-top:calc(80px + env(safe-area-inset-top,0px))}
+#tab-cadastro :is(.cadastro-area-heading,.cadastro-setores-heading){justify-content:flex-start!important;gap:12px!important}
+#tab-cadastro :is(.cadastro-area-heading,.cadastro-setores-heading) :is(h3,p){margin-top:0!important}
+#tab-cadastro :is(.cadastro-area-card-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head,.pv-form-heading){display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+#tab-cadastro :is(.cadastro-area-card-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head)>:first-child{min-width:0!important}
+#tab-cadastro .cadastro-machine-sector-head{margin:0 0 10px!important;color:#183d55!important}
+#tab-cadastro .cadastro-machine-sector-head b,#tab-cadastro .cadastro-area-card-heading strong,#tab-cadastro .cadastro-preventivas-list-head{color:#183d55!important}
+#tab-cadastro .cadastro-preventivas-list-head{display:flex!important;align-items:center!important;justify-content:flex-start!important;text-align:left!important;text-transform:none!important;font-size:.92rem!important}
+#tab-cadastro .cadastro-setor-item-head{margin-left:-4px!important;margin-right:-4px!important}
+#tab-cadastro :is(.cadastro-setor-actions,.cadastro-area-card-heading) button,#tab-cadastro .maq-row button.btn-action,#tab-cadastro #listaCfg button.btn-action,#tab-cadastro #listaExcecoesGeral button.btn-action,#tab-cadastro .cadastro-setor-edit-close button{display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:auto!important;min-width:0!important;max-width:100%!important;min-height:30px!important;height:30px!important;padding:0 9px!important;border-radius:8px!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;line-height:1!important;font-size:12px!important;font-weight:750!important;letter-spacing:0!important}
+#tab-cadastro .cadastro-setor-actions{display:flex!important;flex-flow:row nowrap!important;gap:6px!important;min-width:0!important}
+#tab-cadastro .maq-row{min-width:0!important;flex-wrap:wrap!important;align-items:center!important}
+#tab-cadastro .maq-row>span{min-width:0!important;flex:1 1 180px!important}
+#tab-cadastro .maq-row button.btn-action{margin:0!important}
+#tab-cadastro #listaUsuarios .maq-row{gap:7px!important}
+@media(max-width:600px){#tab-cadastro :is(.cadastro-area-heading,.cadastro-area-card-heading,.cadastro-setores-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head,.pv-form-heading,.cadastro-preventivas-list-head){top:calc(62px + env(safe-area-inset-top,0px))!important;min-height:50px!important;padding:8px 9px!important;margin-bottom:8px!important}#tab-cadastro :is(.cadastro-setor-actions,.cadastro-area-card-heading) button,#tab-cadastro .maq-row button.btn-action,#tab-cadastro #listaCfg button.btn-action,#tab-cadastro #listaExcecoesGeral button.btn-action,#tab-cadastro .cadastro-setor-edit-close button{min-height:29px!important;height:29px!important;padding:0 7px!important;font-size:11.5px!important}#tab-cadastro .cadastro-area-heading p,#tab-cadastro .cadastro-setores-heading p{font-size:.7rem!important;line-height:1.35!important}}
 </style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
