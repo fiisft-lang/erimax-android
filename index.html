@@ -16486,3 +16486,78 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   box-sizing:border-box!important;
 }
 </style>
+
+<style id="erimax-os-actions-zoom-overflow-final-2026">
+/* Corrige a regra de zoom mais específica que ainda forçava grade em Ordens de Serviço. */
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions{
+  display:flex!important;flex-flow:row nowrap!important;grid-template-columns:none!important;
+  align-items:stretch!important;gap:clamp(3px,1vw,7px)!important;width:100%!important;
+  min-width:0!important;box-sizing:border-box!important;
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-primary,
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-history{
+  display:inline-flex!important;flex:1 1 0!important;width:auto!important;min-width:0!important;
+  max-width:none!important;margin:0!important;box-sizing:border-box!important;
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-actions-menu{
+  display:block!important;flex:0 0 clamp(30px,3.8vw,36px)!important;
+  width:clamp(30px,3.8vw,36px)!important;min-width:0!important;margin:0!important;
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-actions-menu>.os-actions-more{
+  width:100%!important;min-width:0!important;height:100%!important;padding:0!important;box-sizing:border-box!important;
+}
+/* O painel abre sobre os cartões vizinhos sem ser recortado pelo overflow do cartão. */
+#tab-ordens-servico #listaOS,#tab-ordens-abertas .oa-list-panel,#tab-ordens-abertas .oa-list{
+  overflow:visible!important;
+}
+#tab-ordens-servico .os-card.os-actions-open,#tab-ordens-abertas .os-card.os-actions-open{
+  position:relative!important;z-index:120!important;overflow:visible!important;
+}
+#tab-ordens-servico .os-card.os-actions-open .os-actions,
+#tab-ordens-abertas .os-card.os-actions-open .os-actions{position:relative!important;z-index:121!important}
+.os-actions-menu-panel{
+  z-index:122!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable;
+}
+@media(max-width:600px){
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions{gap:5px!important}
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-primary,
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-history{
+    min-height:32px!important;padding:4px 5px!important;font-size:clamp(.58rem,2.3vw,.72rem)!important;
+    line-height:1.12!important;white-space:normal!important;overflow-wrap:anywhere!important;
+  }
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-actions-menu{flex-basis:32px!important;width:32px!important}
+}
+</style>
+<script id="erimax-os-actions-overflow-controller-2026">
+(function(){
+  if(window.__erimaxOSActionsOverflowController2026)return;
+  window.__erimaxOSActionsOverflowController2026=true;
+  function atualizarMenu(event){
+    const menu=event.target;
+    if(!menu||!menu.matches||!menu.matches('details.os-actions-menu'))return;
+    const card=menu.closest('.os-card');
+    if(!card)return;
+    const panel=menu.querySelector('.os-actions-menu-panel');
+    if(menu.open){
+      card.classList.add('os-actions-open');
+      if(!panel)return;
+      const anchor=(menu.querySelector('.os-actions-more')||menu).getBoundingClientRect();
+      const altura=window.innerHeight||document.documentElement.clientHeight||600;
+      const acima=Math.max(0,anchor.top-12);
+      const abaixo=Math.max(0,altura-anchor.bottom-12);
+      const abrirAbaixo=abaixo>acima;
+      const espaco=Math.max(120,Math.max(acima,abaixo)-12);
+      panel.style.top=abrirAbaixo?'calc(100% + 7px)':'auto';
+      panel.style.bottom=abrirAbaixo?'auto':'calc(100% + 7px)';
+      panel.style.maxHeight='min(55vh,'+Math.min(360,espaco)+'px)';
+    }else{
+      card.classList.remove('os-actions-open');
+      if(panel){panel.style.top='';panel.style.bottom='';panel.style.maxHeight=''}
+    }
+  }
+  document.addEventListener('toggle',atualizarMenu,true);
+  window.addEventListener('resize',function(){
+    document.querySelectorAll('details.os-actions-menu[open]').forEach(function(menu){atualizarMenu({target:menu})});
+  },{passive:true});
+})();
+</script>
