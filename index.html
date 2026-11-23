@@ -7254,6 +7254,22 @@ body .tbl-wrap td{color:#344d5e}
  }
 }
 </style>
+<style id="erimax-os-actions-overflow-2026">
+/* Ações essenciais visíveis; ações secundárias reunidas em menu por O.S. */
+#tab-ordens-servico .os-actions,#tab-ordens-abertas .os-actions{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:8px!important;padding-top:13px!important;margin-top:14px!important;border-top:1px solid #e8eef2}
+#tab-ordens-servico .os-actions>.os-action-primary,#tab-ordens-abertas .os-actions>.os-action-primary,#tab-ordens-servico .os-actions>.os-action-history,#tab-ordens-abertas .os-actions>.os-action-history{flex:1 1 0!important;min-width:0!important;min-height:43px!important}
+.os-actions-menu{position:relative;flex:0 0 auto;min-width:0;border:0!important;border-radius:10px!important;background:transparent!important;overflow:visible!important}
+.os-actions-menu>.os-actions-more{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px;min-width:91px;min-height:43px;padding:8px 11px!important;border:1px solid #d8e2e9!important;border-radius:10px!important;background:#f5f8fa!important;color:#31566d!important;font-size:.78rem!important;font-weight:800!important;cursor:pointer;list-style:none}
+.os-actions-menu>.os-actions-more::-webkit-details-marker{display:none}
+.os-actions-menu>.os-actions-more span:first-child{font-size:1.35rem;line-height:.7;letter-spacing:1px}
+.os-actions-menu[open]>.os-actions-more{background:#eaf2f7!important;border-color:#9fb8c8!important}
+.os-actions-menu-panel{position:absolute;right:0;bottom:calc(100% + 8px);z-index:40;display:grid;gap:6px;width:min(250px,calc(100vw - 54px));max-height:min(55vh,360px);overflow:auto;padding:9px;border:1px solid #dce5eb;border-radius:13px;background:#fff;box-shadow:0 12px 32px rgba(20,48,68,.18)}
+.os-actions-menu-panel .btn-action{display:flex!important;align-items:center;justify-content:flex-start;width:100%!important;min-height:41px!important;margin:0!important;padding:9px 11px!important;flex:none!important;text-align:left!important;font-size:.78rem!important}
+.os-actions-empty{padding:10px;color:#718292;font-size:.76rem}
+@media(max-width:600px){#tab-ordens-servico .os-actions,#tab-ordens-abertas .os-actions{gap:6px!important}.os-actions-menu>.os-actions-more{min-width:82px;padding-inline:8px!important}.os-actions-menu-panel{bottom:calc(100% + 7px);right:0}}
+@media(min-width:601px){.os-actions-menu-panel{bottom:auto;top:calc(100% + 8px)}}
+@media(prefers-reduced-motion:reduce){.os-actions-menu,.os-actions-menu-panel{transition:none!important}}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -7298,7 +7314,7 @@ body .tbl-wrap td{color:#344d5e}
 </nav>
 <style id="erimax-mobile-bottom-nav-2026">
 @media(max-width:1023px){
-  .nav-tabs #tbOrdensServico{display:none!important}
+  .nav-tabs #tbOrdensServico{display:flex!important}
   .erimax-mobile-bottom-nav{
     position:fixed!important;left:12px!important;right:12px!important;
     bottom:calc(9px + env(safe-area-inset-bottom))!important;z-index:1105!important;
@@ -8854,32 +8870,34 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(u.protocol==='https:'&&u.hostname==='qzjbpvgedfpmfnxsvqhu.supabase.co'&&u.pathname.startsWith('/storage/v1/object/public/fotos-os/'))foto=u.href;
     }catch(e){}
     let b='';
+    let menuAcoes='';
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
     const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&tecnicoAtual):(gestor||tecnicoAtual);
-    if(status==='Aberta'&&PERFIL&&PERFIL.perfil==='tecnico'){
-      b+='<button type="button" class="btn-action btn-assumir" onclick="assumirOS('+id+')">✓ Aceitar O.S.</button>';
-      b+='<button type="button" class="btn-action btn-transferir" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">🔕 Silenciar alerta</button>';
+    const adicionarOpcao=html=>{menuAcoes+=html};
+    if(status==='Aberta'&&PERFIL&&['tecnico','gestor'].includes(PERFIL.perfil)){
+      b+='<button type="button" class="btn-action btn-assumir os-action-primary" onclick="assumirOS('+id+')">Assumir</button>';
+      if(PERFIL.perfil==='tecnico')adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">Silenciar alerta</button>');
     }
-    else if(status==='Aberta'&&gestor)b+='<button type="button" class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir O.S.</button>';
-    else if(status==='Em Atendimento'){
-      if(gestor||tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
-      if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
-      if(gestor||tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
+    if(status==='Em Atendimento'){
+      if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
+      if(podeConcluir)adicionarOpcao('<button type="button" class="btn-action btn-concluir" role="menuitem" onclick="concluirOS('+id+')">Concluir</button>');
+      if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="transferirOS('+id+')">🔄 Transferir</button>');
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
-        b+='<button type="button" class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>';
-        b+='<button type="button" class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';
+        adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>');
+        adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>');
       }
     }else if(status==='Pausada'){
       const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
-      if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
+      if(gestor||tecnicoAtual||tecnicoQuePausou)adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>');
     }
-    if(status.trim().normalize('NFC').toLocaleLowerCase('pt-BR')==='concluída'&&gestor)b+='<button type="button" class="btn-action btn-transferir" style="background:#d97706;color:#fff" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
-    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
-    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="abrirEdicaoCompletaOS('+id+')">✏️ Editar O.S.</button>';
-    b+='<button type="button" class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
-    if(PERFIL&&PERFIL.perfil==='gestor')b+='<button type="button" class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
+    if(status.trim().normalize('NFC').toLocaleLowerCase('pt-BR')==='concluída'&&gestor)adicionarOpcao('<button type="button" class="btn-action btn-transferir" style="background:#d97706;color:#fff" role="menuitem" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>');
+    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="cancelarOS('+id+')">🚫 Cancelar</button>');
+    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="abrirEdicaoCompletaOS('+id+')">✏️ Editar O.S.</button>');
+    if(gestor)adicionarOpcao('<button type="button" class="btn-action btn-excluir" role="menuitem" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>');
+    b+='<button type="button" class="btn-action btn-historico os-action-history" onclick="verHistorico('+id+')">Histórico</button>';
+    b+='<details class="os-actions-menu"><summary class="os-actions-more" aria-label="Mais opções da ordem de serviço" aria-haspopup="menu"><span aria-hidden="true">⋯</span><span>Opções</span></summary><div class="os-actions-menu-panel" role="menu">'+(menuAcoes||'<span class="os-actions-empty">Nenhuma outra ação disponível</span>')+'</div></details>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     const androidApp=document.documentElement.classList.contains('erimax-app-android');
     const listaAbertasCompacta=destino==='listaOSAbertas';
