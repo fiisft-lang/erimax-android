@@ -17234,16 +17234,56 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 </style>
 
 <style id="cadastro-hierarquia-sticky-segura-20261123">
-#tab-cadastro,#tab-cadastro .cadastro-area-panel,#tab-cadastro .cadastro-setores-shell,#tab-cadastro #listaCfg,#tab-cadastro .cadastro-setor-item,#tab-cadastro #listaMaquinas,#tab-cadastro .cadastro-machine-group,#tab-cadastro .cadastro-machine-group-content,#tab-cadastro #listaPrev,#tab-cadastro #listaUsuarios{overflow:visible!important}
-#tab-cadastro .cadastro-area-heading,#tab-cadastro .cadastro-setores-heading{position:sticky!important;top:calc(68px + env(safe-area-inset-top,0px))!important;z-index:40!important;box-sizing:border-box!important;background:linear-gradient(115deg,#e8f3f8,#e4f3ef)!important;border:1px solid #d8e7e9!important;border-radius:12px!important;padding:10px 12px!important;box-shadow:0 5px 14px rgba(24,55,78,.13)!important;backdrop-filter:blur(10px);scroll-margin-top:calc(74px + env(safe-area-inset-top,0px))}
-#tab-cadastro .cadastro-setor-item:has(.cadastro-setor-edit-close) .cadastro-setor-item-head,#tab-cadastro .cadastro-machine-group:has(.cadastro-machine-group-content) .cadastro-machine-sector-head,#tab-cadastro .cadastro-record-item.is-open .cadastro-record-head{position:sticky!important;top:calc(132px + env(safe-area-inset-top,0px))!important;z-index:35!important;box-sizing:border-box!important;min-height:54px!important;padding:9px 11px!important;margin:0 0 10px!important;border:1px solid #d7e7eb!important;border-radius:11px!important;background:linear-gradient(115deg,#e8f3f8,#e4f3ef)!important;box-shadow:0 4px 12px rgba(24,55,78,.12)!important;backdrop-filter:blur(10px);scroll-margin-top:calc(138px + env(safe-area-inset-top,0px))}
-#tab-cadastro .cadastro-machine-item.is-open .cadastro-machine-head{position:sticky!important;top:calc(190px + env(safe-area-inset-top,0px))!important;z-index:34!important;box-sizing:border-box!important;min-height:52px!important;padding:8px 10px!important;margin:0 0 9px!important;border:1px solid #d7e7eb!important;border-radius:10px!important;background:linear-gradient(115deg,#edf5f8,#eaf5f1)!important;box-shadow:0 3px 10px rgba(24,55,78,.1)!important;backdrop-filter:blur(10px);scroll-margin-top:calc(196px + env(safe-area-inset-top,0px))}
-#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{min-width:0;margin:9px 0;padding:10px;border:1px solid #e0e9ef;border-radius:12px;background:#fff}
-#tab-cadastro .cadastro-machine-head,#tab-cadastro .cadastro-record-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
-#tab-cadastro .cadastro-machine-head>div,#tab-cadastro .cadastro-record-head>div{display:grid;gap:4px;min-width:0}
-#tab-cadastro .cadastro-machine-head strong,#tab-cadastro .cadastro-record-head strong{color:#183d55;font-size:.9rem;font-weight:850;overflow-wrap:anywhere}
-#tab-cadastro .cadastro-machine-head small,#tab-cadastro .cadastro-record-head small{color:#647b8d;font-size:.72rem;overflow-wrap:anywhere}
-#tab-cadastro .cadastro-machine-details,#tab-cadastro .cadastro-record-details{display:grid;gap:9px;padding:12px;margin-top:8px;border-top:1px solid #e4edf2;background:#f8fbfc;border-radius:0 0 10px 10px}
+/* Os cartões são os registros; somente o cabeçalho do registro aberto fica preso. */
+#tab-cadastro,#tab-cadastro .cadastro-area-panel,#tab-cadastro .cadastro-setores-shell,
+#tab-cadastro #listaCfg,#tab-cadastro .cadastro-setor-item,
+#tab-cadastro #listaMaquinas,#tab-cadastro .cadastro-machine-group,
+#tab-cadastro .cadastro-machine-group-content,#tab-cadastro #listaPrev,
+#tab-cadastro #listaUsuarios{overflow:visible!important}
+
+/* Não fixar cabeçalho geral de painel nem o cabeçalho do agrupamento por setor. */
+#tab-cadastro .cadastro-area-heading,
+#tab-cadastro .cadastro-setores-heading,
+#tab-cadastro .cadastro-machine-sector-head{position:relative!important;top:auto!important;z-index:auto!important}
+
+/* Cada setor tem seu próprio cabeçalho e seus próprios botões. */
+#tab-cadastro .cadastro-setor-item:has(.cadastro-setor-edit-close)>.cadastro-setor-item-head,
+/* Cada máquina tem seu próprio cabeçalho e seus próprios botões. */
+#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,
+/* Preventivas e usuários seguem a mesma regra por registro. */
+#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{
+ position:sticky!important;
+ top:calc(68px + env(safe-area-inset-top,0px))!important;
+ z-index:45!important;
+ box-sizing:border-box!important;
+ min-height:52px!important;
+ padding:9px 11px!important;
+ margin:0 0 10px!important;
+ border:1px solid #d7e7eb!important;
+ border-radius:11px!important;
+ background:linear-gradient(115deg,#e8f3f8,#e4f3ef)!important;
+ box-shadow:0 4px 12px rgba(24,55,78,.12)!important;
+ backdrop-filter:blur(10px);
+ scroll-margin-top:calc(74px + env(safe-area-inset-top,0px));
+}
+#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{
+ min-width:0;margin:9px 0;padding:10px;border:1px solid #e0e9ef;border-radius:12px;background:#fff
+}
+#tab-cadastro .cadastro-machine-head,#tab-cadastro .cadastro-record-head{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0
+}
+#tab-cadastro .cadastro-machine-head>div,#tab-cadastro .cadastro-record-head>div{
+ display:grid;gap:4px;min-width:0
+}
+#tab-cadastro .cadastro-machine-head strong,#tab-cadastro .cadastro-record-head strong{
+ color:#183d55;font-size:.9rem;font-weight:850;overflow-wrap:anywhere
+}
+#tab-cadastro .cadastro-machine-head small,#tab-cadastro .cadastro-record-head small{
+ color:#647b8d;font-size:.72rem;overflow-wrap:anywhere
+}
+#tab-cadastro .cadastro-machine-details,#tab-cadastro .cadastro-record-details{
+ display:grid;gap:9px;padding:12px;margin-top:8px;border-top:1px solid #e4edf2;background:#f8fbfc;border-radius:0 0 10px 10px
+}
 #tab-cadastro .cadastro-machine-details[hidden],#tab-cadastro .cadastro-record-details[hidden]{display:none!important}
 #tab-cadastro .cadastro-record-details p{margin:0;color:#536b7d;font-size:.78rem;line-height:1.5;overflow-wrap:anywhere}
 #tab-cadastro .cadastro-record-actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -17253,7 +17293,18 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 #tab-cadastro .cadastro-machine-sector-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 #tab-cadastro .cadastro-machine-sector-head>span{display:grid;gap:4px;min-width:0}
 #tab-cadastro .cadastro-machine-sector-head small{color:#647b8d;font-size:.72rem}
-#tab-cadastro .cadastro-machine-head button,#tab-cadastro .cadastro-record-head button,#tab-cadastro .cadastro-machine-sector-head button,#tab-cadastro .cadastro-setor-actions button{flex:0 0 auto;min-height:32px;height:32px;padding:0 10px;white-space:nowrap;font-size:12px}
+#tab-cadastro .cadastro-machine-head button,#tab-cadastro .cadastro-record-head button,
+#tab-cadastro .cadastro-setor-actions button{
+ flex:0 0 auto;min-height:32px;height:32px;padding:0 10px;white-space:nowrap;font-size:12px
+}
 #tab-cadastro .cadastro-machine-details label,#tab-cadastro .cadastro-record-details label{margin:0;font-size:.72rem;text-transform:none}
-@media(max-width:600px){#tab-cadastro .cadastro-area-heading,#tab-cadastro .cadastro-setores-heading{top:calc(60px + env(safe-area-inset-top,0px))!important;padding:8px 9px!important}#tab-cadastro .cadastro-setor-item:has(.cadastro-setor-edit-close) .cadastro-setor-item-head,#tab-cadastro .cadastro-machine-group:has(.cadastro-machine-group-content) .cadastro-machine-sector-head,#tab-cadastro .cadastro-record-item.is-open .cadastro-record-head{top:calc(118px + env(safe-area-inset-top,0px))!important;min-height:50px!important;padding:8px 9px!important}#tab-cadastro .cadastro-machine-item.is-open .cadastro-machine-head{top:calc(172px + env(safe-area-inset-top,0px))!important;min-height:48px!important;padding:7px 8px!important}#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{padding:8px}}
+@media(max-width:600px){
+ #tab-cadastro .cadastro-setor-item:has(.cadastro-setor-edit-close)>.cadastro-setor-item-head,
+ #tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,
+ #tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{
+  top:calc(60px + env(safe-area-inset-top,0px))!important;
+  min-height:48px!important;padding:8px 9px!important
+ }
+ #tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{padding:8px}
+}
 </style>
