@@ -1007,6 +1007,37 @@ details>summary:focus-visible{outline-offset:-3px}
  *,*::before,*::after{animation:none!important;transition:none!important}
 }
 
+
+/* Modal de conclusão no Android: respeita a barra fixa e mantém o botão acessível. */
+@media(max-width:1023px){
+  #modal{
+    z-index:1103!important;
+    box-sizing:border-box!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    overflow-y:auto!important;
+    padding:12px 12px calc(94px + env(safe-area-inset-bottom))!important;
+  }
+  #modal .box{
+    box-sizing:border-box!important;
+    width:min(100%,560px)!important;
+    max-height:calc(100vh - 112px - env(safe-area-inset-bottom))!important;
+    max-height:calc(100dvh - 112px - env(safe-area-inset-bottom))!important;
+    overflow-y:auto!important;
+    margin:auto 0!important;
+    padding:20px 18px 12px!important;
+    overscroll-behavior:contain;
+  }
+  #modal .box>div:last-child{
+    position:sticky!important;
+    bottom:0!important;
+    z-index:3!important;
+    padding:12px 0 max(8px,env(safe-area-inset-bottom))!important;
+    margin:10px 0 0!important;
+    background:#fff!important;
+    box-shadow:0 -8px 14px rgba(255,255,255,.96)!important;
+  }
+}
 </style>
 
 <style id="erimax-terceira-etapa">
@@ -12867,13 +12898,6 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
-<style id="erimax-modal-conclusao-mobile-2026">
-/* O modal de conclusão deve ficar acima da navegação fixa do Android.
-   O conteúdo permanece rolável quando o formulário é maior que a tela. */
-#modal{z-index:1306!important;overflow-y:auto!important;padding: max(12px,env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom))!important}
-#modal .box{width:min(100%,560px)!important;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow-y:auto!important;padding:20px 18px calc(22px + env(safe-area-inset-bottom))!important;overscroll-behavior:contain}
-@media(max-width:767px){#modal{align-items:flex-start!important}#modal .box{margin:auto 0!important;border-radius:16px!important}}
-</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
