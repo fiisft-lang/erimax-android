@@ -11928,6 +11928,32 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
   #tab-cadastro .cadastro-setor-actions{gap:5px}
   #tab-cadastro .cadastro-setor-actions .btn-action{min-width:60px;min-height:30px;padding:0 7px;font-size:.66rem}
 }
+/* Correção fina: ações compactas e sem quebra de texto em qualquer largura. */
+#tab-cadastro .cadastro-setor-actions{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:5px!important;white-space:nowrap!important}
+#tab-cadastro .cadastro-setor-actions .btn-action,
+#tab-cadastro :is(#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>.btn-action,
+#tab-cadastro #listaCfg .maq-row>.btn-action,
+#tab-cadastro .cadastro-setor-edit-close .btn-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;width:auto!important;min-width:0!important;max-width:max-content!important;
+  min-height:29px!important;height:29px!important;padding:0 7px!important;
+  flex:0 0 auto!important;white-space:nowrap!important;word-break:keep-all!important;
+  overflow-wrap:normal!important;line-height:1!important;font-size:.66rem!important;font-weight:750!important;
+  border-radius:7px!important;
+}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-edit,
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-delete{min-width:0!important}
+#tab-cadastro #listaUsuarios .maq-row>.btn-action{
+  width:auto!important;min-width:0!important;max-width:max-content!important;
+  justify-self:start!important;grid-column:auto!important;padding:0 7px!important;
+}
+#tab-cadastro #listaUsuarios .maq-row>.btn-transferir{min-width:0!important}
+#tab-cadastro #listaUsuarios .maq-row{column-gap:7px!important;row-gap:7px!important}
+#tab-cadastro .maq-row{min-width:0}
+@media(max-width:600px){
+  #tab-cadastro #listaUsuarios .maq-row>.btn-action{width:auto!important;min-width:0!important}
+  #tab-cadastro .cadastro-setor-actions .btn-action{min-height:28px!important;height:28px!important;padding:0 6px!important;font-size:.63rem!important}
+}
 </style>
 </head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
 <style id="erimax-supervisao-tipografia-final">
@@ -13387,7 +13413,7 @@ async function carregarUsuarios(){
   if(!erimaxExigirGestorCadastro())return;
   const {data,error}=await _supabase.from('perfis').select('*').order('nome');
   if(error){listaUsuarios.innerHTML='<p class="alerta">Erro: '+error.message+'</p>';return}
-  listaUsuarios.innerHTML=(data||[]).map(u=>`<div class="maq-row" style="flex-wrap:wrap;gap:6px"><small style="flex:1 1 100%;color:#64748b">${u.email||''}${u.id===MEU_ID?' (você)':''}</small><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" style="flex:1;padding:8px" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><select aria-label="Perfil de acesso do usuário" style="width:120px;padding:8px" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<button type="button" aria-label="Redefinir senha do usuário" title="Redefinir senha" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="redefinirSenha('${u.id}')">Redefinir senha</button><button type="button" aria-label="Apagar usuário" title="Apagar usuário" class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarUsuario('${u.id}')">Apagar</button>`}</div>`).join('')||'<p style="color:#64748b;text-align:center">Nenhum usuário.</p>';
+  listaUsuarios.innerHTML=(data||[]).map(u=>`<div class="maq-row" style="flex-wrap:wrap;gap:6px"><small style="flex:1 1 100%;color:#64748b">${u.email||''}${u.id===MEU_ID?' (você)':''}</small><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" style="flex:1;padding:8px" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><select aria-label="Perfil de acesso do usuário" style="width:120px;padding:8px" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<button type="button" aria-label="Redefinir senha do usuário" title="Redefinir senha" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="redefinirSenha('${u.id}')">Redefinir</button><button type="button" aria-label="Apagar usuário" title="Apagar usuário" class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarUsuario('${u.id}')">Apagar</button>`}</div>`).join('')||'<p style="color:#64748b;text-align:center">Nenhum usuário.</p>';
 }
 async function criarUsuario(){
   if(!erimaxExigirGestorCadastro())return;
