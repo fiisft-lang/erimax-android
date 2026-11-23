@@ -8876,9 +8876,11 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
     const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&tecnicoAtual):(gestor||tecnicoAtual);
     const adicionarOpcao=html=>{menuAcoes+=html};
-    if(statusNormalizado==='aberta'&&PERFIL&&['tecnico','gestor'].includes(PERFIL.perfil)){
+    if(statusNormalizado==='aberta'&&PERFIL&&['tecnico','gestor'].includes(String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR'))){
       b+='<button type="button" class="btn-action btn-assumir os-action-primary" onclick="assumirOS('+id+')">Assumir</button>';
       if(PERFIL.perfil==='tecnico')adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">Silenciar alerta</button>');
+    }else if(statusNormalizado==='concluída'&&PERFIL&&String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR')==='gestor'){
+      b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
     }
     if(status==='Em Atendimento'){
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
@@ -8893,7 +8895,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
       if(gestor||tecnicoAtual||tecnicoQuePausou)adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>');
     }
-    if(status.trim().normalize('NFC').toLocaleLowerCase('pt-BR')==='concluída'&&gestor)adicionarOpcao('<button type="button" class="btn-action btn-transferir" style="background:#d97706;color:#fff" role="menuitem" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>');
+
     if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="cancelarOS('+id+')">🚫 Cancelar</button>');
     if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="abrirEdicaoCompletaOS('+id+')">✏️ Editar O.S.</button>');
     if(gestor)adicionarOpcao('<button type="button" class="btn-action btn-excluir" role="menuitem" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>');
@@ -16420,5 +16422,67 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
     grid-template-columns:minmax(0,1fr)!important;
   }
   #tab-ordens-abertas .oa-list>.os-card{padding:12px!important}
+}
+</style>
+
+<style id="erimax-os-actions-single-row-fix-2026">
+/* Ações por O.S.: manter ação principal, histórico e menu sempre na mesma linha,
+   inclusive com zoom reduzido. Esta camada vem após as regras antigas de grid. */
+#tab-ordens-servico .os-card .os-actions,
+#tab-ordens-abertas .os-card .os-actions{
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  grid-template-columns:none!important;
+  align-items:stretch!important;
+  gap:clamp(3px,1vw,7px)!important;
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+#tab-ordens-servico .os-card .os-actions>.os-action-primary,
+#tab-ordens-servico .os-card .os-actions>.os-action-history,
+#tab-ordens-abertas .os-card .os-actions>.os-action-primary,
+#tab-ordens-abertas .os-card .os-actions>.os-action-history{
+  display:inline-flex!important;
+  flex:1 1 0!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:clamp(32px,4vw,40px)!important;
+  height:auto!important;
+  margin:0!important;
+  padding:clamp(4px,.8vw,7px) clamp(3px,1vw,8px)!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+  line-height:1.12!important;
+  font-size:clamp(.58rem,1.45vw,.78rem)!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+}
+#tab-ordens-servico .os-card .os-actions>.os-actions-menu,
+#tab-ordens-abertas .os-card .os-actions>.os-actions-menu{
+  display:block!important;
+  flex:0 0 clamp(30px,3.8vw,36px)!important;
+  width:clamp(30px,3.8vw,36px)!important;
+  min-width:0!important;
+  margin:0!important;
+  align-self:stretch!important;
+}
+#tab-ordens-servico .os-card .os-actions>.os-actions-menu>.os-actions-more,
+#tab-ordens-abertas .os-card .os-actions>.os-actions-menu>.os-actions-more{
+  display:flex!important;
+  width:100%!important;
+  min-width:0!important;
+  height:100%!important;
+  min-height:32px!important;
+  padding:0!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:23px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
 }
 </style>
