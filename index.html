@@ -12908,6 +12908,119 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+<style id="erimax-desktop-header-scale-audit-2026">
+/* Auditoria de hierarquia dos cabeçalhos — somente computador.
+   O breakpoint e o ponteiro fino isolam estes ajustes do layout de celular/Android. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+  /* Cabeçalho global de cada área */
+  #erimaxDesktopPageHeader{
+    min-height:118px!important;
+    padding:27px 34px!important;
+    gap:30px!important;
+    margin-bottom:29px!important;
+    border-radius:19px!important;
+  }
+  .erimax-pagehead-breadcrumb{font-size:.75rem!important;margin-bottom:11px!important;letter-spacing:.15em!important}
+  .erimax-pagehead-title-row{gap:17px!important}
+  .erimax-pagehead-mark{width:56px!important;height:56px!important;flex-basis:56px!important;border-radius:15px!important;font-size:1.48rem!important}
+  #erimaxDesktopPageTitle{font-size:clamp(2rem,2.15vw,2.55rem)!important;line-height:1.1!important;letter-spacing:-.045em!important}
+  .erimax-pagehead-version{min-height:34px!important;padding:7px 13px!important;font-size:.73rem!important}
+  .erimax-pagehead-context{font-size:.7rem!important}
+
+  /* Meu expediente / iniciar expediente — destaque principal da página */
+  #tab-abrir>#boxStatusTurno{width:100%!important;max-width:1680px!important;margin:0 auto 22px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift{
+    min-height:164px!important;
+    padding:30px 34px!important;
+    border-left-width:6px!important;
+    border-radius:20px!important;
+    box-shadow:0 12px 30px rgba(13,52,69,.19)!important;
+  }
+  #tab-abrir #boxStatusTurno .erimax-home-shift-top{gap:26px!important;align-items:center!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-identity{gap:18px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-icon{
+    width:62px!important;height:62px!important;flex-basis:62px!important;border-radius:17px!important;
+  }
+  #tab-abrir #boxStatusTurno .erimax-home-shift-icon svg{width:30px!important;height:30px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-eyebrow{font-size:.78rem!important;letter-spacing:.16em!important;margin-bottom:9px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-state{font-size:1.08rem!important;padding:8px 14px!important;gap:10px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-state i{width:10px!important;height:10px!important;flex-basis:10px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-action{
+    min-height:58px!important;padding:0 24px!important;border-radius:13px!important;
+    font-size:1rem!important;gap:12px!important;box-shadow:0 7px 18px rgba(4,29,39,.24)!important;
+  }
+  #tab-abrir #boxStatusTurno .erimax-home-shift-help{margin-top:19px!important;padding-top:15px!important;font-size:.91rem!important;line-height:1.6!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-details{gap:13px!important;margin-top:19px!important;padding-top:16px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-details>div{padding:12px 15px!important;border-radius:11px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-details span{font-size:.7rem!important;letter-spacing:.08em!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-details strong{font-size:.95rem!important}
+
+  /* Cabeçalhos principais das páginas */
+  #tab-abrir .erimax-open-os-hero,
+  #tab-ordens-servico .os-modern-hero,
+  #tab-ordens-abertas .oa-hero,
+  #tab-metricas .metrics-hero,
+  #tab-ranking-os .ranking-os-hero,
+  #tab-cadastro .cadastro-hub-hero,
+  #tab-almoxarifado .almox-hero,
+  #painelMaquinasSupervisor .sv-hero{
+    min-height:142px!important;
+    padding:29px 34px!important;
+    gap:24px!important;
+    border-radius:20px!important;
+  }
+  #tab-abrir .erimax-open-os-kicker,
+  #tab-ordens-servico .os-modern-kicker,
+  #tab-ordens-abertas .oa-kicker,
+  #tab-metricas .metrics-hero-kicker,
+  #tab-ranking-os .ranking-os-kicker,
+  #tab-cadastro .cadastro-hub-kicker,
+  #tab-almoxarifado .almox-kicker,
+  #painelMaquinasSupervisor .sv-kicker{
+    font-size:.75rem!important;letter-spacing:.15em!important;margin-bottom:9px!important;
+  }
+  #tab-abrir .erimax-open-os-hero h2,
+  #tab-ordens-servico .os-modern-heading h2,
+  #tab-ordens-abertas .oa-hero h2,
+  #tab-metricas .metrics-hero h2,
+  #tab-ranking-os .ranking-os-hero h2,
+  #tab-cadastro .cadastro-hub-hero h2,
+  #tab-almoxarifado .almox-hero h2,
+  #painelMaquinasSupervisor .sv-hero h2{
+    font-size:clamp(1.85rem,2.05vw,2.3rem)!important;
+    line-height:1.13!important;letter-spacing:-.045em!important;
+  }
+  #tab-abrir .erimax-open-os-hero p,
+  #tab-ordens-servico .os-modern-heading p,
+  #tab-ordens-abertas .oa-hero p,
+  #tab-metricas .metrics-hero p,
+  #tab-ranking-os .ranking-os-hero p,
+  #tab-cadastro .cadastro-hub-hero p,
+  #tab-almoxarifado .almox-hero p,
+  #painelMaquinasSupervisor .sv-hero p{
+    font-size:.96rem!important;line-height:1.6!important;max-width:76ch!important;
+  }
+  #tab-cadastro .cadastro-hub-mark{width:76px!important;height:76px!important;flex-basis:76px!important;font-size:2.3rem!important}
+  #tab-metricas .metrics-hero-side{flex-basis:270px!important;padding:16px!important}
+  #tab-metricas .metrics-hero-icon{width:46px!important;height:46px!important;font-size:1.55rem!important}
+  #tab-ordens-abertas .oa-total b{font-size:1.8rem!important}
+  #tab-ordens-servico .os-modern-total b{font-size:1.7rem!important}
+
+  /* Cabeçalhos internos de painéis e blocos: escala consistente sem trocar suas cores */
+  .tab-content.active :is(.card-header,.panel-header,.section-header,.almox-panel-head,.ranking-os-card-head,.metrics-executive-head,.metrics-action-head,.metrics-preventive-head,.metrics-schedule-head,.sv-section-head){
+    min-height:56px!important;
+    gap:14px!important;
+  }
+  .tab-content.active :is(.card-header,.panel-header,.section-header,.almox-panel-head,.ranking-os-card-head,.metrics-executive-head,.metrics-action-head,.metrics-preventive-head,.metrics-schedule-head,.sv-section-head) :is(h2,h3,h4){
+    font-size:1.08rem!important;font-weight:800!important;line-height:1.3!important;letter-spacing:-.02em!important;
+  }
+  .tab-content.active :is(.metrics-section-heading,.metrics-ranking-head,.metrics-card-head) :is(h2,h3,h4){
+    font-size:1.12rem!important;line-height:1.3!important;font-weight:820!important;
+  }
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
