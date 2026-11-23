@@ -16561,3 +16561,45 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   },{passive:true});
 })();
 </script>
+
+
+<style id="erimax-open-orders-menu-horizontal-fix-2026">
+/* Somente Ordens Abertas: evita que o menu ultrapasse a borda esquerda
+   quando o botão de três pontos estiver no lado esquerdo do cartão. */
+#tab-ordens-abertas .os-actions-menu-panel{
+  width:min(250px,calc(100vw - 16px))!important;
+  max-width:calc(100vw - 16px)!important;
+}
+#tab-ordens-abertas .os-actions-menu-panel.erimax-menu-open-right{
+  left:0!important;right:auto!important;
+}
+#tab-ordens-abertas .os-actions-menu-panel.erimax-menu-open-left{
+  left:auto!important;right:0!important;
+}
+</style>
+<script id="erimax-open-orders-menu-horizontal-controller-2026">
+(function(){
+  if(window.__erimaxOpenOrdersMenuHorizontal2026)return;
+  window.__erimaxOpenOrdersMenuHorizontal2026=true;
+  function posicionar(event){
+    const menu=event.target;
+    if(!menu||!menu.matches||!menu.matches('#tab-ordens-abertas details.os-actions-menu, #tab-ordens-abertas .os-card details.os-actions-menu'))return;
+    const panel=menu.querySelector('.os-actions-menu-panel');
+    if(!panel)return;
+    if(!menu.open){
+      panel.classList.remove('erimax-menu-open-right','erimax-menu-open-left');
+      return;
+    }
+    const trigger=menu.querySelector('.os-actions-more')||menu;
+    const rect=trigger.getBoundingClientRect();
+    const largura=window.innerWidth||document.documentElement.clientWidth||320;
+    const abrirParaDireita=rect.left+rect.width/2<largura/2;
+    panel.classList.toggle('erimax-menu-open-right',abrirParaDireita);
+    panel.classList.toggle('erimax-menu-open-left',!abrirParaDireita);
+  }
+  document.addEventListener('toggle',posicionar,true);
+  window.addEventListener('resize',function(){
+    document.querySelectorAll('#tab-ordens-abertas details.os-actions-menu[open]').forEach(function(menu){posicionar({target:menu})});
+  },{passive:true});
+})();
+</script>
