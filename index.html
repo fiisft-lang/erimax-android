@@ -7610,10 +7610,10 @@ function atualizarNavegacaoMobileEriMax(id){
 </div>
 
 <section class="card metrics-compare-panel" id="metricsComparacaoMaquinas">
-  <div class="metrics-compare-head"><div><span>ANÁLISE COMPARATIVA</span><h3>Comparar máquinas do mesmo setor</h3><p>Selecione de 2 a 5 máquinas. A comparação acompanha o período, turno e tipo de problema escolhidos acima.</p></div><div class="metrics-compare-head-actions"><span class="metrics-compare-icon">⇄</span><button type="button" class="metrics-compare-toggle" id="btnToggleComparacaoMaquinas" aria-expanded="true" onclick="alternarPainelComparacaoMaquinas()">Fechar comparação <span aria-hidden="true">⌃</span></button></div></div>
+  <div class="metrics-compare-head"><div><span>ANÁLISE COMPARATIVA</span><h3>Comparar máquinas do mesmo setor</h3><p>Selecione quantas máquinas quiser do mesmo setor. A comparação acompanha o período, turno e tipo de problema escolhidos acima.</p></div><div class="metrics-compare-head-actions"><span class="metrics-compare-icon">⇄</span><button type="button" class="metrics-compare-toggle" id="btnToggleComparacaoMaquinas" aria-expanded="true" onclick="alternarPainelComparacaoMaquinas()">Fechar comparação <span aria-hidden="true">⌃</span></button></div></div>
   <div class="metrics-compare-controls">
     <div class="form-group"><label for="comparacaoSetor">SETOR</label><select id="comparacaoSetor" onchange="atualizarListaComparacaoMaquinas()"><option value="">Carregando setores...</option></select></div>
-    <div class="form-group"><label for="comparacaoMaquinas">MÁQUINAS (SELECIONE ATÉ 5)</label><select id="comparacaoMaquinas" multiple size="5" onchange="validarSelecaoComparacaoMaquinas()"></select></div>
+    <div class="form-group"><label for="comparacaoMaquinas">MÁQUINAS (SELEÇÃO SEM LIMITE)</label><select id="comparacaoMaquinas" multiple size="8" onchange="validarSelecaoComparacaoMaquinas()"></select></div>
   </div>
   <div class="metrics-compare-actions"><small id="comparacaoAjuda">Escolha um setor e pelo menos duas máquinas.</small><button type="button" class="btn-submit" onclick="renderizarComparacaoMaquinas()">Comparar máquinas</button></div>
   <div id="comparacaoResultado" class="metrics-compare-result"><p>Os resultados aparecerão aqui depois que você selecionar as máquinas.</p></div>
@@ -14618,7 +14618,7 @@ function atualizarListaComparacaoMaquinas(){
   lista.innerHTML=maquinas.map(nome=>'<option value="'+escaparHtml(nome)+'">'+escaparHtml(nome)+'</option>').join('');
   anterior.forEach(nome=>{const opt=[...lista.options].find(o=>o.value===nome);if(opt)opt.selected=true});
   const ajuda=document.getElementById('comparacaoAjuda');
-  if(ajuda)ajuda.textContent=maquinas.length?maquinas.length+' máquina(s) cadastrada(s) neste setor. Selecione de 2 a 5.':'Nenhuma máquina cadastrada neste setor.';
+  if(ajuda)ajuda.textContent=maquinas.length?maquinas.length+' máquina(s) cadastrada(s) neste setor. Você pode selecionar quantas quiser.':'Nenhuma máquina cadastrada neste setor.';
 }
 function atualizarSetoresComparacaoMaquinas(){
   const setor=document.getElementById('comparacaoSetor');if(!setor)return;
@@ -14631,12 +14631,12 @@ function atualizarSetoresComparacaoMaquinas(){
 function validarSelecaoComparacaoMaquinas(){
   const lista=document.getElementById('comparacaoMaquinas');if(!lista)return;
   const escolhidas=[...lista.selectedOptions];
-  if(escolhidas.length>5){escolhidas.slice(5).forEach(o=>o.selected=false);const ajuda=document.getElementById('comparacaoAjuda');if(ajuda)ajuda.textContent='Limite de 5 máquinas por comparação.'}
-  else{const ajuda=document.getElementById('comparacaoAjuda');if(ajuda)ajuda.textContent=escolhidas.length+' máquina(s) selecionada(s). Selecione pelo menos duas.'}
+  const ajuda=document.getElementById('comparacaoAjuda');
+  if(ajuda)ajuda.textContent=escolhidas.length<2?escolhidas.length+' máquina(s) selecionada(s). Selecione pelo menos duas.':escolhidas.length+' máquina(s) selecionada(s). Sem limite de seleção.';
 }
 function renderizarComparacaoMaquinas(){
   const setor=document.getElementById('comparacaoSetor')?.value||'';
-  const selecionadas=[...(document.getElementById('comparacaoMaquinas')?.selectedOptions||[])].map(o=>o.value).slice(0,5);
+  const selecionadas=[...(document.getElementById('comparacaoMaquinas')?.selectedOptions||[])].map(o=>o.value);
   const resultado=document.getElementById('comparacaoResultado'),graficos=document.getElementById('comparacaoGraficos');
   if(!resultado)return;
   if(selecionadas.length<2){resultado.innerHTML='<p>Selecione pelo menos duas máquinas do mesmo setor para comparar.</p>';if(graficos)graficos.style.display='none';return}
