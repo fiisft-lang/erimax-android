@@ -13183,29 +13183,41 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 <style id="cadastro-setor-cabecalho-sticky-2026">
-/* Mantém o cabeçalho do setor acessível enquanto seus horários são percorridos. */
+/* Sticky com folga abaixo do cabeçalho global fixo do aplicativo. */
+#tab-cadastro #cadastro-area-setores .cadastro-setores-shell,
+#tab-cadastro #cadastro-area-setores #listaCfg,
 #tab-cadastro #cadastro-area-setores .cadastro-setor-item{
-  position:relative;
   overflow:visible!important;
+}
+#tab-cadastro #cadastro-area-setores .cadastro-setor-item{
+  position:relative!important;
   isolation:isolate;
 }
 #tab-cadastro #cadastro-area-setores .cadastro-setor-item-head{
+  position:-webkit-sticky!important;
   position:sticky!important;
-  top:8px!important;
-  z-index:25!important;
-  min-height:58px;
-  margin:-2px -3px 0!important;
-  padding:7px 3px!important;
-  border-radius:10px;
-  background:rgba(255,255,255,.97)!important;
-  box-shadow:0 5px 12px rgba(24,55,78,.075);
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
+  top:calc(76px + env(safe-area-inset-top, 0px))!important;
+  z-index:80!important;
+  display:flex!important;
+  align-items:center!important;
+  min-height:60px!important;
+  margin:-3px -4px 10px!important;
+  padding:9px 10px!important;
+  border:1px solid #d7e7eb!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,#e8f3f8 0%,#e4f3ef 100%)!important;
+  box-shadow:0 5px 15px rgba(24,55,78,.14)!important;
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+  scroll-margin-top:calc(82px + env(safe-area-inset-top, 0px));
 }
+#tab-cadastro #cadastro-area-setores .cadastro-setor-name strong{color:#183d55!important}
+#tab-cadastro #cadastro-area-setores .cadastro-setor-name small{color:#587487!important}
 @media(max-width:600px){
   #tab-cadastro #cadastro-area-setores .cadastro-setor-item-head{
-    top:5px!important;
-    min-height:54px;
+    top:calc(64px + env(safe-area-inset-top, 0px))!important;
+    min-height:56px!important;
+    margin-bottom:9px!important;
   }
 }
 </style>
