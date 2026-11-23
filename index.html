@@ -13181,6 +13181,34 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 @media(max-width:560px){.md-auxiliares-list{grid-template-columns:1fr}}
 </style>
 
+
+<style id="cadastro-setor-cabecalho-sticky-2026">
+/* Mantém o cabeçalho do setor acessível enquanto seus horários são percorridos. */
+#tab-cadastro #cadastro-area-setores .cadastro-setor-item{
+  position:relative;
+  overflow:visible!important;
+  isolation:isolate;
+}
+#tab-cadastro #cadastro-area-setores .cadastro-setor-item-head{
+  position:sticky!important;
+  top:8px!important;
+  z-index:25!important;
+  min-height:58px;
+  margin:-2px -3px 0!important;
+  padding:7px 3px!important;
+  border-radius:10px;
+  background:rgba(255,255,255,.97)!important;
+  box-shadow:0 5px 12px rgba(24,55,78,.075);
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+}
+@media(max-width:600px){
+  #tab-cadastro #cadastro-area-setores .cadastro-setor-item-head{
+    top:5px!important;
+    min-height:54px;
+  }
+}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
