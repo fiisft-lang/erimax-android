@@ -17146,3 +17146,72 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 }
 </style>
 
+
+
+<style id="erimax-cadastro-acoes-sem-quebra-final-2026">
+/* Cadastro: vence a regra global de zoom que permitia quebrar o texto dos botões.
+   O escopo é exclusivo desta página; formulários e botões de envio não são alterados. */
+#tab-cadastro .maq-row button.btn-action,
+#tab-cadastro .maq-row .btn-action,
+#tab-cadastro .cadastro-setor-actions button,
+#tab-cadastro .cadastro-setor-edit-close button,
+#tab-cadastro #listaCfg button.btn-action,
+#tab-cadastro #listaExcecoesGeral button.btn-action,
+#tab-cadastro .cadastro-area-card button.btn-action{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  flex:0 0 auto!important;
+  width:max-content!important;
+  min-width:max-content!important;
+  max-width:none!important;
+  min-height:30px!important;
+  height:30px!important;
+  padding:0 9px!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  line-height:1!important;
+  font-size:12px!important;
+  font-weight:750!important;
+  letter-spacing:0!important;
+  text-align:center!important;
+}
+#tab-cadastro .cadastro-setor-actions{
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:6px!important;
+  min-width:max-content!important;
+}
+#tab-cadastro .maq-row{
+  min-width:0!important;
+}
+#tab-cadastro .maq-row>span{
+  min-width:0!important;
+}
+#tab-cadastro #listaUsuarios .maq-row{
+  align-items:center!important;
+  row-gap:8px!important;
+  column-gap:8px!important;
+}
+#tab-cadastro #listaUsuarios .maq-row button.btn-action{
+  margin:0!important;
+}
+@media(max-width:600px){
+  #tab-cadastro .maq-row button.btn-action,
+  #tab-cadastro .maq-row .btn-action,
+  #tab-cadastro .cadastro-setor-actions button,
+  #tab-cadastro .cadastro-setor-edit-close button,
+  #tab-cadastro #listaCfg button.btn-action,
+  #tab-cadastro #listaExcecoesGeral button.btn-action,
+  #tab-cadastro .cadastro-area-card button.btn-action{
+    min-height:29px!important;
+    height:29px!important;
+    padding:0 8px!important;
+    font-size:11.5px!important;
+  }
+}
+</style>
