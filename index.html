@@ -7254,6 +7254,22 @@ body .tbl-wrap td{color:#344d5e}
  }
 }
 </style>
+<style id="erimax-os-actions-overflow-2026">
+/* Ações essenciais visíveis; ações secundárias reunidas em menu por O.S. */
+#tab-ordens-servico .os-actions,#tab-ordens-abertas .os-actions{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:8px!important;padding-top:13px!important;margin-top:14px!important;border-top:1px solid #e8eef2}
+#tab-ordens-servico .os-actions>.os-action-primary,#tab-ordens-abertas .os-actions>.os-action-primary,#tab-ordens-servico .os-actions>.os-action-history,#tab-ordens-abertas .os-actions>.os-action-history{flex:1 1 0!important;min-width:0!important;min-height:43px!important}
+.os-actions-menu{position:relative;flex:0 0 auto;min-width:0;border:0!important;border-radius:10px!important;background:transparent!important;overflow:visible!important}
+.os-actions-menu>.os-actions-more{display:flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:43px!important;min-height:43px!important;padding:0!important;border:1px solid #d8e2e9!important;border-radius:10px!important;background:#f5f8fa!important;color:#31566d!important;font-size:26px!important;font-weight:800!important;line-height:1!important;cursor:pointer;list-style:none}
+.os-actions-menu>.os-actions-more::-webkit-details-marker{display:none}
+.os-actions-menu>.os-actions-more span:first-child{display:block;font-size:26px;line-height:1;letter-spacing:0;transform:translateY(-1px)}
+.os-actions-menu[open]>.os-actions-more{background:#eaf2f7!important;border-color:#9fb8c8!important}
+.os-actions-menu-panel{position:absolute;right:0;bottom:calc(100% + 8px);z-index:40;display:grid;gap:6px;width:min(250px,calc(100vw - 54px));max-height:min(55vh,360px);overflow:auto;padding:9px;border:1px solid #dce5eb;border-radius:13px;background:#fff;box-shadow:0 12px 32px rgba(20,48,68,.18)}
+.os-actions-menu-panel .btn-action{display:flex!important;align-items:center;justify-content:flex-start;width:100%!important;min-height:41px!important;margin:0!important;padding:9px 11px!important;flex:none!important;text-align:left!important;font-size:.78rem!important}
+.os-actions-empty{padding:10px;color:#718292;font-size:.76rem}
+@media(max-width:600px){#tab-ordens-servico .os-actions,#tab-ordens-abertas .os-actions{gap:6px!important}.os-actions-menu>.os-actions-more{width:44px!important;min-width:44px!important;padding:0!important}.os-actions-menu-panel{bottom:calc(100% + 7px);right:0}}
+@media(min-width:601px){.os-actions-menu-panel{bottom:auto;top:calc(100% + 8px)}}
+@media(prefers-reduced-motion:reduce){.os-actions-menu,.os-actions-menu-panel{transition:none!important}}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -7298,7 +7314,7 @@ body .tbl-wrap td{color:#344d5e}
 </nav>
 <style id="erimax-mobile-bottom-nav-2026">
 @media(max-width:1023px){
-  .nav-tabs #tbOrdensServico{display:none!important}
+  .nav-tabs #tbOrdensServico{display:flex!important}
   .erimax-mobile-bottom-nav{
     position:fixed!important;left:12px!important;right:12px!important;
     bottom:calc(9px + env(safe-area-inset-bottom))!important;z-index:1105!important;
@@ -7367,8 +7383,11 @@ function atualizarNavegacaoMobileEriMax(id){
 <div id="boxStatusTurno"></div>
 <div id="boxTec2"></div>
 <div class="card">
-<h2 style="margin-bottom:4px;font-size:1.1rem;color:var(--primary)">Abrir Ordem de Serviço</h2>
-<p style="font-size:.8rem;color:#64748b;margin-bottom:14px">Registre o defeito da máquina informando o turno atual.</p>
+<div class="erimax-open-os-hero">
+  <span class="erimax-open-os-kicker">MANUTENÇÃO • REGISTRO DE CHAMADO</span>
+  <h2>Abrir Ordem de Serviço</h2>
+  <p>Registre o defeito da máquina e informe o turno atual.</p>
+</div>
 <form id="formOS" onsubmit="salvarOS(event)">
 <div class="form-group"><label for="abertoPor">NOME DE QUEM ESTÁ ABRINDO A O.S. *</label><input type="text" id="abertoPor" maxlength="100" placeholder="Digite seu nome" autocomplete="name" required></div>
 <div class="form-group" id="grupoSituacaoEquipamento"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
@@ -8844,6 +8863,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(!Number.isSafeInteger(id)||id<=0)return;
     const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Baixa';
     const status=String(os.status||'');
+    const statusNormalizado=status.trim().normalize('NFC').toLocaleLowerCase('pt-BR');
     const statusClasse=status.replace(/\s+/g,'');
     const card=document.createElement('div');
     card.className='os-card prioridade-'+prioridade;
@@ -8854,32 +8874,36 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(u.protocol==='https:'&&u.hostname==='qzjbpvgedfpmfnxsvqhu.supabase.co'&&u.pathname.startsWith('/storage/v1/object/public/fotos-os/'))foto=u.href;
     }catch(e){}
     let b='';
+    let menuAcoes='';
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
     const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&tecnicoAtual):(gestor||tecnicoAtual);
-    if(status==='Aberta'&&PERFIL&&PERFIL.perfil==='tecnico'){
-      b+='<button type="button" class="btn-action btn-assumir" onclick="assumirOS('+id+')">✓ Aceitar O.S.</button>';
-      b+='<button type="button" class="btn-action btn-transferir" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">🔕 Silenciar alerta</button>';
+    const adicionarOpcao=html=>{menuAcoes+=html};
+    if(statusNormalizado==='aberta'&&PERFIL&&['tecnico','gestor'].includes(String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR'))){
+      b+='<button type="button" class="btn-action btn-assumir os-action-primary" onclick="assumirOS('+id+')">Assumir</button>';
+      if(PERFIL.perfil==='tecnico')adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">Silenciar alerta</button>');
+    }else if(statusNormalizado==='concluída'&&PERFIL&&String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR')==='gestor'){
+      b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
     }
-    else if(status==='Aberta'&&gestor)b+='<button type="button" class="btn-action btn-assumir" onclick="assumirOS('+id+')">Assumir O.S.</button>';
-    else if(status==='Em Atendimento'){
-      if(gestor||tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="pausarOS('+id+')">⏸️ Pausar</button>';
-      if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir" onclick="concluirOS('+id+')">Concluir</button>';
-      if(gestor||tecnicoAtual)b+='<button type="button" class="btn-action btn-transferir" onclick="transferirOS('+id+')">🔄 Transferir</button>';
+    if(status==='Em Atendimento'){
+      if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
+      if(podeConcluir)adicionarOpcao('<button type="button" class="btn-action btn-concluir" role="menuitem" onclick="concluirOS('+id+')">Concluir</button>');
+      if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="transferirOS('+id+')">🔄 Transferir</button>');
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
-        b+='<button type="button" class="btn-action btn-assumir" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>';
-        b+='<button type="button" class="btn-action btn-transferir" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>';
+        adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>');
+        adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>');
       }
     }else if(status==='Pausada'){
       const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
       const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
-      if(gestor||tecnicoAtual||tecnicoQuePausou)b+='<button type="button" class="btn-action btn-assumir" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>';
+      if(gestor||tecnicoAtual||tecnicoQuePausou)adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>');
     }
-    if(status.trim().normalize('NFC').toLocaleLowerCase('pt-BR')==='concluída'&&gestor)b+='<button type="button" class="btn-action btn-transferir" style="background:#d97706;color:#fff" onclick="abrirModalReabrirOS('+id+')">↩️ Reabrir O.S.</button>';
-    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="cancelarOS('+id+')">🚫 Cancelar</button>';
-    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))b+='<button type="button" class="btn-action btn-transferir" onclick="abrirEdicaoCompletaOS('+id+')">✏️ Editar O.S.</button>';
-    b+='<button type="button" class="btn-action btn-historico" onclick="verHistorico('+id+')">Histórico</button>';
-    if(PERFIL&&PERFIL.perfil==='gestor')b+='<button type="button" class="btn-action btn-excluir" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>';
+
+    if(gestor&&['Aberta','Em Atendimento','Pausada'].includes(status))adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="cancelarOS('+id+')">🚫 Cancelar</button>');
+    if(gestor&&['Aberta','Em Atendimento','Pausada','Concluída'].includes(status))adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="abrirEdicaoCompletaOS('+id+')">✏️ Editar O.S.</button>');
+    if(gestor)adicionarOpcao('<button type="button" class="btn-action btn-excluir" role="menuitem" onclick="excluirOS('+id+')">🗑️ Excluir definitivamente</button>');
+    b+='<button type="button" class="btn-action btn-historico os-action-history" onclick="verHistorico('+id+')">Histórico</button>';
+    b+='<details class="os-actions-menu"><summary class="os-actions-more" aria-label="Mais opções da ordem de serviço" title="Mais opções" aria-haspopup="menu"><span aria-hidden="true">⋮</span></summary><div class="os-actions-menu-panel" role="menu">'+(menuAcoes||'<span class="os-actions-empty">Nenhuma outra ação disponível</span>')+'</div></details>';
     const abertura=os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'—';
     const androidApp=document.documentElement.classList.contains('erimax-app-android');
     const listaAbertasCompacta=destino==='listaOSAbertas';
@@ -16401,5 +16425,304 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
     grid-template-columns:minmax(0,1fr)!important;
   }
   #tab-ordens-abertas .oa-list>.os-card{padding:12px!important}
+}
+</style>
+
+<style id="erimax-os-actions-single-row-fix-2026">
+/* Ações por O.S.: manter ação principal, histórico e menu sempre na mesma linha,
+   inclusive com zoom reduzido. Esta camada vem após as regras antigas de grid. */
+#tab-ordens-servico .os-card .os-actions,
+#tab-ordens-abertas .os-card .os-actions{
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  grid-template-columns:none!important;
+  align-items:stretch!important;
+  gap:clamp(3px,1vw,7px)!important;
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+#tab-ordens-servico .os-card .os-actions>.os-action-primary,
+#tab-ordens-servico .os-card .os-actions>.os-action-history,
+#tab-ordens-abertas .os-card .os-actions>.os-action-primary,
+#tab-ordens-abertas .os-card .os-actions>.os-action-history{
+  display:inline-flex!important;
+  flex:1 1 0!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:clamp(32px,4vw,40px)!important;
+  height:auto!important;
+  margin:0!important;
+  padding:clamp(4px,.8vw,7px) clamp(3px,1vw,8px)!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+  line-height:1.12!important;
+  font-size:clamp(.58rem,1.45vw,.78rem)!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+}
+#tab-ordens-servico .os-card .os-actions>.os-actions-menu,
+#tab-ordens-abertas .os-card .os-actions>.os-actions-menu{
+  display:block!important;
+  flex:0 0 clamp(30px,3.8vw,36px)!important;
+  width:clamp(30px,3.8vw,36px)!important;
+  min-width:0!important;
+  margin:0!important;
+  align-self:stretch!important;
+}
+#tab-ordens-servico .os-card .os-actions>.os-actions-menu>.os-actions-more,
+#tab-ordens-abertas .os-card .os-actions>.os-actions-menu>.os-actions-more{
+  display:flex!important;
+  width:100%!important;
+  min-width:0!important;
+  height:100%!important;
+  min-height:32px!important;
+  padding:0!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:23px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+</style>
+
+<style id="erimax-os-actions-zoom-overflow-final-2026">
+/* Corrige a regra de zoom mais específica que ainda forçava grade em Ordens de Serviço. */
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions{
+  display:flex!important;flex-flow:row nowrap!important;grid-template-columns:none!important;
+  align-items:stretch!important;gap:clamp(3px,1vw,7px)!important;width:100%!important;
+  min-width:0!important;box-sizing:border-box!important;
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-primary,
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-history{
+  display:inline-flex!important;flex:1 1 0!important;width:auto!important;min-width:0!important;
+  max-width:none!important;margin:0!important;box-sizing:border-box!important;
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-actions-menu{
+  display:block!important;flex:0 0 clamp(30px,3.8vw,36px)!important;
+  width:clamp(30px,3.8vw,36px)!important;min-width:0!important;margin:0!important;
+}
+#tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-actions-menu>.os-actions-more{
+  width:100%!important;min-width:0!important;height:100%!important;padding:0!important;box-sizing:border-box!important;
+}
+/* O painel abre sobre os cartões vizinhos sem ser recortado pelo overflow do cartão. */
+#tab-ordens-servico #listaOS,#tab-ordens-abertas .oa-list-panel,#tab-ordens-abertas .oa-list{
+  overflow:visible!important;
+}
+#tab-ordens-servico .os-card.os-actions-open,#tab-ordens-abertas .os-card.os-actions-open{
+  position:relative!important;z-index:120!important;overflow:visible!important;
+}
+#tab-ordens-servico .os-card.os-actions-open .os-actions,
+#tab-ordens-abertas .os-card.os-actions-open .os-actions{position:relative!important;z-index:121!important}
+.os-actions-menu-panel{
+  z-index:122!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable;
+}
+@media(max-width:600px){
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions{gap:5px!important}
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-primary,
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-action-history{
+    min-height:32px!important;padding:4px 5px!important;font-size:clamp(.58rem,2.3vw,.72rem)!important;
+    line-height:1.12!important;white-space:normal!important;overflow-wrap:anywhere!important;
+  }
+  #tab-ordens-servico[data-erimax-zoom] .os-card .os-actions>.os-actions-menu{flex-basis:32px!important;width:32px!important}
+}
+</style>
+<script id="erimax-os-actions-overflow-controller-2026">
+(function(){
+  if(window.__erimaxOSActionsOverflowController2026)return;
+  window.__erimaxOSActionsOverflowController2026=true;
+  function atualizarMenu(event){
+    const menu=event.target;
+    if(!menu||!menu.matches||!menu.matches('details.os-actions-menu'))return;
+    const card=menu.closest('.os-card');
+    if(!card)return;
+    const panel=menu.querySelector('.os-actions-menu-panel');
+    if(menu.open){
+      card.classList.add('os-actions-open');
+      if(!panel)return;
+      const anchor=(menu.querySelector('.os-actions-more')||menu).getBoundingClientRect();
+      const altura=window.innerHeight||document.documentElement.clientHeight||600;
+      const acima=Math.max(0,anchor.top-12);
+      const abaixo=Math.max(0,altura-anchor.bottom-12);
+      const abrirAbaixo=abaixo>acima;
+      const espaco=Math.max(120,Math.max(acima,abaixo)-12);
+      panel.style.top=abrirAbaixo?'calc(100% + 7px)':'auto';
+      panel.style.bottom=abrirAbaixo?'auto':'calc(100% + 7px)';
+      panel.style.maxHeight='min(55vh,'+Math.min(360,espaco)+'px)';
+    }else{
+      card.classList.remove('os-actions-open');
+      if(panel){panel.style.top='';panel.style.bottom='';panel.style.maxHeight=''}
+    }
+  }
+  document.addEventListener('toggle',atualizarMenu,true);
+  window.addEventListener('resize',function(){
+    document.querySelectorAll('details.os-actions-menu[open]').forEach(function(menu){atualizarMenu({target:menu})});
+  },{passive:true});
+})();
+</script>
+
+
+<style id="erimax-open-orders-menu-horizontal-fix-2026">
+/* Somente Ordens Abertas: evita que o menu ultrapasse a borda esquerda
+   quando o botão de três pontos estiver no lado esquerdo do cartão. */
+#tab-ordens-abertas .os-actions-menu-panel{
+  width:min(250px,calc(100vw - 16px))!important;
+  max-width:calc(100vw - 16px)!important;
+}
+#tab-ordens-abertas .os-actions-menu-panel.erimax-menu-open-right{
+  left:0!important;right:auto!important;
+}
+#tab-ordens-abertas .os-actions-menu-panel.erimax-menu-open-left{
+  left:auto!important;right:0!important;
+}
+</style>
+<script id="erimax-open-orders-menu-horizontal-controller-2026">
+(function(){
+  if(window.__erimaxOpenOrdersMenuHorizontal2026)return;
+  window.__erimaxOpenOrdersMenuHorizontal2026=true;
+  function posicionar(event){
+    const menu=event.target;
+    if(!menu||!menu.matches||!menu.matches('#tab-ordens-abertas details.os-actions-menu, #tab-ordens-abertas .os-card details.os-actions-menu'))return;
+    const panel=menu.querySelector('.os-actions-menu-panel');
+    if(!panel)return;
+    if(!menu.open){
+      panel.classList.remove('erimax-menu-open-right','erimax-menu-open-left');
+      return;
+    }
+    const trigger=menu.querySelector('.os-actions-more')||menu;
+    const rect=trigger.getBoundingClientRect();
+    const largura=window.innerWidth||document.documentElement.clientWidth||320;
+    const abrirParaDireita=rect.left+rect.width/2<largura/2;
+    panel.classList.toggle('erimax-menu-open-right',abrirParaDireita);
+    panel.classList.toggle('erimax-menu-open-left',!abrirParaDireita);
+  }
+  document.addEventListener('toggle',posicionar,true);
+  window.addEventListener('resize',function(){
+    document.querySelectorAll('#tab-ordens-abertas details.os-actions-menu[open]').forEach(function(menu){posicionar({target:menu})});
+  },{passive:true});
+})();
+</script>
+
+<style id="erimax-open-os-header-hierarchy-2026">
+/* Cabeçalho da abertura de O.S. alinhado à hierarquia visual das páginas principais. */
+#tab-abrir #formOS{min-width:0}
+#tab-abrir .erimax-open-os-hero{
+  position:relative;isolation:isolate;overflow:hidden;
+  display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+  margin:0 0 20px;padding:19px 20px 18px;
+  border:1px solid rgba(79,190,190,.24);border-left:4px solid #36c6b5;
+  border-radius:14px;
+  background:linear-gradient(118deg,#123b50 0%,#164e61 58%,#176b70 100%);
+  box-shadow:0 8px 20px rgba(13,52,69,.13);
+}
+#tab-abrir .erimax-open-os-hero:after{
+  content:"";position:absolute;z-index:-1;width:170px;height:170px;right:-52px;top:-82px;
+  border:1px solid rgba(122,235,220,.22);border-radius:50%;
+  box-shadow:0 0 0 18px rgba(122,235,220,.045),0 0 0 38px rgba(122,235,220,.035);
+}
+#tab-abrir .erimax-open-os-kicker{
+  color:#8ce6d9;font-size:.66rem;font-weight:800;letter-spacing:.13em;line-height:1.35;
+}
+#tab-abrir .erimax-open-os-hero h2{
+  margin:0!important;color:#fff!important;font-size:clamp(1.22rem,2.4vw,1.55rem)!important;
+  font-weight:800!important;letter-spacing:-.035em;line-height:1.18;
+}
+#tab-abrir .erimax-open-os-hero p{
+  max-width:620px;margin:0!important;color:rgba(239,249,250,.84)!important;
+  font-size:.84rem!important;line-height:1.5;
+}
+@media(max-width:600px){
+  #tab-abrir .erimax-open-os-hero{padding:16px 15px 15px;margin-bottom:17px;border-radius:12px}
+  #tab-abrir .erimax-open-os-kicker{font-size:.61rem}
+  #tab-abrir .erimax-open-os-hero p{font-size:.78rem!important}
+}
+</style>
+
+
+<style id="erimax-shift-header-hierarchy-2026">
+/* Meu Expediente — hierarquia visual alinhada aos cabeçalhos principais do EriMax.
+   Somente apresentação: mantém intactos o HTML dinâmico e a ação alternarTurno(). */
+#tab-abrir>#boxStatusTurno{margin:0 auto 16px!important}
+#tab-abrir #boxStatusTurno .erimax-home-shift{
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:clamp(18px,2.2vw,24px)!important;
+  border:1px solid rgba(104,205,194,.28)!important;
+  border-left:4px solid #36c6b5!important;
+  border-radius:16px!important;
+  background:
+    radial-gradient(ellipse at 92% 8%,rgba(112,218,196,.19),transparent 34%),
+    linear-gradient(118deg,#12394f 0%,#164e61 58%,#176b70 100%)!important;
+  box-shadow:0 9px 24px rgba(13,52,69,.15)!important;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift:before{
+  content:"";position:absolute;z-index:-1;inset:auto -42px -112px auto;
+  width:230px;height:230px;border:1px solid rgba(143,231,211,.19);
+  border-radius:50%;box-shadow:0 0 0 18px rgba(143,231,211,.045),0 0 0 38px rgba(143,231,211,.03);
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-top{
+  position:relative;z-index:1;align-items:center;gap:16px;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-identity{gap:13px}
+#tab-abrir #boxStatusTurno .erimax-home-shift-icon{
+  flex-basis:48px;width:48px;height:48px;border:1px solid rgba(151,231,216,.25);
+  border-radius:14px;background:rgba(255,255,255,.10)!important;color:#a4eee0!important;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-icon svg{width:24px;height:24px}
+#tab-abrir #boxStatusTurno .erimax-home-eyebrow{
+  margin-bottom:6px;color:#9be7db!important;font-size:.66rem;
+  font-weight:850;letter-spacing:.14em;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-state{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:5px 10px;border:1px solid rgba(255,255,255,.17);
+  border-radius:999px;background:rgba(255,255,255,.09);
+  color:#fff!important;font-size:.9rem;font-weight:850;line-height:1.25;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-state i{
+  flex:0 0 9px;width:9px;height:9px;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--shift-status) 20%,transparent),0 0 10px color-mix(in srgb,var(--shift-status) 50%,transparent);
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-action{
+  min-height:46px;padding:0 17px!important;border:1px solid rgba(168,239,223,.36)!important;
+  border-radius:11px!important;
+  background:linear-gradient(105deg,#238c83,#31a997)!important;
+  color:#fff!important;font-size:.82rem!important;font-weight:850!important;
+  box-shadow:0 5px 14px rgba(4,29,39,.22)!important;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-action:disabled{
+  opacity:.58!important;background:#52747a!important;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-help{
+  position:relative;z-index:1;margin-top:15px!important;padding-top:12px!important;
+  border-top:1px solid rgba(225,249,245,.18)!important;
+  color:rgba(239,249,250,.84)!important;font-size:.78rem!important;line-height:1.5;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-details{
+  position:relative;z-index:1;gap:10px;margin-top:16px!important;padding-top:13px!important;
+  border-top:1px solid rgba(225,249,245,.18)!important;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-details>div{
+  border:1px solid rgba(225,249,245,.12);
+  background:rgba(255,255,255,.085)!important;
+}
+#tab-abrir #boxStatusTurno .erimax-home-shift-details span{color:#a8e8dd!important}
+#tab-abrir #boxStatusTurno .erimax-home-shift-details strong{color:#fff!important}
+@media(max-width:600px){
+  #tab-abrir>#boxStatusTurno{margin:4px 0 14px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift{padding:17px 15px 15px!important;border-radius:14px!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-top{gap:12px}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-icon{flex-basis:43px;width:43px;height:43px}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-state{font-size:.84rem}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-action{min-height:44px;padding:0 13px!important;font-size:.78rem!important}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-details{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+}
+@media(max-width:380px){
+  #tab-abrir #boxStatusTurno .erimax-home-shift-top{align-items:flex-start;flex-direction:column}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-action{width:100%}
+  #tab-abrir #boxStatusTurno .erimax-home-shift-details{grid-template-columns:1fr}
 }
 </style>
