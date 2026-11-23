@@ -11787,214 +11787,125 @@ html.erimax-app-android .os-card .os-alert-meta b{font-size:.79rem;font-weight:7
 
 
 
-<style id="erimax-supervisao-premium-preview-2026">
-/* Preview visual premium da Supervisão — sem alterar dados, consultas ou ações. */
-body:has(#tab-painel.active){
-  color:#e8f5fb!important;
-  background:
-    radial-gradient(ellipse at 7% 15%,rgba(0,219,210,.19),transparent 32%),
-    radial-gradient(ellipse at 92% 8%,rgba(35,135,255,.2),transparent 35%),
-    radial-gradient(ellipse at 52% 100%,rgba(0,89,125,.35),transparent 42%),
-    linear-gradient(145deg,#061b2a 0%,#082b3c 48%,#061923 100%)!important;
-  background-attachment:fixed!important;
-}
+<style id="erimax-supervisao-operacional-preview-2026">
+/* Direção visual alternativa: clara, industrial e operacional. Somente apresentação. */
+body:has(#tab-painel.active){background:#eef3f7!important;color:#17324a!important}
 body:has(#tab-painel.active) header{
-  background:linear-gradient(105deg,rgba(5,28,43,.96),rgba(7,66,79,.94))!important;
-  border-bottom:1px solid rgba(124,224,235,.22)!important;
-  box-shadow:0 8px 28px rgba(0,0,0,.24)!important;
-  backdrop-filter:blur(18px);
+ background:linear-gradient(110deg,#123d5b,#17617a)!important;color:#fff!important;
+ border-bottom:3px solid #e2a43a!important;box-shadow:0 5px 18px rgba(15,45,67,.16)!important
 }
-body:has(#tab-painel.active) #barraAtivacaoAudio{
-  background:rgba(8,69,79,.82)!important;color:#c9fbf4!important;
-  border-bottom:1px solid rgba(91,236,218,.22)!important;
-}
-body:has(#tab-painel.active) .container{
-  max-width:1180px!important;padding-top:22px!important;padding-bottom:38px!important;
-}
-body:has(#tab-painel.active) #tab-painel,
-body:has(#tab-painel.active) #painelMaquinasSupervisor{color:#e7f4fb!important}
-#painelMaquinasSupervisor .sv-page{gap:17px!important;color:#e7f4fb!important}
+body:has(#tab-painel.active) .container{max-width:1440px!important;padding:22px clamp(12px,2vw,28px) 38px!important}
+body:has(#tab-painel.active) #tab-painel{color:#17324a!important}
+#painelMaquinasSupervisor .sv-page{gap:18px!important;color:#17324a!important}
 #painelMaquinasSupervisor .sv-hero,
 #painelMaquinasSupervisor .sv-workspace,
 #painelMaquinasSupervisor .sv-attention,
 #painelMaquinasSupervisor .sv-movements,
 #painelMaquinasSupervisor .sv-audit{
-  position:relative!important;overflow:hidden!important;
-  border:1px solid rgba(153,220,235,.23)!important;
-  border-radius:22px!important;
-  background:linear-gradient(135deg,rgba(20,69,88,.78),rgba(8,37,55,.83))!important;
-  box-shadow:0 16px 42px rgba(0,0,0,.23),inset 0 1px 0 rgba(255,255,255,.08)!important;
-  color:#e9f6fb!important;
-  backdrop-filter:blur(18px) saturate(135%);
+ background:#fff!important;color:#17324a!important;border:1px solid #d9e3eb!important;
+ border-radius:15px!important;box-shadow:0 5px 18px rgba(22,55,78,.07)!important;
 }
-#painelMaquinasSupervisor .sv-hero{padding:clamp(19px,3vw,30px)!important}
-#painelMaquinasSupervisor .sv-hero:after{
-  right:-78px!important;top:-130px!important;width:310px!important;height:310px!important;
-  border-color:rgba(79,221,231,.22)!important;
-  box-shadow:0 0 0 24px rgba(50,204,216,.055),0 0 0 54px rgba(50,204,216,.035),0 0 75px rgba(32,193,226,.12)!important;
+#painelMaquinasSupervisor .sv-hero{
+ padding:clamp(18px,2.5vw,28px)!important;
+ background:linear-gradient(115deg,#fff 0%,#f7fafc 68%,#edf5f8 100%)!important;
+ border-top:4px solid #17617a!important
 }
-#painelMaquinasSupervisor .sv-kicker{color:#83dce4!important;letter-spacing:.17em!important}
-#painelMaquinasSupervisor .sv-hero h2{color:#f3fbff!important;text-shadow:0 2px 22px rgba(75,213,235,.16)!important}
-#painelMaquinasSupervisor .sv-hero p{color:#b8d1dc!important;font-weight:500!important}
-#painelMaquinasSupervisor .sv-live{
-  border:1px solid rgba(100,236,194,.3)!important;border-radius:30px!important;
-  background:rgba(20,111,95,.22)!important;color:#c8f8e8!important;
-  box-shadow:0 0 24px rgba(48,231,179,.08)!important;
-}
-#painelMaquinasSupervisor .sv-live span{background:#45e8a1!important;box-shadow:0 0 0 5px rgba(69,232,161,.13),0 0 16px rgba(69,232,161,.8)!important}
-#painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:13px!important;margin-top:25px!important}
+#painelMaquinasSupervisor .sv-hero:after{opacity:.18!important;border-color:#c9dce6!important}
+#painelMaquinasSupervisor .sv-kicker{color:#28718a!important;letter-spacing:.13em!important}
+#painelMaquinasSupervisor .sv-hero h2{color:#123d5b!important;font-weight:850!important}
+#painelMaquinasSupervisor .sv-hero p{color:#60788a!important}
+#painelMaquinasSupervisor .sv-live{background:#eaf6ef!important;color:#23734f!important;border:1px solid #cce8d8!important}
+#painelMaquinasSupervisor .sv-live span{background:#279765!important;box-shadow:0 0 0 4px #d9f1e4!important}
+#painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important}
 #painelMaquinasSupervisor .sv-metric{
-  position:relative!important;isolation:isolate!important;overflow:hidden!important;
-  min-height:142px!important;padding:19px 20px!important;text-align:left!important;
-  border:1px solid rgba(158,221,238,.24)!important;border-radius:19px!important;
-  background:linear-gradient(145deg,rgba(38,101,124,.54),rgba(12,49,69,.72))!important;
-  color:#eaf8fc!important;box-shadow:0 8px 25px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.07)!important;
-  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease!important;
+ min-height:126px!important;padding:17px 18px!important;text-align:left!important;
+ border:1px solid #dce6ed!important;border-left:4px solid var(--sv-accent,#287da0)!important;
+ border-radius:12px!important;background:#fff!important;color:#17324a!important;
+ box-shadow:0 4px 13px rgba(24,57,78,.055)!important;transition:transform .18s ease,box-shadow .18s ease!important
 }
-#painelMaquinasSupervisor .sv-metric:before{
-  content:"";position:absolute;z-index:-1;right:18px;top:19px;width:56px;height:56px;border-radius:50%;
-  background:conic-gradient(var(--sv-ring,#42b9ff) 0 78%,rgba(160,218,235,.14) 78% 100%);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px));
-  mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px));
-  filter:drop-shadow(0 0 9px var(--sv-ring,#42b9ff));opacity:.95;
-}
-#painelMaquinasSupervisor .sv-metric:after{
-  content:"";position:absolute;right:0;top:0;width:115px;height:115px;pointer-events:none;
-  background:radial-gradient(circle at 70% 25%,color-mix(in srgb,var(--sv-ring,#42b9ff) 22%,transparent),transparent 70%);
-}
-#painelMaquinasSupervisor .sv-metric:nth-child(1){--sv-ring:#42a5ff}
-#painelMaquinasSupervisor .sv-metric:nth-child(2){--sv-ring:#65e7ee}
-#painelMaquinasSupervisor .sv-metric:nth-child(3){--sv-ring:#ff9b4a}
-#painelMaquinasSupervisor .sv-metric:nth-child(4){--sv-ring:#42d99a}
-#painelMaquinasSupervisor .sv-metric:nth-child(5){--sv-ring:#52e99c}
-#painelMaquinasSupervisor .sv-metric:nth-child(6){--sv-ring:#8bb9d0}
-#painelMaquinasSupervisor .sv-metric:hover{transform:translateY(-2px)!important;border-color:rgba(112,229,241,.5)!important;box-shadow:0 12px 30px rgba(0,0,0,.23),0 0 24px rgba(39,191,222,.1)!important}
-#painelMaquinasSupervisor .sv-metric span{position:relative;z-index:1;color:#c5dfe9!important;font-size:.78rem!important;font-weight:650!important}
-#painelMaquinasSupervisor .sv-metric strong{position:relative;z-index:1;margin:8px 0 5px!important;color:#fff!important;font-size:2.05rem!important;letter-spacing:-.04em!important;text-shadow:0 0 18px rgba(102,218,244,.13)!important}
-#painelMaquinasSupervisor .sv-metric small{position:relative;z-index:1;max-width:78%;color:#a9c6d2!important;font-size:.7rem!important}
-#painelMaquinasSupervisor .sv-metric-static{cursor:default!important}
-#painelMaquinasSupervisor .sv-metric-detail{border:1px solid rgba(130,218,235,.22)!important;border-radius:16px!important;background:rgba(8,39,57,.86)!important;color:#e8f5fb!important}
+#painelMaquinasSupervisor .sv-metric:nth-child(1){--sv-accent:#287da0}
+#painelMaquinasSupervisor .sv-metric:nth-child(2){--sv-accent:#239b83}
+#painelMaquinasSupervisor .sv-metric:nth-child(3){--sv-accent:#d58a32}
+#painelMaquinasSupervisor .sv-metric:nth-child(4){--sv-accent:#c65b53}
+#painelMaquinasSupervisor .sv-metric:nth-child(5){--sv-accent:#299765}
+#painelMaquinasSupervisor .sv-metric:nth-child(6){--sv-accent:#71879a}
+#painelMaquinasSupervisor .sv-metric:before{content:none!important}
+#painelMaquinasSupervisor .sv-metric:after{right:0!important;top:0!important;width:5px!important;height:100%!important;background:var(--sv-accent)!important;opacity:.12!important}
+#painelMaquinasSupervisor .sv-metric:hover{transform:translateY(-2px)!important;box-shadow:0 8px 20px rgba(24,57,78,.11)!important;border-color:#b9ccd9!important}
+#painelMaquinasSupervisor .sv-metric span{color:#60788a!important;font-size:.76rem!important;font-weight:750!important}
+#painelMaquinasSupervisor .sv-metric strong{color:#123d5b!important;font-size:2rem!important;font-weight:850!important;text-shadow:none!important}
+#painelMaquinasSupervisor .sv-metric small{color:#71879a!important}
+#painelMaquinasSupervisor .sv-metric-detail{background:#f5f8fa!important;color:#17324a!important;border:1px solid #dce6ed!important}
 #painelMaquinasSupervisor .sv-attention,
 #painelMaquinasSupervisor .sv-movements,
 #painelMaquinasSupervisor .sv-audit,
-#painelMaquinasSupervisor .sv-workspace{padding:clamp(17px,2.5vw,25px)!important}
+#painelMaquinasSupervisor .sv-workspace{padding:clamp(16px,2vw,24px)!important}
 #painelMaquinasSupervisor .sv-section-head h3,
-#painelMaquinasSupervisor .sv-attention-head h3{color:#f0f9fc!important}
+#painelMaquinasSupervisor .sv-attention-head h3{color:#123d5b!important}
 #painelMaquinasSupervisor .sv-section-head p,
-#painelMaquinasSupervisor .sv-attention-head p{color:#a9c4d0!important}
-#painelMaquinasSupervisor .sv-attention-head>strong{
-  display:grid;place-items:center;min-width:48px;min-height:48px;border:1px solid rgba(255,160,89,.3);
-  border-radius:15px;background:rgba(177,86,42,.2);color:#ffbd86;font-size:1.25rem;
-}
+#painelMaquinasSupervisor .sv-attention-head p{color:#71879a!important}
+#painelMaquinasSupervisor .sv-attention-head>strong{background:#fff4e8!important;color:#b66a20!important;border:1px solid #f1d8b9!important;border-radius:12px!important}
 #painelMaquinasSupervisor .sv-attention-item,
-#painelMaquinasSupervisor .sv-movement-item{
-  border:1px solid rgba(155,211,226,.16)!important;border-radius:12px!important;
-  background:rgba(6,31,47,.42)!important;color:#e8f5fb!important;
-}
-#painelMaquinasSupervisor .sv-attention-item b,
-#painelMaquinasSupervisor .sv-movement-item b{color:#f1fbff!important}
-#painelMaquinasSupervisor .sv-attention-item small,
-#painelMaquinasSupervisor .sv-movement-item small,
-#painelMaquinasSupervisor .sv-movement-item time{color:#a9c5d1!important}
-#painelMaquinasSupervisor .sv-attention-open{color:#75e0e7!important}
-#painelMaquinasSupervisor .sv-attention-clear,
-#painelMaquinasSupervisor .sv-movement-empty,
-#painelMaquinasSupervisor .sv-audit-empty{
-  border:1px dashed rgba(142,213,229,.25)!important;border-radius:13px!important;
-  background:rgba(5,31,47,.32)!important;color:#d2e7ef!important;
-}
-#painelMaquinasSupervisor .sv-attention-clear small{color:#a9c5d1!important}
-#painelMaquinasSupervisor .sv-attention-more{color:#a9c5d1!important}
-#painelMaquinasSupervisor .sv-audit-count,
-#painelMaquinasSupervisor .sv-movement-count{
-  border:1px solid rgba(113,213,229,.23)!important;border-radius:20px!important;
-  background:rgba(37,119,139,.2)!important;color:#bdebf2!important;padding:6px 10px!important;
-}
-#painelMaquinasSupervisor .sv-audit-filters label{color:#b9d5df!important}
-#painelMaquinasSupervisor .sv-audit-filters input,
-#painelMaquinasSupervisor .sv-search input{
-  border:1px solid rgba(147,205,222,.2)!important;border-radius:9px!important;
-  background:rgba(4,29,45,.56)!important;color:#f0fbff!important;
-}
-#painelMaquinasSupervisor .sv-audit-filters input::placeholder,
-#painelMaquinasSupervisor .sv-search input::placeholder{color:#86a8b7!important}
-#painelMaquinasSupervisor .sv-search{
-  border:1px solid rgba(147,205,222,.22)!important;border-radius:11px!important;
-  background:rgba(4,29,45,.48)!important;color:#a9dce5!important;
-}
-#painelMaquinasSupervisor .sv-filter{
-  border:1px solid rgba(144,205,222,.2)!important;border-radius:20px!important;
-  background:rgba(7,36,53,.58)!important;color:#b8d4de!important;
-}
-#painelMaquinasSupervisor .sv-filter b{color:#e6f7fb!important}
-#painelMaquinasSupervisor .sv-filter.active{
-  border-color:rgba(81,222,218,.55)!important;background:rgba(20,132,139,.26)!important;
-  color:#e7ffff!important;box-shadow:0 0 16px rgba(47,211,211,.1)!important;
-}
-#painelMaquinasSupervisor .sv-note{
-  border-left-color:#42d7d2!important;background:rgba(26,112,124,.2)!important;
-  color:#c5e8ee!important;
-}
-#painelMaquinasSupervisor .sv-sector{
-  border:1px solid rgba(144,205,222,.19)!important;border-radius:14px!important;
-  background:rgba(7,35,52,.55)!important;
-}
-#painelMaquinasSupervisor .sv-sector>summary{color:#e8f7fb!important}
-#painelMaquinasSupervisor .sv-folder{background:rgba(42,154,166,.2)!important;color:#78e4e3!important}
-#painelMaquinasSupervisor .sv-sector-name b,
-#painelMaquinasSupervisor .sv-machine-main b{color:#e7f6fb!important}
-#painelMaquinasSupervisor .sv-sector-name small,
-#painelMaquinasSupervisor .sv-machine-main small,
-#painelMaquinasSupervisor .sv-sector-side{color:#a6c3ce!important}
-#painelMaquinasSupervisor .sv-machine-list{background:rgba(3,24,38,.42)!important}
-#painelMaquinasSupervisor .sv-machine{
-  border:1px solid rgba(140,201,219,.17)!important;border-radius:11px!important;
-  background:rgba(19,62,80,.5)!important;
-}
-#painelMaquinasSupervisor .sv-machine-count b{color:#dff5fb!important}
-#painelMaquinasSupervisor .sv-machine-count small{color:#9dbdca!important}
-#painelMaquinasSupervisor .sv-detail-title,
-#painelMaquinasSupervisor .sv-history{border-color:rgba(145,204,220,.2)!important}
+#painelMaquinasSupervisor .sv-movement-item,
 #painelMaquinasSupervisor .sv-os-card,
 #painelMaquinasSupervisor .sv-history-item{
-  border:1px solid rgba(144,205,222,.18)!important;border-radius:10px!important;
-  background:rgba(4,29,45,.65)!important;color:#d7edf4!important;
+ background:#f8fafb!important;color:#17324a!important;border:1px solid #e0e8ee!important;border-radius:10px!important
 }
+#painelMaquinasSupervisor .sv-attention-item b,
+#painelMaquinasSupervisor .sv-movement-item b,
 #painelMaquinasSupervisor .sv-os-top>b,
 #painelMaquinasSupervisor .sv-os-description,
-#painelMaquinasSupervisor .sv-history-item b{color:#e4f6fb!important}
-#painelMaquinasSupervisor .sv-os-meta,
+#painelMaquinasSupervisor .sv-history-item b{color:#17324a!important}
+#painelMaquinasSupervisor .sv-attention-item small,
+#painelMaquinasSupervisor .sv-movement-item small,
+#painelMaquinasSupervisor .sv-movement-item time,
 #painelMaquinasSupervisor .sv-history-item small,
-#painelMaquinasSupervisor .sv-no-os,
-#painelMaquinasSupervisor .sv-no-history{color:#9dbbc8!important}
-#painelMaquinasSupervisor .sv-history>summary{color:#bfe2eb!important}
-#painelMaquinasSupervisor .sv-empty{border-color:rgba(145,204,220,.25)!important;color:#d5ebf2!important}
-#painelMaquinasSupervisor .sv-empty span{color:#9bbac7!important}
-#painelMaquinasSupervisor .sv-chevron{color:#9ccbd6!important}
+#painelMaquinasSupervisor .sv-os-meta{color:#71879a!important}
+#painelMaquinasSupervisor .sv-attention-open{color:#176f8b!important}
+#painelMaquinasSupervisor .sv-attention-clear,
+#painelMaquinasSupervisor .sv-movement-empty,
+#painelMaquinasSupervisor .sv-audit-empty,
+#painelMaquinasSupervisor .sv-empty{background:#f7fafb!important;color:#536d7f!important;border:1px dashed #cbd9e2!important;border-radius:11px!important}
+#painelMaquinasSupervisor .sv-audit-count,
+#painelMaquinasSupervisor .sv-movement-count{background:#eaf2f6!important;color:#245b75!important;border:1px solid #d2e2ea!important;border-radius:20px!important}
+#painelMaquinasSupervisor .sv-audit-filters label{color:#536d7f!important}
+#painelMaquinasSupervisor .sv-audit-filters input,
+#painelMaquinasSupervisor .sv-search input{background:#fff!important;color:#17324a!important;border:1px solid #cbd9e2!important;border-radius:9px!important}
+#painelMaquinasSupervisor .sv-audit-filters input::placeholder,
+#painelMaquinasSupervisor .sv-search input::placeholder{color:#8a9eab!important}
+#painelMaquinasSupervisor .sv-search{background:#f7fafb!important;color:#536d7f!important;border:1px solid #d7e2e9!important;border-radius:10px!important}
+#painelMaquinasSupervisor .sv-filter{background:#f4f7f9!important;color:#536d7f!important;border:1px solid #d7e2e9!important;border-radius:20px!important}
+#painelMaquinasSupervisor .sv-filter b{color:#17324a!important}
+#painelMaquinasSupervisor .sv-filter.active{background:#e5f2f6!important;color:#155b78!important;border-color:#8bbdce!important;box-shadow:inset 0 0 0 1px #c6e0e8!important}
+#painelMaquinasSupervisor .sv-note{background:#edf6f8!important;color:#315f72!important;border-left-color:#287da0!important}
+#painelMaquinasSupervisor .sv-sector{background:#fff!important;border:1px solid #dce6ed!important;border-radius:12px!important}
+#painelMaquinasSupervisor .sv-sector>summary{color:#17324a!important}
+#painelMaquinasSupervisor .sv-folder{background:#e8f2f6!important;color:#28718a!important}
+#painelMaquinasSupervisor .sv-sector-name b,
+#painelMaquinasSupervisor .sv-machine-main b{color:#17324a!important}
+#painelMaquinasSupervisor .sv-sector-name small,
+#painelMaquinasSupervisor .sv-machine-main small,
+#painelMaquinasSupervisor .sv-sector-side,
+#painelMaquinasSupervisor .sv-machine-count small{color:#71879a!important}
+#painelMaquinasSupervisor .sv-machine-list{background:#f7fafb!important}
+#painelMaquinasSupervisor .sv-machine{background:#fff!important;border:1px solid #e0e8ee!important;border-radius:10px!important}
+#painelMaquinasSupervisor .sv-machine-count b{color:#245b75!important}
+#painelMaquinasSupervisor .sv-detail-title,
+#painelMaquinasSupervisor .sv-history{border-color:#dce6ed!important}
+#painelMaquinasSupervisor .sv-history>summary{color:#245b75!important}
 #painelMaquinasSupervisor .sv-audit-row,
-#painelMaquinasSupervisor .sv-audit-row>summary{background:rgba(6,32,48,.5)!important;color:#e3f4fa!important;border-color:rgba(145,204,220,.18)!important}
+#painelMaquinasSupervisor .sv-audit-row>summary{background:#f8fafb!important;color:#17324a!important;border-color:#e0e8ee!important}
 #painelMaquinasSupervisor .sv-audit-row small,
-#painelMaquinasSupervisor .sv-audit-row p{color:#a9c5d1!important}
-@media(max-width:680px){
- body:has(#tab-painel.active) .container{padding:13px 11px 30px!important}
- #painelMaquinasSupervisor .sv-page{gap:13px!important}
- #painelMaquinasSupervisor .sv-hero{padding:17px!important;border-radius:18px!important}
- #painelMaquinasSupervisor .sv-metrics{gap:9px!important;margin-top:18px!important}
- #painelMaquinasSupervisor .sv-metric{min-height:132px!important;padding:14px 13px!important;border-radius:15px!important}
- #painelMaquinasSupervisor .sv-metric:before{width:43px;height:43px;right:12px;top:13px}
- #painelMaquinasSupervisor .sv-metric strong{font-size:1.7rem!important}
- #painelMaquinasSupervisor .sv-metric small{max-width:86%;font-size:.64rem!important}
- #painelMaquinasSupervisor .sv-attention,#painelMaquinasSupervisor .sv-movements,
- #painelMaquinasSupervisor .sv-audit,#painelMaquinasSupervisor .sv-workspace{padding:15px!important;border-radius:17px!important}
-}
-@media(max-width:370px){
- #painelMaquinasSupervisor .sv-metric{padding:12px 10px!important}
- #painelMaquinasSupervisor .sv-metric span{font-size:.68rem!important}
- #painelMaquinasSupervisor .sv-metric strong{font-size:1.48rem!important}
- #painelMaquinasSupervisor .sv-metric:before{width:36px;height:36px;right:9px;top:11px}
-}
-@media(prefers-reduced-motion:reduce){
- #painelMaquinasSupervisor .sv-metric{transition:none!important}
+#painelMaquinasSupervisor .sv-audit-row p,
+#painelMaquinasSupervisor .sv-empty span{color:#71879a!important}
+#painelMaquinasSupervisor .sv-chevron{color:#71879a!important}
+@media(max-width:900px){#painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:560px){
+ body:has(#tab-painel.active) .container{padding:12px 10px 26px!important}
+ #painelMaquinasSupervisor .sv-page{gap:12px!important}
+ #painelMaquinasSupervisor .sv-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ #painelMaquinasSupervisor .sv-metric{min-height:112px!important;padding:12px!important}
+ #painelMaquinasSupervisor .sv-metric strong{font-size:1.65rem!important}
 }
 </style>
 </head><body><header><h2>EriMax — Gestão de Manutenção</h2></header><section id="printReportHeader">${cab.innerHTML}</section><main>${conteudo.innerHTML}</main>
