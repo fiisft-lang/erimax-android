@@ -7823,6 +7823,7 @@ const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],FILTRADAS_TODAS=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
 let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
 let SETOR_MAQUINAS_EM_EDICAO=null;
+let MAQUINA_EM_EDICAO=null;
 let canalOSTempoReal=null,timerReconexaoOS=null,intervaloVerificacaoOS=null,intervaloStatusTecnicos=null,atualizacaoStatusEmCurso=false,ultimoIdOSRealtime=null,intervaloSincronizacaoFallback=null,sincronizacaoFallbackEmCurso=false;
 const idsOSAlertadas=new Set();
 const nOS=o=>o.numero||('OS #'+String(o.id).padStart(4,'0'));
@@ -11172,21 +11173,24 @@ function renderMaquinasAgrupadas(){
   const setores=[...new Set([...SETORES,...MAQUINAS.map(m=>m.setor)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
   listaMaquinas.innerHTML=setores.length?setores.map((nome,i)=>{
     const edit=SETOR_MAQUINAS_EM_EDICAO===nome,lista=MAQUINAS.filter(m=>m.setor===nome);
-    let h='<div class="card" style="padding:12px;margin:8px 0;border:1px solid #e2e8f0"><div class="cadastro-machine-sector-head"><span><b>'+escaparHtml(nome)+'</b><small style="display:block;color:#64748b;margin-top:3px">'+lista.length+' máquina(s) cadastrada(s)</small></span><button class="btn-action btn-transferir" title="Abrir máquinas do setor" aria-label="Abrir máquinas do setor" style="min-width:42px;flex:none" onclick="editarMaquinasSetor('+i+')">Editar</button></div>';
+    let h='<article class="cadastro-machine-group"><div class="cadastro-machine-sector-head"><span><b>'+escaparHtml(nome)+'</b><small>'+lista.length+' máquina(s) cadastrada(s)</small></span><button type="button" class="btn-action btn-transferir" onclick="editarMaquinasSetor('+i+')" aria-expanded="'+(edit?'true':'false')+'">'+(edit?'Fechar':'Abrir')+'</button></div>';
     if(edit){
-      h+='<div style="border-top:1px solid #e2e8f0;padding-top:10px;margin-top:10px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>Máquinas de '+escaparHtml(nome)+'</b><button type="button" class="btn-action" style="width:auto;min-width:0;flex:none" onclick="fecharMaquinasSetor()">Fechar ✕</button></div>';
-      h+=lista.length?lista.map(m=>'<div class="maq-row" style="gap:6px;margin-top:7px"><span style="flex:1;min-width:100px"><b>'+escaparHtml(m.nome)+'</b></span><input value="'+escaparHtml(m.prefixo||'')+'" placeholder="MTC-11" maxlength="9" aria-label="Código da máquina" style="width:105px;padding:6px;text-transform:uppercase" onchange="salvarPrefixo('+m.id+',this.value)"><button class="btn-action btn-excluir" aria-label="Apagar máquina" style="flex:none;min-width:0" onclick="delMaquina('+m.id+')">Apagar</button></div>').join(''):'<p style="font-size:.78rem;color:#64748b">Nenhuma máquina cadastrada neste setor.</p>';
-      h+='<div style="border-top:1px solid #e2e8f0;margin-top:12px;padding-top:10px"><b>➕ Cadastrar máquina neste setor</b><div class="form-group"><label for="maq-nome-'+i+'">Nome da máquina</label><input id="maq-nome-'+i+'" placeholder="Ex.: Tearcrochet 11"></div><div class="form-group"><label for="maq-codigo-'+i+'">Código da máquina</label><input id="maq-codigo-'+i+'" maxlength="9" placeholder="Ex.: MTC-11" style="text-transform:uppercase"></div><button class="btn-submit" onclick="addMaquina('+i+')">➕ Cadastrar máquina</button></div>';
-      h+='<button class="btn-action" style="margin-top:9px;width:auto" onclick="fecharMaquinasSetor()">Fechar setor</button></div>';
-    }else h+='<p style="font-size:.75rem;color:#64748b;margin-top:8px">🔒 Lista recolhida • Toque em Editar para visualizar e alterar.</p>';
-    return h+'</div>';
-  }).join(''):'<p style="color:#64748b;text-align:center">Nenhum setor ou máquina cadastrado.</p>';
+      h+='<div class="cadastro-machine-group-content">';
+      h+=lista.length?lista.map(m=>{
+        const aberto=Number(MAQUINA_EM_EDICAO)===Number(m.id);
+        return '<article class="cadastro-machine-item'+(aberto?' is-open':'')+'"><div class="cadastro-machine-head"><div><strong>'+escaparHtml(m.nome)+'</strong><small>'+(m.prefixo?'Código: '+escaparHtml(m.prefixo):'Código não informado')+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarMaquinaCadastro('+Number(m.id)+')" aria-expanded="'+(aberto?'true':'false')+'">'+(aberto?'Fechar':'Abrir')+'</button></div><div class="cadastro-machine-details" '+(aberto?'':'hidden')+'><label for="maq-codigo-'+Number(m.id)+'">Código da máquina</label><input id="maq-codigo-'+Number(m.id)+'" value="'+escaparHtml(m.prefixo||'')+'" placeholder="MTC-11" maxlength="9" aria-label="Código da máquina" onchange="salvarPrefixo('+Number(m.id)+',this.value)"><button type="button" class="btn-action btn-excluir" onclick="delMaquina('+Number(m.id)+')">Apagar máquina</button></div></article>';
+      }).join(''):'<p class="cadastro-empty-item">Nenhuma máquina cadastrada neste setor.</p>';
+      h+='<div class="cadastro-machine-create"><strong>Cadastrar máquina neste setor</strong><div class="form-group"><label for="maq-nome-'+i+'">Nome da máquina</label><input id="maq-nome-'+i+'" placeholder="Ex.: Tearcrochet 11"></div><div class="form-group"><label for="maq-codigo-'+i+'">Código da máquina</label><input id="maq-codigo-'+i+'" maxlength="9" placeholder="Ex.: MTC-11" style="text-transform:uppercase"></div><button class="btn-submit" onclick="addMaquina('+i+')">Cadastrar máquina</button></div></div>';
+    }else h+='<p class="cadastro-item-collapsed">Lista recolhida · toque em Abrir para visualizar as máquinas.</p>';
+    return h+'</article>';
+  }).join(''):'<p class="cadastro-empty-item">Nenhum setor ou máquina cadastrado.</p>';
 }
+function alternarMaquinaCadastro(id){MAQUINA_EM_EDICAO=Number(MAQUINA_EM_EDICAO)===Number(id)?null:Number(id);renderMaquinasAgrupadas()}
 function editarMaquinasSetor(i){
   const setores=[...new Set([...SETORES,...MAQUINAS.map(m=>m.setor)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
   const setor=setores[i]||null;SETOR_MAQUINAS_EM_EDICAO=SETOR_MAQUINAS_EM_EDICAO===setor?null:setor;renderMaquinasAgrupadas();
 }
-function fecharMaquinasSetor(){SETOR_MAQUINAS_EM_EDICAO=null;renderMaquinasAgrupadas()}
+function fecharMaquinasSetor(){SETOR_MAQUINAS_EM_EDICAO=null;MAQUINA_EM_EDICAO=null;renderMaquinasAgrupadas()}
 async function addMaquina(i){
   if(!erimaxExigirGestorCadastro())return;
   const setorEscolhido=[...new Set([...SETORES,...MAQUINAS.map(m=>m.setor)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'))[i];
@@ -13182,65 +13186,9 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 </style>
 
 
-<style id="cadastro-setor-cabecalho-sticky-2026">
-/* Sticky com folga abaixo do cabeçalho global fixo do aplicativo. */
-#tab-cadastro #cadastro-area-setores .cadastro-setores-shell,
-#tab-cadastro #cadastro-area-setores #listaCfg,
-#tab-cadastro #cadastro-area-setores .cadastro-setor-item{
-  overflow:visible!important;
-}
-#tab-cadastro #cadastro-area-setores .cadastro-setor-item{
-  position:relative!important;
-  isolation:isolate;
-}
-#tab-cadastro #cadastro-area-setores .cadastro-setor-item-head{
-  position:-webkit-sticky!important;
-  position:sticky!important;
-  top:calc(76px + env(safe-area-inset-top, 0px))!important;
-  z-index:80!important;
-  display:flex!important;
-  align-items:center!important;
-  min-height:60px!important;
-  margin:-3px -4px 10px!important;
-  padding:9px 10px!important;
-  border:1px solid #d7e7eb!important;
-  border-radius:12px!important;
-  background:linear-gradient(135deg,#e8f3f8 0%,#e4f3ef 100%)!important;
-  box-shadow:0 5px 15px rgba(24,55,78,.14)!important;
-  -webkit-backdrop-filter:blur(10px);
-  backdrop-filter:blur(10px);
-  scroll-margin-top:calc(82px + env(safe-area-inset-top, 0px));
-}
-#tab-cadastro #cadastro-area-setores .cadastro-setor-name strong{color:#183d55!important}
-#tab-cadastro #cadastro-area-setores .cadastro-setor-name small{color:#587487!important}
-@media(max-width:600px){
-  #tab-cadastro #cadastro-area-setores .cadastro-setor-item-head{
-    top:calc(64px + env(safe-area-inset-top, 0px))!important;
-    min-height:56px!important;
-    margin-bottom:9px!important;
-  }
-}
-</style>
 
-<style id="cadastro-sticky-e-proporcao-global-20261123">
-#tab-cadastro,#tab-cadastro .cadastro-area-panel,#tab-cadastro .cadastro-area-panel>.card,#tab-cadastro .cadastro-area-panel>.cadastro-area-card,#tab-cadastro .cadastro-setores-shell,#tab-cadastro #listaCfg,#tab-cadastro .cadastro-setor-item,#tab-cadastro #listaMaquinas,#tab-cadastro #listaPrev,#tab-cadastro #listaUsuarios{overflow:visible!important}
-#tab-cadastro :is(.cadastro-area-heading,.cadastro-area-card-heading,.cadastro-setores-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head,.pv-form-heading,.cadastro-preventivas-list-head){position:-webkit-sticky!important;position:sticky!important;top:calc(72px + env(safe-area-inset-top,0px))!important;z-index:90!important;box-sizing:border-box!important;min-height:54px!important;padding:10px 12px!important;margin-top:0!important;margin-bottom:10px!important;border:1px solid #d8e7e9!important;border-radius:12px!important;background:linear-gradient(115deg,#e8f3f8 0%,#e4f3ef 100%)!important;box-shadow:0 5px 14px rgba(24,55,78,.13)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);scroll-margin-top:calc(80px + env(safe-area-inset-top,0px))}
-#tab-cadastro :is(.cadastro-area-heading,.cadastro-setores-heading){justify-content:flex-start!important;gap:12px!important}
-#tab-cadastro :is(.cadastro-area-heading,.cadastro-setores-heading) :is(h3,p){margin-top:0!important}
-#tab-cadastro :is(.cadastro-area-card-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head,.pv-form-heading){display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
-#tab-cadastro :is(.cadastro-area-card-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head)>:first-child{min-width:0!important}
-#tab-cadastro .cadastro-machine-sector-head{margin:0 0 10px!important;color:#183d55!important}
-#tab-cadastro .cadastro-machine-sector-head b,#tab-cadastro .cadastro-area-card-heading strong,#tab-cadastro .cadastro-preventivas-list-head{color:#183d55!important}
-#tab-cadastro .cadastro-preventivas-list-head{display:flex!important;align-items:center!important;justify-content:flex-start!important;text-align:left!important;text-transform:none!important;font-size:.92rem!important}
-#tab-cadastro .cadastro-setor-item-head{margin-left:-4px!important;margin-right:-4px!important}
-#tab-cadastro :is(.cadastro-setor-actions,.cadastro-area-card-heading) button,#tab-cadastro .maq-row button.btn-action,#tab-cadastro #listaCfg button.btn-action,#tab-cadastro #listaExcecoesGeral button.btn-action,#tab-cadastro .cadastro-setor-edit-close button{display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:auto!important;min-width:0!important;max-width:100%!important;min-height:30px!important;height:30px!important;padding:0 9px!important;border-radius:8px!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;line-height:1!important;font-size:12px!important;font-weight:750!important;letter-spacing:0!important}
-#tab-cadastro .cadastro-setor-actions{display:flex!important;flex-flow:row nowrap!important;gap:6px!important;min-width:0!important}
-#tab-cadastro .maq-row{min-width:0!important;flex-wrap:wrap!important;align-items:center!important}
-#tab-cadastro .maq-row>span{min-width:0!important;flex:1 1 180px!important}
-#tab-cadastro .maq-row button.btn-action{margin:0!important}
-#tab-cadastro #listaUsuarios .maq-row{gap:7px!important}
-@media(max-width:600px){#tab-cadastro :is(.cadastro-area-heading,.cadastro-area-card-heading,.cadastro-setores-heading,.cadastro-setor-item-head,.cadastro-machine-sector-head,.pv-form-heading,.cadastro-preventivas-list-head){top:calc(62px + env(safe-area-inset-top,0px))!important;min-height:50px!important;padding:8px 9px!important;margin-bottom:8px!important}#tab-cadastro :is(.cadastro-setor-actions,.cadastro-area-card-heading) button,#tab-cadastro .maq-row button.btn-action,#tab-cadastro #listaCfg button.btn-action,#tab-cadastro #listaExcecoesGeral button.btn-action,#tab-cadastro .cadastro-setor-edit-close button{min-height:29px!important;height:29px!important;padding:0 7px!important;font-size:11.5px!important}#tab-cadastro .cadastro-area-heading p,#tab-cadastro .cadastro-setores-heading p{font-size:.7rem!important;line-height:1.35!important}}
-</style>
+
+
 
 
 
@@ -13356,9 +13304,9 @@ function renderCfg(){
   listaCfg.innerHTML=SETORES.map((s,i)=>{
     const edit=SETOR_EM_EDICAO===s;
     const qtd=turnosDoSetor(s).length||1;
-    let h='<article class="cadastro-setor-item"><div class="cadastro-setor-item-head"><div class="cadastro-setor-identity"><span class="cadastro-setor-item-icon" aria-hidden="true">▦</span><div class="cadastro-setor-name"><strong>'+escaparHtml(s)+'</strong><small>'+qtd+' turno(s) configurado(s)</small></div></div><div class="cadastro-setor-actions"><button class="btn-action btn-transferir cadastro-setor-edit" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" onclick="editarHorarioSetor('+i+')">Editar</button><button class="btn-action btn-excluir cadastro-setor-delete" title="Apagar setor" aria-label="Apagar setor '+escaparHtml(s)+'" onclick="apagarSetor('+i+')">Apagar</button></div></div>';
+    let h='<article class="cadastro-setor-item"><div class="cadastro-setor-item-head"><div class="cadastro-setor-identity"><span class="cadastro-setor-item-icon" aria-hidden="true">▦</span><div class="cadastro-setor-name"><strong>'+escaparHtml(s)+'</strong><small>'+qtd+' turno(s) configurado(s)</small></div></div><div class="cadastro-setor-actions"><button class="btn-action btn-transferir cadastro-setor-edit" title="Editar horários" aria-label="Editar horários de '+escaparHtml(s)+'" onclick="editarHorarioSetor('+i+')" >Abrir</button><button class="btn-action btn-excluir cadastro-setor-delete" title="Apagar setor" aria-label="Apagar setor '+escaparHtml(s)+'" onclick="apagarSetor('+i+')">Apagar</button></div></div>';
     if(edit)h+='<div class="cadastro-setor-edit-close"><span>Configuração de horários</span><button type="button" class="btn-action" onclick="cancelarEdicaoHorario()">Fechar edição ✕</button></div>'+renderEditorSetor(s,i);
-    else h+='<div class="cadastro-setor-protected"><span aria-hidden="true">🔒</span><span>Horários protegidos</span><small>Toque no relógio para editar dias e turnos.</small></div>';
+    else h+='<div class="cadastro-setor-protected"><span aria-hidden="true">🔒</span><span>Horários protegidos</span><small>Toque em Abrir para visualizar e configurar os dias e turnos.</small></div>';
     return h+'</article>';
   }).join('');
   renderPainelExcecoesGeral();
@@ -13472,11 +13420,17 @@ async function apagarSetor(i){
   SETOR_EM_EDICAO=null;await carregarCfg();
 }
 /* ===== USUÁRIOS ===== */
+function alternarCadastroRegistro(botao){
+ const item=botao&&botao.closest('.cadastro-record-item');if(!item)return;
+ const detalhes=item.querySelector('.cadastro-record-details');if(!detalhes)return;
+ const abrir=detalhes.hidden;detalhes.hidden=!abrir;item.classList.toggle('is-open',abrir);
+ botao.textContent=abrir?'Fechar':'Abrir';botao.setAttribute('aria-expanded',abrir?'true':'false');
+}
 async function carregarUsuarios(){
   if(!erimaxExigirGestorCadastro())return;
   const {data,error}=await _supabase.from('perfis').select('*').order('nome');
   if(error){listaUsuarios.innerHTML='<p class="alerta">Erro: '+error.message+'</p>';return}
-  listaUsuarios.innerHTML=(data||[]).map(u=>`<div class="maq-row" style="flex-wrap:wrap;gap:6px"><small style="flex:1 1 100%;color:#64748b">${u.email||''}${u.id===MEU_ID?' (você)':''}</small><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" style="flex:1;padding:8px" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><select aria-label="Perfil de acesso do usuário" style="width:120px;padding:8px" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<button type="button" aria-label="Redefinir senha do usuário" title="Redefinir senha" class="btn-action btn-transferir" style="flex:none;min-width:0" onclick="redefinirSenha('${u.id}')">Redefinir</button><button type="button" aria-label="Apagar usuário" title="Apagar usuário" class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="apagarUsuario('${u.id}')">Apagar</button>`}</div>`).join('')||'<p style="color:#64748b;text-align:center">Nenhum usuário.</p>';
+  listaUsuarios.innerHTML=(data||[]).map(u=>`<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>${escaparHtml(u.nome||'Usuário sem nome')}</strong><small>${escaparHtml(u.email||'')}${u.id===MEU_ID?' · Você':''}</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><label>Nome do usuário</label><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><label>Perfil de acesso</label><select aria-label="Perfil de acesso do usuário" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<div class="cadastro-record-actions"><button type="button" class="btn-action btn-transferir" onclick="redefinirSenha('${u.id}')">Redefinir senha</button><button type="button" class="btn-action btn-excluir" onclick="apagarUsuario('${u.id}')">Apagar</button></div>`}</div></article>`).join('')||'<p class="cadastro-empty-item">Nenhum usuário.</p>';
 }
 async function criarUsuario(){
   if(!erimaxExigirGestorCadastro())return;
@@ -13720,7 +13674,7 @@ async function carregarPreventivas(){
   PREV=data||[];
   renderAlertaPreventivas();
   renderPainelPreventivas();
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small style="color:#64748b">• '+escaparHtml(p.setor)+' • '+escaparHtml(p.descricao)+' • a cada '+(Number(p.intervalo_dias)||0)+' dia(s)<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br>📅 '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+' • 👨‍🔧 Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'<br>Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</small></span><button class="btn-action btn-excluir" style="flex:none;min-width:0" onclick="delPrev('+Number(p.id)+')" aria-label="Apagar preventiva">Apagar</button></div>').join(''):'<p style="color:#64748b;text-align:center">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>'+escaparHtml(resumoMaquinasPreventiva(p))+'</strong><small>'+escaparHtml(p.setor)+' · '+escaparHtml(p.descricao)+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><p>A cada '+(Number(p.intervalo_dias)||0)+' dia(s) · '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+'</p><p>Máquinas: '+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</p><p>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' · Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</p><button type="button" class="btn-action btn-excluir" onclick="delPrev('+Number(p.id)+')">Apagar preventiva</button></div></article>').join(''):'<p class="cadastro-empty-item">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
     let base;
@@ -17277,4 +17231,28 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
     font-size:11.5px!important;
   }
 }
+</style>
+
+<style id="cadastro-hierarquia-sticky-segura-20261123">
+#tab-cadastro,#tab-cadastro .cadastro-area-panel,#tab-cadastro .cadastro-setores-shell,#tab-cadastro #listaCfg,#tab-cadastro .cadastro-setor-item,#tab-cadastro #listaMaquinas,#tab-cadastro .cadastro-machine-group,#tab-cadastro .cadastro-machine-group-content,#tab-cadastro #listaPrev,#tab-cadastro #listaUsuarios{overflow:visible!important}
+#tab-cadastro .cadastro-area-heading,#tab-cadastro .cadastro-setores-heading{position:sticky!important;top:calc(68px + env(safe-area-inset-top,0px))!important;z-index:40!important;box-sizing:border-box!important;background:linear-gradient(115deg,#e8f3f8,#e4f3ef)!important;border:1px solid #d8e7e9!important;border-radius:12px!important;padding:10px 12px!important;box-shadow:0 5px 14px rgba(24,55,78,.13)!important;backdrop-filter:blur(10px);scroll-margin-top:calc(74px + env(safe-area-inset-top,0px))}
+#tab-cadastro .cadastro-setor-item:has(.cadastro-setor-edit-close) .cadastro-setor-item-head,#tab-cadastro .cadastro-machine-group:has(.cadastro-machine-group-content) .cadastro-machine-sector-head,#tab-cadastro .cadastro-machine-item.is-open .cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open .cadastro-record-head{position:sticky!important;top:calc(132px + env(safe-area-inset-top,0px))!important;z-index:35!important;box-sizing:border-box!important;min-height:54px!important;padding:9px 11px!important;margin:0 0 10px!important;border:1px solid #d7e7eb!important;border-radius:11px!important;background:linear-gradient(115deg,#e8f3f8,#e4f3ef)!important;box-shadow:0 4px 12px rgba(24,55,78,.12)!important;backdrop-filter:blur(10px);scroll-margin-top:calc(138px + env(safe-area-inset-top,0px))}
+#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{min-width:0;margin:9px 0;padding:10px;border:1px solid #e0e9ef;border-radius:12px;background:#fff}
+#tab-cadastro .cadastro-machine-head,#tab-cadastro .cadastro-record-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+#tab-cadastro .cadastro-machine-head>div,#tab-cadastro .cadastro-record-head>div{display:grid;gap:4px;min-width:0}
+#tab-cadastro .cadastro-machine-head strong,#tab-cadastro .cadastro-record-head strong{color:#183d55;font-size:.9rem;font-weight:850;overflow-wrap:anywhere}
+#tab-cadastro .cadastro-machine-head small,#tab-cadastro .cadastro-record-head small{color:#647b8d;font-size:.72rem;overflow-wrap:anywhere}
+#tab-cadastro .cadastro-machine-details,#tab-cadastro .cadastro-record-details{display:grid;gap:9px;padding:12px;margin-top:8px;border-top:1px solid #e4edf2;background:#f8fbfc;border-radius:0 0 10px 10px}
+#tab-cadastro .cadastro-machine-details[hidden],#tab-cadastro .cadastro-record-details[hidden]{display:none!important}
+#tab-cadastro .cadastro-record-details p{margin:0;color:#536b7d;font-size:.78rem;line-height:1.5;overflow-wrap:anywhere}
+#tab-cadastro .cadastro-record-actions{display:flex;gap:8px;flex-wrap:wrap}
+#tab-cadastro .cadastro-machine-create{margin-top:13px;padding:12px;border:1px solid #dcebe9;border-radius:11px;background:#f4faf9}
+#tab-cadastro .cadastro-machine-group-content{padding-top:8px}
+#tab-cadastro .cadastro-item-collapsed,#tab-cadastro .cadastro-empty-item{margin:8px 0;color:#718294;font-size:.76rem;text-align:center}
+#tab-cadastro .cadastro-machine-sector-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#tab-cadastro .cadastro-machine-sector-head>span{display:grid;gap:4px;min-width:0}
+#tab-cadastro .cadastro-machine-sector-head small{color:#647b8d;font-size:.72rem}
+#tab-cadastro .cadastro-machine-head button,#tab-cadastro .cadastro-record-head button,#tab-cadastro .cadastro-machine-sector-head button,#tab-cadastro .cadastro-setor-actions button{flex:0 0 auto;min-height:32px;height:32px;padding:0 10px;white-space:nowrap;font-size:12px}
+#tab-cadastro .cadastro-machine-details label,#tab-cadastro .cadastro-record-details label{margin:0;font-size:.72rem;text-transform:none}
+@media(max-width:600px){#tab-cadastro .cadastro-area-heading,#tab-cadastro .cadastro-setores-heading{top:calc(60px + env(safe-area-inset-top,0px))!important;padding:8px 9px!important}#tab-cadastro .cadastro-setor-item:has(.cadastro-setor-edit-close) .cadastro-setor-item-head,#tab-cadastro .cadastro-machine-group:has(.cadastro-machine-group-content) .cadastro-machine-sector-head,#tab-cadastro .cadastro-machine-item.is-open .cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open .cadastro-record-head{top:calc(118px + env(safe-area-inset-top,0px))!important;min-height:50px!important;padding:8px 9px!important}#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{padding:8px}}
 </style>
