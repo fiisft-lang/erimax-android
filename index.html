@@ -7383,8 +7383,11 @@ function atualizarNavegacaoMobileEriMax(id){
 <div id="boxStatusTurno"></div>
 <div id="boxTec2"></div>
 <div class="card">
-<h2 style="margin-bottom:4px;font-size:1.1rem;color:var(--primary)">Abrir Ordem de Serviço</h2>
-<p style="font-size:.8rem;color:#64748b;margin-bottom:14px">Registre o defeito da máquina informando o turno atual.</p>
+<div class="erimax-open-os-hero">
+  <span class="erimax-open-os-kicker">MANUTENÇÃO • REGISTRO DE CHAMADO</span>
+  <h2>Abrir Ordem de Serviço</h2>
+  <p>Registre o defeito da máquina e informe o turno atual.</p>
+</div>
 <form id="formOS" onsubmit="salvarOS(event)">
 <div class="form-group"><label for="abertoPor">NOME DE QUEM ESTÁ ABRINDO A O.S. *</label><input type="text" id="abertoPor" maxlength="100" placeholder="Digite seu nome" autocomplete="name" required></div>
 <div class="form-group" id="grupoSituacaoEquipamento"><label for="situacaoEquipamento">SITUAÇÃO DO EQUIPAMENTO *</label><select id="situacaoEquipamento" required><option value="">Selecione...</option><option value="Parado">Parado</option><option value="Rodando">Rodando</option></select></div>
@@ -16603,3 +16606,38 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   },{passive:true});
 })();
 </script>
+
+<style id="erimax-open-os-header-hierarchy-2026">
+/* Cabeçalho da abertura de O.S. alinhado à hierarquia visual das páginas principais. */
+#tab-abrir #formOS{min-width:0}
+#tab-abrir .erimax-open-os-hero{
+  position:relative;isolation:isolate;overflow:hidden;
+  display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+  margin:0 0 20px;padding:19px 20px 18px;
+  border:1px solid rgba(79,190,190,.24);border-left:4px solid #36c6b5;
+  border-radius:14px;
+  background:linear-gradient(118deg,#123b50 0%,#164e61 58%,#176b70 100%);
+  box-shadow:0 8px 20px rgba(13,52,69,.13);
+}
+#tab-abrir .erimax-open-os-hero:after{
+  content:"";position:absolute;z-index:-1;width:170px;height:170px;right:-52px;top:-82px;
+  border:1px solid rgba(122,235,220,.22);border-radius:50%;
+  box-shadow:0 0 0 18px rgba(122,235,220,.045),0 0 0 38px rgba(122,235,220,.035);
+}
+#tab-abrir .erimax-open-os-kicker{
+  color:#8ce6d9;font-size:.66rem;font-weight:800;letter-spacing:.13em;line-height:1.35;
+}
+#tab-abrir .erimax-open-os-hero h2{
+  margin:0!important;color:#fff!important;font-size:clamp(1.22rem,2.4vw,1.55rem)!important;
+  font-weight:800!important;letter-spacing:-.035em;line-height:1.18;
+}
+#tab-abrir .erimax-open-os-hero p{
+  max-width:620px;margin:0!important;color:rgba(239,249,250,.84)!important;
+  font-size:.84rem!important;line-height:1.5;
+}
+@media(max-width:600px){
+  #tab-abrir .erimax-open-os-hero{padding:16px 15px 15px;margin-bottom:17px;border-radius:12px}
+  #tab-abrir .erimax-open-os-kicker{font-size:.61rem}
+  #tab-abrir .erimax-open-os-hero p{font-size:.78rem!important}
+}
+</style>
