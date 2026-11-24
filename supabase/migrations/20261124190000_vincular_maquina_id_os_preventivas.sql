@@ -268,11 +268,21 @@ begin
   end if;
 
   v_maquina_id:=nullif(p_dados->>'maquina_id','')::bigint;
-  if v_maquina_id is null or not exists (
+  if v_maquina_id is null then
+    -- Compatibilidade com versões antigas do app: resolve somente se nome + setor forem únicos.
+    select count(*),min(m.id)
+      into v_quantidade,v_maquina_id
+    from public.maquinas m
+    where lower(btrim(m.nome))=lower(btrim(p_dados->>'maquina'))
+      and lower(btrim(m.setor))=lower(btrim(p_dados->>'setor'));
+    if v_quantidade<>1 then
+      raise exception 'Não foi possível identificar uma única máquina. Atualize o aplicativo e selecione pelo código.';
+    end if;
+  elsif not exists (
     select 1 from public.maquinas m
     where m.id=v_maquina_id
-      and m.nome=p_dados->>'maquina'
-      and m.setor=p_dados->>'setor'
+      and lower(btrim(m.nome))=lower(btrim(p_dados->>'maquina'))
+      and lower(btrim(m.setor))=lower(btrim(p_dados->>'setor'))
   ) then
     raise exception 'O ID da máquina não corresponde ao nome e setor selecionados.';
   end if;
