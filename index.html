@@ -7363,6 +7363,132 @@ body .tbl-wrap td{color:#344d5e}
  #tab-cadastro .excecao-data-actions .btn-action{min-width:0!important;min-height:28px!important;height:28px!important;padding:0 6px!important;font-size:.63rem!important}
 }
 </style>
+
+<style id="erimax-graficos-desktop-padronizados-2026">
+/* Padronização dos gráficos no computador: mantém os comportamentos móveis e os dados atuais. */
+@media (min-width:1024px){
+  #tab-metricas #metricsDataContent{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:stretch;
+    column-gap:22px!important;
+    row-gap:22px!important;
+    min-width:0;
+  }
+  #tab-metricas #metricsDataContent>.metrics-report-toolbar,
+  #tab-metricas #metricsDataContent>#printReportHeader,
+  #tab-metricas #metricsDataContent>.metrics-section-heading,
+  #tab-metricas #metricsDataContent>.metrics-grid,
+  #tab-metricas #metricsDataContent>#cardHorarioEfGeral,
+  #tab-metricas #metricsDataContent>#cardHorarioRanking,
+  #tab-metricas #metricsDataContent>#cardHeatmapMaquinas,
+  #tab-metricas #metricsDataContent>#cardHorarioPareto,
+  #tab-metricas #metricsDataContent>#cardHorarioDowntime,
+  #tab-metricas #metricsDataContent>#cardRankingReincidencia,
+  #tab-metricas #metricsDataContent>.metrics-ranking-card{
+    grid-column:1/-1!important;
+    min-width:0;
+  }
+  #tab-metricas #metricsDataContent>.card:has(> .chart-wrapper){
+    display:flex!important;
+    flex-direction:column!important;
+    align-self:stretch!important;
+    min-width:0!important;
+    min-height:365px;
+    padding:22px!important;
+    border:1px solid #e1e8ef!important;
+    border-radius:16px!important;
+    background:#fff!important;
+    box-shadow:0 4px 16px rgba(24,54,75,.055)!important;
+  }
+  #tab-metricas #metricsDataContent>.card:has(> .chart-wrapper)>h4{
+    min-height:2.6em;
+    display:flex;
+    align-items:flex-start;
+    margin:0 0 9px!important;
+    color:#193b54!important;
+    font-size:.94rem!important;
+    line-height:1.4!important;
+    text-align:left!important;
+  }
+  #tab-metricas #metricsDataContent>.card:has(> .chart-wrapper)>.metrics-chart-note{
+    min-height:2.8em;
+    margin:0 0 10px!important;
+    color:#687b90!important;
+    font-size:.76rem!important;
+    line-height:1.5!important;
+  }
+  #tab-metricas #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper{
+    flex:1 1 auto;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    min-height:300px!important;
+    box-sizing:border-box!important;
+    margin:8px 0 0!important;
+    padding:14px 12px 8px!important;
+    border:1px solid #e8eef3!important;
+    border-radius:12px!important;
+    background:#fbfcfe!important;
+  }
+  #tab-metricas #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper canvas{
+    display:block;
+    max-width:100%!important;
+  }
+  #tab-metricas #comparacaoGraficos{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:18px!important;
+    min-width:0;
+  }
+  #tab-metricas #comparacaoGraficos>div{
+    min-width:0;
+    padding:18px!important;
+    border:1px solid #e1e8ef!important;
+    border-radius:15px!important;
+    background:#fff!important;
+    box-shadow:0 4px 16px rgba(24,54,75,.05)!important;
+  }
+  #tab-metricas #comparacaoGraficos h4{
+    min-height:2.6em;
+    margin:0 0 9px!important;
+    color:#193b54!important;
+    text-align:left!important;
+  }
+  #tab-metricas #comparacaoGraficos .chart-wrapper{
+    width:100%!important;
+    min-width:0!important;
+    min-height:300px!important;
+    box-sizing:border-box!important;
+    padding:12px!important;
+    border:1px solid #e8eef3!important;
+    border-radius:12px!important;
+    background:#fbfcfe!important;
+  }
+  #tab-ranking-os #rankingDataContent{
+    width:100%;
+    min-width:0;
+  }
+  #tab-ranking-os #rankingDataContent>.card{
+    width:100%;
+    min-width:0;
+    padding:24px!important;
+    border:1px solid #e1e8ef!important;
+    border-radius:16px!important;
+    box-shadow:0 4px 16px rgba(24,54,75,.055)!important;
+  }
+}
+@media (min-width:1024px) and (max-width:1279px){
+  #tab-metricas #metricsDataContent{column-gap:16px!important;row-gap:16px!important}
+  #tab-metricas #metricsDataContent>.card:has(> .chart-wrapper){padding:18px!important}
+  #tab-metricas #metricsDataContent>.card:has(> .chart-wrapper)>.chart-wrapper,
+  #tab-metricas #comparacaoGraficos .chart-wrapper{min-height:280px!important}
+}
+@media (max-width:1023px){
+  #tab-metricas #comparacaoGraficos{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
