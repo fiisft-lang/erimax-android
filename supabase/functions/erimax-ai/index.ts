@@ -8,7 +8,7 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
 
-const columns = 'id,numero_mes,setor,maquina,tipo,prioridade,descricao,status,tecnico,servico_executado,created_at,data_atendimento,data_conclusao,causa,peca'
+const columns = 'id,numero_mes,setor,maquina,tipo,prioridade,descricao,status,tecnico,mecanico_auxiliar,tecnicos_participantes,maquinas_execucao,servico_executado,created_at,data_atendimento,data_conclusao,causa,peca'
 const normalize = (value: unknown) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 const validDate = (value: unknown): value is string => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
 const cleanLike = (value: unknown) => typeof value === 'string' ? value.trim().slice(0, 80) : ''
@@ -58,17 +58,30 @@ function parsePlan(raw: string) {
     terms: Array.isArray(parsed.terms) ? parsed.terms.filter((x: unknown) => typeof x === 'string').map((x: string) => normalize(x).trim()).filter(Boolean).slice(0, 6) : [],
     group_by: groups.includes(parsed.group_by) ? parsed.group_by : 'none',
     metric: parsed.metric === 'ranking' ? 'ranking' : parsed.metric === 'summary' ? 'summary' : 'count',
+    date_field: parsed.date_field === 'data_conclusao' ? 'data_conclusao' : 'created_at',
   }
 }
 
-function groupValue(row: any, group: string) {
-  if (group === 'machine') return row.maquina || 'Não informada'
-  if (group === 'sector') return row.setor || 'Não informado'
-  if (group === 'technician') return row.tecnico || 'Não informado'
-  if (group === 'type') return row.tipo || 'Não informado'
-  if (group === 'cause') return row.causa || 'Não informada'
-  if (group === 'part') return row.peca || 'Não informada'
-  return null
+function groupValues(row: any, group: string): string[] {
+  if (group === 'machine') {
+    const executions = Array.isArray(row.maquinas_execucao)
+      ? row.maquinas_execucao.map((item: any) => typeof item === 'string' ? item : item?.nome).filter((name: unknown) => typeof name === 'string' && name.trim())
+      : []
+    const machines = executions.length ? executions : [row.maquina || 'Não informada']
+    const sector = row.setor || 'Setor não informado'
+    return [...new Set(machines.map((name: string) => `${sector} — ${name.trim()}`))]
+  }
+  if (group === 'sector') return [row.setor || 'Não informado']
+  if (group === 'technician') {
+    const names = [row.tecnico, row.mecanico_auxiliar, ...(Array.isArray(row.tecnicos_participantes) ? row.tecnicos_participantes : [])]
+      .filter((name: unknown) => typeof name === 'string' && name.trim())
+      .map((name: string) => name.trim())
+    return [...new Set(names.length ? names : ['Não informado'])]
+  }
+  if (group === 'type') return [row.tipo || 'Não informado']
+  if (group === 'cause') return [row.causa || 'Não informada']
+  if (group === 'part') return [row.peca || 'Não informada']
+  return []
 }
 
 Deno.serve(async (req: Request) => {
@@ -101,8 +114,8 @@ Deno.serve(async (req: Request) => {
     const now = new Date()
     const planPrompt = `Você transforma perguntas em filtros de consulta para um histórico de ordens de serviço industrial. Hoje é ${now.toLocaleDateString('sv-SE', { timeZone: 'America/Sao_Paulo' })} no fuso America/Sao_Paulo.
 Responda SOMENTE JSON válido, sem markdown, com exatamente estas chaves:
-{"date_from":"YYYY-MM-DD ou null","date_to":"YYYY-MM-DD ou null","machine":"texto ou vazio","sector":"texto ou vazio","terms":["palavras-chave"],"group_by":"none|machine|sector|technician|type|cause|part","metric":"count|ranking|summary"}
-Interprete expressões como este mês, mês passado, este ano e datas específicas usando a data de hoje. date_to é inclusiva.
+{"date_from":"YYYY-MM-DD ou null","date_to":"YYYY-MM-DD ou null","date_field":"created_at|data_conclusao","machine":"texto ou vazio","sector":"texto ou vazio","terms":["palavras-chave"],"group_by":"none|machine|sector|technician|type|cause|part","metric":"count|ranking|summary"}
+Interprete expressões como este mês, mês passado, este ano e datas específicas usando a data de hoje. date_to é inclusiva. Use date_field=data_conclusao quando a pergunta tratar de O.S. concluídas, finalizadas ou serviços executados/concluídos em um período; nos demais casos use created_at.
 machine e sector devem conter apenas o nome mencionado pelo usuário, sem termos genéricos.
 terms serve para localizar o defeito/peça/serviço nos campos de texto. Para "motor queimado", use ["motor","queim"]; para "rolamento quebrado", use ["rolamento","quebr"]. Não invente termos quando a pergunta for um resumo geral.
 Use group_by=machine para ranking de máquinas, sector para setores, technician para técnicos, type para tipo de falha, cause para causas, part para peças. Use metric=ranking quando pedir maior/menor/mais frequente; summary para análise geral; count para quantidade.
@@ -112,12 +125,13 @@ Não responda à pergunta; apenas extraia os filtros.`
     const planRaw = await askOpenAI(apiKey, planPrompt, `${conversation ? 'CONTEXTO DA CONVERSA:\n' + conversation + '\n' : ''}PERGUNTA ATUAL: ${question}`, 250)
     const plan = parsePlan(planRaw)
 
-    let query = admin.from('os').select(columns).order('created_at', { ascending: false })
-    if (plan.date_from) query = query.gte('created_at', `${plan.date_from}T00:00:00-03:00`)
+    const dateField = plan.date_field
+    let query = admin.from('os').select(columns).order(dateField, { ascending: false })
+    if (plan.date_from) query = query.gte(dateField, `${plan.date_from}T00:00:00-03:00`)
     if (plan.date_to) {
       const end = new Date(`${plan.date_to}T00:00:00-03:00`)
       end.setDate(end.getDate() + 1)
-      query = query.lt('created_at', end.toISOString())
+      query = query.lt(dateField, end.toISOString())
     }
     if (plan.machine) query = query.ilike('maquina', `%${plan.machine.replace(/[%_]/g, '')}%`)
     if (plan.sector) query = query.ilike('setor', `%${plan.sector.replace(/[%_]/g, '')}%`)
@@ -136,8 +150,9 @@ Não responda à pergunta; apenas extraia os filtros.`
     const ranking: Record<string, number> = {}
     if (plan.group_by !== 'none') {
       for (const row of matching) {
-        const key = groupValue(row, plan.group_by)
-        if (key) ranking[key] = (ranking[key] || 0) + 1
+        for (const key of groupValues(row, plan.group_by)) {
+          ranking[key] = (ranking[key] || 0) + 1
+        }
       }
     }
     const ranked = Object.entries(ranking).sort((a, b) => b[1] - a[1]).slice(0, 12)
@@ -147,11 +162,14 @@ Não responda à pergunta; apenas extraia os filtros.`
       total_in_period: rows.length,
       matched_count: matching.length,
       group_by: plan.group_by,
+      date_field: dateField,
       ranking: ranked,
       sample: matching.slice(0, 60).map(row => ({
         os: row.numero_mes || row.id, setor: row.setor, maquina: row.maquina, tipo: row.tipo,
         descricao: row.descricao, causa: row.causa, peca: row.peca, tecnico: row.tecnico,
-        status: row.status, servico_executado: row.servico_executado, created_at: row.created_at,
+        mecanico_auxiliar: row.mecanico_auxiliar, tecnicos_participantes: row.tecnicos_participantes,
+        maquinas_execucao: row.maquinas_execucao, status: row.status, servico_executado: row.servico_executado,
+        created_at: row.created_at, data_conclusao: row.data_conclusao,
       })),
       truncated,
     }
