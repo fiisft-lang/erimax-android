@@ -8,6 +8,7 @@ on:
       - main
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
+      - fix/auditoria-ia-metricas-20261124
 
 jobs:
   build:
