@@ -221,6 +221,9 @@ as $function$
 declare
   v_itens jsonb;
 begin
+  if auth.uid() is null or coalesce(public.meu_perfil(),'') <> 'gestor' then
+    raise exception 'Somente o Gestor pode corrigir materiais de uma O.S. concluída.';
+  end if;
   if new.status = 'Concluída'
      and old.status = 'Concluída'
      and (
