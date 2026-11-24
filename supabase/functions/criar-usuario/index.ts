@@ -47,7 +47,22 @@ Deno.serve(async (req) => {
     })
     if (error) return json({ erro: error.message }, 400)
 
-    await admin.from('perfis').upsert({ id: data.user.id, nome, email, perfil })
+    const { error: perfilError } = await admin.from('perfis').upsert({
+      id: data.user.id, nome: String(nome).trim(), email: String(email).trim().toLowerCase(), perfil,
+    })
+    if (perfilError) {
+      // Não deixa uma conta autenticável sem perfil e sem permissão definida.
+      const { error: limparPerfilError } = await admin.from('perfis').delete().eq('id', data.user.id)
+      const { error: removerAuthError } = await admin.auth.admin.deleteUser(data.user.id)
+      console.error('Falha ao gravar perfil do novo usuário:', perfilError)
+      if (limparPerfilError) console.error('Falha ao limpar perfil parcial:', limparPerfilError)
+      if (removerAuthError) console.error('Falha ao desfazer usuário sem perfil:', removerAuthError)
+      return json({
+        erro: removerAuthError
+          ? 'Não foi possível concluir o cadastro nem desfazer automaticamente a conta. O administrador precisa revisar o usuário criado.'
+          : 'Não foi possível salvar o perfil. O cadastro foi desfeito; tente novamente.',
+      }, 500)
+    }
     return json({ ok: true })
   } catch (e) {
     return json({ erro: String(e) }, 500)
