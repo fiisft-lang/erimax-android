@@ -3656,8 +3656,8 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 /* Cada área da central deve aparecer isoladamente ao tocar no respectivo cartão */
 #tab-cadastro #cadastro-area-preventivas:not(.active){display:none!important}
 #tab-cadastro #cadastro-area-preventivas.active{display:flex!important;flex-direction:column!important}
-#tab-cadastro #cadastro-area-preventivas #pvFormConteudo{display:grid!important}
-#tab-cadastro #cadastro-area-preventivas .pv-form-heading{cursor:default!important;pointer-events:none}
+#tab-cadastro #cadastro-area-preventivas #pvFormConteudo{display:grid}
+#tab-cadastro #cadastro-area-preventivas .pv-form-heading{cursor:pointer!important;pointer-events:auto!important;user-select:none}
 #tab-cadastro #cadastro-area-preventivas .pv-form-heading small{display:block}
 </style>
 
@@ -7891,7 +7891,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="card cadastro-area-card cadastro-maquinas-card">
 <p class="cadastro-area-intro">Cada setor fica recolhido. Abra um setor para visualizar a lista completa, cadastrar, editar códigos ou remover máquinas.</p>
 <div id="listaMaquinas"></div></div>
-</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div class="pv-form-heading"><div><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Cadastrar preventiva</h3><small>Preencha os dados para programar a manutenção</small></div></div><div id="pvFormConteudo">
+</section><section id="cadastro-area-preventivas" class="cadastro-area-panel"><div class="card" id="pvFormCard"><div class="pv-form-heading" role="button" tabindex="0" aria-expanded="true" aria-controls="pvFormConteudo" onclick="alternarFormPreventiva()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();alternarFormPreventiva()}"><div><h3 style="font-size:1.1rem;color:var(--primary);margin:0">Cadastrar preventiva</h3><small id="pvFormHint">Toque aqui para recolher o formulário</small></div><span class="pv-form-heading-icon" aria-hidden="true">⌃</span></div><div id="pvFormConteudo">
 <div class="form-group"><label for="pvSetor">Setor</label><select id="pvSetor" onchange="pvMaquinas()"></select></div>
 <div class="form-group"><label>Máquinas</label>
 <label style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="pvTodasMaquinas" type="checkbox" style="width:auto" onchange="pvMaquinas()"> <b>Todas as máquinas do setor</b></label>
@@ -13791,7 +13791,7 @@ async function carregarUsuarios(){
   if(!erimaxExigirGestorCadastro())return;
   const {data,error}=await _supabase.from('perfis').select('*').order('nome');
   if(error){listaUsuarios.innerHTML='<p class="alerta">Erro: '+error.message+'</p>';return}
-  listaUsuarios.innerHTML=(data||[]).map(u=>`<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>${escaparHtml(u.nome||'Usuário sem nome')}</strong><small>${escaparHtml(u.email||'')}${u.id===MEU_ID?' · Você':''}</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><label>Nome do usuário</label><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><label>Perfil de acesso</label><select aria-label="Perfil de acesso do usuário" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<div class="cadastro-record-actions"><button type="button" class="btn-action btn-transferir" onclick="redefinirSenha('${u.id}')">Redefinir senha</button><button type="button" class="btn-action btn-excluir" onclick="apagarUsuario('${u.id}')">Apagar</button></div>`}</div></article>`).join('')||'<p class="cadastro-empty-item">Nenhum usuário.</p>';
+  listaUsuarios.innerHTML=(data||[]).map(u=>`<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>${escaparHtml(u.nome||'Usuário sem nome')}</strong><small>${escaparHtml(u.email||'')}${u.id===MEU_ID?' · Você':''}</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><label>Nome do usuário</label><input aria-label="Nome do usuário" value="${(u.nome||'').replace(/"/g,'&quot;')}" onchange="salvarUsuario('${u.id}',{nome:this.value.trim()})"><label>Perfil de acesso</label><select aria-label="Perfil de acesso do usuário" ${u.id===MEU_ID?'disabled':''} onchange="salvarUsuario('${u.id}',{perfil:this.value})">${['operador','tecnico','gestor'].map(x=>`<option ${x===u.perfil?'selected':''}>${x}</option>`).join('')}</select>${u.id===MEU_ID?'':`<div class="cadastro-record-actions"><button type="button" class="btn-action btn-transferir" onclick="redefinirSenha('${u.id}')">Redefinir</button><button type="button" class="btn-action btn-excluir" onclick="apagarUsuario('${u.id}')">Apagar</button></div>`}</div></article>`).join('')||'<p class="cadastro-empty-item">Nenhum usuário.</p>';
 }
 async function criarUsuario(){
   if(!erimaxExigirGestorCadastro())return;
