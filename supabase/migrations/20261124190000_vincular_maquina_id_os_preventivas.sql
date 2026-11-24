@@ -252,6 +252,7 @@ declare
   v_peca text;
   v_qtd numeric;
   v_maquina_id bigint;
+  v_quantidade integer;
 begin
   if (select auth.uid()) is null then raise exception 'Sessão não autenticada.'; end if;
   select p.perfil,p.nome into v_perfil,v_nome
