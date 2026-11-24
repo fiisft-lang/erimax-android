@@ -263,7 +263,10 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          # O Capacitor pode ter iniciado um Gradle daemon antes de injetar os segredos.
+          # Encerra esse daemon para que o build assinado herde as credenciais desta etapa.
+          ./gradlew --stop || true
+          ./gradlew --no-daemon assembleDebug --stacktrace
 
       - name: Verificar APK
         run: |
