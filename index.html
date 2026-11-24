@@ -13542,71 +13542,7 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
-<style id="erimax-ranking-hierarquia-cores-integradas-20261124">
-/* Ranking: cabeçalhos e identificação dos técnicos na mesma paleta institucional. */
-@media screen and (min-width:768px){
- #tab-ranking-os .ranking-os-hero{
-   border:1px solid #244d68!important;
-   background:linear-gradient(115deg,#102f49 0%,#174866 58%,#22617a 100%)!important;
-   box-shadow:0 9px 24px rgba(16,47,73,.16)!important;color:#fff!important;
- }
- #tab-ranking-os .ranking-os-kicker{
-   color:#b9e5f1!important;background:rgba(255,255,255,.09)!important;
-   border-color:rgba(177,224,239,.28)!important;
- }
- #tab-ranking-os .ranking-os-hero h2{color:#fff!important}
- #tab-ranking-os .ranking-os-hero p{color:#d5e5ed!important}
- #tab-ranking-os .ranking-os-periodo{
-   border:1px solid rgba(255,255,255,.58)!important;
-   background:rgba(255,255,255,.96)!important;
- }
- #tab-ranking-os .ranking-os-card-head{
-   background:linear-gradient(115deg,#102f49 0%,#174866 58%,#22617a 100%)!important;
-   border-bottom:1px solid #244d68!important;color:#fff!important;
- }
- #tab-ranking-os .ranking-os-card-head:before{
-   background:linear-gradient(180deg,#78d5c5,#b9e5f1)!important;
- }
- #tab-ranking-os .ranking-os-card-head .ranking-os-card-icon{
-   border-color:rgba(185,229,241,.38)!important;
-   background:rgba(255,255,255,.12)!important;color:#fff!important;
- }
- #tab-ranking-os .ranking-os-card-head>div>small{color:#b9e5f1!important}
- #tab-ranking-os .ranking-os-card-head h3{color:#fff!important}
- #tab-ranking-os .ranking-os-card-head p{color:#d5e5ed!important}
- #tab-ranking-os .ranking-os-card-period{
-   color:#e5f4f7!important;background:rgba(255,255,255,.1)!important;
-   border-color:rgba(185,229,241,.35)!important;
- }
- #tab-ranking-os .ranking-os-list-head{display:none!important}
- #tab-ranking-os #boxRankingOperadores{
-   padding:15px 18px 18px!important;
-   background:linear-gradient(180deg,#edf4f8 0%,#f8fbfd 100%)!important;
-   gap:10px!important;
- }
- #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
-   grid-template-columns:62px minmax(0,1fr) 126px!important;
-   gap:14px!important;padding:14px 16px!important;border-radius:12px!important;
-   border:1px solid #cfdee8!important;
-   background:linear-gradient(105deg,#fff 0%,#f3f8fb 100%)!important;
-   box-shadow:0 3px 10px rgba(16,47,73,.055)!important;
- }
- #tab-ranking-os #boxRankingOperadores>.ranking-os-row:first-child{
-   border-color:#8eb9c4!important;
-   background:linear-gradient(105deg,#e5f2f2 0%,#f7fbfc 72%,#fff 100%)!important;
-   box-shadow:inset 4px 0 0 #2d8290,0 3px 10px rgba(16,47,73,.06)!important;
- }
- #tab-ranking-os .ranking-os-person>b{color:#173d56!important}
- #tab-ranking-os .ranking-os-count{
-   border-color:#b9d2dd!important;background:#e5f0f4!important;color:#174866!important;
- }
-}
-@media screen and (min-width:768px) and (max-width:1023px){
- #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
-   grid-template-columns:48px minmax(0,1fr) 104px!important;gap:10px!important;
- }
-}
-</style>
+
 
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
@@ -18036,5 +17972,109 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  #tab-ranking-os .ranking-os-list-head,#tab-ranking-os #boxRankingOperadores>.ranking-os-row{
    grid-template-columns:48px minmax(0,1fr) 104px!important;gap:10px!important
  }
+}
+</style>
+
+
+<style id="erimax-ranking-hierarquia-aplicacao-principal-20261124">
+/* Aplicação real no documento principal. Abaixo de toda a cascata anterior do Ranking. */
+@media screen and (min-width:768px){
+  #tab-ranking-os .ranking-os-hero{
+    background:linear-gradient(115deg,#102f49 0%,#174866 58%,#22617a 100%)!important;
+    border:1px solid #244d68!important;border-radius:20px!important;
+    box-shadow:0 10px 28px rgba(16,47,73,.2)!important;color:#fff!important;
+  }
+  #tab-ranking-os .ranking-os-kicker{
+    color:#c4edf4!important;background:rgba(255,255,255,.1)!important;
+    border:1px solid rgba(185,229,241,.34)!important;
+  }
+  #tab-ranking-os .ranking-os-hero h2{color:#fff!important}
+  #tab-ranking-os .ranking-os-hero p{color:#dceaf1!important}
+  #tab-ranking-os .ranking-os-periodo{
+    border:1px solid rgba(255,255,255,.6)!important;
+    background:#f8fbfd!important;box-shadow:0 5px 16px rgba(5,25,40,.16)!important;
+  }
+  #tab-ranking-os #rankingDataContent>.ranking-os-card{
+    padding:0!important;overflow:hidden!important;border:1px solid #244d68!important;
+    border-radius:18px!important;background:#fff!important;
+    box-shadow:0 9px 26px rgba(16,47,73,.12)!important;
+  }
+  #tab-ranking-os .ranking-os-card-head{
+    position:relative!important;display:flex!important;align-items:center!important;
+    gap:16px!important;min-height:104px!important;margin:0!important;padding:22px 26px!important;
+    border:0!important;border-bottom:1px solid #315a73!important;
+    background:linear-gradient(115deg,#102f49 0%,#174866 58%,#22617a 100%)!important;
+    color:#fff!important;
+  }
+  #tab-ranking-os .ranking-os-card-head:before{
+    content:""!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;
+    width:5px!important;background:linear-gradient(180deg,#78d5c5,#b9e5f1)!important;
+  }
+  #tab-ranking-os .ranking-os-card-head .ranking-os-card-icon{
+    display:grid!important;place-items:center!important;flex:0 0 54px!important;
+    width:54px!important;height:54px!important;border:1px solid rgba(185,229,241,.4)!important;
+    border-radius:14px!important;background:rgba(255,255,255,.13)!important;
+    color:#fff!important;font-size:1.7rem!important;
+  }
+  #tab-ranking-os .ranking-os-card-head>div{flex:1!important;min-width:0!important}
+  #tab-ranking-os .ranking-os-card-head>div>small{
+    display:block!important;margin:0 0 5px!important;color:#bfe8f1!important;
+    font-size:.66rem!important;font-weight:900!important;letter-spacing:.14em!important;
+  }
+  #tab-ranking-os .ranking-os-card-head h3{
+    margin:0!important;color:#fff!important;font-size:1.22rem!important;
+    font-weight:900!important;letter-spacing:-.025em!important;line-height:1.25!important;
+  }
+  #tab-ranking-os .ranking-os-card-head p{
+    margin:6px 0 0!important;color:#dceaf1!important;font-size:.82rem!important;line-height:1.5!important;
+  }
+  #tab-ranking-os .ranking-os-card-period{
+    flex:0 0 auto!important;padding:8px 11px!important;border:1px solid rgba(185,229,241,.38)!important;
+    border-radius:8px!important;background:rgba(255,255,255,.1)!important;
+    color:#e8f5f8!important;font-size:.62rem!important;font-weight:900!important;letter-spacing:.08em!important;
+  }
+  #tab-ranking-os .ranking-os-list-head{display:none!important}
+  #tab-ranking-os #boxRankingOperadores{
+    display:flex!important;flex-direction:column!important;gap:10px!important;
+    padding:18px!important;background:linear-gradient(180deg,#edf4f8 0%,#f8fbfd 100%)!important;
+  }
+  #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
+    display:grid!important;grid-template-columns:64px minmax(0,1fr) 124px!important;
+    align-items:center!important;gap:15px!important;margin:0!important;padding:15px 17px!important;
+    border:1px solid #cbdce6!important;border-radius:13px!important;
+    background:linear-gradient(105deg,#fff 0%,#f5f9fc 100%)!important;
+    box-shadow:0 3px 10px rgba(16,47,73,.07)!important;
+  }
+  #tab-ranking-os #boxRankingOperadores>.ranking-os-row:first-child{
+    border-color:#78aeb8!important;
+    background:linear-gradient(105deg,#dceff0 0%,#f3f9fa 72%,#fff 100%)!important;
+    box-shadow:inset 4px 0 0 #287b89,0 4px 12px rgba(16,47,73,.09)!important;
+  }
+  #tab-ranking-os .ranking-os-position{
+    display:grid!important;place-items:center!important;min-height:48px!important;
+    border-radius:12px!important;background:#e6f0f5!important;color:#174866!important;
+    font-size:1.55rem!important;font-weight:900!important;
+  }
+  #tab-ranking-os .ranking-os-person>b{
+    color:#173d56!important;font-size:.98rem!important;font-weight:900!important;
+  }
+  #tab-ranking-os .ranking-os-progress{height:8px!important;background:#dce8ee!important}
+  #tab-ranking-os .ranking-os-progress>i{background:linear-gradient(90deg,#174866,#3d91a0)!important}
+  #tab-ranking-os .ranking-os-progress-label{color:#587487!important;font-size:.73rem!important}
+  #tab-ranking-os .ranking-os-count{
+    min-width:112px!important;min-height:50px!important;padding:6px 10px!important;
+    border:1px solid #a9c9d5!important;border-radius:11px!important;
+    background:linear-gradient(145deg,#e4f0f4,#f8fbfc)!important;color:#174866!important;
+    box-shadow:0 2px 7px rgba(16,47,73,.06)!important;
+  }
+  #tab-ranking-os .ranking-os-count>b{font-size:1.12rem!important;font-weight:900!important}
+  #tab-ranking-os .ranking-os-count small{color:#547589!important;font-weight:800!important}
+  #tab-ranking-os .ranking-os-count:disabled{opacity:.58!important}
+}
+@media screen and (min-width:768px) and (max-width:1023px){
+  #tab-ranking-os .ranking-os-card-period{display:none!important}
+  #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
+    grid-template-columns:50px minmax(0,1fr) 104px!important;gap:10px!important;padding:12px!important;
+  }
 }
 </style>
