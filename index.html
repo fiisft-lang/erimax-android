@@ -7363,6 +7363,7 @@ body .tbl-wrap td{color:#344d5e}
  #tab-cadastro .excecao-data-actions .btn-action{min-width:0!important;min-height:28px!important;height:28px!important;padding:0 6px!important;font-size:.63rem!important}
 }
 </style>
+<style id="erimax-os-materiais-multiplos">.os-materiais-lista{display:grid;gap:8px;margin:6px 0 9px}.os-material-row{display:flex;align-items:end;gap:8px;padding:9px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc}.os-material-fields{display:grid;grid-template-columns:minmax(0,2fr) minmax(90px,1fr);gap:8px;flex:1;min-width:0}.os-material-fields label{display:grid;gap:4px;font-size:.76rem;font-weight:700;color:#475569}.os-material-fields input{width:100%;min-width:0;box-sizing:border-box;padding:9px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;font:inherit}.os-material-remove{width:34px;height:36px;flex:0 0 34px;border:1px solid #fecaca;border-radius:8px;background:#fff1f2;color:#b91c1c;font-size:1.2rem;cursor:pointer}@media(max-width:420px){.os-material-fields{grid-template-columns:minmax(0,1fr) 84px}}</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -7804,8 +7805,7 @@ function atualizarNavegacaoMobileEriMax(id){
 
 <div id="modal"><div class="box"><h2>Concluir OS</h2>
 <div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
-<div class="form-group"><label for="mdPeca">Peça utilizada (opcional)</label><input id="mdPeca" list="almoxSugestoesPecas" placeholder="Ex.: Correia A35 ou Rolamento 6204"><datalist id="almoxSugestoesPecas"></datalist><small style="display:block;color:#64748b;margin-top:4px">Use o nome ou código cadastrado no Almoxarifado. Ao concluir a O.S., a baixa será automática se houver saldo; se não estiver cadastrado ou faltar estoque, o gestor receberá uma pendência.</small></div>
-<div class="form-group"><label for="mdPecaQtd">Quantidade utilizada</label><input id="mdPecaQtd" type="number" min="0.001" step="0.001" value="1"></div>
+<div class="form-group" style="grid-column:1/-1"><label>Materiais utilizados</label><div id="mdMateriaisLista" class="os-materiais-lista"></div><button type="button" class="btn-action" onclick="adicionarMaterialOS('mdMateriaisLista')">＋ Adicionar material</button><small style="display:block;color:#64748b;margin-top:5px">Adicione cada peça separadamente e informe a quantidade utilizada. A baixa será registrada por material no Almoxarifado.</small></div>
 <div class="form-group"><label for="mdServico">Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
 <div class="form-group"><label>Mecânicos auxiliares (opcional)</label><div id="mdMecanicosAuxiliares" class="md-auxiliares-list"><small style="color:#64748b">Carregando técnicos...</small></div><small style="display:block;color:#64748b;margin-top:5px">Você pode selecionar quantos mecânicos participaram desta manutenção. O técnico responsável continua identificado separadamente.</small></div>
 <details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" aria-label="Observação de máquina rodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details>
@@ -7860,7 +7860,7 @@ function atualizarNavegacaoMobileEriMax(id){
    <div class="form-group" style="grid-column:1/-1"><label for="ecDescricao">Problema relatado *</label><textarea id="ecDescricao" rows="2"></textarea></div>
    <div class="form-group" style="grid-column:1/-1"><label for="ecCausa">Causa identificada</label><input id="ecCausa"></div>
    <div class="form-group" style="grid-column:1/-1"><label for="ecServico">Serviço executado</label><textarea id="ecServico" rows="2"></textarea></div>
-   <div class="form-group"><label for="ecPeca">Peça utilizada</label><input id="ecPeca"></div>
+   <div class="form-group" style="grid-column:1/-1"><label>Materiais utilizados na O.S.</label><div id="ecMateriaisLista" class="os-materiais-lista"></div><button type="button" class="btn-action" onclick="adicionarMaterialOS('ecMateriaisLista')">＋ Adicionar material</button><small style="display:block;color:#64748b;margin-top:5px">Ao corrigir os materiais de uma O.S. concluída, o estoque será ajustado automaticamente com estorno da baixa anterior e nova movimentação.</small></div>
    <div class="form-group"><label for="ecObsRodando">Observação de máquina rodando</label><input id="ecObsRodando"></div>
    <div class="form-group" style="grid-column:1/-1"><label for="ecMotivo">Justificativa da edição * (mínimo 8 caracteres)</label><textarea id="ecMotivo" rows="2" placeholder="Explique por que os dados precisam ser corrigidos"></textarea></div>
   </div>
@@ -8401,7 +8401,7 @@ function renderRankingOperadores(){
 
 function camposAlteradosAuditoria(registro){
   const antes=registro?.valores_anteriores||{},depois=registro?.valores_novos||{};
-  const rotulos={status:'Situação da O.S.',tecnico:'Técnico responsável',maquina:'Máquina',setor:'Setor',turno:'Turno',prioridade:'Prioridade',tipo:'Tipo',descricao:'Descrição',situacao_equipamento:'Situação do equipamento',created_at:'Data de abertura',data_atendimento:'Início do atendimento',data_conclusao:'Conclusão',causa:'Causa',peca:'Peça utilizada',servico_executado:'Serviço executado',motivo_pausa:'Motivo da pausa',pausada_em:'Data da pausa',rodando_em:'Máquina voltou a rodar',observacao_rodando:'Observação de acompanhamento',transferencia_para:'Transferência para',transferencia_motivo:'Motivo da transferência',mecanico_auxiliar:'Mecânico auxiliar',tecnicos_participantes:'Equipe participante',maquinas_execucao:'Máquinas da execução',foto_url:'Foto anexada',aberto_por:'Aberta por'};
+  const rotulos={status:'Situação da O.S.',tecnico:'Técnico responsável',maquina:'Máquina',setor:'Setor',turno:'Turno',prioridade:'Prioridade',tipo:'Tipo',descricao:'Descrição',situacao_equipamento:'Situação do equipamento',created_at:'Data de abertura',data_atendimento:'Início do atendimento',data_conclusao:'Conclusão',causa:'Causa',peca:'Peça utilizada',peca_quantidade:'Quantidade da peça',materiais_utilizados:'Materiais utilizados',servico_executado:'Serviço executado',motivo_pausa:'Motivo da pausa',pausada_em:'Data da pausa',rodando_em:'Máquina voltou a rodar',observacao_rodando:'Observação de acompanhamento',transferencia_para:'Transferência para',transferencia_motivo:'Motivo da transferência',mecanico_auxiliar:'Mecânico auxiliar',tecnicos_participantes:'Equipe participante',maquinas_execucao:'Máquinas da execução',foto_url:'Foto anexada',aberto_por:'Aberta por'};
   const ignorar=new Set(['id','numero_mes','mes_referencia','mes_conclusao','notificado_em','web_notificado_em','ajustado_em','ajustado_por','ajuste_obs']);
   const chaves=[...new Set([...Object.keys(antes),...Object.keys(depois)])].filter(k=>!ignorar.has(k)&&JSON.stringify(antes[k]??null)!==JSON.stringify(depois[k]??null));
   return chaves.map(k=>({campo:rotulos[k]||k,antes:antes[k],depois:depois[k]}));
@@ -9251,12 +9251,29 @@ async function recusarTransferenciaOS(id){
   await carregarDadosSupabase();
 }
 
+function adicionarMaterialOS(containerId,item={}){
+ const box=document.getElementById(containerId);if(!box)return;
+ const row=document.createElement('div');row.className='os-material-row';
+ row.innerHTML='<div class="os-material-fields"><label>Material<input class="os-material-nome" list="almoxSugestoesPecas" placeholder="Ex.: Rolamento 6204 ou Parafuso M8"></label><label>Quantidade<input class="os-material-qtd" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0"></label></div><button type="button" class="os-material-remove" aria-label="Remover material" title="Remover material" onclick="this.closest(\'.os-material-row\').remove()">×</button>';
+ box.appendChild(row);row.querySelector('.os-material-nome').value=String(item.nome||item.material||'');row.querySelector('.os-material-qtd').value=item.quantidade??'1';
+}
+function obterMateriaisOS(containerId){
+ const rows=[...(document.getElementById(containerId)?.querySelectorAll('.os-material-row')||[])],itens=[];
+ for(const row of rows){const nome=String(row.querySelector('.os-material-nome')?.value||'').trim(),raw=String(row.querySelector('.os-material-qtd')?.value||'').trim(),qtd=Number(raw);if(!nome&&!raw)continue;if(!nome||!raw||!Number.isFinite(qtd)||qtd<=0){alert('Preencha o nome e uma quantidade válida para cada material informado.');return null}itens.push({nome,quantidade:qtd})}
+ return itens;
+}
+function preencherMateriaisOS(containerId,itens,legado,qtdLegada){
+ const box=document.getElementById(containerId);if(!box)return;box.innerHTML='';
+ const lista=Array.isArray(itens)?itens.filter(x=>x&&String(x.nome||x.material||'').trim()):[];
+ if(lista.length)lista.forEach(x=>adicionarMaterialOS(containerId,x));else if(legado)adicionarMaterialOS(containerId,{nome:legado,quantidade:qtdLegada||1});else adicionarMaterialOS(containerId);
+}
+
 let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
 function concluirOS(id){
   const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
   if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||osResponsavel.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
-  osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';if(document.getElementById('mdPecaQtd'))document.getElementById('mdPecaQtd').value='1';
+  osConcluir=id;mdCausa.value='';mdServico.value='';preencherMateriaisOS('mdMateriaisLista',[],null,1);
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
   const rodandoDetails=document.getElementById('mdRodandoDetails');
@@ -9337,7 +9354,7 @@ function abrirEdicaoCompletaOS(id){
  set('ecTurno',o.turno);set('ecTecnico',o.tecnico);
  set('ecTipo',o.tipo);set('ecPrioridade',o.prioridade);set('ecSituacao',o.situacao_equipamento||'Parado');
  set('ecAbertura',o.created_at?loc(o.created_at):'');set('ecInicio',o.data_atendimento?loc(o.data_atendimento):'');set('ecConclusao',o.data_conclusao?loc(o.data_conclusao):'');
- set('ecDescricao',o.descricao);set('ecCausa',o.causa);set('ecServico',o.servico_executado);set('ecPeca',o.peca);set('ecObsRodando',o.observacao_rodando);set('ecMotivo','');
+ set('ecDescricao',o.descricao);set('ecCausa',o.causa);set('ecServico',o.servico_executado);preencherMateriaisOS('ecMateriaisLista',o.materiais_utilizados,o.peca,o.peca_quantidade);set('ecObsRodando',o.observacao_rodando);set('ecMotivo','');
  const info=document.getElementById('editarOSCompletaInfo');
  info.textContent=nOS(o)+' • '+(o.status||'')+' • A edição não muda o status da ordem.';
  if(!setor.value||!document.getElementById('ecMaquina').value)info.textContent+=' A máquina atual não está cadastrada nesse setor; selecione uma máquina válida.';
@@ -9358,7 +9375,7 @@ async function salvarEdicaoCompletaOS(){
  if(fim&&!inicio)return alert('Informe o início do atendimento antes da conclusão.');
  if(fim&&fim<inicio)return alert('A conclusão não pode ser anterior ao atendimento.');
  if(o.status==='Concluída'&&(!inicio||!fim))return alert('Uma O.S. concluída precisa ter início e conclusão preenchidos.');
- const dados={maquina:val('ecMaquina'),setor:val('ecSetor'),turno:val('ecTurno'),tecnico:val('ecTecnico')||null,tipo:val('ecTipo'),prioridade:val('ecPrioridade'),situacao_equipamento:val('ecSituacao'),created_at:abertura.toISOString(),data_atendimento:inicio?inicio.toISOString():null,data_conclusao:fim?fim.toISOString():null,descricao:val('ecDescricao'),causa:val('ecCausa')||null,servico_executado:val('ecServico')||null,peca:val('ecPeca')||null,rodando_em:o.rodando_em||null,observacao_rodando:val('ecObsRodando')||null};
+ const materiaisUtilizados=obterMateriaisOS('ecMateriaisLista');if(materiaisUtilizados===null)return;const primeiroMaterial=materiaisUtilizados[0]||null;const dados={maquina:val('ecMaquina'),setor:val('ecSetor'),turno:val('ecTurno'),tecnico:val('ecTecnico')||null,tipo:val('ecTipo'),prioridade:val('ecPrioridade'),situacao_equipamento:val('ecSituacao'),created_at:abertura.toISOString(),data_atendimento:inicio?inicio.toISOString():null,data_conclusao:fim?fim.toISOString():null,descricao:val('ecDescricao'),causa:val('ecCausa')||null,servico_executado:val('ecServico')||null,peca:primeiroMaterial?.nome||null,peca_quantidade:primeiroMaterial?.quantidade||1,materiais_utilizados:materiaisUtilizados,rodando_em:o.rodando_em||null,observacao_rodando:val('ecObsRodando')||null};
  const {error}=await _supabase.rpc('erimax_editar_os_completa',{p_os_id:o.id,p_dados:dados,p_motivo:val('ecMotivo')});
  if(error)return alert('Não foi possível salvar a O.S.: '+error.message);
  fecharEdicaoCompletaOS();await carregarDadosSupabase();alert('O.S. atualizada. A auditoria guardou os dados anteriores, os novos e a justificativa.');
@@ -9478,9 +9495,9 @@ async function confirmarConclusao(){
   const diferenca=Math.abs(agora-fim);
   if(PERFIL&&PERFIL.perfil==='tecnico'&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
   const aj=PERFIL&&PERFIL.perfil==='gestor'&&diferenca>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
-  const pecaInformada=mdPeca.value.trim();const pecaQtd=Number(document.getElementById('mdPecaQtd')?.value||1);if(pecaInformada&&(!Number.isFinite(pecaQtd)||pecaQtd<=0))return alert('Informe uma quantidade válida para a peça utilizada.');
+  const materiaisUtilizados=obterMateriaisOS('mdMateriaisLista');if(materiaisUtilizados===null)return;const primeiroMaterial=materiaisUtilizados[0]||null;
   const mecanicosAuxiliares=[...new Set([...document.querySelectorAll('#mdMecanicosAuxiliares .md-auxiliar-check:checked')].map(el=>String(el.value||'').trim()).filter(Boolean))];
-  const atualizacao={status:'Concluída',causa:mdCausa.value,peca:pecaInformada||null,peca_quantidade:pecaInformada?pecaQtd:1,servico_executado:mdServico.value.trim(),mecanico_auxiliar:mecanicosAuxiliares[0]||null,tecnicos_participantes:mecanicosAuxiliares,data_conclusao:fim.toISOString(),...aj};
+  const atualizacao={status:'Concluída',causa:mdCausa.value,peca:primeiroMaterial?.nome||null,peca_quantidade:primeiroMaterial?.quantidade||1,materiais_utilizados:materiaisUtilizados,servico_executado:mdServico.value.trim(),mecanico_auxiliar:mecanicosAuxiliares[0]||null,tecnicos_participantes:mecanicosAuxiliares,data_conclusao:fim.toISOString(),...aj};
   if(maquinasExecucao.length)atualizacao.maquinas_execucao=maquinasExecucao;
   // O status no banco é verificado novamente para impedir conclusão duplicada ou fora de sequência.
   const {data:concluida,error}=await _supabase.from('os').update(atualizacao).eq('id',osConcluir).eq('status','Em Atendimento').select('id').maybeSingle();
