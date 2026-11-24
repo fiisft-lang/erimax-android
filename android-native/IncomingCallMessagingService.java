@@ -33,12 +33,15 @@ public class IncomingCallMessagingService extends MessagingService {
       String machine = data.getOrDefault("maquina", "Nova ordem de serviço");
       String sector = data.getOrDefault("setor", "Manutenção");
       String number = data.getOrDefault("numero", "Nova O.S.");
+      String action = data.getOrDefault("acao", "");
+      boolean transferencia = "transferencia_os".equals(action);
       createChannel();
       Intent screen = new Intent(this, IncomingCallActivity.class);
       screen.putExtra("os_id", id);
       screen.putExtra("maquina", machine);
       screen.putExtra("setor", sector);
       screen.putExtra("numero", number);
+      screen.putExtra("acao", action);
       screen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
       PendingIntent full = PendingIntent.getActivity(this, id.hashCode(), screen,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -46,8 +49,8 @@ public class IncomingCallMessagingService extends MessagingService {
         .setSound(null)
         .setVibrate(null)
         .setSmallIcon(getApplicationInfo().icon)
-        .setContentTitle("Nova ordem de serviço")
-        .setContentText(machine + " • " + sector)
+        .setContentTitle(transferencia ? "Transferência de ordem de serviço" : "Nova ordem de serviço")
+        .setContentText((transferencia ? "Aguardando seu aceite • " : "") + machine + " • " + sector)
         .setCategory(NotificationCompat.CATEGORY_CALL)
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
