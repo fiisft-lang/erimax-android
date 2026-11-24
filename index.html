@@ -8494,13 +8494,13 @@ function renderPainelMaquinasSupervisor(){
   MAQUINAS.filter(m=>m&&m.nome).forEach(m=>{
     const setor=String(m.setor||'Não informado'),maquina=String(m.nome);
     const chave=setor+'||'+maquina;
-    if(!nomes.has(chave))nomes.set(chave,{setor,maquina,ordens:[]});
+    if(!nomes.has(chave))nomes.set(chave,{setor,maquina,codigo:String(m.prefixo||m.codigo||'').trim(),ordens:[]});
   });
   chamados.filter(os=>['Aberta','Em Atendimento','Pausada','Concluída'].includes(String(os.status||''))).forEach(os=>{
     const setorOS=String(os.setor||'Não informado'),maquinaOS=String(os.maquina||'').trim();
     if(!maquinaOS)return;
     const chave=setorOS+'||'+maquinaOS;
-    if(!nomes.has(chave))nomes.set(chave,{setor:setorOS,maquina:maquinaOS,ordens:[]});
+    if(!nomes.has(chave))nomes.set(chave,{setor:setorOS,maquina:maquinaOS,codigo:'',ordens:[]});
     nomes.get(chave).ordens.push(os);
   });
   const itens=[...nomes.values()].map(item=>{
@@ -8656,7 +8656,7 @@ function renderPainelMaquinasSupervisor(){
     html+='<details class="sv-sector" data-supervisor-setor="1" data-sv-sector-name="'+escaparHtml(setor.toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-folder">▰</span><span class="sv-sector-name"><b>'+escaparHtml(setor)+'</b><small>'+lista.length+' máquina(s) • '+totalOS+' O.S. ativa(s)</small></span><span class="sv-sector-side">'+(paradas?'<em>'+paradas+' parada(s)</em>':'')+'<span class="sv-chevron">⌄</span></span></summary><div class="sv-machine-list">';
     lista.forEach(item=>{
       const estadoLabel=item.estado==='Sem O.S. ativa • situação não confirmada'?'Sem O.S. ativa':item.estado;
-      html+='<details class="sv-machine" data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" data-sv-search="'+escaparHtml((item.maquina+' '+item.setor).toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-machine-dot" style="--sv-state:'+item.cor+'"></span><span class="sv-machine-main"><b>'+escaparHtml(item.maquina)+'</b><small style="color:'+item.cor+'">'+escaparHtml(estadoLabel)+'</small></span><span class="sv-machine-count"><b>'+item.ativas.length+'</b><small>ativas</small></span><span class="sv-machine-count"><b>'+item.concluidas.length+'</b><small>concluídas</small></span><span class="sv-chevron">⌄</span></summary><div class="sv-machine-detail">';
+      html+='<details class="sv-machine" data-supervisor-maquina="1" data-supervisor-estado="'+escaparHtml(item.estado)+'" data-sv-search="'+escaparHtml((item.maquina+' '+item.codigo+' '+item.setor).toLocaleLowerCase('pt-BR'))+'"><summary><span class="sv-machine-dot" style="--sv-state:'+item.cor+'"></span><span class="sv-machine-main"><b>'+escaparHtml(item.maquina)+'</b><small style="color:'+item.cor+'">'+escaparHtml(estadoLabel)+'</small></span><span class="sv-machine-count"><b>'+item.ativas.length+'</b><small>ativas</small></span><span class="sv-machine-count"><b>'+item.concluidas.length+'</b><small>concluídas</small></span><span class="sv-chevron">⌄</span></summary><div class="sv-machine-detail">';
       if(item.ativas.length){
         html+='<div class="sv-detail-title">Ordens em andamento <span>'+item.ativas.length+'</span></div>';
         item.ativas.forEach(os=>{
