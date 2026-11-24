@@ -13921,7 +13921,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')">Editar</button>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')">Editar</button><button type="button" class="almox-delete-btn" title="Excluir ou inativar material" aria-label="Excluir ou inativar material" onclick="excluirMaterialAlmox(\''+x.id+'\')">Excluir</button></div>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
@@ -13988,6 +13988,69 @@ function cancelarEdicaoMaterialAlmox(){
  document.getElementById('almoxBtnSalvarMaterial').textContent='＋ Cadastrar material';
  document.getElementById('almoxBtnCancelarEdicao').hidden=true;
 }
+async function excluirMaterialAlmox(id){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const m=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));
+ if(!m)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
+ if(!confirm('Deseja remover o material "'+m.nome+'"? Se houver movimentações, solicitações ou O.S. vinculadas, ele será inativado para preservar o histórico.'))return;
+ const nomeErro=e=>{
+  if(!e)return 'Erro não identificado pelo servidor.';
+  if(typeof e==='string')return e;
+  const partes=[e.message,e.details,e.hint,e.code&&('código '+e.code),e.status&&('HTTP '+e.status)].filter(x=>x&&String(x).trim());
+  return partes.join(' • ')||JSON.stringify(e)||'Erro não identificado pelo servidor.';
+ };
+ const normalizarNome=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ');
+ const verificarMateriaisOS=async()=>{
+  let offset=0,total=0;
+  const pagina=500;
+  while(true){
+   const {data,error}=await _supabase.from('os').select('id,materiais_utilizados').order('id',{ascending:true}).range(offset,offset+pagina-1);
+   if(error)return {error};
+   const linhas=Array.isArray(data)?data:[];
+   for(const os of linhas){
+    const itens=Array.isArray(os.materiais_utilizados)?os.materiais_utilizados:[];
+    if(itens.some(item=>normalizarNome(item?.nome||item?.material)===normalizarNome(m.nome)))total++;
+   }
+   if(linhas.length<pagina)break;
+   offset+=pagina;
+  }
+  return {count:total};
+ };
+ const verificacoes=[
+  {nome:'movimentações de estoque (almox_movimentacoes)',executar:()=>_supabase.from('almox_movimentacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id)},
+  {nome:'solicitações de material (almox_solicitacoes)',executar:()=>_supabase.from('almox_solicitacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id)},
+  {nome:'materiais utilizados nas O.S. (os.materiais_utilizados)',executar:verificarMateriaisOS},
+  {nome:'registro legado de peças nas O.S. (os.peca)',executar:()=>_supabase.from('os').select('id',{count:'exact',head:true}).eq('peca',m.nome)}
+ ];
+ try{
+  const consultas=await Promise.all(verificacoes.map(async v=>{
+   try{return {nome:v.nome,...await v.executar()}}
+   catch(error){return {nome:v.nome,error}}
+  }));
+  const erro=consultas.find(x=>x.error);
+  if(erro){
+   const detalhe=nomeErro(erro.error);
+   console.error('Falha ao verificar vínculos do material:',{consulta:erro.nome,erro:erro.error});
+   return alert('Não foi possível conferir '+erro.nome+' para "'+m.nome+'". Nenhuma alteração foi feita.\n\nDetalhe técnico: '+detalhe);
+  }
+  const temHistorico=consultas.some(x=>Number(x.count)>0);
+  if(!temHistorico){
+   const {data,error}=await _supabase.from('almox_materiais').delete().eq('id',m.id).select('id').maybeSingle();
+   if(!error&&data){if(MATERIAL_ALMOX_EM_EDICAO===String(m.id))cancelarEdicaoMaterialAlmox();alert('Material excluído definitivamente.');await carregarAlmoxarifado();return}
+   if(error)console.warn('Exclusão definitiva bloqueada; tentando inativar sem apagar histórico:',nomeErro(error));
+  }
+  const {data,error}=await _supabase.from('almox_materiais').update({ativo:false}).eq('id',m.id).eq('ativo',true).select('id').maybeSingle();
+  if(error){console.error('Falha ao inativar material:',error);return alert('Não foi possível excluir nem inativar "'+m.nome+'". Nenhuma alteração foi confirmada. Detalhe técnico: '+nomeErro(error))}
+  if(!data)return alert('O banco não confirmou a alteração de "'+m.nome+'". Verifique se o material continua ativo e se seu perfil Gestor tem permissão para alterar o cadastro.');
+  if(MATERIAL_ALMOX_EM_EDICAO===String(m.id))cancelarEdicaoMaterialAlmox();
+  alert(temHistorico?'Material inativado. As movimentações, solicitações e O.S. vinculadas foram preservadas.':'A exclusão definitiva foi bloqueada pelo banco; o material foi inativado para preservar os registros.');
+  await carregarAlmoxarifado();
+ }catch(e){
+  console.error('Erro inesperado ao excluir material:',e);
+  alert('Ocorreu uma falha ao processar "'+m.nome+'". Nenhuma exclusão foi confirmada. Detalhe técnico: '+nomeErro(e));
+ }
+}
+
 async function salvarMaterialAlmox(e){
  e.preventDefault();if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
  const codigo=document.getElementById('almoxCodigo').value.trim();
