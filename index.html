@@ -8532,6 +8532,8 @@ function mudarAba(id,evt,opcoes={}){
   document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   const alvo=document.getElementById('tab-'+id);if(alvo)alvo.classList.add('active');
+   // No desktop, cada página abre pelo início do conteúdo; no celular o scroll atual é preservado.
+   if(window.matchMedia&&window.matchMedia('(min-width:768px)').matches)window.scrollTo(0,0);
   if(typeof atualizarNavegacaoMobileEriMax==='function')atualizarNavegacaoMobileEriMax(id);
 
   const precisaAtualizar=['painel','ordens-servico','ordens-abertas','metricas','ranking-os'].includes(id);
