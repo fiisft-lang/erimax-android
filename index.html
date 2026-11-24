@@ -8052,7 +8052,7 @@ function atualizarNavegacaoMobileEriMax(id){
     <div class="ranking-os-periodo"><label for="rankingMes">MÊS DO RANKING DE TÉCNICOS</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div>
   </section>
   <div id="rankingDataContent">
-    <section class="card ranking-os-card"><div class="ranking-os-card-head"><span class="ranking-os-card-icon">🏆</span><div><small>CLASSIFICAÇÃO DA EQUIPE</small><h3>Desempenho dos técnicos</h3><p>Confira as posições e as ordens de serviço concluídas no período selecionado.</p></div><span class="ranking-os-card-period">RANKING MENSAL</span></div><div class="ranking-os-list-head" aria-hidden="true"><span>MEDALHA</span><span>TÉCNICO</span><span>O.S. CONCLUÍDAS</span></div><div id="boxRankingOperadores" aria-live="polite" aria-relevant="additions text"></div></section>
+    <section class="card ranking-os-card"><div class="ranking-os-card-head"><span class="ranking-os-card-icon">🏆</span><div><small>CLASSIFICAÇÃO DA EQUIPE</small><h3>Desempenho dos técnicos</h3><p>Confira as posições e as ordens de serviço concluídas no período selecionado.</p></div><span class="ranking-os-card-period">RANKING MENSAL</span></div><div id="boxRankingOperadores" aria-live="polite" aria-relevant="additions text"></div></section>
   </div>
 </div>
 
@@ -13540,6 +13540,73 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+
+<style id="erimax-ranking-hierarquia-cores-integradas-20261124">
+/* Ranking: cabeçalhos e identificação dos técnicos na mesma paleta institucional. */
+@media screen and (min-width:768px){
+ #tab-ranking-os .ranking-os-hero{
+   border:1px solid #244d68!important;
+   background:linear-gradient(115deg,#102f49 0%,#174866 58%,#22617a 100%)!important;
+   box-shadow:0 9px 24px rgba(16,47,73,.16)!important;color:#fff!important;
+ }
+ #tab-ranking-os .ranking-os-kicker{
+   color:#b9e5f1!important;background:rgba(255,255,255,.09)!important;
+   border-color:rgba(177,224,239,.28)!important;
+ }
+ #tab-ranking-os .ranking-os-hero h2{color:#fff!important}
+ #tab-ranking-os .ranking-os-hero p{color:#d5e5ed!important}
+ #tab-ranking-os .ranking-os-periodo{
+   border:1px solid rgba(255,255,255,.58)!important;
+   background:rgba(255,255,255,.96)!important;
+ }
+ #tab-ranking-os .ranking-os-card-head{
+   background:linear-gradient(115deg,#102f49 0%,#174866 58%,#22617a 100%)!important;
+   border-bottom:1px solid #244d68!important;color:#fff!important;
+ }
+ #tab-ranking-os .ranking-os-card-head:before{
+   background:linear-gradient(180deg,#78d5c5,#b9e5f1)!important;
+ }
+ #tab-ranking-os .ranking-os-card-head .ranking-os-card-icon{
+   border-color:rgba(185,229,241,.38)!important;
+   background:rgba(255,255,255,.12)!important;color:#fff!important;
+ }
+ #tab-ranking-os .ranking-os-card-head>div>small{color:#b9e5f1!important}
+ #tab-ranking-os .ranking-os-card-head h3{color:#fff!important}
+ #tab-ranking-os .ranking-os-card-head p{color:#d5e5ed!important}
+ #tab-ranking-os .ranking-os-card-period{
+   color:#e5f4f7!important;background:rgba(255,255,255,.1)!important;
+   border-color:rgba(185,229,241,.35)!important;
+ }
+ #tab-ranking-os .ranking-os-list-head{display:none!important}
+ #tab-ranking-os #boxRankingOperadores{
+   padding:15px 18px 18px!important;
+   background:linear-gradient(180deg,#edf4f8 0%,#f8fbfd 100%)!important;
+   gap:10px!important;
+ }
+ #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
+   grid-template-columns:62px minmax(0,1fr) 126px!important;
+   gap:14px!important;padding:14px 16px!important;border-radius:12px!important;
+   border:1px solid #cfdee8!important;
+   background:linear-gradient(105deg,#fff 0%,#f3f8fb 100%)!important;
+   box-shadow:0 3px 10px rgba(16,47,73,.055)!important;
+ }
+ #tab-ranking-os #boxRankingOperadores>.ranking-os-row:first-child{
+   border-color:#8eb9c4!important;
+   background:linear-gradient(105deg,#e5f2f2 0%,#f7fbfc 72%,#fff 100%)!important;
+   box-shadow:inset 4px 0 0 #2d8290,0 3px 10px rgba(16,47,73,.06)!important;
+ }
+ #tab-ranking-os .ranking-os-person>b{color:#173d56!important}
+ #tab-ranking-os .ranking-os-count{
+   border-color:#b9d2dd!important;background:#e5f0f4!important;color:#174866!important;
+ }
+}
+@media screen and (min-width:768px) and (max-width:1023px){
+ #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
+   grid-template-columns:48px minmax(0,1fr) 104px!important;gap:10px!important;
+ }
+}
+</style>
 
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
