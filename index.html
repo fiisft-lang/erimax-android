@@ -12721,6 +12721,13 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 .almox-material-qty .almox-edit-btn{width:auto!important;min-width:0!important;height:25px!important;min-height:25px!important;padding:0 9px!important;margin:7px 0 0 auto!important;border:1px solid #dce5eb!important;border-radius:7px!important;background:#f8fafb!important;color:#62798a!important;font-size:11px!important;font-weight:650!important;letter-spacing:.01em!important;box-shadow:none!important}
 .almox-material-qty .almox-edit-btn:hover{background:#edf4f8!important;border-color:#c5d4de!important;color:#34566d!important}
 </style>
+<style id="erimax-almox-delete-controls-20261124">
+.almox-material-actions{display:flex;flex-direction:column;align-items:flex-end;gap:5px;margin-top:7px}
+.almox-material-actions .almox-edit-btn{margin:0!important}
+.almox-delete-btn{display:inline-flex;align-items:center;justify-content:center;min-height:27px;padding:0 8px;border:1px solid #f0d5d3;border-radius:7px;background:#fffafa;color:#a84b45;font-size:.65rem;font-weight:750;cursor:pointer}
+.almox-delete-btn:hover{background:#fff0ef;border-color:#e8b9b5}
+@media(max-width:600px){.almox-delete-btn{min-height:28px;padding:0 7px}}
+</style>
 <style id="erimax-almox-edit-hierarquia-cadastro-20261124">
 /* Botão Editar do Almoxarifado no mesmo padrão compacto do Cadastro */
 #tab-almoxarifado .almox-material-qty .almox-edit-btn{
@@ -13944,7 +13951,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')">Editar</button>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\\''+x.id+'\\')">Editar</button><button type="button" class="almox-delete-btn" title="Excluir ou inativar material" aria-label="Excluir ou inativar material" onclick="excluirMaterialAlmox(\\''+x.id+'\\')">Excluir</button></div>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
@@ -14010,6 +14017,30 @@ function cancelarEdicaoMaterialAlmox(){
  document.getElementById('almoxAjudaForm').textContent='O cadastro começa com saldo zero. Registre a entrada inicial em Movimentar estoque. Ao editar, o saldo e as movimentações são preservados.';
  document.getElementById('almoxBtnSalvarMaterial').textContent='＋ Cadastrar material';
  document.getElementById('almoxBtnCancelarEdicao').hidden=true;
+}
+async function excluirMaterialAlmox(id){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const m=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));
+ if(!m)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
+ if(!confirm('Deseja remover o material "'+m.nome+'"? Se houver movimentações, solicitações ou O.S. vinculadas, ele será apenas inativado para preservar o histórico.'))return;
+ const [mov,sol,osNovos,osLegados]=await Promise.all([
+  _supabase.from('almox_movimentacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id),
+  _supabase.from('almox_solicitacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id),
+  _supabase.from('os').select('id',{count:'exact',head:true}).contains('materiais_utilizados',[{nome:m.nome}]),
+  _supabase.from('os').select('id',{count:'exact',head:true}).eq('peca',m.nome)
+ ]);
+ const erro=[mov,sol,osNovos,osLegados].find(x=>x.error);
+ if(erro){alert('Não foi possível verificar os vínculos do material com segurança. Nenhuma alteração foi feita. '+erro.error.message);return}
+ const temHistorico=[mov.count,sol.count,osNovos.count,osLegados.count].some(n=>Number(n)>0);
+ if(!temHistorico){
+  const {error}=await _supabase.from('almox_materiais').delete().eq('id',m.id);
+  if(!error){alert('Material excluído.');await carregarAlmoxarifado();return}
+ }
+ const {data,error}=await _supabase.from('almox_materiais').update({ativo:false}).eq('id',m.id).select('id').maybeSingle();
+ if(error||!data){alert('Não foi possível inativar o material. Nenhuma alteração foi confirmada.'+(error?' '+error.message:''));return}
+ if(MATERIAL_ALMOX_EM_EDICAO===String(m.id))cancelarEdicaoMaterialAlmox();
+ alert(temHistorico?'Material inativado. O histórico e os vínculos com O.S. foram preservados.':'A exclusão definitiva foi bloqueada pelo banco; o material foi inativado para preservar os registros.');
+ await carregarAlmoxarifado();
 }
 async function salvarMaterialAlmox(e){
  e.preventDefault();if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
