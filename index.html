@@ -17611,3 +17611,44 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  #tab-almoxarifado .almox-material-qty .almox-edit-btn{min-width:60px!important;min-height:30px!important;height:30px!important}
 }
 </style>
+
+<style id="erimax-almox-actions-hierarchy-live-20261124">
+/* Botões de ação dos materiais: mesma geometria do padrão Editar do EriMax.
+   Excluir usa apenas a cor de ação destrutiva já adotada nos cadastros. */
+#tab-almoxarifado .almox-material-qty .almox-material-actions{
+ display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-end!important;
+ flex-wrap:nowrap!important;gap:6px!important;width:auto!important;min-width:0!important;
+ margin:6px 0 0!important;padding:0!important
+}
+#tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-edit-btn,
+#tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-delete-btn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;flex:0 0 64px!important;width:64px!important;min-width:64px!important;max-width:64px!important;
+ height:32px!important;min-height:32px!important;margin:0!important;padding:0 8px!important;
+ border:1px solid!important;border-radius:8px!important;background-image:none!important;
+ font-family:inherit!important;font-size:.7rem!important;font-weight:800!important;
+ line-height:1!important;letter-spacing:0!important;text-align:center!important;text-indent:0!important;
+ text-transform:none!important;white-space:nowrap!important;word-break:keep-all!important;
+ box-shadow:none!important;opacity:1!important;visibility:visible!important;cursor:pointer!important
+}
+#tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-edit-btn{
+ border-color:#c8e1e0!important;background:#e5f2f2!important;color:#176675!important
+}
+#tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-edit-btn:hover{
+ border-color:#b8d8d7!important;background:#d9ebeb!important;color:#145765!important
+}
+#tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-delete-btn{
+ border-color:#f1d8d5!important;background:#fff0ef!important;color:#a64d4d!important
+}
+#tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-delete-btn:hover{
+ border-color:#e9c8c4!important;background:#fbe5e3!important;color:#913f3f!important
+}
+@media(max-width:420px){
+ #tab-almoxarifado .almox-material-qty .almox-material-actions{gap:5px!important}
+ #tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-edit-btn,
+ #tab-almoxarifado .almox-material-qty .almox-material-actions>button.almox-delete-btn{
+  flex-basis:62px!important;width:62px!important;min-width:62px!important;max-width:62px!important;
+  height:30px!important;min-height:30px!important;font-size:.68rem!important
+ }
+}
+</style>
