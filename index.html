@@ -7687,7 +7687,7 @@ body{background:var(--erimax-canvas);color:var(--erimax-ink)}
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
-<div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button onclick="sair()">Sair</button></div>
+<div class="user-bar"><span id="ubNome"></span><button id="btnWebPush" type="button" onclick="ativarWebPush()" style="display:none;color:#0056b3">🔔 Ativar notificações</button><button type="button" onclick="sair()">Sair</button></div>
 
 <button id="alertaPreventivaApp" type="button" onclick="dispensarAlertaPreventiva()" aria-label="Dispensar aviso de manutenção preventiva"></button>
 <div id="barraAtivacaoAudio" onclick="ativarAudioManual()">🔊 CLIQUE AQUI PARA ATIVAR O ALARME E VIBRAÇÃO DO CELULAR</div>
@@ -7696,7 +7696,7 @@ body{background:var(--erimax-canvas);color:var(--erimax-ink)}
 <div id="bannerAlerta">
 <h3 id="txtBannerAlerta">🚨 NOVO CHAMADO DE EMERGÊNCIA!</h3>
 <p id="subBannerAlerta">Verifique o painel da manutenção imediata.</p>
-<button onclick="desligarAlarme()">🔕 Desligar Alarme & Vibração</button>
+<button type="button" onclick="desligarAlarme()">🔕 Desligar Alarme & Vibração</button>
 </div>
 
 <nav class="nav-tabs">
@@ -7916,7 +7916,7 @@ function atualizarNavegacaoMobileEriMax(id){
   </div>
   <div class="cadastro-setor-create">
     <div class="cadastro-setor-create-copy"><strong>Novo setor</strong><small>Adicione uma área da fábrica para organizar as máquinas.</small></div>
-    <div class="cadastro-setor-create-fields"><input id="novoSetor" aria-label="Nome do novo setor" placeholder="Ex.: Usinagem, Montagem..." maxlength="60"><button class="btn-submit" onclick="adicionarSetor()"><span aria-hidden="true">＋</span> Adicionar setor</button></div>
+    <div class="cadastro-setor-create-fields"><input id="novoSetor" aria-label="Nome do novo setor" placeholder="Ex.: Usinagem, Montagem..." maxlength="60"><button type="button" class="btn-submit" onclick="adicionarSetor()"><span aria-hidden="true">＋</span> Adicionar setor</button></div>
   </div>
   <div class="cadastro-setores-list-heading"><strong>Áreas cadastradas</strong><span>Gerencie horários e configurações</span></div>
   <div style="display:flex;justify-content:flex-end;margin:10px 0">
@@ -7944,7 +7944,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group"><label for="pvDataPrevista">Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
 <div class="form-group"><label for="pvTecnico">Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
-<button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div></div>
+<button type="button" class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div></div>
 <div class="card" id="pvListaCard"><h4 class="cadastro-preventivas-list-head">Preventivas cadastradas</h4><div id="listaPrev"></div></div>
 </section><section id="cadastro-area-usuarios" class="cadastro-area-panel">
 <div class="cadastro-area-heading"><span class="cadastro-area-heading-icon" aria-hidden="true">👥</span><div><span class="cadastro-area-eyebrow">ACESSO E PERMISSÕES</span><h3>Gestão de usuários</h3><p>Cadastre pessoas, atualize perfis e administre o acesso ao EriMax.</p></div></div>
@@ -7954,7 +7954,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group"><label for="nuNome">Nome completo</label><input id="nuNome" autocomplete="off" placeholder="Nome do colaborador"></div>
 <div class="form-group"><label for="nuSenha">Senha (mínimo 8 caracteres)</label><input id="nuSenha" type="text" autocomplete="off" placeholder="Defina uma senha inicial"></div>
 <div class="form-group"><label for="nuPerfil">Perfil de acesso</label><select id="nuPerfil"><option>operador</option><option>tecnico</option><option>gestor</option></select></div>
-<button class="btn-submit" onclick="criarUsuario()">＋ Criar usuário</button>
+<button type="button" class="btn-submit" onclick="criarUsuario()">＋ Criar usuário</button>
 </div>
 <div class="card cadastro-area-card cadastro-usuarios-list">
 <div class="cadastro-area-card-heading"><div><strong>Usuários cadastrados</strong><small>Altere nome e perfil ou gerencie o acesso de cada pessoa.</small></div><button class="btn-action" type="button" onclick="carregarUsuarios()">↻ Atualizar</button></div>
@@ -8010,7 +8010,7 @@ function atualizarNavegacaoMobileEriMax(id){
 
 <div class="metrics-report-toolbar">
   <div><span class="metrics-report-kicker">ESCOPO ATUAL</span><strong id="metricsFiltroResumo">Carregando filtros...</strong></div>
-  <div class="noprint metrics-export-actions"><button class="btn-submit" onclick="exportarExcel()">↧ Exportar Excel</button><button class="btn-submit" style="background:#365b78" onclick="prepararPDF()">▤ Gerar PDF</button></div>
+  <div class="noprint metrics-export-actions"><button type="button" class="btn-submit" onclick="exportarExcel()">↧ Exportar Excel</button><button type="button" class="btn-submit" style="background:#365b78" onclick="prepararPDF()">▤ Gerar PDF</button></div>
 </div>
 <div id="printReportHeader"></div>
 <div class="metrics-section-heading"><span>01</span><div><h3>Indicadores-chave</h3><p>Resumo do comportamento das ordens no recorte selecionado</p></div></div>
@@ -8121,7 +8121,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
 <div class="form-group"><label for="lgSenha">Senha</label><input id="lgSenha" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" onkeydown="if(event.key==='Enter')entrar()"></div>
 <p id="lgErro" style="color:var(--danger);font-size:.8rem;margin-bottom:8px"></p>
-<button class="btn-submit" onclick="entrar()">Entrar</button></div></div>
+<button type="button" class="btn-submit" onclick="entrar()">Entrar</button></div></div>
 
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalConclusaoTitulo"><div class="box"><h2 id="modalConclusaoTitulo">Concluir O.S.</h2>
 <div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
@@ -8132,7 +8132,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" aria-label="Observação de máquina rodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details>
 <div class="form-group" id="mdMaquinasWrap" style="display:none"><label>Execução por máquina</label><p style="font-size:.75rem;color:#64748b;margin:4px 0 8px">Marque cada máquina somente depois de executar o serviço nela. A O.S. só poderá ser concluída quando todas estiverem marcadas.</p><div id="mdListaMaquinas"></div><button type="button" class="btn-submit" style="background:#0f766e;margin-top:8px" onclick="salvarProgressoMaquinas()">💾 Salvar andamento sem fechar a O.S.</button></div>
 <div class="form-group"><label for="mdHora">Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
-<div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
+<div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button type="button" class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
 <div id="modalReabrirOS" role="dialog" aria-modal="true" aria-labelledby="modalReabrirOSTitulo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1250;align-items:center;justify-content:center;padding:16px">
   <div class="box" style="max-width:420px">
@@ -8144,8 +8144,8 @@ function atualizarNavegacaoMobileEriMax(id){
       <small style="color:#64748b">Informe pelo menos 8 caracteres. O motivo ficará registrado no histórico.</small>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="btn-submit" style="background:#94a3b8" onclick="fecharModalReabrirOS()">Voltar</button>
-      <button class="btn-submit" style="background:#b45309" onclick="confirmarReaberturaOS()">Reabrir O.S.</button>
+      <button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharModalReabrirOS()">Voltar</button>
+      <button type="button" class="btn-submit" style="background:#b45309" onclick="confirmarReaberturaOS()">Reabrir O.S.</button>
     </div>
   </div>
 </div>
@@ -8159,7 +8159,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group"><label for="hrIni">Início do atendimento técnico (opcional enquanto não atendida)</label><input id="hrIni" type="datetime-local"></div>
 <div class="form-group"><label for="hrFim">Conclusão</label><input id="hrFim" type="datetime-local"></div>
 <div class="form-group"><label for="hrTipo">Motivo principal *</label><select id="hrTipo"><option value="Esquecimento do operador">Esquecimento do operador ao abrir a O.S.</option><option value="Horário informado incorretamente">Horário informado incorretamente</option><option value="Outro motivo">Outro motivo</option></select></div><div class="form-group"><label for="hrMot">Detalhes / justificativa *</label><input id="hrMot" placeholder="Descreva o motivo da correção"></div>
-<div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="modalHor.style.display='none'">Cancelar</button><button class="btn-submit" onclick="salvarHorarios()">Salvar</button></div></div></div>
+<div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="modalHor.style.display='none'">Cancelar</button><button type="button" class="btn-submit" onclick="salvarHorarios()">Salvar</button></div></div></div>
 
 <div id="modalEditarEquipamentoOS" role="dialog" aria-modal="true" aria-labelledby="editarEquipamentoOSTitulo" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1500;align-items:center;justify-content:center;padding:14px"><div class="box" style="width:100%;max-width:480px;max-height:90vh;overflow:auto"><h2 id="editarEquipamentoOSTitulo" style="color:var(--primary)">Corrigir equipamento da O.S.</h2><p id="editarEquipamentoInfo" style="font-size:.8rem;color:#64748b;margin:6px 0 12px"></p><div class="form-group"><label for="editarEquipamentoSelect">EQUIPAMENTO CORRETO *</label><select id="editarEquipamentoSelect" required></select></div><p style="font-size:.72rem;color:#64748b">Somente o equipamento será alterado. O sistema registra quem fez a correção, a data e o nome anterior.</p><div style="display:flex;gap:8px"><button type="button" class="btn-submit" style="background:#94a3b8" onclick="fecharEdicaoEquipamentoOS()">Cancelar</button><button type="button" class="btn-submit" onclick="salvarEdicaoEquipamentoOS()">Salvar correção</button></div></div></div>
 
@@ -10293,7 +10293,7 @@ function mostrarOSParada(lista){
   modalEfOSTitulo.textContent='O.S. com tempo de parada';
   const itens=ordenarOSRecentes((lista||[]).map(x=>x.os)).map(os=>({os,parada:(lista||[]).find(x=>Number(x.os.id)===Number(os.id))?.parada||0}));
   resumoEfOS.textContent=itens.length?itens.length+' OS com tempo de parada no período e filtros selecionados.':'Nenhuma OS com parada foi encontrada neste filtro.';
-  listaEfOS.innerHTML=itens.length?itens.map(({os,parada})=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(os.status).replace(/\s+/g,'')+'">'+escaparHtml(os.status)+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor)+' • '+escaparHtml(os.turno)+' • '+hm(os.created_at)+'</p><p style="font-size:.8rem;margin:6px 0"><b>Parada considerada:</b> '+fmt(parada)+'</p><p style="font-size:.82rem"><b>Defeito:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+(os.data_conclusao?' • Concluída em '+hm(os.data_conclusao):' • Ainda não concluída')+'</p><button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta OS no painel</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma OS com parada neste filtro.</p>';
+  listaEfOS.innerHTML=itens.length?itens.map(({os,parada})=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina)+'</span><span class="os-badge status-'+escaparHtml(os.status).replace(/\s+/g,'')+'">'+escaparHtml(os.status)+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor)+' • '+escaparHtml(os.turno)+' • '+hm(os.created_at)+'</p><p style="font-size:.8rem;margin:6px 0"><b>Parada considerada:</b> '+fmt(parada)+'</p><p style="font-size:.82rem"><b>Defeito:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+(os.data_conclusao?' • Concluída em '+hm(os.data_conclusao):' • Ainda não concluída')+'</p><button type="button" class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta OS no painel</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma OS com parada neste filtro.</p>';
   document.body.appendChild(modalEfOS);modalEfOS.scrollTop=0;modalEfOS.style.display='flex';
 }
 function mostrarMaquinasRodando(lista){
@@ -10307,7 +10307,7 @@ function mostrarOSDetalhe(titulo,lista){
   const itens=ordenarOSRecentes(lista);
   modalEfOSTitulo.textContent=titulo||'Ordens de serviço relacionadas';
   resumoEfOS.textContent=itens.length?itens.length+' O.S. encontradas com os filtros selecionados.':'Nenhuma O.S. encontrada para este item.';
-  listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • Aberta: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'horário não informado')+(os.data_conclusao?' • Concluída: '+new Date(os.data_conclusao).toLocaleString('pt-BR'):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p>'+(os.servico_executado?'<p style="font-size:.82rem;margin:6px 0"><b>O que foi feito:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'<button class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
+  listaEfOS.innerHTML=itens.length?itens.map(os=>'<div class="os-card" style="margin:8px 0"><div class="os-header"><span class="os-id">'+escaparHtml(nOS(os))+' — '+escaparHtml(os.maquina||'Máquina não informada')+'</span><span class="os-badge status-'+escaparHtml(os.status||'').replace(/\s+/g,'')+'">'+escaparHtml(os.status||'')+'</span></div><p style="font-size:.78rem;color:#64748b">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.turno||'')+' • Aberta: '+(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'horário não informado')+(os.data_conclusao?' • Concluída: '+new Date(os.data_conclusao).toLocaleString('pt-BR'):'')+'</p><p style="font-size:.82rem;margin:6px 0"><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p style="font-size:.78rem;color:#64748b"><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+' • <b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p>'+(os.servico_executado?'<p style="font-size:.82rem;margin:6px 0"><b>O que foi feito:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'<button type="button" class="btn-action btn-assumir" onclick="abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>').join(''):'<p style="padding:18px;text-align:center;color:#64748b">Nenhuma O.S. encontrada para este item.</p>';
   document.body.appendChild(modalEfOS);modalEfOS.scrollTop=0;modalEfOS.style.display='flex';
 }
 function fecharModalEfOS(){modalEfOS.style.display='none'}
@@ -10399,7 +10399,7 @@ function abrirDetalheMetrica(tipo){
  if(cabecalho&&!cabecalho.querySelector('#btnVoltarGraficoReincidencias')){const voltar=document.createElement('button');voltar.id='btnVoltarGraficoReincidencias';voltar.type='button';voltar.className='erimax-recurrence-back';voltar.textContent='← Voltar ao gráfico';voltar.onclick=voltarGraficoReincidencias;cabecalho.insertBefore(voltar,cabecalho.querySelector('.erimax-os-history-close'));}
  const botaoVoltar=modal.querySelector('#btnVoltarGraficoReincidencias');if(botaoVoltar)botaoVoltar.style.display=tipo==='reincidencia'&&REINCIDENCIA_MAQUINA_ABERTA?'inline-flex':'none';
  const todos=ordenarOSRecentes(FILTRADAS_TODAS||FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada'));
- const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
+ const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
  const agrupar=(arr,key,val)=>{const g={};arr.forEach(x=>{const k=key(x)||'Não informado';g[k]=(g[k]||0)+val(x)});return Object.entries(g).sort((a,b)=>b[1]-a[1])};
  let cfg={type:'bar',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}},explicacao='',lista=[];
  if(tipo==='disp'){
@@ -10407,7 +10407,7 @@ function abrirDetalheMetrica(tipo){
   cfg={type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:v,backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}};
   lista=ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os));
   explicacao='Usa a mesma base de horas do indicador principal. Considera somente paradas registradas em O.S. dentro do horário de produção.';
-  box.innerHTML=lista.length?lista.map(os=>{const x=(OS_PARADA_ATUAL||[]).find(v=>Number(v.os.id)===Number(os.id));return '<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina)+'</b><p>Parada considerada: '+fmt(x?.parada||0)+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>'}).join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
+  box.innerHTML=lista.length?lista.map(os=>{const x=(OS_PARADA_ATUAL||[]).find(v=>Number(v.os.id)===Number(os.id));return '<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina)+'</b><p>Parada considerada: '+fmt(x?.parada||0)+'</p><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>'}).join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
  }else if(tipo==='parada'){
   titulo.textContent='Tempo total parado';const g=agrupar(OS_PARADA_ATUAL||[],x=>(x.os.maquina||'Máquina não informada')+' — '+(x.os.setor||'Setor não informado'),x=>x.parada).slice(0,12);
   cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
@@ -11567,7 +11567,7 @@ function renderMaquinasAgrupadas(){
         const aberto=Number(MAQUINA_EM_EDICAO)===Number(m.id);
         return '<article class="cadastro-machine-item'+(aberto?' is-open':'')+'"><div class="cadastro-machine-head"><div><strong>'+escaparHtml(m.nome)+'</strong><small>'+(m.prefixo?'Código: '+escaparHtml(m.prefixo):'Código não informado')+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarMaquinaCadastro('+Number(m.id)+')" aria-expanded="'+(aberto?'true':'false')+'">'+(aberto?'Fechar':'Abrir')+'</button></div><div class="cadastro-machine-details" '+(aberto?'':'hidden')+'><label for="maq-codigo-'+Number(m.id)+'">Código da máquina</label><input id="maq-codigo-'+Number(m.id)+'" value="'+escaparHtml(m.prefixo||'')+'" placeholder="MTC-11" maxlength="9" aria-label="Código da máquina" onchange="salvarPrefixo('+Number(m.id)+',this.value)"><button type="button" class="btn-action btn-excluir" onclick="delMaquina('+Number(m.id)+')">Apagar máquina</button></div></article>';
       }).join(''):'<p class="cadastro-empty-item">Nenhuma máquina cadastrada neste setor.</p>';
-      h+='<div class="cadastro-machine-create"><strong>Cadastrar máquina neste setor</strong><div class="form-group"><label for="maq-nome-'+i+'">Nome da máquina</label><input id="maq-nome-'+i+'" placeholder="Ex.: Tearcrochet 11"></div><div class="form-group"><label for="maq-codigo-'+i+'">Código da máquina</label><input id="maq-codigo-'+i+'" maxlength="9" placeholder="Ex.: MTC-11" style="text-transform:uppercase"></div><button class="btn-submit" onclick="addMaquina('+i+')">Cadastrar máquina</button></div></div>';
+      h+='<div class="cadastro-machine-create"><strong>Cadastrar máquina neste setor</strong><div class="form-group"><label for="maq-nome-'+i+'">Nome da máquina</label><input id="maq-nome-'+i+'" placeholder="Ex.: Tearcrochet 11"></div><div class="form-group"><label for="maq-codigo-'+i+'">Código da máquina</label><input id="maq-codigo-'+i+'" maxlength="9" placeholder="Ex.: MTC-11" style="text-transform:uppercase"></div><button type="button" class="btn-submit" onclick="addMaquina('+i+')">Cadastrar máquina</button></div></div>';
     }else h+='<p class="cadastro-item-collapsed">Lista recolhida · toque em Abrir para visualizar as máquinas.</p>';
     return h+'</article>';
   }).join(''):'<p class="cadastro-empty-item">Nenhum setor ou máquina cadastrado.</p>';
@@ -13684,15 +13684,15 @@ function renderEditorSetor(s,i){
     }
     h+='</div></div>';
   }
-  h+='<button class="btn-submit" style="max-width:260px" onclick="salvarHorarioSemanal('+i+')">💾 Salvar grade semanal</button></div>';
+  h+='<button type="button" class="btn-submit" style="max-width:260px" onclick="salvarHorarioSemanal('+i+')">💾 Salvar grade semanal</button></div>';
   h+='<div class="cadastro-excecao-editor"><div class="cadastro-excecao-editor-heading"><span class="cadastro-excecao-editor-icon" aria-hidden="true">▦</span><div><b>Exceção ou hora extra</b><small>Configure uma data especial sem alterar a grade semanal.</small></div></div><p class="cadastro-excecao-help">Use para sábado, feriado, hora extra ou mudança pontual. A data cadastrada substitui o horário semanal somente naquele dia.</p>';
   h+='<div class="cadastro-excecao-fields"><label>Data<input type="date" id="exc-data-'+i+'"></label><label>Observação<input id="exc-obs-'+i+'" placeholder="Ex.: Hora extra de sábado"></label></div>';
   h+='<div class="cadastro-excecao-turnos">';
   for(let n=1;n<=3;n++)h+='<div class="cadastro-excecao-turno"><b>Turno '+n+'</b><div class="cadastro-excecao-time-row"><label>Entrada<input class="exc-ini" data-turno="'+n+'" type="time"></label><label>Saída<input class="exc-fim" data-turno="'+n+'" type="time"></label></div><label class="cadastro-excecao-break"><input class="exc-int-ativo" data-turno="'+n+'" type="checkbox"> Descontar almoço/jantar</label><div class="cadastro-excecao-time-row"><label>Início do intervalo<input class="exc-int-ini" data-turno="'+n+'" type="time"></label><label>Fim do intervalo<input class="exc-int-fim" data-turno="'+n+'" type="time"></label></div></div>';
-  h+='</div><button class="btn-submit cadastro-excecao-save" onclick="salvarExcecaoHorario('+i+')">Salvar data especial</button>';
+  h+='</div><button type="button" class="btn-submit cadastro-excecao-save" onclick="salvarExcecaoHorario('+i+')">Salvar data especial</button>';
   const ex=Object.values(EXCECOES_HORARIO).filter(r=>r.setor===s).sort((a,b)=>String(a.data_excecao).localeCompare(String(b.data_excecao)));
   h+='<div class="cadastro-excecao-saved"><b>Datas especiais cadastradas</b>';
-  h+=ex.length?ex.map(r=>'<div class="cadastro-excecao-saved-item"><span><b>'+String(r.data_excecao).split('-').reverse().join('/')+'</b><small>'+escaparHtml(r.observacao||((r.horarios||[]).length?'Horário especial':'Sem produção'))+' • '+(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(', ')+'</small></span><button class="btn-action btn-excluir" onclick="excluirExcecaoHorario('+i+',\''+r.data_excecao+'\')">Apagar</button></div>').join(''):'<p class="cadastro-excecao-empty">Nenhuma data especial cadastrada.</p>';
+  h+=ex.length?ex.map(r=>'<div class="cadastro-excecao-saved-item"><span><b>'+String(r.data_excecao).split('-').reverse().join('/')+'</b><small>'+escaparHtml(r.observacao||((r.horarios||[]).length?'Horário especial':'Sem produção'))+' • '+(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(', ')+'</small></span><button type="button" class="btn-action btn-excluir" onclick="excluirExcecaoHorario('+i+',\''+r.data_excecao+'\')">Apagar</button></div>').join(''):'<p class="cadastro-excecao-empty">Nenhuma data especial cadastrada.</p>';
   h+='</div></div>';
   return h;
 }
@@ -14088,7 +14088,7 @@ async function carregarPreventivas(){
     const dias=Math.ceil((base.getTime()-hoje.getTime())/864e5);
     return {...p,dias};
   }).filter(p=>Number.isFinite(p.dias)&&p.dias<=3).sort((a,b)=>a.dias-b.dias);
-  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
+  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button type="button" class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
 }
 async function gerarOSPrev(id){
   const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
