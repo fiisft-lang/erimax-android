@@ -9595,9 +9595,10 @@ async function verHistorico(id){
     add(os.transferencia_solicitada_em,'Transferência aguardando aceite','Destino: '+os.transferencia_para+' • Motivo: '+(os.transferencia_motivo||'Não informado'),'alerta');
   eventos.sort((a,b)=>a.ts-b.ts);
   const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Não definida';
+  const materiaisResumo=(Array.isArray(os.materiais_utilizados)?os.materiais_utilizados:[]).map(x=>String(x?.nome||x?.material||'').trim()+' — '+Number(x?.quantidade||0).toLocaleString('pt-BR')+' '+String(x?.unidade||'un')).filter(x=>!x.startsWith(' —')).join(' • ')||(os.peca?(os.peca+' — '+Number(os.peca_quantidade||1).toLocaleString('pt-BR')+' un'):'—');
   const detalhes=[
     ['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],
-    ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],['Retomada da produção',fmtData(os.rodando_em)],['Tempo em observação',os.rodando_em?minutosFmt(new Date(os.data_conclusao||Date.now()).getTime()-new Date(os.rodando_em).getTime()):'—'],['Observação de acompanhamento',os.observacao_rodando],
+    ['Prioridade',prioridade],['Materiais utilizados',materiaisResumo],['Situação do equipamento',os.situacao_equipamento],['Retomada da produção',fmtData(os.rodando_em)],['Tempo em observação',os.rodando_em?minutosFmt(new Date(os.data_conclusao||Date.now()).getTime()-new Date(os.rodando_em).getTime()):'—'],['Observação de acompanhamento',os.observacao_rodando],
     ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],
     ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
   ];
