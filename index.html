@@ -7867,7 +7867,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <!-- ORDENS ABERTAS -->
 <div id="tab-ordens-abertas" class="tab-content">
 <section class="oa-hero">
-  <div class="oa-hero-top"><div><span class="oa-kicker">CENTRAL DE ATENDIMENTO</span><h2>Ordens abertas</h2><p>Acompanhe o que aguarda atendimento e o que já está em execução.</p></div><div class="oa-total"><span>O.S. ativas</span><b id="oaTotalAtivas">0</b></div></div>
+  <div class="oa-hero-top"><div><span class="oa-kicker">CENTRAL DE ATENDIMENTO</span><h2>Ordens abertas</h2><p>Acompanhe as ordens que aguardam atendimento, estão em execução ou pausadas.</p></div><div class="oa-total"><span>O.S. ativas</span><b id="oaTotalAtivas">0</b></div></div>
   <div id="osAbertasResumo" class="oa-stats" aria-live="polite"></div>
 </section>
 <section class="oa-list-panel"><div class="oa-list-heading"><div><span class="oa-kicker">ACOMPANHAMENTO</span><h3 id="oaTituloLista">Todas as ordens ativas</h3></div><div class="oa-list-tools"><span class="oa-list-note">Selecione um indicador para filtrar</span><button type="button" id="oaLimparFiltro" class="oa-clear-filter" onclick="filtrarOSAbertasIndicador('Todas')" hidden>Limpar filtro ×</button></div></div><div id="listaOSAbertas" class="oa-list"></div></section>
@@ -9225,7 +9225,7 @@ function filtrarOSAbertasIndicador(tipo){
 function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas=false){renderTecnicos();renderStatusTurno();if(destino==='listaOS')atualizarResumoDashboardOS();
   const box=document.getElementById(destino),filtro=apenasAbertas?'Abertas':document.getElementById('filtroStatus').value;
   if(destino==='listaOSAbertas'){
-    const ativasAbertas=chamados.filter(os=>['Aberta','Em Atendimento'].includes(String(os.status||'')));
+    const ativasAbertas=chamados.filter(os=>['Aberta','Em Atendimento','Pausada'].includes(String(os.status||'')));
     const resumoAbertas=document.getElementById('osAbertasResumo');
     const totalAbertas=ativasAbertas.filter(os=>os.status==='Aberta').length;
     const totalAtendimento=ativasAbertas.filter(os=>os.status==='Em Atendimento').length;
