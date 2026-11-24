@@ -9033,6 +9033,11 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     if(os.rodando_em){const tempoObs=Math.max(0,Math.round(((os.data_conclusao?new Date(os.data_conclusao):new Date()).getTime()-new Date(os.rodando_em).getTime())/60000));html+='<p class="os-rodando-status">▶ <b>'+(status==='Concluída'?'Máquina liberada para produção':'Máquina rodando — em observação')+'</b> desde '+escaparHtml(hm(os.rodando_em))+' • '+(status==='Concluída'?'Tempo em observação: ':'Em observação há ')+escaparHtml(fmt(tempoObs))+(os.observacao_rodando?' • '+escaparHtml(os.observacao_rodando):'')+'</p>';}
     if(status==='Pausada')html+='<p style="margin:6px 0;padding:8px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.8rem;color:#805b00">⏸️ <b>Motivo da pausa:</b> '+escaparHtml(os.motivo_pausa||'Não informado')+'<br><small>Desde: '+escaparHtml(hm(os.pausada_em))+'</small></p>';
     if(os.transferencia_para)html+='<p style="margin:6px 0;padding:7px;background:#fff7df;border:1px solid #f2d48a;border-radius:5px;font-size:.78rem;color:#805b00">🔄 Transferência aguardando aceite de <b>'+escaparHtml(os.transferencia_para)+'</b>. A responsabilidade continua com '+escaparHtml(os.tecnico||'o técnico atual')+' até o aceite.</p>';
+    if(os.status==='Concluída'){
+      const itensMateriaisCard=Array.isArray(os.materiais_utilizados)?os.materiais_utilizados:[];
+      const resumoMateriaisCard=itensMateriaisCard.map(x=>String(x?.nome||x?.material||'').trim()+' — '+Number(x?.quantidade||0).toLocaleString('pt-BR')).filter(x=>!x.startsWith(' —')).join(' • ')||(os.peca?String(os.peca)+' — '+Number(os.peca_quantidade||1).toLocaleString('pt-BR'):'');
+      if(resumoMateriaisCard)html+='<p style="margin-top:6px;padding:6px;background:#f1f5f9;border-radius:4px;font-size:.78rem;color:#334155"><b>Materiais utilizados:</b> '+escaparHtml(resumoMateriaisCard)+'</p>';
+    }
     if(os.servico_executado)html+='<p style="margin-top:6px;background:#e6f4ea;padding:6px;border-radius:4px;font-size:.8rem;color:#137333"><b>Técnico ('+escaparHtml(os.tecnico||'')+'):</b> "'+escaparHtml(os.servico_executado)+'"</p>';
     if(listaAbertasCompacta)html+='</div></details>';
     html+='<div class="os-actions">'+b+'</div>';
