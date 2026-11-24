@@ -7882,7 +7882,7 @@ const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
 const {createClient}=supabase;
 const _supabaseOriginal=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 // O preview usa a API de produção apenas para leitura. Toda mutação é bloqueada no cliente.
-const ERIMAX_PREVIEW_READ_ONLY=true;
+const ERIMAX_PREVIEW_READ_ONLY=!(window.location.hostname==='erimax.pages.dev'||window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1');
 const ERIMAX_PREVIEW_WRITE_METHODS=new Set(['insert','update','upsert','delete','remove','upload','uploadToSignedUrl','move','copy','createSignedUploadUrl','invoke']);
 function protegerConsultaPreview(obj){
  if(!obj||typeof obj!=='object')return obj;
