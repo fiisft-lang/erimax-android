@@ -44,7 +44,8 @@ where c.os_id=o.id;
 with nomes as (
   select p.id as preventiva_id,
          lower(btrim(p.setor)) as setor,
-         lower(btrim(n.nome)) as nome
+         lower(btrim(n.nome)) as nome,
+         n.ordem
   from public.preventivas p
   cross join lateral jsonb_array_elements_text(
     case
