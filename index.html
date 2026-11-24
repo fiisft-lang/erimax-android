@@ -12723,28 +12723,28 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 </style>
 <style id="erimax-almox-delete-controls-20261124">
 /* Ações compactas no mesmo nível visual dos controles dos cards do sistema. */
-#tab-almoxarifado .almox-material-actions{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:6px;margin:7px 0 0 auto}
+#tab-almoxarifado .almox-material-actions{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:7px;margin:9px 0 0 auto}
 #tab-almoxarifado .almox-material-actions .almox-edit-btn,
 #tab-almoxarifado .almox-material-actions .almox-delete-btn{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
  box-sizing:border-box!important;width:auto!important;min-width:0!important;max-width:max-content!important;
- min-height:29px!important;height:29px!important;margin:0!important;padding:0 8px!important;
- border-radius:7px!important;font-size:.66rem!important;line-height:1!important;
- font-weight:750!important;letter-spacing:0!important;white-space:nowrap!important;
+ min-height:34px!important;height:34px!important;margin:0!important;padding:8px 10px!important;
+ border:0!important;border-radius:8px!important;font-size:.72rem!important;line-height:1.1!important;
+ font-weight:800!important;letter-spacing:0!important;white-space:nowrap!important;
  box-shadow:none!important;cursor:pointer!important
 }
 #tab-almoxarifado .almox-material-actions .almox-edit-btn{
- border:1px solid #d8e4ec!important;background:#f3f8fb!important;color:#285f7b!important
+ background:#e4f0f6!important;color:#245a75!important
 }
-#tab-almoxarifado .almox-material-actions .almox-edit-btn:hover{background:#eaf2f7!important;border-color:#c5d6e1!important}
+#tab-almoxarifado .almox-material-actions .almox-edit-btn:hover{background:#d7e8f1!important}
 #tab-almoxarifado .almox-material-actions .almox-delete-btn{
- border:1px solid #ead8d6!important;background:#faf7f7!important;color:#96534f!important
+ background:#fcebea!important;color:#a43b35!important
 }
-#tab-almoxarifado .almox-material-actions .almox-delete-btn:hover{background:#f7eeee!important;border-color:#dfc2bf!important}
+#tab-almoxarifado .almox-material-actions .almox-delete-btn:hover{background:#f7ddda!important}
 @media(max-width:600px){
- #tab-almoxarifado .almox-material-actions{gap:5px}
+ #tab-almoxarifado .almox-material-actions{gap:6px}
  #tab-almoxarifado .almox-material-actions .almox-edit-btn,
- #tab-almoxarifado .almox-material-actions .almox-delete-btn{min-height:28px!important;height:28px!important;padding:0 7px!important;font-size:.63rem!important}
+ #tab-almoxarifado .almox-material-actions .almox-delete-btn{min-height:32px!important;height:32px!important;padding:7px 9px!important;font-size:.7rem!important}
 }
 </style>
 <style id="erimax-almox-edit-hierarquia-cadastro-20261124">
@@ -14042,28 +14042,44 @@ async function excluirMaterialAlmox(id){
  const m=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));
  if(!m)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
  if(!confirm('Deseja remover o material "'+m.nome+'"? Se houver movimentações, solicitações ou O.S. vinculadas, ele será inativado para preservar o histórico.'))return;
+ const nomeErro=e=>{
+  if(!e)return 'Erro não identificado pelo servidor.';
+  if(typeof e==='string')return e;
+  return e.message||e.details||e.hint||JSON.stringify(e);
+ };
+ const verificacoes=[
+  {nome:'movimentações de estoque (almox_movimentacoes)',executar:()=>_supabase.from('almox_movimentacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id)},
+  {nome:'solicitações de material (almox_solicitacoes)',executar:()=>_supabase.from('almox_solicitacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id)},
+  {nome:'materiais utilizados nas O.S. (os.materiais_utilizados)',executar:()=>_supabase.from('os').select('id',{count:'exact',head:true}).contains('materiais_utilizados',[{nome:m.nome}])},
+  {nome:'registro legado de peças nas O.S. (os.peca)',executar:()=>_supabase.from('os').select('id',{count:'exact',head:true}).eq('peca',m.nome)}
+ ];
  try{
-  const consultas=await Promise.all([
-   _supabase.from('almox_movimentacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id),
-   _supabase.from('almox_solicitacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id),
-   _supabase.from('os').select('id',{count:'exact',head:true}).contains('materiais_utilizados',[{nome:m.nome}]),
-   _supabase.from('os').select('id',{count:'exact',head:true}).eq('peca',m.nome)
-  ]);
+  const consultas=await Promise.all(verificacoes.map(async v=>{
+   try{return {nome:v.nome,...await v.executar()}}
+   catch(error){return {nome:v.nome,error}}
+  }));
   const erro=consultas.find(x=>x.error);
-  if(erro){console.error('Falha ao verificar vínculos do material:',erro.error);return alert('Não foi possível conferir todos os vínculos de "'+m.nome+'". Nenhuma alteração foi feita. Detalhe: '+erro.error.message)}
+  if(erro){
+   const detalhe=nomeErro(erro.error);
+   console.error('Falha ao verificar vínculos do material:',{consulta:erro.nome,erro:erro.error});
+   return alert('Não foi possível conferir '+erro.nome+' para "'+m.nome+'". Nenhuma alteração foi feita.\n\nDetalhe técnico: '+detalhe);
+  }
   const temHistorico=consultas.some(x=>Number(x.count)>0);
   if(!temHistorico){
    const {data,error}=await _supabase.from('almox_materiais').delete().eq('id',m.id).select('id').maybeSingle();
    if(!error&&data){if(MATERIAL_ALMOX_EM_EDICAO===String(m.id))cancelarEdicaoMaterialAlmox();alert('Material excluído definitivamente.');await carregarAlmoxarifado();return}
-   if(error)console.warn('Exclusão definitiva bloqueada; tentando inativar sem apagar histórico:',error.message);
+   if(error)console.warn('Exclusão definitiva bloqueada; tentando inativar sem apagar histórico:',nomeErro(error));
   }
   const {data,error}=await _supabase.from('almox_materiais').update({ativo:false}).eq('id',m.id).eq('ativo',true).select('id').maybeSingle();
-  if(error){console.error('Falha ao inativar material:',error);return alert('Não foi possível excluir nem inativar "'+m.nome+'". Nenhuma alteração foi confirmada. Detalhe: '+error.message)}
+  if(error){console.error('Falha ao inativar material:',error);return alert('Não foi possível excluir nem inativar "'+m.nome+'". Nenhuma alteração foi confirmada. Detalhe técnico: '+nomeErro(error))}
   if(!data)return alert('O banco não confirmou a alteração de "'+m.nome+'". Verifique se o material continua ativo e se seu perfil Gestor tem permissão para alterar o cadastro.');
   if(MATERIAL_ALMOX_EM_EDICAO===String(m.id))cancelarEdicaoMaterialAlmox();
   alert(temHistorico?'Material inativado. As movimentações, solicitações e O.S. vinculadas foram preservadas.':'A exclusão definitiva foi bloqueada pelo banco; o material foi inativado para preservar os registros.');
   await carregarAlmoxarifado();
- }catch(e){console.error('Erro inesperado ao excluir material:',e);alert('Ocorreu uma falha ao processar "'+m.nome+'". Nenhuma exclusão foi confirmada. Detalhe: '+(e?.message||e))}
+ }catch(e){
+  console.error('Erro inesperado ao excluir material:',e);
+  alert('Ocorreu uma falha ao processar "'+m.nome+'". Nenhuma exclusão foi confirmada. Detalhe técnico: '+nomeErro(e));
+ }
 }
 async function salvarMaterialAlmox(e){
  e.preventDefault();if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
