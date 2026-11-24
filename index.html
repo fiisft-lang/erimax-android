@@ -7353,9 +7353,12 @@ body .tbl-wrap td{color:#344d5e}
 #tab-cadastro .cadastro-machine-create{margin-top:13px;padding:13px;border:1px solid #dcebe9;border-radius:12px;background:linear-gradient(135deg,#f1f8f7,#f8fbfc)}
 #tab-cadastro .cadastro-machine-group-content{padding-top:8px}
 #tab-cadastro .cadastro-item-collapsed,#tab-cadastro .cadastro-empty-item{margin:9px 0;color:#718294;font-size:.76rem;text-align:center}
-#tab-cadastro .cadastro-machine-sector-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#tab-cadastro .cadastro-machine-sector-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:58px;padding:10px 13px;border:1px solid #c8dfe1;border-radius:12px;background:linear-gradient(118deg,#102d43 0%,#17485b 52%,#167d79 100%);box-shadow:0 7px 17px rgba(15,54,69,.16)}
 #tab-cadastro .cadastro-machine-sector-head>span{display:grid;gap:4px;min-width:0}
-#tab-cadastro .cadastro-machine-sector-head small{color:#647b8d;font-size:.72rem}
+#tab-cadastro .cadastro-machine-sector-head b{color:#fff!important;font-size:.92rem!important;font-weight:850!important;letter-spacing:-.012em}
+#tab-cadastro .cadastro-machine-sector-head small{color:#c6e0e2!important;font-size:.72rem}
+#tab-cadastro .cadastro-machine-sector-head>button{flex:0 0 auto;background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.3)!important;box-shadow:none!important}
+#tab-cadastro .cadastro-machine-group-content{scroll-margin-top:120px}
 @media(min-width:1024px){#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{top:calc(96px + env(safe-area-inset-top,0px))!important}}
 @media(max-width:600px){
  #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{top:calc(104px + env(safe-area-inset-top,0px))!important;min-height:54px!important;padding:9px 10px!important}
@@ -11372,7 +11375,10 @@ function alternarMaquinaCadastro(id){
 function editarMaquinasSetor(i){
   const setores=[...new Set([...SETORES,...MAQUINAS.map(m=>m.setor)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
   const setor=setores[i]||null;const abrir=SETOR_MAQUINAS_EM_EDICAO!==setor;SETOR_MAQUINAS_EM_EDICAO=abrir?setor:null;renderMaquinasAgrupadas();
-  if(abrir)requestAnimationFrame(()=>centralizarCadastroAlvo([...document.querySelectorAll('#cadastro-area-maquinas .cadastro-machine-group')].find(el=>el.querySelector('.cadastro-machine-sector-head b')?.textContent===setor)));
+  if(abrir)requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const grupo=[...document.querySelectorAll('#cadastro-area-maquinas .cadastro-machine-group')].find(el=>el.querySelector('.cadastro-machine-sector-head b')?.textContent===setor);
+    centralizarCadastroAlvo(grupo?.querySelector('.cadastro-machine-group-content')||grupo);
+  }));
 }
 function fecharMaquinasSetor(){SETOR_MAQUINAS_EM_EDICAO=null;MAQUINA_EM_EDICAO=null;renderMaquinasAgrupadas()}
 async function addMaquina(i){
