@@ -53,10 +53,36 @@ public class IncomingCallActivity extends Activity {
     root.addView(brand);
     root.addView(title);
     root.addView(detail);
-    root.addView(label("Deslize uma das opções para continuar", 14, Color.LTGRAY));
-    addSwipeAction(root, transferencia ? "DESLIZE PARA ACEITAR A TRANSFERÊNCIA" : "DESLIZE PARA ABRIR A O.S.", "➜", Color.rgb(22, 163, 74), true, this::answerCall);
-    addSwipeAction(root, "DESLIZE PARA SILENCIAR", "⬅", Color.rgb(220, 38, 38), false, this::dismissCall);
+    if (transferencia) {
+      root.addView(label("Escolha uma ação para esta transferência", 14, Color.LTGRAY));
+      addTransferButton(root, "ACEITAR TRANSFERÊNCIA", Color.rgb(22, 163, 74), "aceitar_transferencia");
+      addTransferButton(root, "RECUSAR TRANSFERÊNCIA", Color.rgb(220, 38, 38), "recusar_transferencia");
+    } else {
+      root.addView(label("Deslize uma das opções para continuar", 14, Color.LTGRAY));
+      addSwipeAction(root, "DESLIZE PARA ABRIR A O.S.", "➜", Color.rgb(22, 163, 74), true, this::answerCall);
+      addSwipeAction(root, "DESLIZE PARA SILENCIAR", "⬅", Color.rgb(220, 38, 38), false, this::dismissCall);
+    }
     setContentView(root);
+  }
+
+  private void addTransferButton(LinearLayout root, String text, int color, String action) {
+    TextView button = label(text, 16, Color.WHITE);
+    button.setTypeface(null, Typeface.BOLD);
+    button.setBackgroundColor(color);
+    button.setOnClickListener(v -> openTransferAction(action));
+    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(64));
+    params.setMargins(0, dp(14), 0, 0);
+    root.addView(button, params);
+  }
+
+  private void openTransferAction(String action) {
+    stopAlarm();
+    dismissNotification();
+    String link = "erimax://os/" + Uri.encode(osId) + "?action=" + Uri.encode(action);
+    Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse(link), this, MainActivity.class);
+    open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    startActivity(open);
+    finish();
   }
 
   private int dp(int value) {
