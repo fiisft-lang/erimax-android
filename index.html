@@ -14184,7 +14184,7 @@ window.onload=async function(){
 };
 </script>
 <script id="erimax-almoxarifado-logic-2026">
-let ALMOX_MATERIAIS=[],ALMOX_MOVIMENTOS=[],ALMOX_SOLICITACOES=[],ALMOX_SOLICITACOES_TOTAL=0;
+let ALMOX_MATERIAIS=[],ALMOX_MOVIMENTOS=[],ALMOX_MOVIMENTOS_TOTAL=0,ALMOX_MOVIMENTOS_CARREGANDO=false,ALMOX_SOLICITACOES=[],ALMOX_SOLICITACOES_TOTAL=0;
 function gestorAlmox(){return !!(PERFIL&&PERFIL.perfil==='gestor'&&MEU_ID)}
 function atualizarRotuloAjusteAlmox(){const t=document.getElementById('almoxMovTipo')?.value,l=document.getElementById('almoxQtdLabel');if(l)l.textContent=t==='ajuste'?'Novo saldo final *':'Quantidade *'}
 function htmlAlmox(v){return escaparHtml(v==null?'':String(v))}
@@ -14204,14 +14204,14 @@ async function carregarAlmoxarifado(){
  if(!MEU_ID||!PERFIL||!['gestor','tecnico','operador'].includes(PERFIL.perfil))return;
  const isGestor=gestorAlmox();
  const box=document.getElementById('almoxListaMateriais');if(box)box.innerHTML='<p class="almox-empty">Carregando estoque...</p>';
- const consultaMov=isGestor?_supabase.from('almox_movimentacoes').select('*,almox_materiais(nome,unidade)').order('criado_em',{ascending:false}).limit(40):Promise.resolve({data:[],error:null});
+ const consultaMov=isGestor?_supabase.from('almox_movimentacoes').select('*,almox_materiais(nome,unidade)',{count:'exact'}).order('criado_em',{ascending:false}).range(0,39):Promise.resolve({data:[],count:0,error:null});
  const [m,mv,s]=await Promise.all([
   _supabase.from('almox_materiais').select('*').order('nome'),
   consultaMov,
   _supabase.from('almox_solicitacoes').select('*',{count:'exact'}).in('status',['pendente','estoque_insuficiente','nao_cadastrado']).order('criado_em',{ascending:false}).limit(100)
  ]);
  if(m.error||mv.error||s.error){console.error('Erro ao carregar Almoxarifado:',m.error||mv.error||s.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar os dados. Verifique as permissões.</p>';return}
- ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.data||[];ALMOX_SOLICITACOES=s.data||[];ALMOX_SOLICITACOES_TOTAL=s.count??ALMOX_SOLICITACOES.length;
+ ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.data||[];ALMOX_MOVIMENTOS_TOTAL=mv.count??ALMOX_MOVIMENTOS.length;ALMOX_MOVIMENTOS_CARREGANDO=false;ALMOX_SOLICITACOES=s.data||[];ALMOX_SOLICITACOES_TOTAL=s.count??ALMOX_SOLICITACOES.length;
  const a=ALMOX_MATERIAIS.filter(x=>x.ativo),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
  const put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
  put('almoxTotal',a.length);put('almoxDisponiveis',available);put('almoxBaixo',low);put('almoxZerado',zero);put('almoxPendentes',ALMOX_SOLICITACOES_TOTAL);
@@ -14273,7 +14273,21 @@ function prepararCadastroMaterialAlmox(id){
 function renderHistoricoAlmox(){
  const box=document.getElementById('almoxHistorico');if(!box)return;
  if(!ALMOX_MOVIMENTOS.length){box.innerHTML='<p class="almox-empty">Nenhuma movimentação registrada.</p>';return}
- box.innerHTML=ALMOX_MOVIMENTOS.map(m=>'<div class="almox-history-row"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></div>').join('');
+ const linhas=ALMOX_MOVIMENTOS.map(m=>'<div class="almox-history-row"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></div>').join('');
+ const exibidas=ALMOX_MOVIMENTOS.length,total=ALMOX_MOVIMENTOS_TOTAL;
+ box.innerHTML=linhas+'<div class="almox-history-footer"><small>Exibindo '+exibidas+' de '+total+' movimentações</small>'+(exibidas<total?'<button type="button" class="almox-edit-btn" '+(ALMOX_MOVIMENTOS_CARREGANDO?'disabled':'')+' onclick="carregarMaisHistoricoAlmox()">'+(ALMOX_MOVIMENTOS_CARREGANDO?'Carregando...':'Carregar mais')+'</button>':'')+'</div>';
+}
+async function carregarMaisHistoricoAlmox(){
+ if(!gestorAlmox()||ALMOX_MOVIMENTOS_CARREGANDO||ALMOX_MOVIMENTOS.length>=ALMOX_MOVIMENTOS_TOTAL)return;
+ ALMOX_MOVIMENTOS_CARREGANDO=true;renderHistoricoAlmox();
+ const inicio=ALMOX_MOVIMENTOS.length;
+ const {data,error,count}=await _supabase.from('almox_movimentacoes').select('*,almox_materiais(nome,unidade)',{count:'exact'}).order('criado_em',{ascending:false}).range(inicio,inicio+39);
+ ALMOX_MOVIMENTOS_CARREGANDO=false;
+ if(error){console.error('Erro ao carregar mais movimentações:',error);renderHistoricoAlmox();alert('Não foi possível carregar mais movimentações. Tente novamente.');return}
+ const existentes=new Set(ALMOX_MOVIMENTOS.map(m=>String(m.id)));
+ ALMOX_MOVIMENTOS.push(...(data||[]).filter(m=>!existentes.has(String(m.id))));
+ if(Number.isFinite(count))ALMOX_MOVIMENTOS_TOTAL=count;
+ renderHistoricoAlmox();
 }
 let MATERIAL_ALMOX_EM_EDICAO=null;
 function editarMaterialAlmox(id){
