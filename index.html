@@ -8336,8 +8336,10 @@ async function salvarOS(e){
   const outroEquipamento=document.getElementById('outroEquipamento').value.trim();
   if(maquina.value==='__outros__'&&outroEquipamento.length<2)return alert('Descreva qual é o equipamento ou local.');
   if(!maquina.value)return alert('Selecione uma máquina/equipamento ou a opção Outros.');
-  const maquinaOS=maquina.value==='__outros__'?'Outros — '+outroEquipamento:maquina.value.trim();
-  const nova={aberto_por:abertoPor,situacao_equipamento:situacaoEquipamento,turno:turno.value,setor:setor.value,maquina:maquinaOS,tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
+  const maquinaSelecionada=maquina.value==='__outros__'?null:MAQUINAS.find(m=>String(m.id)===String(maquina.value)&&normSetor(m.setor)===normSetor(setor.value));
+  if(maquina.value!=='__outros__'&&!maquinaSelecionada)return alert('A máquina selecionada não é válida. Atualize a lista e escolha novamente pelo código.');
+  const maquinaOS=maquina.value==='__outros__'?'Outros — '+outroEquipamento:maquinaSelecionada.nome;
+  const nova={aberto_por:abertoPor,situacao_equipamento:situacaoEquipamento,turno:turno.value,setor:setor.value,maquina:maquinaOS,maquina_id:maquinaSelecionada?Number(maquinaSelecionada.id):null,tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
   const fi=foto.files[0];
   if(fi){const b=await redimensionar(fi),pt=Date.now()+'_'+Math.random().toString(36).slice(2)+'.jpg';
     const up=await _supabase.storage.from('fotos-os').upload(pt,b,{contentType:'image/jpeg'});
@@ -9022,7 +9024,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const execucao=Array.isArray(os.maquinas_execucao)?os.maquinas_execucao:[];
     if(execucao.length){
       const feitas=execucao.filter(m=>m.concluida).length;
-      html+='<div style="margin:7px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem"><b>Execução por máquina: '+feitas+'/'+execucao.length+'</b>'+execucao.map(m=>'<div style="margin-top:3px;color:'+(m.concluida?'#166534':'#92400e')+'">'+(m.concluida?'✓':'○')+' '+escaparHtml(m.nome)+(m.concluida?' — concluída':' — pendente')+'</div>').join('')+'</div>';
+      html+='<div style="margin:7px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem"><b>Execução por máquina: '+feitas+'/'+execucao.length+'</b>'+execucao.map(m=>'<div style="margin-top:3px;color:'+(m.concluida?'#166534':'#92400e')+'">'+(m.concluida?'✓':'○')+' '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+(m.concluida?' — concluída':' — pendente')+'</div>').join('')+'</div>';
     }
     if(foto)html+='<a class="os-zoom-extra-60" href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
     if(os.tecnico)html+='<p class="os-zoom-extra-60" style="font-size:.8rem;color:var(--primary-dark)">Manutentor responsável pela finalização: <b>'+escaparHtml(os.tecnico)+'</b></p>';
@@ -9295,7 +9297,7 @@ function obterMaquinasExecucaoModal(){
   return [...document.querySelectorAll('#mdListaMaquinas .md-maquina-execucao')].map(el=>{
     const i=Number(el.dataset.index),anterior=anteriores[i]||{};
     const concluida=el.checked;
-    return {nome:anterior.nome||'',concluida,concluida_em:concluida?(anterior.concluida_em||new Date().toISOString()):null};
+    return {maquina_id:anterior.maquina_id??null,nome:anterior.nome||'',prefixo:anterior.prefixo||null,concluida,concluida_em:concluida?(anterior.concluida_em||new Date().toISOString()):null};
   });
 }
 async function salvarProgressoMaquinas(){
@@ -9314,12 +9316,12 @@ function atualizarMaquinasEdicaoOS(limpar=true,maquinaInicial=''){
  const escolhido=normSetor(setor.value);
  const lista=(MAQUINAS||[]).filter(m=>m&&m.nome&&normSetor(m.setor)===escolhido)
   .sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
- const unicas=[...new Map(lista.map(m=>[String(m.nome).trim(),m])).values()];
- maquina.innerHTML=unicas.length
-  ?'<option value="">Selecione a máquina...</option>'+unicas.map(m=>'<option value="'+escaparHtml(String(m.nome).trim())+'">'+escaparHtml(String(m.nome).trim())+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+'</option>').join('')
+ maquina.innerHTML=lista.length
+  ?'<option value="">Selecione a máquina pelo código...</option>'+lista.map(m=>'<option value="'+Number(m.id)+'">'+escaparHtml(String(m.nome).trim())+(m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado')+'</option>').join('')
   :'<option value="">Nenhuma máquina cadastrada neste setor</option>';
- maquina.disabled=!unicas.length;
- if(maquinaInicial&&unicas.some(m=>String(m.nome).trim()===String(maquinaInicial).trim()))maquina.value=String(maquinaInicial).trim();
+ maquina.disabled=!lista.length;
+ if(maquinaInicial&&lista.some(m=>String(m.id)===String(maquinaInicial)))maquina.value=String(maquinaInicial);
+ else if(maquinaInicial&&lista.filter(m=>String(m.nome).trim()===String(maquinaInicial).trim()).length===1)maquina.value=String(lista.find(m=>String(m.nome).trim()===String(maquinaInicial).trim()).id);
  const info=document.getElementById('editarOSCompletaInfo');
  if(info&&setor.value&&!unicas.length)info.textContent=nOS(osEdicaoCompleta)+' • Não há máquinas cadastradas neste setor. Confira o cadastro de máquinas.';
 }
@@ -9333,7 +9335,7 @@ function abrirEdicaoCompletaOS(id){
  setor.innerHTML='<option value="">Selecione o setor...</option>'+setores.map(x=>'<option value="'+escaparHtml(x)+'">'+escaparHtml(x)+'</option>').join('');
  const setorOS=normSetor(o.setor);
  setor.value=setores.includes(setorOS)?setorOS:'';
- atualizarMaquinasEdicaoOS(false,o.maquina);
+ atualizarMaquinasEdicaoOS(false,o.maquina_id||o.maquina);
  set('ecTurno',o.turno);set('ecTecnico',o.tecnico);
  set('ecTipo',o.tipo);set('ecPrioridade',o.prioridade);set('ecSituacao',o.situacao_equipamento||'Parado');
  set('ecAbertura',o.created_at?loc(o.created_at):'');set('ecInicio',o.data_atendimento?loc(o.data_atendimento):'');set('ecConclusao',o.data_conclusao?loc(o.data_conclusao):'');
@@ -9349,8 +9351,8 @@ async function salvarEdicaoCompletaOS(){
  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode editar todos os dados da O.S.');
  const val=id=>String(document.getElementById(id)?.value??'').trim();
  for(const [id,nome] of [['ecSetor','Setor'],['ecMaquina','Máquina'],['ecTurno','Turno'],['ecTipo','Tipo'],['ecDescricao','Problema relatado'],['ecAbertura','Data/hora da abertura']])if(!val(id))return alert('Preencha: '+nome+'.');
- const maquinaValida=(MAQUINAS||[]).some(m=>m&&String(m.nome||'').trim()===val('ecMaquina')&&normSetor(m.setor)===normSetor(val('ecSetor')));
- if(!maquinaValida)return alert('A máquina selecionada não pertence ao setor escolhido ou não está cadastrada. Selecione uma máquina da lista.');
+ const maquinaSelecionada=(MAQUINAS||[]).find(m=>m&&String(m.id)===val('ecMaquina')&&normSetor(m.setor)===normSetor(val('ecSetor')));
+ if(!maquinaSelecionada)return alert('Selecione a máquina correta pelo código. O nome sozinho não identifica o equipamento.');
  if(val('ecMotivo').length<8)return alert('A justificativa precisa ter pelo menos 8 caracteres.');
  const abertura=new Date(val('ecAbertura')),inicio=val('ecInicio')?new Date(val('ecInicio')):null,fim=val('ecConclusao')?new Date(val('ecConclusao')):null;
  if(abertura>new Date(Date.now()+60000))return alert('A abertura não pode estar no futuro.');
@@ -9358,7 +9360,7 @@ async function salvarEdicaoCompletaOS(){
  if(fim&&!inicio)return alert('Informe o início do atendimento antes da conclusão.');
  if(fim&&fim<inicio)return alert('A conclusão não pode ser anterior ao atendimento.');
  if(o.status==='Concluída'&&(!inicio||!fim))return alert('Uma O.S. concluída precisa ter início e conclusão preenchidos.');
- const dados={maquina:val('ecMaquina'),setor:val('ecSetor'),turno:val('ecTurno'),tecnico:val('ecTecnico')||null,tipo:val('ecTipo'),prioridade:val('ecPrioridade'),situacao_equipamento:val('ecSituacao'),created_at:abertura.toISOString(),data_atendimento:inicio?inicio.toISOString():null,data_conclusao:fim?fim.toISOString():null,descricao:val('ecDescricao'),causa:val('ecCausa')||null,servico_executado:val('ecServico')||null,peca:val('ecPeca')||null,rodando_em:o.rodando_em||null,observacao_rodando:val('ecObsRodando')||null};
+ const dados={maquina:maquinaSelecionada.nome,maquina_id:Number(maquinaSelecionada.id),setor:val('ecSetor'),turno:val('ecTurno'),tecnico:val('ecTecnico')||null,tipo:val('ecTipo'),prioridade:val('ecPrioridade'),situacao_equipamento:val('ecSituacao'),created_at:abertura.toISOString(),data_atendimento:inicio?inicio.toISOString():null,data_conclusao:fim?fim.toISOString():null,descricao:val('ecDescricao'),causa:val('ecCausa')||null,servico_executado:val('ecServico')||null,peca:val('ecPeca')||null,rodando_em:o.rodando_em||null,observacao_rodando:val('ecObsRodando')||null};
  const {error}=await _supabase.rpc('erimax_editar_os_completa',{p_os_id:o.id,p_dados:dados,p_motivo:val('ecMotivo')});
  if(error)return alert('Não foi possível salvar a O.S.: '+error.message);
  fecharEdicaoCompletaOS();await carregarDadosSupabase();alert('O.S. atualizada. A auditoria guardou os dados anteriores, os novos e a justificativa.');
@@ -11233,7 +11235,7 @@ async function carregarMaquinas(){
 }
 function carregarMaquinasSetor(){
   const l=MAQUINAS.filter(m=>m.setor===setor.value);
-  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':(l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join(''):'<option value="">Nenhuma máquina cadastrada neste setor</option>')+'<option value="__outros__">Outros</option>';
+  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':(l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option value="${Number(m.id)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado'}</option>`).join(''):'<option value="">Nenhuma máquina cadastrada neste setor</option>')+'<option value="__outros__">Outros</option>';
   alternarOutroEquipamento();
 }
 function alternarOutroEquipamento(){
@@ -13689,14 +13691,19 @@ function pvMaquinas(){
   }
   const mesmoSetor=PV_SETOR_RENDERIZADO===pvSetor.value;
   const selecionadas=mesmoSetor?[...lista.querySelectorAll('.pv-maquina:checked')].map(e=>e.value):[];
-  const ativos=new Set(selecionadas.filter(nome=>itens.some(m=>m.nome===nome)));
-  if(!ativos.size)ativos.add(itens[0].nome);
-  lista.innerHTML=itens.map(m=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-maquina" type="checkbox" value="'+escaparHtml(m.nome)+'" '+(ativos.has(m.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+'</label>').join('');
+  const ativos=new Set(selecionadas.filter(id=>itens.some(m=>String(m.id)===String(id))));
+  if(!ativos.size)ativos.add(String(itens[0].id));
+  lista.innerHTML=itens.map(m=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-maquina" type="checkbox" value="'+Number(m.id)+'" '+(ativos.has(String(m.id))?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado')+'</label>').join('');
   PV_SETOR_RENDERIZADO=pvSetor.value;
 }
 function maquinasDaPreventiva(p){
   const lista=Array.isArray(p&&p.maquinas)?p.maquinas.filter(x=>typeof x==='string'&&x.trim()):[];
   return lista.length?lista:(p&&p.maquina?[p.maquina]:[]);
+}
+function registrosMaquinasPreventiva(p){
+  const ids=Array.isArray(p&&p.maquinas_ids)?p.maquinas_ids.map(Number).filter(Number.isFinite):[];
+  if(ids.length)return ids.map(id=>MAQUINAS.find(m=>Number(m.id)===id)).filter(Boolean);
+  return maquinasDaPreventiva(p).map(nome=>{const encontrados=MAQUINAS.filter(m=>m.setor===p.setor&&String(m.nome).trim()===String(nome).trim());return encontrados.length===1?encontrados[0]:{id:null,nome,prefixo:null,setor:p.setor}});
 }
 function resumoMaquinasPreventiva(p){
   const lista=maquinasDaPreventiva(p);
@@ -13754,22 +13761,25 @@ async function addPrev(){
   const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value);
   if(!pvSetor.value)return alert('Escolha um setor.');
   const todas=document.getElementById('pvTodasMaquinas').checked;
-  const maquinasSetor=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome).map(m=>m.nome);
-  const maquinasSelecionadas=todas?maquinasSetor:[...document.querySelectorAll('#pvListaMaquinas .pv-maquina:checked')].map(e=>e.value);
+  const maquinasSetor=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome);
+  const maquinasSelecionadas=todas?maquinasSetor.map(m=>String(m.id)):[...document.querySelectorAll('#pvListaMaquinas .pv-maquina:checked')].map(e=>e.value);
   if(!maquinasSelecionadas.length)return alert('Selecione pelo menos uma máquina do setor.');
   if(descricao.length<3)return alert('Descreva a atividade com pelo menos 3 caracteres.');
   if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
   if(!dataPrevista)return alert('Escolha a próxima data prevista.');
   if(!tecnico)return alert('Selecione o técnico responsável.');
   const equipeSelecionada=[...new Set([...document.querySelectorAll('#pvEquipeTecnicos .pv-tecnico-equipe:checked')].map(e=>e.value).concat(tecnico.nome))];
-  const maquinasUnicas=[...new Set(maquinasSelecionadas)];
-  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:maquinasUnicas.length===1?maquinasUnicas[0]:maquinasUnicas.length+' máquinas do setor',maquinas:maquinasUnicas,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
+  const idsUnicos=[...new Set(maquinasSelecionadas.map(Number))];
+  const registros=MAQUINAS.filter(m=>m.setor===pvSetor.value&&idsUnicos.includes(Number(m.id)));
+  if(registros.length!==idsUnicos.length)return alert('Uma das máquinas selecionadas não foi encontrada. Atualize a lista e tente novamente.');
+  const nomesMaquinas=registros.map(m=>m.nome);
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:nomesMaquinas.length===1?nomesMaquinas[0]:nomesMaquinas.length+' máquinas do setor',maquinas:nomesMaquinas,maquinas_ids:idsUnicos,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
   if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
   pvDesc.value='';
   document.getElementById('pvTodasMaquinas').checked=false;
   pvMaquinas();
   await carregarPreventivas();
-  alert('Preventiva cadastrada com sucesso para '+maquinasUnicas.length+' máquina(s).');
+  alert('Preventiva cadastrada com sucesso para '+idsUnicos.length+' máquina(s).');
 }
 async function delPrev(id){
   if(!erimaxExigirGestorCadastro())return;
@@ -13806,12 +13816,13 @@ async function gerarOSPrev(id){
   if(!confirm('Gerar uma nova ordem de serviço para esta preventiva?'))return;
   window.__erimaxPrevGerando.add(String(id));
   try{
-    const h=new Date().getHours(),maquinas=maquinasDaPreventiva(p);
+    const h=new Date().getHours(),registros=registrosMaquinasPreventiva(p),maquinas=registros.map(m=>m.nome);
+    if(!registros.length||registros.some(m=>!m.id))return alert('Esta preventiva possui máquina sem identificação única. Refaça o vínculo no cadastro antes de gerar a O.S.');
     const maquinaLabel=maquinas.length>1?maquinas.length+' máquinas do setor':(maquinas[0]||p.maquina);
-    const maquinasExecucao=maquinas.length>1?maquinas.map(nome=>({nome,concluida:false,concluida_em:null})):[];
+    const maquinasExecucao=maquinas.length>1?registros.map(m=>({maquina_id:Number(m.id),nome:m.nome,prefixo:m.prefixo||null,concluida:false,concluida_em:null})):[];
     const descricaoOS='Preventiva: '+p.descricao+(maquinas.length>1?'\nMáquinas: '+maquinas.join(', '):'');
     const equipeOS=[...new Set((Array.isArray(p.tecnicos_participantes)?p.tecnicos_participantes:[]).filter(x=>typeof x==='string'&&x.trim()).concat(p.tecnico_responsavel||[]))];
-    const {error}=await _supabase.from('os').insert([{preventiva_id:p.id,turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
+    const {error}=await _supabase.from('os').insert([{preventiva_id:p.id,maquina_id:registros.length===1?Number(registros[0].id):null,turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
     if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
     await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
     alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'. A próxima data será atualizada somente quando a O.S. for concluída.');
