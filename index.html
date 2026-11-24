@@ -14208,13 +14208,13 @@ async function carregarAlmoxarifado(){
  const [m,mv,s]=await Promise.all([
   _supabase.from('almox_materiais').select('*').order('nome'),
   consultaMov,
-  _supabase.from('almox_solicitacoes').select('*').in('status',['pendente','estoque_insuficiente','nao_cadastrado']).order('criado_em',{ascending:false}).limit(100)
+  _supabase.from('almox_solicitacoes').select('*',{count:'exact'}).in('status',['pendente','estoque_insuficiente','nao_cadastrado']).order('criado_em',{ascending:false}).limit(100)
  ]);
  if(m.error||mv.error||s.error){console.error('Erro ao carregar Almoxarifado:',m.error||mv.error||s.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar os dados. Verifique as permissões.</p>';return}
  ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.data||[];ALMOX_SOLICITACOES=s.data||[];
  const a=ALMOX_MATERIAIS.filter(x=>x.ativo),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
  const put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
- put('almoxTotal',a.length);put('almoxDisponiveis',available);put('almoxBaixo',low);put('almoxZerado',zero);put('almoxPendentes',ALMOX_SOLICITACOES.length);
+ put('almoxTotal',a.length);put('almoxDisponiveis',available);put('almoxBaixo',low);put('almoxZerado',zero);put('almoxPendentes',s.count??ALMOX_SOLICITACOES.length);
  const sel=document.getElementById('almoxMovMaterial');if(sel){const old=sel.value;sel.innerHTML='<option value="">Selecione um material</option>'+a.map(x=>'<option value="'+x.id+'">'+htmlAlmox(x.nome)+' — '+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</option>').join('');if(a.some(x=>x.id===old))sel.value=old}
  const datalist=document.getElementById('almoxSugestoesPecas');if(datalist)datalist.innerHTML=a.flatMap(x=>['<option value="'+htmlAlmox(x.nome)+'">',x.codigo?'<option value="'+htmlAlmox(x.codigo)+'">':'']).join('');
  ['almoxAdminCadastro','almoxAdminMov','almoxAdminHistory'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isGestor?'':'none'});
