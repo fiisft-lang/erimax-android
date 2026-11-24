@@ -8052,7 +8052,7 @@ function atualizarNavegacaoMobileEriMax(id){
     <div class="ranking-os-periodo"><label for="rankingMes">MÊS DO RANKING DE TÉCNICOS</label><input type="month" id="rankingMes" onchange="renderRankingOperadores()"></div>
   </section>
   <div id="rankingDataContent">
-    <section class="card ranking-os-card"><div class="ranking-os-card-head"><span>🏆</span><div><h3>O.S. concluídas por técnico</h3><p>Quantidade de ordens concluídas por cada técnico no mês selecionado.</p></div></div><div id="boxRankingOperadores"></div></section>
+    <section class="card ranking-os-card"><div class="ranking-os-card-head"><span>🏆</span><div><h3>O.S. concluídas por técnico</h3><p>Quantidade de ordens concluídas por cada técnico no mês selecionado.</p></div></div><div id="boxRankingOperadores" aria-live="polite" aria-relevant="additions text"></div></section>
   </div>
 </div>
 
@@ -13535,6 +13535,198 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+
+<style id="erimax-auditoria-ranking-e-paginas-fase3-20261124">
+/* Consolidação visual da revisão: Ranking e cabeçalhos simples.
+   Desktop/tablet apenas; o layout mobile aprovado permanece sob as regras existentes. */
+@media screen and (min-width:768px){
+  /* Ranking: um único cartão central, sem alternância entre grid, block e 12 colunas. */
+  #tab-ranking-os .ranking-os-hero{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(250px,320px)!important;
+    align-items:center!important;
+    gap:28px!important;
+    width:100%!important;
+    max-width:1320px!important;
+    margin:0 auto 20px!important;
+    box-sizing:border-box!important;
+  }
+  #tab-ranking-os #rankingDataContent{
+    display:block!important;
+    width:100%!important;
+    max-width:1120px!important;
+    min-width:0!important;
+    margin:0 auto!important;
+  }
+  #tab-ranking-os #rankingDataContent>.ranking-os-card{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    padding:24px!important;
+    border:1px solid var(--erimax-ui-border,#dce5ec)!important;
+    border-radius:17px!important;
+    box-shadow:0 5px 18px rgba(20,48,70,.055)!important;
+  }
+  #tab-ranking-os .ranking-os-card-head{
+    display:flex!important;
+    align-items:center!important;
+    gap:13px!important;
+    min-width:0!important;
+    margin-bottom:16px!important;
+  }
+  #tab-ranking-os .ranking-os-card-head>div{min-width:0!important}
+  #tab-ranking-os .ranking-os-card-head h3{
+    margin:0!important;
+    font-size:1.08rem!important;
+    line-height:1.3!important;
+  }
+  #tab-ranking-os .ranking-os-card-head p{
+    margin:5px 0 0!important;
+    color:#647789!important;
+    font-size:.82rem!important;
+    line-height:1.5!important;
+  }
+  #tab-ranking-os #boxRankingOperadores{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
+    display:grid!important;
+    grid-template-columns:52px minmax(0,1fr) 92px!important;
+    align-items:center!important;
+    gap:14px!important;
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:12px 14px!important;
+    border:1px solid #e5edf2!important;
+    border-radius:12px!important;
+    background:#fbfdff!important;
+  }
+  #tab-ranking-os .ranking-os-position{
+    display:grid!important;
+    place-items:center!important;
+    min-width:0!important;
+    font-size:1.12rem!important;
+    line-height:1.2!important;
+  }
+  #tab-ranking-os .ranking-os-person{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:5px!important;
+    min-width:0!important;
+  }
+  #tab-ranking-os .ranking-os-person>b{
+    overflow-wrap:anywhere!important;
+    font-size:.9rem!important;
+    line-height:1.35!important;
+  }
+  #tab-ranking-os .ranking-os-progress-label{
+    color:#718394!important;
+    font-size:.72rem!important;
+    line-height:1.3!important;
+  }
+  #tab-ranking-os .ranking-os-progress{
+    display:block!important;
+    width:100%!important;
+    height:6px!important;
+    overflow:hidden!important;
+    border-radius:99px!important;
+    background:#e8eef2!important;
+  }
+  #tab-ranking-os .ranking-os-progress>i{
+    display:block!important;
+    height:100%!important;
+    border-radius:inherit!important;
+  }
+  #tab-ranking-os .ranking-os-count{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    min-width:82px!important;
+    min-height:48px!important;
+    padding:5px 9px!important;
+    border:1px solid #dce7ed!important;
+    border-radius:10px!important;
+    background:#f4f8fa!important;
+    white-space:nowrap!important;
+  }
+  #tab-ranking-os .ranking-os-count>b{
+    font-size:1rem!important;
+    line-height:1!important;
+  }
+  #tab-ranking-os .ranking-os-count small{
+    font-size:.68rem!important;
+  }
+  #tab-ranking-os .ranking-os-count:disabled{
+    cursor:default!important;
+    opacity:.62!important;
+  }
+
+  /* Presença e Consultas: mesma hierarquia de abertura dos demais módulos. */
+  #tab-presenca>.card:first-child{
+    width:100%!important;
+    max-width:1320px!important;
+    margin:0 auto 18px!important;
+    padding:24px 28px!important;
+    border:1px solid var(--erimax-ui-border,#dce5ec)!important;
+    border-radius:17px!important;
+    box-shadow:0 5px 18px rgba(20,48,70,.05)!important;
+    background:linear-gradient(120deg,#f4f8fb,#fff)!important;
+  }
+  #tab-presenca>.card:first-child h3{
+    margin:0 0 6px!important;
+    font-size:1.35rem!important;
+    line-height:1.3!important;
+  }
+  #tab-presenca>.card:first-child p{
+    max-width:76ch!important;
+    font-size:.88rem!important;
+    line-height:1.55!important;
+  }
+  #tab-presenca>#listaPresenca{
+    width:100%!important;
+    max-width:1320px!important;
+    margin:0 auto!important;
+  }
+  #tab-ia>.card{
+    border:1px solid var(--erimax-ui-border,#dce5ec)!important;
+    border-radius:17px!important;
+    box-shadow:0 5px 18px rgba(20,48,70,.05)!important;
+  }
+  #tab-ia>.card>h2:first-child{
+    margin:0 0 7px!important;
+    font-size:1.35rem!important;
+    line-height:1.3!important;
+  }
+  #tab-ia>.card>p:first-of-type{
+    max-width:78ch!important;
+    margin:0 0 20px!important;
+    color:#647789!important;
+    font-size:.88rem!important;
+    line-height:1.55!important;
+  }
+}
+@media screen and (min-width:768px) and (max-width:1023px){
+  #tab-ranking-os .ranking-os-hero{
+    grid-template-columns:minmax(0,1fr) minmax(220px,280px)!important;
+    gap:16px!important;
+  }
+  #tab-ranking-os #rankingDataContent>.ranking-os-card{padding:18px!important}
+  #tab-ranking-os #boxRankingOperadores>.ranking-os-row{
+    grid-template-columns:42px minmax(0,1fr) 82px!important;
+    gap:10px!important;
+    padding:10px!important;
+  }
+}
+</style>
 
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
