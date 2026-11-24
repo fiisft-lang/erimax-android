@@ -10062,20 +10062,32 @@ function calcularReincidenciasHistorico(historico){
 
 let REINCIDENCIA_SELECAO=null;
 let REINCIDENCIA_MAQUINA_ABERTA=false;
+let METRICA_MAQUINA_ABERTA=false,METRICA_MAQUINA_SELECIONADA=null,METRICA_MAQUINA_TIPO=null;
+function abrirDetalheMaquinaIndicador(tipo,setor,maquina){METRICA_MAQUINA_ABERTA=true;METRICA_MAQUINA_TIPO=tipo;METRICA_MAQUINA_SELECIONADA={setor,maquina};abrirDetalheMetrica(tipo)}
+function voltarGraficoMaquinaIndicador(){const tipo=METRICA_MAQUINA_TIPO||'parada';METRICA_MAQUINA_ABERTA=false;METRICA_MAQUINA_SELECIONADA=null;abrirDetalheMetrica(tipo)}
+function voltarGraficoDetalheIndicador(){if(METRICA_MAQUINA_ABERTA){voltarGraficoMaquinaIndicador();return}voltarGraficoReincidencias()}
 function abrirDetalheReincidenciaMaquina(setor,maquina){REINCIDENCIA_MAQUINA_ABERTA=true;REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),problema:null};abrirDetalheMetrica('reincidencia')}
 function voltarGraficoReincidencias(){REINCIDENCIA_MAQUINA_ABERTA=false;REINCIDENCIA_SELECAO=null;abrirDetalheMetrica('reincidencia')}
 function abrirDetalheReincidenciaGrupo(setor,maquina,problema){REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),problema:decodeURIComponent(problema)};abrirDetalheMetrica('reincidencia')}
 let chartDetalheMetrica=null;
-function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMetrica');if(m)m.style.display='none';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}}
+function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMetrica');if(m)m.style.display='none';METRICA_MAQUINA_ABERTA=false;METRICA_MAQUINA_SELECIONADA=null;METRICA_MAQUINA_TIPO=null;const canvas=document.getElementById('chartDetalheMetrica');const area=canvas?.closest('.chart-wrapper');if(area)area.style.display='';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}}
 function abrirDetalheMetrica(tipo){
  const modal=document.getElementById('modalDetalheMetrica'),titulo=document.getElementById('tituloDetalheMetrica'),resumo=document.getElementById('resumoDetalheMetrica'),box=document.getElementById('listaDetalheMetrica'),canvas=document.getElementById('chartDetalheMetrica');
  if(!modal||!canvas)return;
  const cabecalho=modal.querySelector('.erimax-os-history-head');
- if(cabecalho&&!cabecalho.querySelector('#btnVoltarGraficoReincidencias')){const voltar=document.createElement('button');voltar.id='btnVoltarGraficoReincidencias';voltar.type='button';voltar.className='erimax-recurrence-back';voltar.textContent='← Voltar ao gráfico';voltar.onclick=voltarGraficoReincidencias;cabecalho.insertBefore(voltar,cabecalho.querySelector('.erimax-os-history-close'));}
- const botaoVoltar=modal.querySelector('#btnVoltarGraficoReincidencias');if(botaoVoltar)botaoVoltar.style.display=tipo==='reincidencia'&&REINCIDENCIA_MAQUINA_ABERTA?'inline-flex':'none';
+ if(cabecalho&&!cabecalho.querySelector('#btnVoltarGraficoReincidencias')){const voltar=document.createElement('button');voltar.id='btnVoltarGraficoReincidencias';voltar.type='button';voltar.className='erimax-recurrence-back';voltar.textContent='← Voltar ao gráfico';voltar.onclick=voltarGraficoDetalheIndicador;cabecalho.insertBefore(voltar,cabecalho.querySelector('.erimax-os-history-close'));}
+ const botaoVoltar=modal.querySelector('#btnVoltarGraficoReincidencias');const detalheMaquinaAtivo=METRICA_MAQUINA_ABERTA&&METRICA_MAQUINA_TIPO===tipo&&METRICA_MAQUINA_SELECIONADA;if(botaoVoltar){botaoVoltar.onclick=voltarGraficoDetalheIndicador;botaoVoltar.style.display=(tipo==='reincidencia'&&REINCIDENCIA_MAQUINA_ABERTA)||detalheMaquinaAtivo?'inline-flex':'none'}
+ const areaGrafico=canvas.closest('.chart-wrapper');if(areaGrafico)areaGrafico.style.display='';
  const todos=ordenarOSRecentes(FILTRADAS_TODAS||FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada'));
  const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
  const agrupar=(arr,key,val)=>{const g={};arr.forEach(x=>{const k=key(x)||'Não informado';g[k]=(g[k]||0)+val(x)});return Object.entries(g).sort((a,b)=>b[1]-a[1])};
+ if(detalheMaquinaAtivo){
+  const sel=METRICA_MAQUINA_SELECIONADA,listaMaquina=ordenarOSRecentes(todos.filter(os=>String(os.maquina||'')===String(sel.maquina)&&String(os.setor||'')===String(sel.setor)));
+  titulo.textContent='Histórico da máquina';
+  const explicacaoMaquina='Máquina: '+sel.maquina+' • Setor: '+sel.setor+' • '+listaMaquina.length+' O.S. encontradas nos filtros atuais. Consulte os problemas, situação, técnico, datas e serviços executados.';
+  box.innerHTML='<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA SELECIONADA</small><h3>'+escaparHtml(sel.maquina)+'</h3><p>'+escaparHtml(sel.setor)+'</p></div><strong>'+listaMaquina.length+' O.S. no histórico</strong></header>'+(listaMaquina.length?'<div class="metrics-recurrence-detail-sequence">'+listaMaquina.map((os,i)=>'<article class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'Data não informada')+'</b><p><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+'</p><p><b>Situação:</b> '+escaparHtml(os.status||'Não informada')+' • <b>Turno:</b> '+escaparHtml(os.turno||'Não informado')+'</p><p><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p><small>Atendimento: '+escaparHtml(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não iniciado')+' • Conclusão: '+escaparHtml(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Pendente')+'</small>'+(os.servico_executado?'<p><b>Serviço executado:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'</div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></article>').join('')+'</div>':'<p class="metrics-recurrence-empty">Nenhuma O.S. encontrada para esta máquina nos filtros atuais.</p>')+'</section>';
+  resumo.textContent=explicacaoMaquina;if(areaGrafico)areaGrafico.style.display='none';document.body.appendChild(modal);modal.scrollTop=0;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}return;
+ }
  let cfg={type:'bar',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}},explicacao='',lista=[];
  if(tipo==='disp'){
   titulo.textContent='Disponibilidade registrada';const v=charts.chEfGeral?.data?.datasets?.[0]?.data||[];
@@ -10085,7 +10097,8 @@ function abrirDetalheMetrica(tipo){
   box.innerHTML=lista.length?lista.map(os=>{const x=(OS_PARADA_ATUAL||[]).find(v=>Number(v.os.id)===Number(os.id));return '<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina)+'</b><p>Parada considerada: '+fmt(x?.parada||0)+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>'}).join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
  }else if(tipo==='parada'){
   titulo.textContent='Tempo total parado';const g=agrupar(OS_PARADA_ATUAL||[],x=>(x.os.maquina||'Máquina não informada')+' — '+(x.os.setor||'Setor não informado'),x=>x.parada).slice(0,12);
-  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
+  const maquinasGrafico=g.map(([label,total])=>{const item=(OS_PARADA_ATUAL||[]).find(x=>x&&x.os&&((x.os.maquina||'Máquina não informada')+' — '+(x.os.setor||'Setor não informado'))===label);return item?{maquina:item.os.maquina||'Máquina não informada',setor:item.os.setor||'Setor não informado'}:null});
+  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('parada',item.setor,item.maquina)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
   lista=ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os));
   explicacao='Considera somente horários produtivos e evita duplicar minutos de O.S. sobrepostas na mesma máquina.';
   box.innerHTML=lista.length?lista.map(itemOS).join(''):'<p>Nenhuma O.S. com parada neste filtro.</p>';
@@ -10098,7 +10111,8 @@ function abrirDetalheMetrica(tipo){
   explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
  }else if(tipo==='mtbf'){
   titulo.textContent='MTBF — intervalo médio entre falhas';const mtbfDados=OS_MTBF_ATUAL||[];const g=agrupar(mtbfDados,c=>(c.maquina||'Máquina não informada')+' — '+(c.setor||'Setor não informado'),()=>1).slice(0,12);
-  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  const maquinasGrafico=g.map(([label])=>{const os=mtbfDados.find(c=>((c.maquina||'Máquina não informada')+' — '+(c.setor||'Setor não informado'))===label);return os?{maquina:os.maquina||'Máquina não informada',setor:os.setor||'Setor não informado'}:null});
+  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('mtbf',item.setor,item.maquina)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=mtbfDados;explicacao='O gráfico e a lista usam exatamente as O.S. consideradas no MTBF geral: máquinas cadastradas dos setores produtivos com horário válido, respeitando período e turno selecionados.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma falha registrada na base produtiva com horário válido.</p>';
  }else if(tipo==='total'){
   titulo.textContent='Total de O.S.';const g={};todos.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g);
@@ -10136,6 +10150,9 @@ function abrirDetalheMetrica(tipo){
       problemas.map((g,i)=>'<article class="metrics-recurrence-detail-problem"><button type="button" class="metrics-recurrence-detail-problem-head" onclick="abrirDetalheReincidenciaGrupo(\''+encodeURIComponent(g.setor).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.maquina).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.problema).replace(/'/g,'%27')+'\')"><b>'+String(i+1).padStart(2,'0')+' · '+escaparHtml(g.problema)+'</b><span>'+(g.os.length+1)+' O.S. no problema · abrir O.S.</span></button><div class="metrics-recurrence-detail-sequence">'+cronologica([g.primeiraOS,...g.os]).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).map((os,i)=>'<div class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(diaLocal(os.created_at)||'Data não informada')+'</b><p>'+escaparHtml(os.descricao||'Descrição não informada')+'</p><small>'+escaparHtml(os.status||'Status não informado')+'</small></div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>').join('')+'</div></article>').join('')+'</section>';
   }).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
+ if(tipo==='total'||tipo==='conclusao')cfg.options.onClick=(_evt,items)=>{if(!items?.length)return;const label=cfg.data.labels?.[items[0].index]||'';const fonte=tipo==='total'?todos:dados;const relacionados=fonte.filter(os=>String(os.status||'Sem status')===String(label));mostrarOSDetalhe((tipo==='total'?'O.S. com situação: ':'O.S. da taxa de conclusão: ')+label,ordenarOSRecentes(relacionados))};
+ if(tipo==='resposta'||tipo==='mttr')cfg.options.onClick=(_evt,items)=>{if(!items?.length)return;const nome=cfg.data.labels?.[items[0].index];const relacionados=lista.filter(os=>(os.tecnico||'Sem técnico')===nome);mostrarOSDetalhe((tipo==='resposta'?'Tempo de resposta — ':'Tempo de reparo — ')+nome,ordenarOSRecentes(relacionados))};
+ if(tipo==='disp')cfg.options.onClick=(_evt,items)=>{if(!items?.length)return;if(items[0].index===1)mostrarOSDetalhe('O.S. com parada registrada',ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os)));else mostrarOSDetalhe('Máquinas sem parada registrada',ordenarOSRecentes((baseEscopo||[]).filter(os=>!((OS_PARADA_ATUAL||[]).some(x=>x.os&&String(x.os.id)===String(os.id))))))};
  resumo.textContent=explicacao;document.body.appendChild(modal);modal.scrollTop=0;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}chartDetalheMetrica=new Chart(canvas,cfg);
 }
 
@@ -10603,7 +10620,7 @@ function atualizarMetricasReais(){
       wrapper.insertBefore(aviso,wrapper.firstChild);
     }
     wrapper.style.height=Math.max(220,arr.length*30+70+(avisos.length?100:0))+'px';
-    DETALHES_GRAFICOS[id]=(ds,i)=>{const item=arr[i],nome=item?.nome||item?.n,setorOS=item?.setor;const lista=ds===1?(OS_PARADA_ATUAL||[]).filter(x=>id==='chEfMaq'?x.os.maquina===nome&&x.os.setor===setorOS:x.os.setor===nome).map(x=>x.os):[];return{titulo:ds===1?'O.S. com parada registrada — '+nome+' — '+(setorOS||''):'Tempo sem parada registrada — '+nome,lista}};
+    DETALHES_GRAFICOS[id]=(ds,i)=>{const item=arr[i],nome=item?.nome||item?.n,setorOS=item?.setor;const paradaLista=(OS_PARADA_ATUAL||[]).filter(x=>x.os&&(id==='chEfMaq'?x.os.maquina===nome&&x.os.setor===setorOS:x.os.setor===nome)).map(x=>x.os);const lista=ds===1?paradaLista:(baseEscopo||[]).filter(os=>id==='chEfMaq'?os.maquina===nome&&os.setor===setorOS:os.setor===nome);return{titulo:(ds===1?'O.S. com parada registrada — ':'O.S. relacionadas — ')+nome+' — '+(setorOS||''),lista}};
     mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Sem parada registrada (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada registrada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
   };
   const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
@@ -17713,5 +17730,87 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   flex-basis:62px!important;width:62px!important;min-width:62px!important;max-width:62px!important;
   height:30px!important;min-height:30px!important;font-size:.68rem!important
  }
+}
+</style>
+
+
+<style id="erimax-metricas-chart-hierarchy-heads-20261124">
+/* Cabeçalhos dos gráficos: identidade azul-petróleo e verde, sem alterar os datasets. */
+#tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4,
+#tab-metricas #comparacaoGraficos > div > h4{
+  display:flex!important;
+  align-items:center!important;
+  min-height:42px!important;
+  box-sizing:border-box!important;
+  margin:0 0 12px!important;
+  padding:11px 14px!important;
+  border:0!important;
+  border-left:4px solid #35b77b!important;
+  border-radius:9px!important;
+  background:linear-gradient(105deg,#07566b 0%,#087b78 58%,#15966f 100%)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font-size:.86rem!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+  letter-spacing:.015em!important;
+  box-shadow:0 4px 11px rgba(7,86,107,.13)!important;
+}
+#tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4 small{
+  color:rgba(255,255,255,.88)!important;
+  -webkit-text-fill-color:rgba(255,255,255,.88)!important;
+}
+#tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4 + .metrics-chart-note{
+  margin-top:0!important;
+}
+@media(max-width:600px){
+  #tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4,
+  #tab-metricas #comparacaoGraficos > div > h4{
+    min-height:39px!important;
+    padding:10px 11px!important;
+    font-size:.79rem!important;
+    border-radius:8px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4,
+  #tab-metricas #comparacaoGraficos > div > h4{transition:none!important}
+}
+</style>
+
+
+<style id="erimax-metricas-toggle-contrast-fix-20261124">
+/* Corrige contraste do botão Recolher/Expandir nos cards de Métricas. */
+#tab-metricas .erimax-card-toggle{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-height:32px!important;
+  padding:7px 11px!important;
+  border:1px solid #087b78!important;
+  border-radius:8px!important;
+  background:linear-gradient(105deg,#07566b,#087b78)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font-size:.72rem!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  opacity:1!important;
+  text-shadow:none!important;
+  box-shadow:0 2px 7px rgba(7,86,107,.16)!important;
+}
+#tab-metricas .erimax-card-toggle .erimax-card-toggle-label,
+#tab-metricas .erimax-card-toggle .erimax-card-toggle-icon{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+}
+#tab-metricas .erimax-card-toggle:hover,
+#tab-metricas .erimax-card-toggle:focus-visible{
+  background:#06495b!important;
+  border-color:#35b77b!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
 }
 </style>
