@@ -7910,7 +7910,8 @@ const _supabase=new Proxy(_supabaseOriginal,{
   if(prop==='from')return (...args)=>protegerConsultaPreview(valor.apply(target,args));
   if(prop==='storage'||prop==='functions')return protegerConsultaPreview(valor);
   return typeof valor==='function'?valor.bind(target):valor;
- });
+ }
+});
 if(ERIMAX_PREVIEW_READ_ONLY){
  const aviso=document.createElement('div');
  aviso.id='erimax-preview-readonly';
