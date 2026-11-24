@@ -13325,23 +13325,27 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 <style id="erimax-almox-delete-match-edit-final-20261124">
-/* Excluir replica a geometria do Editar; somente a cor comunica a ação destrutiva. */
+/* Editar e Excluir compartilham a mesma caixa; somente a cor diferencia a ação. */
+#tab-almoxarifado .almox-material-actions .almox-edit-btn,
 #tab-almoxarifado .almox-material-actions .almox-delete-btn{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
- box-sizing:border-box!important;width:auto!important;min-width:60px!important;max-width:max-content!important;
- min-height:29px!important;height:29px!important;margin:7px 0 0 auto!important;padding:0 7px!important;
+ box-sizing:border-box!important;width:60px!important;min-width:60px!important;max-width:60px!important;
+ height:30px!important;min-height:30px!important;margin:7px 0 0 auto!important;padding:0 7px!important;
  border:1px solid #d8e4ec!important;border-radius:7px!important;
- background:#fff5f4!important;color:#a43b35!important;
  font-size:.66rem!important;line-height:1!important;font-weight:750!important;letter-spacing:0!important;
  white-space:nowrap!important;box-shadow:none!important;cursor:pointer!important
 }
+#tab-almoxarifado .almox-material-actions .almox-edit-btn{
+ background:#f3f8fb!important;color:#285f7b!important
+}
+#tab-almoxarifado .almox-material-actions .almox-edit-btn:hover{
+ background:#eaf2f7!important;border-color:#c5d6e1!important;color:#244e68!important
+}
+#tab-almoxarifado .almox-material-actions .almox-delete-btn{
+ background:#fff5f4!important;color:#a43b35!important
+}
 #tab-almoxarifado .almox-material-actions .almox-delete-btn:hover{
  background:#fcebea!important;border-color:#e8c7c4!important;color:#92332e!important
-}
-@media(max-width:600px){
- #tab-almoxarifado .almox-material-actions .almox-delete-btn{
-  min-height:28px!important;height:28px!important;padding:0 6px!important;font-size:.63rem!important
- }
 }
 </style>
 </body></html>`;
