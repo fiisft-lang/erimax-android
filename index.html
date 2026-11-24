@@ -8123,7 +8123,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <p id="lgErro" style="color:var(--danger);font-size:.8rem;margin-bottom:8px"></p>
 <button class="btn-submit" onclick="entrar()">Entrar</button></div></div>
 
-<div id="modal"><div class="box"><h2>Concluir OS</h2>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalConclusaoTitulo"><div class="box"><h2 id="modalConclusaoTitulo">Concluir O.S.</h2>
 <div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
 <div class="form-group"><label for="mdPeca">Peça utilizada (opcional)</label><input id="mdPeca" list="almoxSugestoesPecas" placeholder="Ex.: Correia A35 ou Rolamento 6204"><datalist id="almoxSugestoesPecas"></datalist><small style="display:block;color:#64748b;margin-top:4px">Use o nome ou código cadastrado no Almoxarifado. Ao concluir a O.S., a baixa será automática se houver saldo; se não estiver cadastrado ou faltar estoque, o gestor receberá uma pendência.</small></div>
 <div class="form-group"><label for="mdPecaQtd">Quantidade utilizada</label><input id="mdPecaQtd" type="number" min="0.001" step="0.001" value="1"></div>
@@ -8134,9 +8134,9 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group"><label for="mdHora">Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
-<div id="modalReabrirOS" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1250;align-items:center;justify-content:center;padding:16px">
+<div id="modalReabrirOS" role="dialog" aria-modal="true" aria-labelledby="modalReabrirOSTitulo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1250;align-items:center;justify-content:center;padding:16px">
   <div class="box" style="max-width:420px">
-    <h2>↩️ Reabrir ordem de serviço</h2>
+    <h2 id="modalReabrirOSTitulo">↩️ Reabrir ordem de serviço</h2>
     <p id="reabrirOSInfo" style="font-size:.85rem;color:#475569;margin-bottom:12px"></p>
     <div class="form-group">
       <label for="motivoReabrirOS">Por que está reabrindo? *</label>
@@ -8153,7 +8153,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div id="modalEfOS" role="dialog" aria-modal="true" aria-labelledby="modalEfOSTitulo" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1200;align-items:center;justify-content:center;padding:14px"><div class="box efos-dialog"><header class="erimax-os-history-head"><div><small>CONSULTA DE INDICADORES</small><h2 id="modalEfOSTitulo">Ordens de serviço relacionadas</h2></div><button type="button" class="erimax-os-history-close" aria-label="Fechar consulta" onclick="fecharModalEfOS()">×</button></header><p id="resumoEfOS" class="efos-summary"></p><div id="listaEfOS" class="efos-list"></div></div></div>
 
 <div id="modalDetalheMetrica" role="dialog" aria-modal="true" aria-labelledby="tituloDetalheMetrica" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1300;align-items:center;justify-content:center;padding:12px"><div class="box erimax-metric-history-dialog" style="width:100%;max-width:760px;max-height:92vh;overflow:hidden;padding:0"><header class="erimax-os-history-head"><div><small>ANÁLISE DE MANUTENÇÃO</small><h2 id="tituloDetalheMetrica">Detalhes da métrica</h2></div><button type="button" class="erimax-os-history-close" aria-label="Fechar detalhes da métrica" onclick="fecharDetalheMetrica()">×</button></header><div class="erimax-os-history-content erimax-metric-history-content"><p id="resumoDetalheMetrica" style="font-size:.84rem;color:#475569;line-height:1.5;margin:0 0 10px"></p><div class="chart-wrapper" style="height:280px;margin:8px 0 14px"><canvas id="chartDetalheMetrica"></canvas></div><h3 style="font-size:.92rem;color:var(--primary);margin:8px 0">Registros relacionados</h3><div id="listaDetalheMetrica"></div></div></div></div>
-<div id="modalHor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2>Editar horários</h2>
+<div id="modalHor" role="dialog" aria-modal="true" aria-labelledby="modalHorTitulo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px"><div class="box"><h2 id="modalHorTitulo">Editar horários</h2>
 <p id="hrInfo" style="font-size:.8rem;color:#64748b;margin-bottom:10px"></p>
 <div class="form-group"><label for="hrAbertura">Data e horário real em que a máquina parou / O.S. foi aberta</label><input id="hrAbertura" type="datetime-local" required></div>
 <div class="form-group"><label for="hrIni">Início do atendimento técnico (opcional enquanto não atendida)</label><input id="hrIni" type="datetime-local"></div>
