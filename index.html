@@ -7339,6 +7339,32 @@ body .tbl-wrap td{color:#344d5e}
 #tab-cadastro .excecoes-hierarquia-empty small{max-width:300px;color:#8292a0;font-size:.7rem;line-height:1.45}
 @media(max-width:520px){#tab-cadastro .excecao-data-card{align-items:flex-start;flex-direction:column}#tab-cadastro .excecao-data-actions{width:100%;justify-content:flex-end}#tab-cadastro .excecoes-hierarquia-heading{align-items:flex-start;flex-wrap:wrap}#tab-cadastro .excecoes-hierarquia-close{margin-left:auto}}
 </style>
+<style id="erimax-excecoes-botoes-hierarquia-20261124">
+#tab-cadastro .excecao-data-card{align-items:center;gap:12px}
+#tab-cadastro .excecao-data-actions{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;flex:0 0 auto!important;white-space:nowrap!important}
+#tab-cadastro .excecao-data-actions .btn-action{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;width:auto!important;min-width:58px!important;max-width:max-content!important;
+ min-height:29px!important;height:29px!important;padding:0 8px!important;
+ flex:0 0 auto!important;border:1px solid #d8e4ec!important;border-radius:7px!important;
+ background:#f3f8fb!important;color:#285f7b!important;
+ font-size:.66rem!important;line-height:1!important;font-weight:750!important;
+ white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;
+ box-shadow:none!important
+}
+#tab-cadastro .excecao-data-actions .excecao-btn-delete{
+ border-color:#f0d9d7!important;background:#fff6f5!important;color:#a94340!important
+}
+@media(max-width:520px){
+ #tab-cadastro .excecao-data-card{align-items:center!important;flex-direction:row!important}
+ #tab-cadastro .excecao-data-main{min-width:0;flex:1 1 auto}
+ #tab-cadastro .excecao-data-actions{width:auto!important;flex:0 0 auto!important;gap:4px!important}
+ #tab-cadastro .excecao-data-actions .btn-action{min-width:54px!important;min-height:28px!important;height:28px!important;padding:0 6px!important;font-size:.63rem!important}
+}
+@media(max-width:370px){
+ #tab-cadastro .excecao-data-actions .btn-action{min-width:0!important;padding:0 5px!important;font-size:.61rem!important}
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -13373,7 +13399,7 @@ function renderPainelExcecoesGeral(){
       const turnos=(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(' · ');
       const semProducao=!(r.horarios||[]).length;
       const descricao=(r.observacao||turnos||'Dia sem produção')+(turnos&&r.observacao?' · '+turnos:'');
-      return '<article class="excecao-data-card"><div class="excecao-data-main"><span class="excecao-data-icon" aria-hidden="true">'+(semProducao?'⛔':'🕒')+'</span><div class="excecao-data-copy"><strong>'+data+'</strong><small>'+escaparHtml(descricao)+'</small><span class="excecao-data-status '+(semProducao?'is-closed':'is-special')+'">'+(semProducao?'Sem produção':'Horário especial')+'</span></div></div><div class="excecao-data-actions"><button type="button" class="btn-action btn-transferir" onclick="editarExcecaoHorario('+setorIndex+',\''+dataRaw+'\')">Editar</button><button type="button" class="btn-action btn-excluir" onclick="excluirExcecaoHorario('+setorIndex+',\''+dataRaw+'\')" aria-label="Apagar exceção de '+escaparHtml(setor)+' em '+data+'" title="Apagar exceção">Apagar</button></div></article>';
+      return '<article class="excecao-data-card"><div class="excecao-data-main"><span class="excecao-data-icon" aria-hidden="true">'+(semProducao?'⛔':'🕒')+'</span><div class="excecao-data-copy"><strong>'+data+'</strong><small>'+escaparHtml(descricao)+'</small><span class="excecao-data-status '+(semProducao?'is-closed':'is-special')+'">'+(semProducao?'Sem produção':'Horário especial')+'</span></div></div><div class="excecao-data-actions"><button type="button" class="btn-action excecao-btn-edit" onclick="editarExcecaoHorario('+setorIndex+',\''+dataRaw+'\')">Editar</button><button type="button" class="btn-action excecao-btn-delete" onclick="excluirExcecaoHorario('+setorIndex+',\''+dataRaw+'\')" aria-label="Apagar exceção de '+escaparHtml(setor)+' em '+data+'" title="Apagar exceção">Apagar</button></div></article>';
     }).join('');
     return '<section class="excecao-setor-group"><header class="excecao-setor-group-head"><span class="excecao-setor-group-icon" aria-hidden="true">▦</span><div class="excecao-setor-group-copy"><strong>'+escaparHtml(setor)+'</strong><small>'+itens.length+' '+(itens.length===1?'data especial':'datas especiais')+'</small></div><span class="excecao-setor-group-count">'+itens.length+'</span></header><div class="excecao-setor-group-records">'+cards+'</div></section>';
   }).join('');
