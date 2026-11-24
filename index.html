@@ -10113,8 +10113,6 @@ function abrirDetalheMetrica(tipo){
   });
   const g=[...gruposParada.values()].sort((a,b)=>b.total-a.total).slice(0,12),maquinasGrafico=g;
   cfg={type:'bar',data:{labels:g.map(x=>x.label),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x.total)),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('parada',item.setor,item.maquina,item.maquina_id)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
-  const maquinasGrafico=g.map(([label,total])=>{const item=(OS_PARADA_ATUAL||[]).find(x=>x&&x.os&&((x.os.maquina||'Máquina não informada')+' — '+(x.os.setor||'Setor não informado'))===label);return item?{maquina:item.os.maquina||'Máquina não informada',setor:item.os.setor||'Setor não informado'}:null});
-  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('parada',item.setor,item.maquina)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
   lista=ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os));
   explicacao='Considera somente horários produtivos e evita duplicar minutos de O.S. sobrepostas na mesma máquina.';
   box.innerHTML=lista.length?lista.map(itemOS).join(''):'<p>Nenhuma O.S. com parada neste filtro.</p>';
