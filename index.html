@@ -12977,17 +12977,9 @@ body.erimax-sidebar-collapsed{padding-left:88px!important}body.erimax-sidebar-co
 
 
 
-\n<style id="erimax-almox-edicao-materiais-2026">\n.almox-edit-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:8px;padding:6px 10px;border:1px solid #cbd9e4;border-radius:8px;background:#fff;color:#24536e;font-size:.72rem;font-weight:800;cursor:pointer}.almox-edit-btn:hover{background:#edf5fa;border-color:#8eafc4}.almox-edit-cancel{padding:9px 13px;border:1px solid #cbd9e4;border-radius:9px;background:#fff;color:#526779;font-weight:750;cursor:pointer}.almox-edit-cancel[hidden]{display:none!important}\n@media(max-width:600px){.almox-edit-btn{padding:7px 9px}}\n</style>\n<style id="erimax-almox-edit-button-compact-2026">
-.almox-material-qty .almox-edit-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:30px!important;height:28px!important;min-width:30px!important;min-height:28px!important;margin:7px 0 0 auto!important;padding:0!important;border:1px solid #d7e1e9!important;border-radius:7px!important;background:transparent!important;color:#557187!important;font-size:14px!important;line-height:1!important;font-weight:600!important;box-shadow:none!important;cursor:pointer!important;transition:background .16s ease,border-color .16s ease,color .16s ease!important}
-.almox-material-qty .almox-edit-btn:hover{background:#edf4f8!important;border-color:#a9bfce!important;color:#244e68!important}
-.almox-material-qty .almox-edit-btn span{display:block;font-size:15px;line-height:1}
-@media(max-width:600px){.almox-material-qty .almox-edit-btn{width:30px!important;height:28px!important;min-width:30px!important;padding:0!important}}
-</style>
+\n<style id="erimax-almox-edicao-materiais-2026">\n.almox-edit-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:8px;padding:6px 10px;border:1px solid #cbd9e4;border-radius:8px;background:#fff;color:#24536e;font-size:.72rem;font-weight:800;cursor:pointer}.almox-edit-btn:hover{background:#edf5fa;border-color:#8eafc4}.almox-edit-cancel{padding:9px 13px;border:1px solid #cbd9e4;border-radius:9px;background:#fff;color:#526779;font-weight:750;cursor:pointer}.almox-edit-cancel[hidden]{display:none!important}\n@media(max-width:600px){.almox-edit-btn{padding:7px 9px}}\n</style>\n
 
-<style id="erimax-almox-edit-label-2026">
-.almox-material-qty .almox-edit-btn{width:auto!important;min-width:0!important;height:25px!important;min-height:25px!important;padding:0 9px!important;margin:7px 0 0 auto!important;border:1px solid #dce5eb!important;border-radius:7px!important;background:#f8fafb!important;color:#62798a!important;font-size:11px!important;font-weight:650!important;letter-spacing:.01em!important;box-shadow:none!important}
-.almox-material-qty .almox-edit-btn:hover{background:#edf4f8!important;border-color:#c5d4de!important;color:#34566d!important}
-</style>
+
 
 <style id="erimax-modais-historico-metricas-layout-unico-2026">
 /* Layout único e limpo para os dois modais de consulta. Sem alturas fixas herdadas. */
@@ -17700,6 +17692,55 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
     .almox-hero,.cadastro-hub-hero,.metrics-hero,.ranking-os-hero,
     #painelMaquinasSupervisor .sv-hero,.sv-hero-top) p{
     max-width:78ch;
+  }
+}
+</style>
+
+
+<style id="erimax-padrao-acoes-almox-2026">
+/* Almoxarifado: ação Editar segue a mesma escala compacta dos botões de Cadastro. */
+#tab-almoxarifado .almox-material-qty{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  gap:3px!important;
+  min-width:82px!important;
+  text-align:right!important;
+}
+#tab-almoxarifado .almox-material-qty .almox-edit-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  flex:0 0 auto!important;
+  width:max-content!important;
+  min-width:max-content!important;
+  max-width:100%!important;
+  height:30px!important;
+  min-height:30px!important;
+  margin:5px 0 0!important;
+  padding:0 9px!important;
+  border:1px solid #dce6eb!important;
+  border-radius:8px!important;
+  background:#f8fafb!important;
+  color:#496579!important;
+  font-size:12px!important;
+  font-weight:750!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  box-shadow:none!important;
+}
+#tab-almoxarifado .almox-material-qty .almox-edit-btn:hover{
+  border-color:#b8cbd6!important;
+  background:#edf4f7!important;
+  color:#244e68!important;
+}
+@media(max-width:600px){
+  #tab-almoxarifado .almox-material-qty{min-width:76px!important}
+  #tab-almoxarifado .almox-material-qty .almox-edit-btn{
+    height:29px!important;min-height:29px!important;padding:0 8px!important;font-size:11.5px!important;
   }
 }
 </style>
