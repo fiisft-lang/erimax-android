@@ -275,9 +275,11 @@ begin
     from public.maquinas m
     where lower(btrim(m.nome))=lower(btrim(p_dados->>'maquina'))
       and lower(btrim(m.setor))=lower(btrim(p_dados->>'setor'));
-    if v_quantidade<>1 then
-      raise exception 'Não foi possível identificar uma única máquina. Atualize o aplicativo e selecione pelo código.';
+    if v_quantidade>1 then
+      raise exception 'Há mais de uma máquina com esse nome e setor. Atualize o aplicativo e selecione pelo código.';
     end if;
+    -- Se não houver cadastro correspondente (ex.: equipamento informado em "Outros"),
+    -- mantém o texto legado sem ID, como a função original permitia.
   elsif not exists (
     select 1 from public.maquinas m
     where m.id=v_maquina_id
