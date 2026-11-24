@@ -7301,6 +7301,183 @@ body .tbl-wrap td{color:#344d5e}
 @media(min-width:601px){.os-actions-menu-panel{bottom:auto;top:calc(100% + 8px)}}
 @media(prefers-reduced-motion:reduce){.os-actions-menu,.os-actions-menu-panel{transition:none!important}}
 </style>
+<style id="cadastro-hierarquia-sticky-segura-20261123">
+/* Sticky local por registro: remover recortes e scrollports ancestrais. */
+#tab-cadastro .cadastro-area-panel,#tab-cadastro .cadastro-setores-shell,
+#tab-cadastro .cadastro-area-card,#tab-cadastro .cadastro-maquinas-card,
+#tab-cadastro #pvListaCard,#tab-cadastro .cadastro-usuarios-list,
+#tab-cadastro #listaCfg,#tab-cadastro .cadastro-setor-item,
+#tab-cadastro #listaMaquinas,#tab-cadastro .cadastro-machine-group,
+#tab-cadastro .cadastro-machine-group-content,#tab-cadastro #listaPrev,
+#tab-cadastro #listaUsuarios,#tab-cadastro .cadastro-record-item{overflow:visible!important}
+#tab-cadastro .cadastro-area-heading,#tab-cadastro .cadastro-setores-heading,
+#tab-cadastro .cadastro-machine-sector-head{position:relative!important;top:auto!important;z-index:auto!important}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,
+#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,
+#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{
+ position:sticky!important;top:calc(112px + env(safe-area-inset-top,0px))!important;
+ z-index:80!important;isolation:isolate;box-sizing:border-box!important;
+ min-height:58px!important;margin:-1px -1px 12px!important;padding:10px 13px!important;
+ border:1px solid #cbdde2!important;border-radius:13px!important;
+ background:linear-gradient(112deg,#123b50 0%,#185b66 62%,#197b75 100%)!important;
+ box-shadow:0 8px 20px rgba(15,54,69,.22),inset 0 1px 0 rgba(255,255,255,.12)!important;
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ scroll-margin-top:calc(120px + env(safe-area-inset-top,0px))
+}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-name strong,
+#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head strong,
+#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head strong{color:#fff!important;font-size:.92rem!important;font-weight:850!important;letter-spacing:-.012em;line-height:1.25}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-name small,
+#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head small,
+#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head small{color:#c6e0e2!important;font-size:.69rem!important;line-height:1.35}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-item-icon{width:39px;height:39px;flex-basis:39px;border:1px solid rgba(255,255,255,.2);border-radius:11px;background:rgba(255,255,255,.13);color:#fff}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .btn-action,
+#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head .btn-action,
+#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head .btn-action{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;
+ min-width:62px!important;width:auto!important;height:34px!important;min-height:34px!important;padding:0 11px!important;
+ border:1px solid rgba(255,255,255,.3)!important;border-radius:9px!important;background:rgba(255,255,255,.13)!important;
+ color:#fff!important;font-size:.72rem!important;font-weight:800!important;line-height:1!important;white-space:nowrap!important;
+ box-shadow:0 2px 5px rgba(0,0,0,.08)!important
+}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-delete{border-color:rgba(255,220,220,.35)!important;background:rgba(190,70,70,.2)!important;color:#ffe2df!important}
+#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{min-width:0;position:relative;margin:10px 0;padding:11px;border:1px solid #dfe8ed;border-radius:14px;background:linear-gradient(155deg,#fff 0%,#fbfdfe 100%);box-shadow:0 3px 10px rgba(24,55,75,.045)}
+#tab-cadastro .cadastro-setor-item.is-open{border-color:#cbdde2!important;box-shadow:0 7px 19px rgba(20,56,73,.075)!important}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head{margin:-14px -14px 14px!important;padding:11px 14px!important;border-radius:13px 13px 10px 10px!important}
+#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{margin:-11px -11px 12px!important}
+#tab-cadastro .cadastro-machine-head,#tab-cadastro .cadastro-record-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+#tab-cadastro .cadastro-machine-head>div,#tab-cadastro .cadastro-record-head>div{display:grid;gap:4px;min-width:0}
+#tab-cadastro .cadastro-machine-details,#tab-cadastro .cadastro-record-details{display:grid;gap:10px;padding:13px;margin-top:8px;border:1px solid #e4edf1;border-radius:0 0 11px 11px;background:#f7fafb}
+#tab-cadastro .cadastro-machine-details[hidden],#tab-cadastro .cadastro-record-details[hidden]{display:none!important}
+#tab-cadastro .cadastro-record-actions{display:flex;gap:8px;flex-wrap:wrap}
+#tab-cadastro .cadastro-machine-create{margin-top:13px;padding:13px;border:1px solid #dcebe9;border-radius:12px;background:linear-gradient(135deg,#f1f8f7,#f8fbfc)}
+#tab-cadastro .cadastro-machine-group-content{padding-top:8px}
+#tab-cadastro .cadastro-item-collapsed,#tab-cadastro .cadastro-empty-item{margin:9px 0;color:#718294;font-size:.76rem;text-align:center}
+#tab-cadastro .cadastro-machine-sector-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#tab-cadastro .cadastro-machine-sector-head>span{display:grid;gap:4px;min-width:0}
+#tab-cadastro .cadastro-machine-sector-head small{color:#647b8d;font-size:.72rem}
+@media(min-width:1024px){#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{top:calc(96px + env(safe-area-inset-top,0px))!important}}
+@media(max-width:600px){
+ #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{top:calc(104px + env(safe-area-inset-top,0px))!important;min-height:54px!important;padding:9px 10px!important}
+ #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head{margin:-11px -11px 12px!important;padding:10px 11px!important}
+ #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-item-icon{width:35px;height:35px;flex-basis:35px}
+ #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .btn-action,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head .btn-action,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head .btn-action{min-width:58px!important;height:32px!important;min-height:32px!important;padding:0 9px!important;font-size:.69rem!important}
+ #tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{padding:9px;border-radius:12px}
+}
+
+/* Padronização visual de todos os registros da área Cadastro: fechado e aberto. */
+#tab-cadastro .cadastro-setor-item,
+#tab-cadastro .cadastro-machine-group,
+#tab-cadastro .cadastro-machine-item,
+#tab-cadastro .cadastro-record-item{
+ border:1px solid #dce7ec!important;border-radius:15px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fbfc 100%)!important;
+ box-shadow:0 4px 13px rgba(22,55,74,.055)!important;
+ transition:border-color .18s ease,box-shadow .18s ease,background .18s ease
+}
+#tab-cadastro .cadastro-setor-item{padding:14px!important}
+#tab-cadastro .cadastro-setor-item:not(.is-open)>.cadastro-setor-item-head,
+#tab-cadastro .cadastro-machine-sector-head,
+#tab-cadastro .cadastro-machine-item:not(.is-open)>.cadastro-machine-head,
+#tab-cadastro .cadastro-record-item:not(.is-open)>.cadastro-record-head{
+ min-height:54px;padding:8px 10px;border-radius:11px;background:#f2f7f9
+}
+#tab-cadastro .cadastro-setor-item:not(.is-open)>.cadastro-setor-item-head .cadastro-setor-item-icon{
+ width:39px;height:39px;flex-basis:39px;border-radius:11px;background:#e5f0f3;color:#286779
+}
+#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-name strong,
+#tab-cadastro .cadastro-machine-sector-head b,
+#tab-cadastro .cadastro-machine-item:not(.is-open) .cadastro-machine-head strong,
+#tab-cadastro .cadastro-record-item:not(.is-open) .cadastro-record-head strong{
+ color:#24485b;font-size:.9rem;font-weight:850;letter-spacing:-.01em
+}
+#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-name small,
+#tab-cadastro .cadastro-machine-sector-head small,
+#tab-cadastro .cadastro-machine-item:not(.is-open) .cadastro-machine-head small,
+#tab-cadastro .cadastro-record-item:not(.is-open) .cadastro-record-head small{
+ color:#728796;font-size:.7rem;line-height:1.35
+}
+#tab-cadastro .cadastro-setor-actions{align-items:center;gap:7px}
+#tab-cadastro .cadastro-setor-item .cadastro-setor-actions .btn-action,
+#tab-cadastro .cadastro-machine-sector-head>button,
+#tab-cadastro .cadastro-machine-head>button,
+#tab-cadastro .cadastro-record-head>button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-width:68px!important;width:auto!important;height:35px!important;min-height:35px!important;
+ padding:0 12px!important;border-radius:10px!important;white-space:nowrap!important;
+ font-size:.73rem!important;font-weight:800!important;line-height:1!important;flex:0 0 auto!important
+}
+#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-edit,
+#tab-cadastro .cadastro-machine-sector-head>button,
+#tab-cadastro .cadastro-machine-head>button,
+#tab-cadastro .cadastro-record-head>button{
+ color:#176675!important;background:#e5f2f2!important;border:1px solid #c8e1e0!important;
+ box-shadow:0 2px 5px rgba(22,91,99,.07)!important
+}
+#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-delete{
+ color:#a64d4d!important;background:#fff0ef!important;border:1px solid #f1d8d5!important
+}
+#tab-cadastro .cadastro-setor-edit-label{
+ display:flex;align-items:center;gap:8px;margin:3px 0 12px;padding:10px 12px;
+ border-left:3px solid #23858a;border-radius:0 9px 9px 0;
+ background:#eff7f7;color:#245a68;font-size:.78rem;font-weight:850
+}
+#tab-cadastro .cadastro-setor-protected{
+ margin-top:11px!important;padding:11px 12px!important;border:1px solid #e4edf0!important;
+ border-radius:10px!important;background:#f7fafb!important
+}
+#tab-cadastro .cadastro-machine-group{padding:12px!important}
+#tab-cadastro .cadastro-machine-sector-head{min-height:58px;padding:8px 10px;border:1px solid #e4edf0;border-radius:11px;background:#f3f8fa}
+#tab-cadastro .cadastro-machine-group-content{display:grid;gap:9px;padding:11px 5px 12px;max-height:min(68dvh,720px);overflow-y:auto!important;overflow-x:visible!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{padding:10px!important}
+#tab-cadastro .cadastro-record-item:not(.is-open)>.cadastro-record-head,
+#tab-cadastro .cadastro-machine-item:not(.is-open)>.cadastro-machine-head{margin:0!important}
+#tab-cadastro .cadastro-setor-item.is-open,#tab-cadastro .cadastro-machine-item.is-open,#tab-cadastro .cadastro-record-item.is-open{
+ border-color:#bcd5dc!important;box-shadow:0 7px 18px rgba(21,64,79,.09)!important
+}
+#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head{background:transparent}
+#tab-cadastro .cadastro-setor-item.is-open .cadastro-setor-edit{background:rgba(255,255,255,.14)!important;color:#fff!important;border-color:rgba(255,255,255,.35)!important}
+#tab-cadastro .cadastro-setor-item.is-open .cadastro-setor-delete{background:rgba(190,70,70,.2)!important;color:#ffe2df!important;border-color:rgba(255,220,220,.35)!important}
+#tab-cadastro .cadastro-machine-sector-head>span{min-width:0}
+#tab-cadastro .cadastro-machine-sector-head>button{margin-left:auto}
+@media(max-width:600px){
+ #tab-cadastro .cadastro-setor-item{padding:10px!important}
+ #tab-cadastro .cadastro-setor-item:not(.is-open)>.cadastro-setor-item-head,
+ #tab-cadastro .cadastro-machine-sector-head,
+ #tab-cadastro .cadastro-machine-item:not(.is-open)>.cadastro-machine-head,
+ #tab-cadastro .cadastro-record-item:not(.is-open)>.cadastro-record-head{min-height:50px;padding:7px 8px}
+ #tab-cadastro .cadastro-setor-item .cadastro-setor-actions .btn-action,
+ #tab-cadastro .cadastro-machine-sector-head>button,
+ #tab-cadastro .cadastro-machine-head>button,
+ #tab-cadastro .cadastro-record-head>button{min-width:60px!important;height:32px!important;min-height:32px!important;padding:0 9px!important;font-size:.7rem!important}
+ #tab-cadastro .cadastro-setor-name strong,#tab-cadastro .cadastro-machine-sector-head b,
+ #tab-cadastro .cadastro-machine-head strong,#tab-cadastro .cadastro-record-head strong{font-size:.84rem!important}
+ #tab-cadastro .cadastro-machine-group{padding:9px!important}
+}
+
+/* Lista de máquinas: o cabeçalho aberto acompanha a rolagem da própria lista. */
+#tab-cadastro #cadastro-area-maquinas .cadastro-machine-group-content{position:relative!important;isolation:isolate}
+#tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open{display:contents!important}
+#tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open>.cadastro-machine-head{
+ position:sticky!important;top:0!important;z-index:12!important;
+ min-height:56px!important;margin:0!important;padding:10px 12px!important;
+ border:1px solid #c7dce1!important;border-radius:12px 12px 0 0!important;
+ background:linear-gradient(112deg,#123b50 0%,#185b66 62%,#197b75 100%)!important;
+ box-shadow:0 7px 17px rgba(15,54,69,.2)!important
+}
+#tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open>.cadastro-machine-head strong{color:#fff!important}
+#tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open>.cadastro-machine-head small{color:#c6e0e2!important}
+#tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open>.cadastro-machine-details{
+ display:grid!important;gap:10px;margin:0 0 12px!important;padding:13px!important;
+ border:1px solid #d9e6e9!important;border-top:0!important;border-radius:0 0 12px 12px!important;
+ background:#f7fafb!important
+}
+#tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open>.cadastro-machine-details[hidden]{display:none!important}
+@media(max-width:600px){
+ #tab-cadastro #cadastro-area-maquinas .cadastro-machine-group-content{max-height:min(66dvh,620px);padding-inline:3px}
+ #tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open>.cadastro-machine-head{min-height:52px!important;padding:9px!important}
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -17233,157 +17410,4 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 }
 </style>
 
-<style id="cadastro-hierarquia-sticky-segura-20261123">
-/* Sticky local por registro: remover recortes e scrollports ancestrais. */
-#tab-cadastro .cadastro-area-panel,#tab-cadastro .cadastro-setores-shell,
-#tab-cadastro .cadastro-area-card,#tab-cadastro .cadastro-maquinas-card,
-#tab-cadastro #pvListaCard,#tab-cadastro .cadastro-usuarios-list,
-#tab-cadastro #listaCfg,#tab-cadastro .cadastro-setor-item,
-#tab-cadastro #listaMaquinas,#tab-cadastro .cadastro-machine-group,
-#tab-cadastro .cadastro-machine-group-content,#tab-cadastro #listaPrev,
-#tab-cadastro #listaUsuarios,#tab-cadastro .cadastro-record-item{overflow:visible!important}
-#tab-cadastro .cadastro-area-heading,#tab-cadastro .cadastro-setores-heading,
-#tab-cadastro .cadastro-machine-sector-head{position:relative!important;top:auto!important;z-index:auto!important}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,
-#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,
-#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{
- position:sticky!important;top:calc(112px + env(safe-area-inset-top,0px))!important;
- z-index:80!important;isolation:isolate;box-sizing:border-box!important;
- min-height:58px!important;margin:-1px -1px 12px!important;padding:10px 13px!important;
- border:1px solid #cbdde2!important;border-radius:13px!important;
- background:linear-gradient(112deg,#123b50 0%,#185b66 62%,#197b75 100%)!important;
- box-shadow:0 8px 20px rgba(15,54,69,.22),inset 0 1px 0 rgba(255,255,255,.12)!important;
- backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
- scroll-margin-top:calc(120px + env(safe-area-inset-top,0px))
-}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-name strong,
-#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head strong,
-#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head strong{color:#fff!important;font-size:.92rem!important;font-weight:850!important;letter-spacing:-.012em;line-height:1.25}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-name small,
-#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head small,
-#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head small{color:#c6e0e2!important;font-size:.69rem!important;line-height:1.35}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-item-icon{width:39px;height:39px;flex-basis:39px;border:1px solid rgba(255,255,255,.2);border-radius:11px;background:rgba(255,255,255,.13);color:#fff}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .btn-action,
-#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head .btn-action,
-#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head .btn-action{
- display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;
- min-width:62px!important;width:auto!important;height:34px!important;min-height:34px!important;padding:0 11px!important;
- border:1px solid rgba(255,255,255,.3)!important;border-radius:9px!important;background:rgba(255,255,255,.13)!important;
- color:#fff!important;font-size:.72rem!important;font-weight:800!important;line-height:1!important;white-space:nowrap!important;
- box-shadow:0 2px 5px rgba(0,0,0,.08)!important
-}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-delete{border-color:rgba(255,220,220,.35)!important;background:rgba(190,70,70,.2)!important;color:#ffe2df!important}
-#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{min-width:0;position:relative;margin:10px 0;padding:11px;border:1px solid #dfe8ed;border-radius:14px;background:linear-gradient(155deg,#fff 0%,#fbfdfe 100%);box-shadow:0 3px 10px rgba(24,55,75,.045)}
-#tab-cadastro .cadastro-setor-item.is-open{border-color:#cbdde2!important;box-shadow:0 7px 19px rgba(20,56,73,.075)!important}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head{margin:-14px -14px 14px!important;padding:11px 14px!important;border-radius:13px 13px 10px 10px!important}
-#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{margin:-11px -11px 12px!important}
-#tab-cadastro .cadastro-machine-head,#tab-cadastro .cadastro-record-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
-#tab-cadastro .cadastro-machine-head>div,#tab-cadastro .cadastro-record-head>div{display:grid;gap:4px;min-width:0}
-#tab-cadastro .cadastro-machine-details,#tab-cadastro .cadastro-record-details{display:grid;gap:10px;padding:13px;margin-top:8px;border:1px solid #e4edf1;border-radius:0 0 11px 11px;background:#f7fafb}
-#tab-cadastro .cadastro-machine-details[hidden],#tab-cadastro .cadastro-record-details[hidden]{display:none!important}
-#tab-cadastro .cadastro-record-actions{display:flex;gap:8px;flex-wrap:wrap}
-#tab-cadastro .cadastro-machine-create{margin-top:13px;padding:13px;border:1px solid #dcebe9;border-radius:12px;background:linear-gradient(135deg,#f1f8f7,#f8fbfc)}
-#tab-cadastro .cadastro-machine-group-content{padding-top:8px}
-#tab-cadastro .cadastro-item-collapsed,#tab-cadastro .cadastro-empty-item{margin:9px 0;color:#718294;font-size:.76rem;text-align:center}
-#tab-cadastro .cadastro-machine-sector-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-#tab-cadastro .cadastro-machine-sector-head>span{display:grid;gap:4px;min-width:0}
-#tab-cadastro .cadastro-machine-sector-head small{color:#647b8d;font-size:.72rem}
-@media(min-width:1024px){#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{top:calc(96px + env(safe-area-inset-top,0px))!important}}
-@media(max-width:600px){
- #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{top:calc(104px + env(safe-area-inset-top,0px))!important;min-height:54px!important;padding:9px 10px!important}
- #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head{margin:-11px -11px 12px!important;padding:10px 11px!important}
- #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-item-icon{width:35px;height:35px;flex-basis:35px}
- #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .btn-action,#tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head .btn-action,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head .btn-action{min-width:58px!important;height:32px!important;min-height:32px!important;padding:0 9px!important;font-size:.69rem!important}
- #tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{padding:9px;border-radius:12px}
-}
 
-/* Padronização visual de todos os registros da área Cadastro: fechado e aberto. */
-#tab-cadastro .cadastro-setor-item,
-#tab-cadastro .cadastro-machine-group,
-#tab-cadastro .cadastro-machine-item,
-#tab-cadastro .cadastro-record-item{
- border:1px solid #dce7ec!important;border-radius:15px!important;
- background:linear-gradient(145deg,#fff 0%,#f8fbfc 100%)!important;
- box-shadow:0 4px 13px rgba(22,55,74,.055)!important;
- transition:border-color .18s ease,box-shadow .18s ease,background .18s ease
-}
-#tab-cadastro .cadastro-setor-item{padding:14px!important}
-#tab-cadastro .cadastro-setor-item:not(.is-open)>.cadastro-setor-item-head,
-#tab-cadastro .cadastro-machine-sector-head,
-#tab-cadastro .cadastro-machine-item:not(.is-open)>.cadastro-machine-head,
-#tab-cadastro .cadastro-record-item:not(.is-open)>.cadastro-record-head{
- min-height:54px;padding:8px 10px;border-radius:11px;background:#f2f7f9
-}
-#tab-cadastro .cadastro-setor-item:not(.is-open)>.cadastro-setor-item-head .cadastro-setor-item-icon{
- width:39px;height:39px;flex-basis:39px;border-radius:11px;background:#e5f0f3;color:#286779
-}
-#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-name strong,
-#tab-cadastro .cadastro-machine-sector-head b,
-#tab-cadastro .cadastro-machine-item:not(.is-open) .cadastro-machine-head strong,
-#tab-cadastro .cadastro-record-item:not(.is-open) .cadastro-record-head strong{
- color:#24485b;font-size:.9rem;font-weight:850;letter-spacing:-.01em
-}
-#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-name small,
-#tab-cadastro .cadastro-machine-sector-head small,
-#tab-cadastro .cadastro-machine-item:not(.is-open) .cadastro-machine-head small,
-#tab-cadastro .cadastro-record-item:not(.is-open) .cadastro-record-head small{
- color:#728796;font-size:.7rem;line-height:1.35
-}
-#tab-cadastro .cadastro-setor-actions{align-items:center;gap:7px}
-#tab-cadastro .cadastro-setor-item .cadastro-setor-actions .btn-action,
-#tab-cadastro .cadastro-machine-sector-head>button,
-#tab-cadastro .cadastro-machine-head>button,
-#tab-cadastro .cadastro-record-head>button{
- display:inline-flex!important;align-items:center!important;justify-content:center!important;
- min-width:68px!important;width:auto!important;height:35px!important;min-height:35px!important;
- padding:0 12px!important;border-radius:10px!important;white-space:nowrap!important;
- font-size:.73rem!important;font-weight:800!important;line-height:1!important;flex:0 0 auto!important
-}
-#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-edit,
-#tab-cadastro .cadastro-machine-sector-head>button,
-#tab-cadastro .cadastro-machine-head>button,
-#tab-cadastro .cadastro-record-head>button{
- color:#176675!important;background:#e5f2f2!important;border:1px solid #c8e1e0!important;
- box-shadow:0 2px 5px rgba(22,91,99,.07)!important
-}
-#tab-cadastro .cadastro-setor-item:not(.is-open) .cadastro-setor-delete{
- color:#a64d4d!important;background:#fff0ef!important;border:1px solid #f1d8d5!important
-}
-#tab-cadastro .cadastro-setor-edit-label{
- display:flex;align-items:center;gap:8px;margin:3px 0 12px;padding:10px 12px;
- border-left:3px solid #23858a;border-radius:0 9px 9px 0;
- background:#eff7f7;color:#245a68;font-size:.78rem;font-weight:850
-}
-#tab-cadastro .cadastro-setor-protected{
- margin-top:11px!important;padding:11px 12px!important;border:1px solid #e4edf0!important;
- border-radius:10px!important;background:#f7fafb!important
-}
-#tab-cadastro .cadastro-machine-group{padding:12px!important}
-#tab-cadastro .cadastro-machine-sector-head{min-height:58px;padding:8px 10px;border:1px solid #e4edf0;border-radius:11px;background:#f3f8fa}
-#tab-cadastro .cadastro-machine-group-content{display:grid;gap:9px;padding-top:11px}
-#tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{padding:10px!important}
-#tab-cadastro .cadastro-record-item:not(.is-open)>.cadastro-record-head,
-#tab-cadastro .cadastro-machine-item:not(.is-open)>.cadastro-machine-head{margin:0!important}
-#tab-cadastro .cadastro-setor-item.is-open,#tab-cadastro .cadastro-machine-item.is-open,#tab-cadastro .cadastro-record-item.is-open{
- border-color:#bcd5dc!important;box-shadow:0 7px 18px rgba(21,64,79,.09)!important
-}
-#tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head{background:transparent}
-#tab-cadastro .cadastro-setor-item.is-open .cadastro-setor-edit{background:rgba(255,255,255,.14)!important;color:#fff!important;border-color:rgba(255,255,255,.35)!important}
-#tab-cadastro .cadastro-setor-item.is-open .cadastro-setor-delete{background:rgba(190,70,70,.2)!important;color:#ffe2df!important;border-color:rgba(255,220,220,.35)!important}
-#tab-cadastro .cadastro-machine-sector-head>span{min-width:0}
-#tab-cadastro .cadastro-machine-sector-head>button{margin-left:auto}
-@media(max-width:600px){
- #tab-cadastro .cadastro-setor-item{padding:10px!important}
- #tab-cadastro .cadastro-setor-item:not(.is-open)>.cadastro-setor-item-head,
- #tab-cadastro .cadastro-machine-sector-head,
- #tab-cadastro .cadastro-machine-item:not(.is-open)>.cadastro-machine-head,
- #tab-cadastro .cadastro-record-item:not(.is-open)>.cadastro-record-head{min-height:50px;padding:7px 8px}
- #tab-cadastro .cadastro-setor-item .cadastro-setor-actions .btn-action,
- #tab-cadastro .cadastro-machine-sector-head>button,
- #tab-cadastro .cadastro-machine-head>button,
- #tab-cadastro .cadastro-record-head>button{min-width:60px!important;height:32px!important;min-height:32px!important;padding:0 9px!important;font-size:.7rem!important}
- #tab-cadastro .cadastro-setor-name strong,#tab-cadastro .cadastro-machine-sector-head b,
- #tab-cadastro .cadastro-machine-head strong,#tab-cadastro .cadastro-record-head strong{font-size:.84rem!important}
- #tab-cadastro .cadastro-machine-group{padding:9px!important}
-}
-</style>
