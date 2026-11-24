@@ -10150,7 +10150,7 @@ function abrirDetalheMetrica(tipo){
     grupos[k].os.push(os);
   });
   let r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
-  if(REINCIDENCIA_SELECAO){const sel=REINCIDENCIA_SELECAO;REINCIDENCIA_SELECAO=null;r=r.filter(g=>g.setor===sel.setor&&g.maquina===sel.maquina&&(sel.maquina_id==null||String(g.maquina_id||'')===String(sel.maquina_id))&&(sel.problema==null||g.problema===sel.problema))}
+  if(REINCIDENCIA_SELECAO){const sel=REINCIDENCIA_SELECAO;REINCIDENCIA_SELECAO=null;r=r.filter(g=>g.setor===sel.setor&&g.maquina===sel.maquina&&String(g.maquina_id||'')===String(sel.maquina_id||'')&&(sel.problema==null||g.problema===sel.problema))}
   const porMaquina=new Map();
   r.forEach(g=>{
     const chave=g.maquina_id?'id:'+g.maquina_id:'legacy:'+g.setor+'|'+g.maquina;
@@ -10412,7 +10412,8 @@ function atualizarMetricasReais(){
   baseEscopo.forEach(os=>{
     const idMaquina=resolverMaquinaIdOS(os),chave=chaveMetricaMaq(os.setor,os.maquina,idMaquina);
     const correspondeNome=maquinasMetricaEscopo.some(m=>normSetor(m.setor)===normSetor(os.setor)&&String(m.nome||'').trim()===String(os.maquina||'').trim());
-    if(!setoresComHorarioSet.has(os.setor)||!correspondeNome||!eventoNoPeriodo(os.created_at)||(tn!=='Todos'&&!eventoNoTurno(os,os.created_at)))return;
+    if(!idMaquina||!setoresComHorarioSet.has(os.setor)||!correspondeNome||!eventoNoPeriodo(os.created_at)||(tn!=='Todos'&&!eventoNoTurno(os,os.created_at)))return;
+    OS_MTBF_ATUAL.push(os);
     OS_MTBF_ATUAL.push(os);
     if(!idMaquina)return;
     const info=metricasPorMaquinaTurno.get(chave)||{falhas:0,sRep:0,nRep:0,reinc:0};
