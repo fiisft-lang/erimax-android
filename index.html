@@ -13323,6 +13323,27 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+<style id="erimax-almox-delete-match-edit-final-20261124">
+/* Excluir replica a geometria do Editar; somente a cor comunica a ação destrutiva. */
+#tab-almoxarifado .almox-material-actions .almox-delete-btn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;width:auto!important;min-width:60px!important;max-width:max-content!important;
+ min-height:29px!important;height:29px!important;margin:7px 0 0 auto!important;padding:0 7px!important;
+ border:1px solid #d8e4ec!important;border-radius:7px!important;
+ background:#fff5f4!important;color:#a43b35!important;
+ font-size:.66rem!important;line-height:1!important;font-weight:750!important;letter-spacing:0!important;
+ white-space:nowrap!important;box-shadow:none!important;cursor:pointer!important
+}
+#tab-almoxarifado .almox-material-actions .almox-delete-btn:hover{
+ background:#fcebea!important;border-color:#e8c7c4!important;color:#92332e!important
+}
+@media(max-width:600px){
+ #tab-almoxarifado .almox-material-actions .almox-delete-btn{
+  min-height:28px!important;height:28px!important;padding:0 6px!important;font-size:.63rem!important
+ }
+}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -14045,12 +14066,30 @@ async function excluirMaterialAlmox(id){
  const nomeErro=e=>{
   if(!e)return 'Erro não identificado pelo servidor.';
   if(typeof e==='string')return e;
-  return e.message||e.details||e.hint||JSON.stringify(e);
+  const partes=[e.message,e.details,e.hint,e.code&&('código '+e.code),e.status&&('HTTP '+e.status)].filter(x=>x&&String(x).trim());
+  return partes.join(' • ')||JSON.stringify(e)||'Erro não identificado pelo servidor.';
+ };
+ const normalizarNome=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ');
+ const verificarMateriaisOS=async()=>{
+  let offset=0,total=0;
+  const pagina=500;
+  while(true){
+   const {data,error}=await _supabase.from('os').select('id,materiais_utilizados').order('id',{ascending:true}).range(offset,offset+pagina-1);
+   if(error)return {error};
+   const linhas=Array.isArray(data)?data:[];
+   for(const os of linhas){
+    const itens=Array.isArray(os.materiais_utilizados)?os.materiais_utilizados:[];
+    if(itens.some(item=>normalizarNome(item?.nome||item?.material)===normalizarNome(m.nome)))total++;
+   }
+   if(linhas.length<pagina)break;
+   offset+=pagina;
+  }
+  return {count:total};
  };
  const verificacoes=[
   {nome:'movimentações de estoque (almox_movimentacoes)',executar:()=>_supabase.from('almox_movimentacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id)},
   {nome:'solicitações de material (almox_solicitacoes)',executar:()=>_supabase.from('almox_solicitacoes').select('id',{count:'exact',head:true}).eq('material_id',m.id)},
-  {nome:'materiais utilizados nas O.S. (os.materiais_utilizados)',executar:()=>_supabase.from('os').select('id',{count:'exact',head:true}).contains('materiais_utilizados',[{nome:m.nome}])},
+  {nome:'materiais utilizados nas O.S. (os.materiais_utilizados)',executar:verificarMateriaisOS},
   {nome:'registro legado de peças nas O.S. (os.peca)',executar:()=>_supabase.from('os').select('id',{count:'exact',head:true}).eq('peca',m.nome)}
  ];
  try{
