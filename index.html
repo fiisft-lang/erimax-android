@@ -7880,7 +7880,44 @@ document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO);
 const SUPABASE_URL='https://qzjbpvgedfpmfnxsvqhu.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
 const {createClient}=supabase;
-const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const _supabaseOriginal=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+// O preview usa a API de produção apenas para leitura. Toda mutação é bloqueada no cliente.
+const ERIMAX_PREVIEW_READ_ONLY=true;
+const ERIMAX_PREVIEW_WRITE_METHODS=new Set(['insert','update','upsert','delete','remove','upload','uploadToSignedUrl','move','copy','createSignedUploadUrl','invoke']);
+function protegerConsultaPreview(obj){
+ if(!obj||typeof obj!=='object')return obj;
+ return new Proxy(obj,{
+  get(target,prop){
+   const valor=Reflect.get(target,prop,target);
+   if(typeof valor!=='function')return valor;
+   if(prop==='then'||prop==='catch'||prop==='finally')return valor.bind(target);
+   if(ERIMAX_PREVIEW_WRITE_METHODS.has(String(prop)))return (...args)=>{
+    const erro=new Error('O preview está em modo somente leitura. Nenhuma alteração foi enviada ao banco.');
+    console.warn('[ERIMAX PREVIEW] Operação bloqueada:',String(prop));
+    return Promise.reject(erro);
+   };
+   return (...args)=>{
+    const resultado=valor.apply(target,args);
+    return resultado&&typeof resultado==='object'&&typeof resultado.then!=='function'?protegerConsultaPreview(resultado):resultado;
+   };
+  }
+ });
+}
+const _supabase=new Proxy(_supabaseOriginal,{
+ get(target,prop){
+  const valor=Reflect.get(target,prop,target);
+  if(prop==='rpc')return ()=>Promise.reject(new Error('RPCs estão bloqueadas no preview somente leitura.'));
+  if(prop==='from')return (...args)=>protegerConsultaPreview(valor.apply(target,args));
+  if(prop==='storage'||prop==='functions')return protegerConsultaPreview(valor);
+  return typeof valor==='function'?valor.bind(target):valor;
+ });
+if(ERIMAX_PREVIEW_READ_ONLY){
+ const aviso=document.createElement('div');
+ aviso.id='erimax-preview-readonly';
+ aviso.textContent='PREVIEW DE TESTES · SOMENTE LEITURA · Nenhuma alteração será gravada';
+ aviso.style.cssText='position:sticky;top:0;z-index:100000;text-align:center;padding:8px 12px;background:#fff3cd;color:#664d03;border-bottom:1px solid #ffecb5;font:700 12px/1.35 Arial,sans-serif;letter-spacing:.2px';
+ document.body.prepend(aviso);
+}
 
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],FILTRADAS_TODAS=[],FILTRADAS_MTTR=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
 let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
