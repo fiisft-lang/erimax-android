@@ -7318,8 +7318,8 @@ body .tbl-wrap td{color:#344d5e}
  position:sticky!important;top:calc(112px + env(safe-area-inset-top,0px))!important;
  z-index:80!important;isolation:isolate;box-sizing:border-box!important;
  min-height:58px!important;margin:-1px -1px 12px!important;padding:10px 13px!important;
- border:1px solid #cbdde2!important;border-radius:13px!important;
- background:linear-gradient(112deg,#123b50 0%,#185b66 62%,#197b75 100%)!important;
+ border:1px solid #c8dfe1!important;border-radius:13px!important;
+ background:linear-gradient(118deg,#102d43 0%,#17485b 52%,#167d79 100%)!important;
  box-shadow:0 8px 20px rgba(15,54,69,.22),inset 0 1px 0 rgba(255,255,255,.12)!important;
  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
  scroll-margin-top:calc(120px + env(safe-area-inset-top,0px))
@@ -7342,7 +7342,7 @@ body .tbl-wrap td{color:#344d5e}
 }
 #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head .cadastro-setor-delete{border-color:rgba(255,220,220,.35)!important;background:rgba(190,70,70,.2)!important;color:#ffe2df!important}
 #tab-cadastro .cadastro-machine-item,#tab-cadastro .cadastro-record-item{min-width:0;position:relative;margin:10px 0;padding:11px;border:1px solid #dfe8ed;border-radius:14px;background:linear-gradient(155deg,#fff 0%,#fbfdfe 100%);box-shadow:0 3px 10px rgba(24,55,75,.045)}
-#tab-cadastro .cadastro-setor-item.is-open{border-color:#cbdde2!important;box-shadow:0 7px 19px rgba(20,56,73,.075)!important}
+#tab-cadastro .cadastro-setor-item.is-open{border-color:#c8dfe1!important;box-shadow:0 7px 19px rgba(20,56,73,.075)!important}
 #tab-cadastro .cadastro-setor-item.is-open>.cadastro-setor-item-head{margin:-14px -14px 14px!important;padding:11px 14px!important;border-radius:13px 13px 10px 10px!important}
 #tab-cadastro .cadastro-machine-item.is-open>.cadastro-machine-head,#tab-cadastro .cadastro-record-item.is-open>.cadastro-record-head{margin:-11px -11px 12px!important}
 #tab-cadastro .cadastro-machine-head,#tab-cadastro .cadastro-record-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
@@ -7462,7 +7462,7 @@ body .tbl-wrap td{color:#344d5e}
  position:sticky!important;top:0!important;z-index:12!important;
  min-height:56px!important;margin:0!important;padding:10px 12px!important;
  border:1px solid #c7dce1!important;border-radius:12px 12px 0 0!important;
- background:linear-gradient(112deg,#123b50 0%,#185b66 62%,#197b75 100%)!important;
+ background:linear-gradient(118deg,#102d43 0%,#17485b 52%,#167d79 100%)!important;
  box-shadow:0 7px 17px rgba(15,54,69,.2)!important
 }
 #tab-cadastro #cadastro-area-maquinas .cadastro-machine-item.is-open>.cadastro-machine-head strong{color:#fff!important}
@@ -8311,6 +8311,7 @@ function selecionarCadastroArea(area){
   const estavaFechada=!CADASTRO_AREA_ATIVA;
   CADASTRO_AREA_ATIVA=area;
   atualizarVisualCadastroArea(area);
+  requestAnimationFrame(()=>centralizarCadastroAlvo(document.getElementById('cadastro-area-'+area)));
   if(estavaFechada)history.pushState({...history.state,erimaxCadastroArea:true},'',location.href);
 }
 window.addEventListener('popstate',event=>{
@@ -11362,10 +11363,16 @@ function renderMaquinasAgrupadas(){
     return h+'</article>';
   }).join(''):'<p class="cadastro-empty-item">Nenhum setor ou máquina cadastrado.</p>';
 }
-function alternarMaquinaCadastro(id){MAQUINA_EM_EDICAO=Number(MAQUINA_EM_EDICAO)===Number(id)?null:Number(id);renderMaquinasAgrupadas()}
+function alternarMaquinaCadastro(id){
+ const abrir=Number(MAQUINA_EM_EDICAO)!==Number(id);
+ MAQUINA_EM_EDICAO=abrir?Number(id):null;
+ renderMaquinasAgrupadas();
+ if(abrir)requestAnimationFrame(()=>centralizarCadastroAlvo(document.querySelector('#cadastro-area-maquinas .cadastro-machine-item.is-open')));
+}
 function editarMaquinasSetor(i){
   const setores=[...new Set([...SETORES,...MAQUINAS.map(m=>m.setor)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  const setor=setores[i]||null;SETOR_MAQUINAS_EM_EDICAO=SETOR_MAQUINAS_EM_EDICAO===setor?null:setor;renderMaquinasAgrupadas();
+  const setor=setores[i]||null;const abrir=SETOR_MAQUINAS_EM_EDICAO!==setor;SETOR_MAQUINAS_EM_EDICAO=abrir?setor:null;renderMaquinasAgrupadas();
+  if(abrir)requestAnimationFrame(()=>centralizarCadastroAlvo([...document.querySelectorAll('#cadastro-area-maquinas .cadastro-machine-group')].find(el=>el.querySelector('.cadastro-machine-sector-head b')?.textContent===setor)));
 }
 function fecharMaquinasSetor(){SETOR_MAQUINAS_EM_EDICAO=null;MAQUINA_EM_EDICAO=null;renderMaquinasAgrupadas()}
 async function addMaquina(i){
@@ -13447,7 +13454,7 @@ async function carregarCfg(){
   SETORES=[...nomes].filter(Boolean).sort((x,y)=>x.localeCompare(y,'pt-BR'));
   popularSetores();if(document.getElementById('listaCfg'))renderCfg();if(document.getElementById('listaMaquinas'))renderMaquinasAgrupadas();
 }
-function editarHorarioSetor(i){const setor=SETORES[i];SETOR_EM_EDICAO=SETOR_EM_EDICAO===setor?null:setor;renderCfg()}
+function editarHorarioSetor(i){const setor=SETORES[i];const abrir=SETOR_EM_EDICAO!==setor;SETOR_EM_EDICAO=abrir?setor:null;renderCfg();if(abrir)requestAnimationFrame(()=>centralizarCadastroAlvo([...document.querySelectorAll('#tab-cadastro .cadastro-setor-item.is-open')].find(el=>el.querySelector('.cadastro-setor-name strong')?.textContent===setor)));}
 function cancelarEdicaoHorario(){SETOR_EM_EDICAO=null;renderCfg()}
 function horarioEditor(s,d,n){
   if(HORARIOS_SEMANAIS[s])return HORARIOS_SEMANAIS[s].find(r=>+r.dia_semana===d&&+r.numero_turno===n&&r.ativo)||null;
@@ -13597,11 +13604,17 @@ async function apagarSetor(i){
   SETOR_EM_EDICAO=null;await carregarCfg();
 }
 /* ===== USUÁRIOS ===== */
+function centralizarCadastroAlvo(alvo){
+ if(!alvo||!alvo.isConnected)return;
+ try{alvo.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}
+ catch(e){alvo.scrollIntoView(false)}
+}
 function alternarCadastroRegistro(botao){
  const item=botao&&botao.closest('.cadastro-record-item');if(!item)return;
  const detalhes=item.querySelector('.cadastro-record-details');if(!detalhes)return;
  const abrir=detalhes.hidden;detalhes.hidden=!abrir;item.classList.toggle('is-open',abrir);
  botao.textContent=abrir?'Fechar':'Abrir';botao.setAttribute('aria-expanded',abrir?'true':'false');
+ if(abrir)requestAnimationFrame(()=>centralizarCadastroAlvo(item));
 }
 async function carregarUsuarios(){
   if(!erimaxExigirGestorCadastro())return;
