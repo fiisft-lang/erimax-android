@@ -8299,14 +8299,22 @@ function iniciarAtualizacaoTempoParada(){
   },60000);
 }
 iniciarAtualizacaoTempoParada();
+let timerCarregamentoRealtimeDados=null;
+function agendarCarregamentoRealtimeDados(){
+  if(timerCarregamentoRealtimeDados)clearTimeout(timerCarregamentoRealtimeDados);
+  timerCarregamentoRealtimeDados=setTimeout(()=>{
+    timerCarregamentoRealtimeDados=null;
+    carregarDadosSupabase();
+  },250);
+}
 function iniciarTempoReal(){
   iniciarAtualizacaoAutomaticaStatusTecnicos();
   iniciarSincronizacaoFallback();
   if(canalOSTempoReal)return;
   const canal=_supabase.channel('tabela-os-realtime')
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'os'},p=>alertarNovaOSRealtime(p.new))
-   .on('postgres_changes',{event:'*',schema:'public',table:'os'},()=>carregarDadosSupabase())
-   .on('postgres_changes',{event:'*',schema:'public',table:'status_tecnicos'},()=>carregarDadosSupabase())
+   .on('postgres_changes',{event:'*',schema:'public',table:'os'},()=>agendarCarregamentoRealtimeDados())
+   .on('postgres_changes',{event:'*',schema:'public',table:'status_tecnicos'},()=>agendarCarregamentoRealtimeDados())
    .on('postgres_changes',{event:'*',schema:'public',table:'erimax_presencas'},()=>{if(MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')carregarPresencas()})
    .on('postgres_changes',{event:'*',schema:'public',table:'maquinas'},()=>carregarMaquinas())
    .on('postgres_changes',{event:'*',schema:'public',table:'setores_config'},()=>carregarCfg())
