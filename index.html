@@ -17732,3 +17732,48 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
  }
 }
 </style>
+
+
+<style id="erimax-metricas-chart-hierarchy-heads-20261124">
+/* Cabeçalhos dos gráficos: identidade azul-petróleo e verde, sem alterar os datasets. */
+#tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4,
+#tab-metricas #comparacaoGraficos > div > h4{
+  display:flex!important;
+  align-items:center!important;
+  min-height:42px!important;
+  box-sizing:border-box!important;
+  margin:0 0 12px!important;
+  padding:11px 14px!important;
+  border:0!important;
+  border-left:4px solid #35b77b!important;
+  border-radius:9px!important;
+  background:linear-gradient(105deg,#07566b 0%,#087b78 58%,#15966f 100%)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font-size:.86rem!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+  letter-spacing:.015em!important;
+  box-shadow:0 4px 11px rgba(7,86,107,.13)!important;
+}
+#tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4 small{
+  color:rgba(255,255,255,.88)!important;
+  -webkit-text-fill-color:rgba(255,255,255,.88)!important;
+}
+#tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4 + .metrics-chart-note{
+  margin-top:0!important;
+}
+@media(max-width:600px){
+  #tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4,
+  #tab-metricas #comparacaoGraficos > div > h4{
+    min-height:39px!important;
+    padding:10px 11px!important;
+    font-size:.79rem!important;
+    border-radius:8px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #tab-metricas #metricsDataContent .card:has(> .chart-wrapper) > h4,
+  #tab-metricas #comparacaoGraficos > div > h4{transition:none!important}
+}
+</style>
