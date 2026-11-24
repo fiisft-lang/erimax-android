@@ -17594,3 +17594,111 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 </style>
 
 
+<style id="erimax-auditoria-hierarquia-global-fase2-20261124">
+/* Hierarquia global fase 2: padroniza níveis de leitura sem substituir as cores
+   funcionais nem as regras específicas de cada módulo. */
+:root{
+  --erimax-page-gap:18px;
+  --erimax-panel-gap:14px;
+  --erimax-heading-line:1.25;
+}
+.tab-content{
+  min-width:0;
+}
+.tab-content :is(h2,h3,h4){
+  text-wrap:balance;
+}
+.tab-content :is(p,.subtitle,.description){
+  overflow-wrap:anywhere;
+}
+.tab-content :is(input,select,textarea,button){
+  box-sizing:border-box;
+}
+.tab-content :is(input,select,textarea):not([type=checkbox]):not([type=radio]){
+  max-width:100%;
+}
+.tab-content :is(.erimax-open-os-hero,.os-modern-heading,.oa-hero-top,
+  .almox-hero,.cadastro-hub-hero,.metrics-hero,.ranking-os-hero,
+  #painelMaquinasSupervisor .sv-hero,.sv-hero-top){
+  min-width:0;
+  border-radius:var(--erimax-radius-lg,17px);
+}
+.tab-content :is(.erimax-open-os-hero,.os-modern-heading,.oa-hero-top,
+  .almox-hero,.cadastro-hub-hero,.metrics-hero,.ranking-os-hero,
+  #painelMaquinasSupervisor .sv-hero,.sv-hero-top) :is(h1,h2){
+  margin-top:0;
+  line-height:var(--erimax-heading-line);
+  letter-spacing:-.025em;
+  text-wrap:balance;
+}
+.tab-content :is(.erimax-open-os-hero,.os-modern-heading,.oa-hero-top,
+  .almox-hero,.cadastro-hub-hero,.metrics-hero,.ranking-os-hero,
+  #painelMaquinasSupervisor .sv-hero,.sv-hero-top) p{
+  max-width:72ch;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+}
+.tab-content :is(.os-modern-control-head,.oa-list-heading,.almox-panel-head,
+  .cadastro-setores-heading,.cadastro-area-heading,.cadastro-area-card-heading,
+  .cadastro-excecoes-heading,.pv-form-heading,.metrics-section-heading,
+  .ranking-os-card-head,.sv-section-head){
+  min-width:0;
+}
+.tab-content :is(.os-modern-control-head,.oa-list-heading,.almox-panel-head,
+  .cadastro-setores-heading,.cadastro-area-heading,.cadastro-area-card-heading,
+  .cadastro-excecoes-heading,.pv-form-heading,.metrics-section-heading,
+  .ranking-os-card-head,.sv-section-head) :is(h2,h3,h4,strong){
+  line-height:var(--erimax-heading-line);
+  text-wrap:balance;
+}
+.tab-content :is(.os-modern-control-head,.oa-list-heading,.almox-panel-head,
+  .cadastro-setores-heading,.cadastro-area-heading,.cadastro-area-card-heading,
+  .cadastro-excecoes-heading,.pv-form-heading,.metrics-section-heading,
+  .ranking-os-card-head,.sv-section-head) p{
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.tab-content :is(.card,.almox-panel,.oa-list-panel,.os-modern-controls,
+  .ranking-os-card,.metrics-executive-panel,.metrics-preventive-panel,
+  .metrics-schedule-panel){
+  min-width:0;
+}
+.tab-content :is(.card,.almox-panel,.oa-list-panel,.os-modern-controls,
+  .ranking-os-card,.metrics-executive-panel,.metrics-preventive-panel,
+  .metrics-schedule-panel) :is(table,.table-responsive,.chart-wrapper){
+  max-width:100%;
+}
+.tab-content :is(button,.btn-submit,.btn-action){
+  max-width:100%;
+  overflow-wrap:normal;
+}
+.tab-content :is(button,.btn-submit,.btn-action):focus-visible{
+  outline:3px solid rgba(22,125,121,.3);
+  outline-offset:2px;
+}
+@media(max-width:760px){
+  .tab-content :is(.erimax-open-os-hero,.os-modern-heading,.oa-hero-top,
+    .almox-hero,.cadastro-hub-hero,.metrics-hero,.ranking-os-hero,
+    #painelMaquinasSupervisor .sv-hero,.sv-hero-top) p{
+    font-size:clamp(.78rem,2.8vw,.9rem);
+  }
+  .tab-content :is(.os-modern-control-head,.oa-list-heading,.almox-panel-head,
+    .cadastro-setores-heading,.cadastro-area-heading,.cadastro-area-card-heading,
+    .cadastro-excecoes-heading,.pv-form-heading,.metrics-section-heading,
+    .ranking-os-card-head,.sv-section-head){
+    gap:10px;
+  }
+  .tab-content :is(.card,.almox-panel,.oa-list-panel,.os-modern-controls,
+    .ranking-os-card,.metrics-executive-panel,.metrics-preventive-panel,
+    .metrics-schedule-panel){
+    max-width:100%;
+  }
+}
+@media(min-width:1024px){
+  .tab-content :is(.erimax-open-os-hero,.os-modern-heading,.oa-hero-top,
+    .almox-hero,.cadastro-hub-hero,.metrics-hero,.ranking-os-hero,
+    #painelMaquinasSupervisor .sv-hero,.sv-hero-top) p{
+    max-width:78ch;
+  }
+}
+</style>
