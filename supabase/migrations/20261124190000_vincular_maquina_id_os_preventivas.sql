@@ -52,17 +52,17 @@ with nomes as (
         then p.maquinas
       else jsonb_build_array(p.maquina)
     end
-  ) as n(nome)
+  ) with ordinality as n(nome,ordem)
   where cardinality(coalesce(p.maquinas_ids,'{}'::bigint[]))=0
 ), resolvidas as (
-  select n.preventiva_id,n.nome,count(m.id) as correspondencias,min(m.id) as maquina_id
+  select n.preventiva_id,n.nome,n.ordem,count(m.id) as correspondencias,min(m.id) as maquina_id
   from nomes n
   left join public.maquinas m
     on lower(btrim(m.setor))=n.setor
    and lower(btrim(m.nome))=n.nome
-  group by n.preventiva_id,n.nome
+  group by n.preventiva_id,n.nome,n.ordem
 ), completas as (
-  select r.preventiva_id,array_agg(r.maquina_id order by r.maquina_id) as ids
+  select r.preventiva_id,array_agg(r.maquina_id order by r.ordem) as ids
   from resolvidas r
   group by r.preventiva_id
   having bool_and(r.correspondencias=1)
@@ -154,30 +154,16 @@ begin
 
     if exists (
       select 1
-      from unnest(new.maquinas_ids) as ids(id)
+      from unnest(new.maquinas_ids) with ordinality as ids(id,ordem)
+      left join jsonb_array_elements_text(new.maquinas) with ordinality as n(nome,ordem)
+        using (ordem)
       left join public.maquinas m on m.id=ids.id
-      where m.id is null
+      where n.nome is null
+         or m.id is null
          or lower(btrim(m.setor))<>lower(btrim(new.setor))
-         or not exists (
-           select 1 from jsonb_array_elements_text(new.maquinas) as n(nome)
-           where lower(btrim(n.nome))=lower(btrim(m.nome))
-         )
+         or lower(btrim(m.nome))<>lower(btrim(n.nome))
     ) then
-      raise exception 'Uma máquina selecionada não corresponde ao setor ou à lista informada.';
-    end if;
-
-    if exists (
-      select 1
-      from jsonb_array_elements_text(new.maquinas) as n(nome)
-      where not exists (
-        select 1
-        from unnest(new.maquinas_ids) as ids(id)
-        join public.maquinas m on m.id=ids.id
-        where lower(btrim(m.nome))=lower(btrim(n.nome))
-          and lower(btrim(m.setor))=lower(btrim(new.setor))
-      )
-    ) then
-      raise exception 'Há uma máquina sem identificador na preventiva.';
+      raise exception 'Cada máquina deve corresponder ao seu identificador e à mesma posição da lista.';
     end if;
   end if;
 
