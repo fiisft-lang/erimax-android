@@ -9617,9 +9617,12 @@ async function verHistorico(id){
   if(os.transferencia_para&&os.transferencia_solicitada_em&&!transferencias.some(t=>t.solicitada_em===os.transferencia_solicitada_em))
     add(os.transferencia_solicitada_em,'Transferência aguardando aceite','Destino: '+os.transferencia_para+' • Motivo: '+(os.transferencia_motivo||'Não informado'),'alerta');
   eventos.sort((a,b)=>a.ts-b.ts);
+  const maquinaIdHistorico=resolverIdMaquinaRegistro(os);
+  const maquinaCadastroHistorico=MAQUINAS.find(m=>Number(m.id)===Number(maquinaIdHistorico));
+  const codigoMaquinaHistorico=String(maquinaCadastroHistorico?.prefixo||'').trim();
   const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Não definida';
   const detalhes=[
-    ['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],
+    ['Setor',os.setor],['Máquina',os.maquina],['Código da máquina',codigoMaquinaHistorico||'Não identificado'],['Turno',os.turno],['Tipo',os.tipo],
     ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],['Retomada da produção',fmtData(os.rodando_em)],['Tempo em observação',os.rodando_em?minutosFmt(new Date(os.data_conclusao||Date.now()).getTime()-new Date(os.rodando_em).getTime()):'—'],['Observação de acompanhamento',os.observacao_rodando],
     ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],
     ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
@@ -9636,7 +9639,7 @@ async function verHistorico(id){
     modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fecharHistoricoOS()}});
   }
   const titulo=modal.querySelector('#tituloHistoricoOS');
-  if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada');
+  if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada')+(codigoMaquinaHistorico?' • '+codigoMaquinaHistorico:'');
   const conteudo=modal.querySelector('#conteudoHistoricoOS');
   if(conteudo)conteudo.innerHTML=
     '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
