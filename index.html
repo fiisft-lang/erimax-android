@@ -8518,6 +8518,7 @@ function erimaxExigirGestorCadastro(){if(erimaxEhGestor())return true;alert('Ace
 function mudarAba(id,evt,opcoes={}){
   if(id==='cadastro'&&!erimaxExigirGestorCadastro())return Promise.resolve(false);
   if(id==='presenca'&&(!erimaxEhGestor()||!ehGestorPrincipal())){alert('Acesso exclusivo do Gestor autorizado.');return Promise.resolve(false)}
+  if(id==='ordens-abertas'&&(!PERFIL||!['tecnico','gestor'].includes(PERFIL.perfil))){alert('Acesso exclusivo de Técnicos e Gestores.');return Promise.resolve(false)}
   if(id==='almoxarifado'&&(!PERFIL||!['gestor','tecnico','operador'].includes(PERFIL.perfil))){alert('Acesso não disponível para este perfil.');return Promise.resolve()}
   const abaAtual=document.querySelector('.tab-content.active');
   const idAtual=abaAtual&&abaAtual.id?abaAtual.id.replace(/^tab-/,''):'abrir';
