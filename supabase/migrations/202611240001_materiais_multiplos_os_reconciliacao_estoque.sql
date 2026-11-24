@@ -221,9 +221,6 @@ as $function$
 declare
   v_itens jsonb;
 begin
-  if auth.uid() is null or coalesce(public.meu_perfil(),'') <> 'gestor' then
-    raise exception 'Somente o Gestor pode corrigir materiais de uma O.S. concluída.';
-  end if;
   if new.status = 'Concluída'
      and old.status = 'Concluída'
      and (
@@ -231,6 +228,9 @@ begin
        or old.peca_quantidade is distinct from new.peca_quantidade
        or old.materiais_utilizados is distinct from new.materiais_utilizados
      ) then
+    if auth.uid() is null or coalesce(public.meu_perfil(),'') <> 'gestor' then
+      raise exception 'Somente o Gestor pode corrigir materiais de uma O.S. concluída.';
+    end if;
     v_itens := coalesce(new.materiais_utilizados,'[]'::jsonb);
     if jsonb_array_length(v_itens) = 0
        and nullif(trim(coalesce(new.peca,'')),'') is not null then
