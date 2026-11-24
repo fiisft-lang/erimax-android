@@ -13079,6 +13079,158 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 @media(max-width:560px){.md-auxiliares-list{grid-template-columns:1fr}}
 </style>
 
+
+
+<style id="erimax-cadastro-hierarquia-e-acoes-20261123">
+/* Cadastro: hierarquia única para cards, registros e ações textuais. */
+#tab-cadastro .cadastro-area-heading,
+#tab-cadastro .cadastro-setores-heading,
+#tab-cadastro .cadastro-area-card-heading,
+#tab-cadastro .cadastro-setores-list-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;
+}
+#tab-cadastro .cadastro-area-heading h3,
+#tab-cadastro .cadastro-setores-heading h3{margin:0;color:#174b66;line-height:1.25;letter-spacing:-.02em}
+#tab-cadastro .cadastro-area-heading p,
+#tab-cadastro .cadastro-setores-heading p{margin:5px 0 0;color:#647b8d;line-height:1.5;font-size:.82rem}
+#tab-cadastro .cadastro-area-panel>.card,
+#tab-cadastro .cadastro-area-panel .cadastro-area-card,
+#tab-cadastro .cadastro-area-panel #pvFormCard,
+#tab-cadastro .cadastro-area-panel #pvListaCard{
+  min-width:0;border:1px solid #e2eaf2;border-radius:15px;
+  background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+  box-shadow:0 4px 14px rgba(24,59,99,.055);
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row,
+#tab-cadastro #listaCfg .cadastro-setor-item{
+  box-sizing:border-box;min-width:0;margin:9px 0;padding:12px 14px;
+  border:1px solid #e1e9f0;border-radius:12px;background:#fff;
+  box-shadow:0 2px 8px rgba(24,59,99,.035);
+  align-items:center;gap:10px;
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>span{
+  min-width:0;flex:1 1 220px;line-height:1.45;overflow-wrap:anywhere;
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>span>b{
+  display:inline-block;color:#244b65;font-size:.88rem;font-weight:800;
+}
+#tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row small{
+  line-height:1.5;overflow-wrap:anywhere;
+}
+#tab-cadastro .cadastro-setor-actions .btn-action,
+#tab-cadastro :is(#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>.btn-action,
+#tab-cadastro #listaCfg .maq-row>.btn-action{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:auto;min-width:64px;min-height:32px;height:auto;padding:0 9px;
+  flex:0 0 auto;border:1px solid #d8e4ec;border-radius:9px;
+  background:#f3f8fb;color:#285f7b;font-size:.7rem;line-height:1.15;
+  font-weight:800;white-space:nowrap;
+}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-delete,
+#tab-cadastro :is(#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>.btn-excluir,
+#tab-cadastro #listaCfg .maq-row>.btn-excluir{
+  border-color:#f0d9d7;background:#fff6f5;color:#a94340;
+}
+#tab-cadastro #listaUsuarios .maq-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,180px) auto auto}
+#tab-cadastro #listaUsuarios .maq-row>small{grid-column:1/-1}
+#tab-cadastro #listaUsuarios .maq-row>input,
+#tab-cadastro #listaUsuarios .maq-row>select{width:100%;min-width:0;min-height:40px}
+#tab-cadastro #listaUsuarios .maq-row>.btn-action{min-width:76px;min-height:32px;padding:0 8px;font-size:.68rem}
+#tab-cadastro #listaUsuarios .maq-row>.btn-transferir{min-width:84px}
+#tab-cadastro .cadastro-setor-actions{gap:7px}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-edit{min-width:64px}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-delete{min-width:64px}
+@media(max-width:600px){
+  #tab-cadastro .cadastro-area-heading{align-items:flex-start}
+  #tab-cadastro :is(#listaCfg,#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row,
+  #tab-cadastro #listaCfg .cadastro-setor-item{padding:11px;gap:8px}
+  #tab-cadastro #listaUsuarios .maq-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  #tab-cadastro #listaUsuarios .maq-row>small{grid-column:1/-1}
+  #tab-cadastro #listaUsuarios .maq-row>input{grid-column:1/-1}
+  #tab-cadastro #listaUsuarios .maq-row>select{grid-column:1;grid-row:auto}
+  #tab-cadastro #listaUsuarios .maq-row>.btn-action{width:100%;min-width:0;padding:0 8px}
+  #tab-cadastro .cadastro-setor-actions .btn-action{min-width:64px;min-height:32px;padding:0 8px;font-size:.68rem}
+}
+@media(max-width:380px){
+  #tab-cadastro .cadastro-setor-actions{gap:5px}
+  #tab-cadastro .cadastro-setor-actions .btn-action{min-width:60px;min-height:30px;padding:0 7px;font-size:.66rem}
+}
+/* Correção fina: ações compactas e sem quebra de texto em qualquer largura. */
+#tab-cadastro .cadastro-setor-actions{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:5px!important;white-space:nowrap!important}
+#tab-cadastro .cadastro-setor-actions .btn-action,
+#tab-cadastro :is(#listaMaquinas,#listaPrev,#listaUsuarios) .maq-row>.btn-action,
+#tab-cadastro #listaCfg .maq-row>.btn-action,
+#tab-cadastro .cadastro-setor-edit-close .btn-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;width:auto!important;min-width:0!important;max-width:max-content!important;
+  min-height:29px!important;height:29px!important;padding:0 7px!important;
+  flex:0 0 auto!important;white-space:nowrap!important;word-break:keep-all!important;
+  overflow-wrap:normal!important;line-height:1!important;font-size:.66rem!important;font-weight:750!important;
+  border-radius:7px!important;
+}
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-edit,
+#tab-cadastro .cadastro-setor-actions .cadastro-setor-delete{min-width:0!important}
+#tab-cadastro #listaUsuarios .maq-row>.btn-action{
+  width:auto!important;min-width:0!important;max-width:max-content!important;
+  justify-self:start!important;grid-column:auto!important;padding:0 7px!important;
+}
+#tab-cadastro #listaUsuarios .maq-row>.btn-transferir{min-width:0!important}
+#tab-cadastro #listaUsuarios .maq-row{column-gap:7px!important;row-gap:7px!important}
+#tab-cadastro .maq-row{min-width:0}
+@media(max-width:600px){
+  #tab-cadastro #listaUsuarios .maq-row>.btn-action{width:auto!important;min-width:0!important}
+  #tab-cadastro .cadastro-setor-actions .btn-action{min-height:28px!important;height:28px!important;padding:0 6px!important;font-size:.63rem!important}
+}
+</style>
+
+<style id="erimax-padrao-acoes-almox-2026">
+/* Almoxarifado: ação Editar segue a mesma escala compacta dos botões de Cadastro. */
+#tab-almoxarifado .almox-material-qty{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  gap:3px!important;
+  min-width:82px!important;
+  text-align:right!important;
+}
+#tab-almoxarifado .almox-material-qty .almox-edit-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  flex:0 0 auto!important;
+  width:max-content!important;
+  min-width:max-content!important;
+  max-width:100%!important;
+  height:30px!important;
+  min-height:30px!important;
+  margin:5px 0 0!important;
+  padding:0 9px!important;
+  border:1px solid #dce6eb!important;
+  border-radius:8px!important;
+  background:#f8fafb!important;
+  color:#496579!important;
+  font-size:12px!important;
+  font-weight:750!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  box-shadow:none!important;
+}
+#tab-almoxarifado .almox-material-qty .almox-edit-btn:hover{
+  border-color:#b8cbd6!important;
+  background:#edf4f7!important;
+  color:#244e68!important;
+}
+@media(max-width:600px){
+  #tab-almoxarifado .almox-material-qty{min-width:76px!important}
+  #tab-almoxarifado .almox-material-qty .almox-edit-btn{
+    height:29px!important;min-height:29px!important;padding:0 8px!important;font-size:11.5px!important;
+  }
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
