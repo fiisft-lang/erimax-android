@@ -7510,6 +7510,23 @@ body .tbl-wrap td{color:#344d5e}
 #tab-cadastro .cadastro-excecoes-close{min-width:66px!important;height:34px!important;border-radius:9px!important}
 #tab-cadastro .cadastro-excecoes-list{display:grid;gap:9px}
 #tab-cadastro .cadastro-excecao-item{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px;border:1px solid #dce7ec;border-radius:12px;background:#fff;box-shadow:0 3px 10px rgba(22,55,74,.045)}
+/* Hierarquia visual dos setores e ações dentro de Exceções e feriados. */
+#tab-cadastro .cadastro-excecao-item{display:block!important;overflow:hidden;padding:0!important;border:1px solid #cbdde2!important;border-radius:13px!important;background:#f7fafb!important;box-shadow:0 4px 12px rgba(22,55,74,.07)!important}
+#tab-cadastro .cadastro-excecao-item-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:linear-gradient(118deg,#102d43 0%,#17485b 52%,#167d79 100%)!important}
+#tab-cadastro .cadastro-excecao-item-title{display:flex;align-items:center;gap:9px;min-width:0;color:#fff!important;font-size:.84rem;font-weight:850}
+#tab-cadastro .cadastro-excecao-date{flex:0 0 auto;padding:5px 7px;border:1px solid rgba(255,255,255,.24);border-radius:7px;background:rgba(255,255,255,.13);color:#fff;font-size:.74rem;font-weight:800}
+#tab-cadastro .cadastro-excecao-sector{min-width:0;color:#fff!important;overflow-wrap:anywhere}
+#tab-cadastro .cadastro-excecao-item-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+#tab-cadastro .cadastro-excecao-item-actions .cadastro-excecao-edit,#tab-cadastro .cadastro-excecao-item-actions .cadastro-excecao-delete{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:58px!important;min-height:31px!important;padding:5px 10px!important;border:1px solid rgba(255,255,255,.34)!important;border-radius:8px!important;background:rgba(255,255,255,.13)!important;color:#fff!important;box-shadow:none!important;font-size:.72rem!important;font-weight:800!important;line-height:1.1!important}
+#tab-cadastro .cadastro-excecao-item-actions .cadastro-excecao-delete{border-color:rgba(255,220,220,.42)!important;background:rgba(142,35,48,.3)!important;color:#fff!important}
+#tab-cadastro .cadastro-excecao-item-detail{display:block;padding:10px 12px;color:#617987!important;font-size:.73rem;line-height:1.45;overflow-wrap:anywhere}
+@media(max-width:600px){
+ #tab-cadastro .cadastro-excecao-item-head{align-items:flex-start;flex-direction:column;gap:9px;padding:10px}
+ #tab-cadastro .cadastro-excecao-item-title{width:100%;font-size:.8rem}
+ #tab-cadastro .cadastro-excecao-item-actions{width:100%;justify-content:flex-end}
+ #tab-cadastro .cadastro-excecao-item-actions .cadastro-excecao-edit,#tab-cadastro .cadastro-excecao-item-actions .cadastro-excecao-delete{min-width:72px!important;min-height:34px!important}
+ #tab-cadastro .cadastro-excecao-item-detail{padding:9px 10px}
+}
 #tab-cadastro .cadastro-excecao-item-main{display:grid;gap:4px;min-width:170px;flex:1}
 #tab-cadastro .cadastro-excecao-item-title{color:#24485b;font-size:.86rem;font-weight:850}
 #tab-cadastro .cadastro-excecao-item-detail{color:#718594;font-size:.72rem;line-height:1.45}
@@ -13590,7 +13607,7 @@ function renderPainelExcecoesGeral(){
     const i=SETORES.indexOf(r.setor),data=String(r.data_excecao).split('-').reverse().join('/');
     const turnos=(r.horarios||[]).map(x=>'T'+x.numero_turno+' '+x.hora_inicio+'–'+x.hora_fim).join(' • ');
     const detalhe=turnos||(r.observacao||'Dia sem produção');
-    return '<article class="cadastro-excecao-item"><div class="cadastro-excecao-item-main"><strong class="cadastro-excecao-item-title">'+data+' · '+escaparHtml(r.setor)+'</strong><small class="cadastro-excecao-item-detail">'+escaparHtml(r.observacao||detalhe)+(turnos?' · '+escaparHtml(turnos):'')+'</small></div><div class="cadastro-excecao-item-actions"><button type="button" class="btn-action btn-transferir" onclick="editarExcecaoHorario('+i+',\''+String(r.data_excecao)+'\')">Editar</button><button type="button" class="btn-action btn-excluir" onclick="excluirExcecaoHorario('+i+',\''+String(r.data_excecao)+'\')" aria-label="Apagar exceção de horário" title="Apagar exceção">Apagar</button></div></article>';
+    return '<article class="cadastro-excecao-item"><div class="cadastro-excecao-item-head"><strong class="cadastro-excecao-item-title"><span class="cadastro-excecao-date">'+data+'</span><span class="cadastro-excecao-sector">'+escaparHtml(r.setor)+'</span></strong><div class="cadastro-excecao-item-actions"><button type="button" class="btn-action cadastro-excecao-edit" onclick="editarExcecaoHorario('+i+',\''+String(r.data_excecao)+'\')">Editar</button><button type="button" class="btn-action cadastro-excecao-delete" onclick="excluirExcecaoHorario('+i+',\''+String(r.data_excecao)+'\')" aria-label="Apagar exceção de horário" title="Apagar exceção">Apagar</button></div></div><div class="cadastro-excecao-item-detail">'+escaparHtml(r.observacao||detalhe)+(turnos?' · '+escaparHtml(turnos):'')+'</div></article>';
   }).join('');
 }
 function editarExcecaoHorario(i,data){
