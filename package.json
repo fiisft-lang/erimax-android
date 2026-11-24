@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav",
+    "build": "mkdir -p www && cp index.html www/index.html && cp alarme.wav www/alarme.wav && cp service-worker.js www/service-worker.js",
     "cap:add": "cap add android",
     "cap:sync": "cap sync android"
   },
