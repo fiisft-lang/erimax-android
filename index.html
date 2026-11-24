@@ -13480,6 +13480,20 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+<style id="erimax-disponibilidade-setor-desktop-2026">
+/* Amplia apenas o cartão Disponibilidade por setor em telas de computador. */
+@media (min-width: 760px) {
+  #tab-metricas #metricsDataContent #cardHorarioEfSetor {
+    grid-column: span 2 !important;
+  }
+  #tab-metricas #metricsDataContent #cardHorarioEfSetor .chart-wrapper {
+    height: 360px !important;
+    min-height: 360px !important;
+  }
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
