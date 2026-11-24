@@ -57,8 +57,11 @@ jobs:
           const start = html.indexOf('function normalizarIdentificadorReincidencia');
           const end = html.indexOf('let REINCIDENCIA_SELECAO=null;', start);
           if (start < 0 || end < 0) throw new Error('Classificador de reincidências não encontrado');
-          const source = html.slice(start, end) + '\n globalThis.api = { calcularReincidenciasHistorico };';
-          const context = {};
+          const resolverStart = html.indexOf('function resolverIdMaquinaRegistro');
+          const resolverEnd = html.indexOf('\n', resolverStart);
+          if (resolverStart < 0 || resolverEnd < 0) throw new Error('Resolvedor de máquina por ID não encontrado');
+          const source = html.slice(start, end) + '\n' + html.slice(resolverStart, resolverEnd) + '\n globalThis.api = { calcularReincidenciasHistorico };';
+          const context = { MAQUINAS: [] };
           vm.createContext(context);
           vm.runInContext(source, context);
           const os = (id, maquina, setor, descricao, dia) => ({
@@ -82,5 +85,17 @@ jobs:
           assert(!resultado.has('4'), 'Misturou setores diferentes');
           assert(resultado.has('6') && resultado.get('6').primeiraOS.id === 5, 'Não reconheceu variação verbal segura');
           assert(!resultado.has('8'), 'Agrupou defeitos diferentes por palavra genérica');
-          console.log('OK: normalização, agrupamento automático, escopo máquina/setor e prevenção de falso positivo.');
+          context.MAQUINAS = [
+            { id: 100, nome: 'SELADORA', setor: 'MESA' },
+            { id: 101, nome: 'SELADORA', setor: 'MESA' }
+          ];
+          const casosIds = [
+            { ...os(10, 'SELADORA', 'MESA', 'Falha no motor', '10'), maquina_id: 100 },
+            { ...os(11, 'SELADORA', 'MESA', 'Falha no motor', '11'), maquina_id: 101 },
+            { ...os(12, 'SELADORA', 'MESA', 'Falha no motor', '12'), maquina_id: 100 }
+          ];
+          const resultadoIds = context.api.calcularReincidenciasHistorico(casosIds);
+          assert(resultadoIds.has('12') && resultadoIds.get('12').primeiraOS.id === 10, 'Não agrupou reincidência da mesma máquina pelo ID');
+          assert(!resultadoIds.has('11'), 'Misturou máquinas com o mesmo nome e setor, mas IDs diferentes');
+          console.log('OK: normalização, agrupamento por ID, escopo máquina/setor e prevenção de falso positivo.');
           NODE

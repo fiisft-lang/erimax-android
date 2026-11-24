@@ -7880,9 +7880,47 @@ document.querySelectorAll('img.logo').forEach(i=>i.src=LOGO);
 const SUPABASE_URL='https://qzjbpvgedfpmfnxsvqhu.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_XS5p0uKR2FjCSWGQ-NBcTQ_EPTWqvZz';
 const {createClient}=supabase;
-const _supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const _supabaseOriginal=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+// O preview usa a API de produção apenas para leitura. Toda mutação é bloqueada no cliente.
+const ERIMAX_PREVIEW_READ_ONLY=!(window.location.hostname==='erimax.pages.dev'||window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1');
+const ERIMAX_PREVIEW_WRITE_METHODS=new Set(['insert','update','upsert','delete','remove','upload','uploadToSignedUrl','move','copy','createSignedUploadUrl','invoke']);
+function protegerConsultaPreview(obj){
+ if(!obj||typeof obj!=='object')return obj;
+ return new Proxy(obj,{
+  get(target,prop){
+   const valor=Reflect.get(target,prop,target);
+   if(typeof valor!=='function')return valor;
+   if(prop==='then'||prop==='catch'||prop==='finally')return valor.bind(target);
+   if(ERIMAX_PREVIEW_WRITE_METHODS.has(String(prop)))return (...args)=>{
+    const erro=new Error('O preview está em modo somente leitura. Nenhuma alteração foi enviada ao banco.');
+    console.warn('[ERIMAX PREVIEW] Operação bloqueada:',String(prop));
+    return Promise.reject(erro);
+   };
+   return (...args)=>{
+    const resultado=valor.apply(target,args);
+    return resultado&&typeof resultado==='object'&&typeof resultado.then!=='function'?protegerConsultaPreview(resultado):resultado;
+   };
+  }
+ });
+}
+const _supabase=new Proxy(_supabaseOriginal,{
+ get(target,prop){
+  const valor=Reflect.get(target,prop,target);
+  if(prop==='rpc')return ()=>Promise.reject(new Error('RPCs estão bloqueadas no preview somente leitura.'));
+  if(prop==='from')return (...args)=>protegerConsultaPreview(valor.apply(target,args));
+  if(prop==='storage'||prop==='functions')return protegerConsultaPreview(valor);
+  return typeof valor==='function'?valor.bind(target):valor;
+ }
+});
+if(ERIMAX_PREVIEW_READ_ONLY){
+ const aviso=document.createElement('div');
+ aviso.id='erimax-preview-readonly';
+ aviso.textContent='PREVIEW DE TESTES · SOMENTE LEITURA · Nenhuma alteração será gravada';
+ aviso.style.cssText='position:sticky;top:0;z-index:100000;text-align:center;padding:8px 12px;background:#fff3cd;color:#664d03;border-bottom:1px solid #ffecb5;font:700 12px/1.35 Arial,sans-serif;letter-spacing:.2px';
+ document.body.prepend(aviso);
+}
 
-let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],FILTRADAS_TODAS=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
+let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],FILTRADAS_TODAS=[],FILTRADAS_MTTR=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
 let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
 let SETOR_MAQUINAS_EM_EDICAO=null;
 let MAQUINA_EM_EDICAO=null;
@@ -8336,8 +8374,10 @@ async function salvarOS(e){
   const outroEquipamento=document.getElementById('outroEquipamento').value.trim();
   if(maquina.value==='__outros__'&&outroEquipamento.length<2)return alert('Descreva qual é o equipamento ou local.');
   if(!maquina.value)return alert('Selecione uma máquina/equipamento ou a opção Outros.');
-  const maquinaOS=maquina.value==='__outros__'?'Outros — '+outroEquipamento:maquina.value.trim();
-  const nova={aberto_por:abertoPor,situacao_equipamento:situacaoEquipamento,turno:turno.value,setor:setor.value,maquina:maquinaOS,tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
+  const maquinaSelecionada=maquina.value==='__outros__'?null:MAQUINAS.find(m=>String(m.id)===String(maquina.value)&&normSetor(m.setor)===normSetor(setor.value));
+  if(maquina.value!=='__outros__'&&!maquinaSelecionada)return alert('A máquina selecionada não é válida. Atualize a lista e escolha novamente pelo código.');
+  const maquinaOS=maquina.value==='__outros__'?'Outros — '+outroEquipamento:maquinaSelecionada.nome;
+  const nova={aberto_por:abertoPor,situacao_equipamento:situacaoEquipamento,turno:turno.value,setor:setor.value,maquina:maquinaOS,maquina_id:maquinaSelecionada?Number(maquinaSelecionada.id):null,tipo:tipo.value,prioridade:prioridade.value,descricao:descricao.value,status:'Aberta',tecnico:null};
   const fi=foto.files[0];
   if(fi){const b=await redimensionar(fi),pt=Date.now()+'_'+Math.random().toString(36).slice(2)+'.jpg';
     const up=await _supabase.storage.from('fotos-os').upload(pt,b,{contentType:'image/jpeg'});
@@ -9022,7 +9062,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const execucao=Array.isArray(os.maquinas_execucao)?os.maquinas_execucao:[];
     if(execucao.length){
       const feitas=execucao.filter(m=>m.concluida).length;
-      html+='<div style="margin:7px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem"><b>Execução por máquina: '+feitas+'/'+execucao.length+'</b>'+execucao.map(m=>'<div style="margin-top:3px;color:'+(m.concluida?'#166534':'#92400e')+'">'+(m.concluida?'✓':'○')+' '+escaparHtml(m.nome)+(m.concluida?' — concluída':' — pendente')+'</div>').join('')+'</div>';
+      html+='<div style="margin:7px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem"><b>Execução por máquina: '+feitas+'/'+execucao.length+'</b>'+execucao.map(m=>'<div style="margin-top:3px;color:'+(m.concluida?'#166534':'#92400e')+'">'+(m.concluida?'✓':'○')+' '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+(m.concluida?' — concluída':' — pendente')+'</div>').join('')+'</div>';
     }
     if(foto)html+='<a class="os-zoom-extra-60" href="'+escaparHtml(foto)+'" target="_blank" rel="noopener noreferrer"><img src="'+escaparHtml(foto)+'" alt="Foto da ordem de serviço" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;margin:6px 0"></a>';
     if(os.tecnico)html+='<p class="os-zoom-extra-60" style="font-size:.8rem;color:var(--primary-dark)">Manutentor responsável pela finalização: <b>'+escaparHtml(os.tecnico)+'</b></p>';
@@ -9295,7 +9335,7 @@ function obterMaquinasExecucaoModal(){
   return [...document.querySelectorAll('#mdListaMaquinas .md-maquina-execucao')].map(el=>{
     const i=Number(el.dataset.index),anterior=anteriores[i]||{};
     const concluida=el.checked;
-    return {nome:anterior.nome||'',concluida,concluida_em:concluida?(anterior.concluida_em||new Date().toISOString()):null};
+    return {maquina_id:anterior.maquina_id??null,nome:anterior.nome||'',prefixo:anterior.prefixo||null,concluida,concluida_em:concluida?(anterior.concluida_em||new Date().toISOString()):null};
   });
 }
 async function salvarProgressoMaquinas(){
@@ -9314,14 +9354,14 @@ function atualizarMaquinasEdicaoOS(limpar=true,maquinaInicial=''){
  const escolhido=normSetor(setor.value);
  const lista=(MAQUINAS||[]).filter(m=>m&&m.nome&&normSetor(m.setor)===escolhido)
   .sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
- const unicas=[...new Map(lista.map(m=>[String(m.nome).trim(),m])).values()];
- maquina.innerHTML=unicas.length
-  ?'<option value="">Selecione a máquina...</option>'+unicas.map(m=>'<option value="'+escaparHtml(String(m.nome).trim())+'">'+escaparHtml(String(m.nome).trim())+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+'</option>').join('')
+ maquina.innerHTML=lista.length
+  ?'<option value="">Selecione a máquina pelo código...</option>'+lista.map(m=>'<option value="'+Number(m.id)+'">'+escaparHtml(String(m.nome).trim())+(m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado')+'</option>').join('')
   :'<option value="">Nenhuma máquina cadastrada neste setor</option>';
- maquina.disabled=!unicas.length;
- if(maquinaInicial&&unicas.some(m=>String(m.nome).trim()===String(maquinaInicial).trim()))maquina.value=String(maquinaInicial).trim();
+ maquina.disabled=!lista.length;
+ if(maquinaInicial&&lista.some(m=>String(m.id)===String(maquinaInicial)))maquina.value=String(maquinaInicial);
+ else if(maquinaInicial&&lista.filter(m=>String(m.nome).trim()===String(maquinaInicial).trim()).length===1)maquina.value=String(lista.find(m=>String(m.nome).trim()===String(maquinaInicial).trim()).id);
  const info=document.getElementById('editarOSCompletaInfo');
- if(info&&setor.value&&!unicas.length)info.textContent=nOS(osEdicaoCompleta)+' • Não há máquinas cadastradas neste setor. Confira o cadastro de máquinas.';
+ if(info&&setor.value&&!lista.length)info.textContent=nOS(osEdicaoCompleta)+' • Não há máquinas cadastradas neste setor. Confira o cadastro de máquinas.';
 }
 function abrirEdicaoCompletaOS(id){
  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode editar todos os dados da O.S.');
@@ -9333,7 +9373,7 @@ function abrirEdicaoCompletaOS(id){
  setor.innerHTML='<option value="">Selecione o setor...</option>'+setores.map(x=>'<option value="'+escaparHtml(x)+'">'+escaparHtml(x)+'</option>').join('');
  const setorOS=normSetor(o.setor);
  setor.value=setores.includes(setorOS)?setorOS:'';
- atualizarMaquinasEdicaoOS(false,o.maquina);
+ atualizarMaquinasEdicaoOS(false,o.maquina_id||o.maquina);
  set('ecTurno',o.turno);set('ecTecnico',o.tecnico);
  set('ecTipo',o.tipo);set('ecPrioridade',o.prioridade);set('ecSituacao',o.situacao_equipamento||'Parado');
  set('ecAbertura',o.created_at?loc(o.created_at):'');set('ecInicio',o.data_atendimento?loc(o.data_atendimento):'');set('ecConclusao',o.data_conclusao?loc(o.data_conclusao):'');
@@ -9349,8 +9389,8 @@ async function salvarEdicaoCompletaOS(){
  if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode editar todos os dados da O.S.');
  const val=id=>String(document.getElementById(id)?.value??'').trim();
  for(const [id,nome] of [['ecSetor','Setor'],['ecMaquina','Máquina'],['ecTurno','Turno'],['ecTipo','Tipo'],['ecDescricao','Problema relatado'],['ecAbertura','Data/hora da abertura']])if(!val(id))return alert('Preencha: '+nome+'.');
- const maquinaValida=(MAQUINAS||[]).some(m=>m&&String(m.nome||'').trim()===val('ecMaquina')&&normSetor(m.setor)===normSetor(val('ecSetor')));
- if(!maquinaValida)return alert('A máquina selecionada não pertence ao setor escolhido ou não está cadastrada. Selecione uma máquina da lista.');
+ const maquinaSelecionada=(MAQUINAS||[]).find(m=>m&&String(m.id)===val('ecMaquina')&&normSetor(m.setor)===normSetor(val('ecSetor')));
+ if(!maquinaSelecionada)return alert('Selecione a máquina correta pelo código. O nome sozinho não identifica o equipamento.');
  if(val('ecMotivo').length<8)return alert('A justificativa precisa ter pelo menos 8 caracteres.');
  const abertura=new Date(val('ecAbertura')),inicio=val('ecInicio')?new Date(val('ecInicio')):null,fim=val('ecConclusao')?new Date(val('ecConclusao')):null;
  if(abertura>new Date(Date.now()+60000))return alert('A abertura não pode estar no futuro.');
@@ -9358,7 +9398,7 @@ async function salvarEdicaoCompletaOS(){
  if(fim&&!inicio)return alert('Informe o início do atendimento antes da conclusão.');
  if(fim&&fim<inicio)return alert('A conclusão não pode ser anterior ao atendimento.');
  if(o.status==='Concluída'&&(!inicio||!fim))return alert('Uma O.S. concluída precisa ter início e conclusão preenchidos.');
- const dados={maquina:val('ecMaquina'),setor:val('ecSetor'),turno:val('ecTurno'),tecnico:val('ecTecnico')||null,tipo:val('ecTipo'),prioridade:val('ecPrioridade'),situacao_equipamento:val('ecSituacao'),created_at:abertura.toISOString(),data_atendimento:inicio?inicio.toISOString():null,data_conclusao:fim?fim.toISOString():null,descricao:val('ecDescricao'),causa:val('ecCausa')||null,servico_executado:val('ecServico')||null,peca:val('ecPeca')||null,rodando_em:o.rodando_em||null,observacao_rodando:val('ecObsRodando')||null};
+ const dados={maquina:maquinaSelecionada.nome,maquina_id:Number(maquinaSelecionada.id),setor:val('ecSetor'),turno:val('ecTurno'),tecnico:val('ecTecnico')||null,tipo:val('ecTipo'),prioridade:val('ecPrioridade'),situacao_equipamento:val('ecSituacao'),created_at:abertura.toISOString(),data_atendimento:inicio?inicio.toISOString():null,data_conclusao:fim?fim.toISOString():null,descricao:val('ecDescricao'),causa:val('ecCausa')||null,servico_executado:val('ecServico')||null,peca:val('ecPeca')||null,rodando_em:o.rodando_em||null,observacao_rodando:val('ecObsRodando')||null};
  const {error}=await _supabase.rpc('erimax_editar_os_completa',{p_os_id:o.id,p_dados:dados,p_motivo:val('ecMotivo')});
  if(error)return alert('Não foi possível salvar a O.S.: '+error.message);
  fecharEdicaoCompletaOS();await carregarDadosSupabase();alert('O.S. atualizada. A auditoria guardou os dados anteriores, os novos e a justificativa.');
@@ -9577,9 +9617,12 @@ async function verHistorico(id){
   if(os.transferencia_para&&os.transferencia_solicitada_em&&!transferencias.some(t=>t.solicitada_em===os.transferencia_solicitada_em))
     add(os.transferencia_solicitada_em,'Transferência aguardando aceite','Destino: '+os.transferencia_para+' • Motivo: '+(os.transferencia_motivo||'Não informado'),'alerta');
   eventos.sort((a,b)=>a.ts-b.ts);
+  const maquinaIdHistorico=resolverIdMaquinaRegistro(os);
+  const maquinaCadastroHistorico=MAQUINAS.find(m=>Number(m.id)===Number(maquinaIdHistorico));
+  const codigoMaquinaHistorico=String(maquinaCadastroHistorico?.prefixo||'').trim();
   const prioridade=['Alta','Média','Baixa'].includes(os.prioridade)?os.prioridade:'Não definida';
   const detalhes=[
-    ['Setor',os.setor],['Máquina',os.maquina],['Turno',os.turno],['Tipo',os.tipo],
+    ['Setor',os.setor],['Máquina',os.maquina],['Código da máquina',codigoMaquinaHistorico||'Não identificado'],['Turno',os.turno],['Tipo',os.tipo],
     ['Prioridade',prioridade],['Situação do equipamento',os.situacao_equipamento],['Retomada da produção',fmtData(os.rodando_em)],['Tempo em observação',os.rodando_em?minutosFmt(new Date(os.data_conclusao||Date.now()).getTime()-new Date(os.rodando_em).getTime()):'—'],['Observação de acompanhamento',os.observacao_rodando],
     ['Aberta por',os.aberto_por],['Responsável',os.tecnico],['Mecânico auxiliar',os.mecanico_auxiliar],['Abertura',fmtData(os.created_at)],
     ['Início do atendimento',fmtData(os.data_atendimento)],['Conclusão',fmtData(os.data_conclusao)]
@@ -9596,7 +9639,7 @@ async function verHistorico(id){
     modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fecharHistoricoOS()}});
   }
   const titulo=modal.querySelector('#tituloHistoricoOS');
-  if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada');
+  if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada')+(codigoMaquinaHistorico?' • '+codigoMaquinaHistorico:'');
   const conteudo=modal.querySelector('#conteudoHistoricoOS');
   if(conteudo)conteudo.innerHTML=
     '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
@@ -9625,13 +9668,9 @@ function atualizarMaquinasMetrica(){
   const s=setorEl.value,atual=sel.value;
   // A lista vem do cadastro oficial de máquinas, não das OS já abertas.
   // Assim máquinas novas aparecem mesmo antes da primeira OS.
-  const cadastro=MAQUINAS.filter(m=>m&&m.nome&&(s==='Todos'||m.setor===s));
-  const maqs=[...new Set(cadastro.map(m=>m.nome))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  sel.innerHTML='<option value="Todas">Todas as Máquinas</option>'+maqs.map(nome=>{
-    const ref=cadastro.find(m=>m.nome===nome);
-    return `<option value="${escaparHtml(nome)}">${escaparHtml(nome)}${ref&&ref.prefixo?' • '+escaparHtml(ref.prefixo):''}</option>`;
-  }).join('');
-  if(maqs.includes(atual))sel.value=atual;
+  const cadastro=MAQUINAS.filter(m=>m&&m.nome&&(s==='Todos'||m.setor===s)).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR')||String(a.prefixo||'').localeCompare(String(b.prefixo||''),'pt-BR'));
+  sel.innerHTML='<option value="Todas">Todas as Máquinas</option>'+cadastro.map(m=>`<option value="${Number(m.id)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado'} — ${escaparHtml(m.setor)}</option>`).join('');
+  if(cadastro.some(m=>String(m.id)===atual))sel.value=atual;
 }
 
 /* ===== MÉTRICAS ===== */
@@ -9763,6 +9802,10 @@ function aplicarPeriodoPersonalizado(){
 }
 // Confirma horários reais para todo o escopo: turno inativo, dia sem expediente ou
 // duração genérica em setores_config nunca contam como entrada/saída cadastradas.
+function setorTemTurnoDaVespera(s,dia,n){
+  const atual=new Date(dia+'T00:00:00'),meiaNoite=atual.getTime(),anterior=new Date(atual);anterior.setDate(anterior.getDate()-1);
+  return horariosDoDia(s,anterior).filter(t=>!n||+t.numero_turno===+n).some(t=>{if(!horarioTurnoValido(t))return false;const inicio=new Date(anterior);inicio.setHours(0,0,0,0);inicio.setMinutes(minutosHora(t.hora_inicio));return inicio.getTime()+minutosTurno(t)*60000>meiaNoite;});
+}
 function setorTemHorarioConfirmado(s,n,dia){
   const semana=HORARIOS_SEMANAIS[s]||[];
   const temGradeSemanal=semana.some(t=>t.ativo===true);
@@ -9775,12 +9818,9 @@ function setorTemHorarioConfirmado(s,n,dia){
       return selecionados.length>0&&selecionados.every(horarioTurnoValido);
     }
     const dow=new Date(dia+'T12:00:00').getDay();
-    if(temGradeSemanal){
-      const aplicaveis=semana.filter(t=>t.ativo===true&&+t.dia_semana===dow&&(!n||+t.numero_turno===n));
-      return aplicaveis.length>0&&aplicaveis.every(horarioTurnoValido);
-    }
-    const legados=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(dow))&&(!n||+t.numero_turno===n));
-    return legados.length>0&&legados.every(horarioTurnoValido);
+    const aplicaveis=temGradeSemanal?semana.filter(t=>t.ativo===true&&+t.dia_semana===dow&&(!n||+t.numero_turno===n)):(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(dow))&&(!n||+t.numero_turno===n));
+    if(aplicaveis.length)return aplicaveis.every(horarioTurnoValido);
+    return setorTemTurnoDaVespera(s,dia,n);
   }
   const fonte=temGradeSemanal
     ?semana.filter(t=>t.ativo===true&&(!n||+t.numero_turno===n))
@@ -9805,7 +9845,7 @@ function setorTemHorarioConfirmadoPeriodo(s,n,inicio,fim){
     }else{
       aplicaveis=(TURNOS_CFG[s]||[]).filter(t=>t.ativo!==false&&(t.dias||'').includes(String(d.getDay()))&&(!n||+t.numero_turno===+n));
     }
-    if(!aplicaveis.length)continue;
+    if(!aplicaveis.length){if(setorTemTurnoDaVespera(s,iso,n))encontrouDiaOperacional=true;continue;}
     encontrouDiaOperacional=true;
     if(!aplicaveis.every(horarioTurnoValido))return false;
   }
@@ -9847,6 +9887,12 @@ function intervalosProdutivosPeriodo(s,periodoInicio,periodoFim,tn){
 // Distribui o tempo da O.S. entre os turnos que realmente estavam em expediente.
 // Na faixa de sobreposição, respeita o turno escolhido ao abrir a O.S.; fora dela,
 // a parada passa para o turno que estiver trabalhando naquele horário.
+function intervalosProdutivosTurnoExclusivo(s,periodoInicio,periodoFim,turnoFiltro){
+  let partes=intervalosProdutivosPeriodo(s,periodoInicio,periodoFim,turnoFiltro);
+  const outros=[1,2,3].filter(n=>n!==turnoFiltro).flatMap(n=>intervalosProdutivosPeriodo(s,periodoInicio,periodoFim,n)).sort((a,b)=>a[0]-b[0]);
+  outros.forEach(outro=>{partes=partes.flatMap(p=>{if(outro[1]<=p[0]||outro[0]>=p[1])return[p];const sobra=[];if(outro[0]>p[0])sobra.push([p[0],outro[0]]);if(outro[1]<p[1])sobra.push([outro[1],p[1]]);return sobra})});
+  return partes;
+}
 function intervalosProdutivosAtribuidosOS(c,periodoInicio,periodoFim,turnoFiltro){
   const turnos=[1,2,3].map(numero=>({
     numero,
@@ -9862,8 +9908,8 @@ function intervalosProdutivosAtribuidosOS(c,periodoInicio,periodoFim,turnoFiltro
     const meio=ini+(fim-ini)/2;
     const ativos=turnos.filter(t=>t.intervalos.some(p=>p[0]<=meio&&p[1]>=meio));
     if(!ativos.length)continue;
-    const atribuido=ativos.length===1?ativos[0].numero:responsavel;
-    if(atribuido!==turnoFiltro||!ativos.some(t=>t.numero===atribuido))continue;
+    // Faixas compartilhadas ficam fora dos indicadores individuais por turno.
+    if(ativos.length!==1||ativos[0].numero!==turnoFiltro)continue;
     const ultimo=resultado[resultado.length-1];
     if(ultimo&&ultimo[1]===ini)ultimo[1]=fim;
     else resultado.push([ini,fim]);
@@ -9988,6 +10034,7 @@ function mostrarOSDetalhe(titulo,lista){
 function fecharModalEfOS(){modalEfOS.style.display='none'}
 
 /* ===== IDENTIFICAÇÃO AUTOMÁTICA DE REINCIDÊNCIA (SEM CATÁLOGO OU SERVIÇO EXTERNO) ===== */
+function resolverIdMaquinaRegistro(os){const id=Number(os?.maquina_id);if(Number.isFinite(id)&&id>0&&Array.isArray(MAQUINAS)&&MAQUINAS.some(m=>Number(m.id)===id))return id;const nome=String(os?.maquina||'').trim(),setor=normalizarIdentificadorReincidencia(os?.setor);const encontrados=(MAQUINAS||[]).filter(m=>normalizarIdentificadorReincidencia(m.setor)===setor&&String(m.nome||'').trim()===nome);return encontrados.length===1?Number(encontrados[0].id):null;}
 function normalizarIdentificadorReincidencia(valor){
   return String(valor||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\s+/g,' ');
 }
@@ -10026,7 +10073,8 @@ function calcularReincidenciasHistorico(historico){
   ordenadas.forEach(os=>{
     const maquina=normalizarIdentificadorReincidencia(os.maquina);
     const setor=normalizarIdentificadorReincidencia(os.setor);
-    const chaveMaquina=maquina+'|'+setor;
+    const idMaquina=resolverIdMaquinaRegistro(os);
+    const chaveMaquina=(idMaquina?'id:'+idMaquina:'legacy:'+setor+'|'+maquina);
     const descricaoNormalizada=normalizarDescricaoProblemaOS(os.descricao);
     const tokens=tokensProblemaOS(os);
     if(!maquina||!descricaoNormalizada)return;
@@ -10063,12 +10111,12 @@ function calcularReincidenciasHistorico(historico){
 let REINCIDENCIA_SELECAO=null;
 let REINCIDENCIA_MAQUINA_ABERTA=false;
 let METRICA_MAQUINA_ABERTA=false,METRICA_MAQUINA_SELECIONADA=null,METRICA_MAQUINA_TIPO=null;
-function abrirDetalheMaquinaIndicador(tipo,setor,maquina){METRICA_MAQUINA_ABERTA=true;METRICA_MAQUINA_TIPO=tipo;METRICA_MAQUINA_SELECIONADA={setor,maquina};abrirDetalheMetrica(tipo)}
+function abrirDetalheMaquinaIndicador(tipo,setor,maquina,maquinaId){METRICA_MAQUINA_ABERTA=true;METRICA_MAQUINA_TIPO=tipo;METRICA_MAQUINA_SELECIONADA={setor,maquina,maquina_id:maquinaId?Number(maquinaId):null};abrirDetalheMetrica(tipo)}
 function voltarGraficoMaquinaIndicador(){const tipo=METRICA_MAQUINA_TIPO||'parada';METRICA_MAQUINA_ABERTA=false;METRICA_MAQUINA_SELECIONADA=null;abrirDetalheMetrica(tipo)}
 function voltarGraficoDetalheIndicador(){if(METRICA_MAQUINA_ABERTA){voltarGraficoMaquinaIndicador();return}voltarGraficoReincidencias()}
-function abrirDetalheReincidenciaMaquina(setor,maquina){REINCIDENCIA_MAQUINA_ABERTA=true;REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),problema:null};abrirDetalheMetrica('reincidencia')}
+function abrirDetalheReincidenciaMaquina(setor,maquina,maquinaId){REINCIDENCIA_MAQUINA_ABERTA=true;REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),maquina_id:maquinaId?Number(maquinaId):null,problema:null};abrirDetalheMetrica('reincidencia')}
 function voltarGraficoReincidencias(){REINCIDENCIA_MAQUINA_ABERTA=false;REINCIDENCIA_SELECAO=null;abrirDetalheMetrica('reincidencia')}
-function abrirDetalheReincidenciaGrupo(setor,maquina,problema){REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),problema:decodeURIComponent(problema)};abrirDetalheMetrica('reincidencia')}
+function abrirDetalheReincidenciaGrupo(setor,maquina,problema,maquinaId){REINCIDENCIA_SELECAO={setor:decodeURIComponent(setor),maquina:decodeURIComponent(maquina),maquina_id:maquinaId?Number(maquinaId):null,problema:decodeURIComponent(problema)};abrirDetalheMetrica('reincidencia')}
 let chartDetalheMetrica=null;
 function fecharDetalheMetrica(){const m=document.getElementById('modalDetalheMetrica');if(m)m.style.display='none';METRICA_MAQUINA_ABERTA=false;METRICA_MAQUINA_SELECIONADA=null;METRICA_MAQUINA_TIPO=null;const canvas=document.getElementById('chartDetalheMetrica');const area=canvas?.closest('.chart-wrapper');if(area)area.style.display='';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}}
 function abrirDetalheMetrica(tipo){
@@ -10078,14 +10126,15 @@ function abrirDetalheMetrica(tipo){
  if(cabecalho&&!cabecalho.querySelector('#btnVoltarGraficoReincidencias')){const voltar=document.createElement('button');voltar.id='btnVoltarGraficoReincidencias';voltar.type='button';voltar.className='erimax-recurrence-back';voltar.textContent='← Voltar ao gráfico';voltar.onclick=voltarGraficoDetalheIndicador;cabecalho.insertBefore(voltar,cabecalho.querySelector('.erimax-os-history-close'));}
  const botaoVoltar=modal.querySelector('#btnVoltarGraficoReincidencias');const detalheMaquinaAtivo=METRICA_MAQUINA_ABERTA&&METRICA_MAQUINA_TIPO===tipo&&METRICA_MAQUINA_SELECIONADA;if(botaoVoltar){botaoVoltar.onclick=voltarGraficoDetalheIndicador;botaoVoltar.style.display=(tipo==='reincidencia'&&REINCIDENCIA_MAQUINA_ABERTA)||detalheMaquinaAtivo?'inline-flex':'none'}
  const areaGrafico=canvas.closest('.chart-wrapper');if(areaGrafico)areaGrafico.style.display='';
- const todos=ordenarOSRecentes(FILTRADAS_TODAS||FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada'));
+ const todos=ordenarOSRecentes(FILTRADAS_TODAS||FILTRADAS||[]),dados=ordenarOSRecentes(todos.filter(c=>c.status!=='Cancelada')),dadosMTTR=ordenarOSRecentes(FILTRADAS_MTTR||[]);
  const itemOS=os=>'<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina||'Máquina não informada')+'</b><p style="font-size:.76rem;color:#64748b;margin:5px 0">'+escaparHtml(os.setor||'')+' • '+escaparHtml(os.tipo||'')+' • '+escaparHtml(os.status||'')+'</p><p style="font-size:.8rem;margin:5px 0">'+escaparHtml(os.descricao||'Descrição não informada')+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir esta O.S.</button></div>';
  const agrupar=(arr,key,val)=>{const g={};arr.forEach(x=>{const k=key(x)||'Não informado';g[k]=(g[k]||0)+val(x)});return Object.entries(g).sort((a,b)=>b[1]-a[1])};
  if(detalheMaquinaAtivo){
-  const sel=METRICA_MAQUINA_SELECIONADA,listaMaquina=ordenarOSRecentes(todos.filter(os=>String(os.maquina||'')===String(sel.maquina)&&String(os.setor||'')===String(sel.setor)));
+  const sel=METRICA_MAQUINA_SELECIONADA,listaMaquina=ordenarOSRecentes(todos.filter(os=>String(resolverIdMaquinaRegistro(os)||'')===String(sel.maquina_id||'')&&String(os.maquina||'')===String(sel.maquina)&&String(os.setor||'')===String(sel.setor)));
   titulo.textContent='Histórico da máquina';
-  const explicacaoMaquina='Máquina: '+sel.maquina+' • Setor: '+sel.setor+' • '+listaMaquina.length+' O.S. encontradas nos filtros atuais. Consulte os problemas, situação, técnico, datas e serviços executados.';
-  box.innerHTML='<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA SELECIONADA</small><h3>'+escaparHtml(sel.maquina)+'</h3><p>'+escaparHtml(sel.setor)+'</p></div><strong>'+listaMaquina.length+' O.S. no histórico</strong></header>'+(listaMaquina.length?'<div class="metrics-recurrence-detail-sequence">'+listaMaquina.map((os,i)=>'<article class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'Data não informada')+'</b><p><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+'</p><p><b>Situação:</b> '+escaparHtml(os.status||'Não informada')+' • <b>Turno:</b> '+escaparHtml(os.turno||'Não informado')+'</p><p><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p><small>Atendimento: '+escaparHtml(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não iniciado')+' • Conclusão: '+escaparHtml(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Pendente')+'</small>'+(os.servico_executado?'<p><b>Serviço executado:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'</div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></article>').join('')+'</div>':'<p class="metrics-recurrence-empty">Nenhuma O.S. encontrada para esta máquina nos filtros atuais.</p>')+'</section>';
+  const codigoMaquina=MAQUINAS.find(m=>String(m.id)===String(sel.maquina_id))?.prefixo||'';
+  const explicacaoMaquina='Máquina: '+sel.maquina+(codigoMaquina?' • '+codigoMaquina:'')+' • Setor: '+sel.setor+' • '+listaMaquina.length+' O.S. encontradas nos filtros atuais. Consulte os problemas, situação, técnico, datas e serviços executados.';
+  box.innerHTML='<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA SELECIONADA</small><h3>'+escaparHtml(sel.maquina)+(codigoMaquina?' • '+escaparHtml(codigoMaquina):'')+'</h3><p>'+escaparHtml(sel.setor)+'</p></div><strong>'+listaMaquina.length+' O.S. no histórico</strong></header>'+(listaMaquina.length?'<div class="metrics-recurrence-detail-sequence">'+listaMaquina.map((os,i)=>'<article class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(os.created_at?new Date(os.created_at).toLocaleString('pt-BR'):'Data não informada')+'</b><p><b>Problema:</b> '+escaparHtml(os.descricao||'Não informado')+'</p><p><b>Tipo:</b> '+escaparHtml(os.tipo||'Não informado')+' • <b>Causa:</b> '+escaparHtml(os.causa||'Não informada')+'</p><p><b>Situação:</b> '+escaparHtml(os.status||'Não informada')+' • <b>Turno:</b> '+escaparHtml(os.turno||'Não informado')+'</p><p><b>Técnico:</b> '+escaparHtml(os.tecnico||'Não assumida')+'</p><small>Atendimento: '+escaparHtml(os.data_atendimento?new Date(os.data_atendimento).toLocaleString('pt-BR'):'Não iniciado')+' • Conclusão: '+escaparHtml(os.data_conclusao?new Date(os.data_conclusao).toLocaleString('pt-BR'):'Pendente')+'</small>'+(os.servico_executado?'<p><b>Serviço executado:</b> '+escaparHtml(os.servico_executado)+'</p>':'')+'</div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></article>').join('')+'</div>':'<p class="metrics-recurrence-empty">Nenhuma O.S. encontrada para esta máquina nos filtros atuais.</p>')+'</section>';
   resumo.textContent=explicacaoMaquina;if(areaGrafico)areaGrafico.style.display='none';document.body.appendChild(modal);modal.scrollTop=0;modal.style.display='flex';if(chartDetalheMetrica){chartDetalheMetrica.destroy();chartDetalheMetrica=null}return;
  }
  let cfg={type:'bar',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}},explicacao='',lista=[];
@@ -10096,23 +10145,34 @@ function abrirDetalheMetrica(tipo){
   explicacao='Usa a mesma base de horas do indicador principal. Considera somente paradas registradas em O.S. dentro do horário de produção.';
   box.innerHTML=lista.length?lista.map(os=>{const x=(OS_PARADA_ATUAL||[]).find(v=>Number(v.os.id)===Number(os.id));return '<div class="os-card" style="margin:8px 0;padding:10px"><b>'+escaparHtml(nOS(os))+' • '+escaparHtml(os.maquina)+'</b><p>Parada considerada: '+fmt(x?.parada||0)+'</p><button class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>'}).join(''):'<p>Nenhuma parada registrada neste filtro.</p>';
  }else if(tipo==='parada'){
-  titulo.textContent='Tempo total parado';const g=agrupar(OS_PARADA_ATUAL||[],x=>(x.os.maquina||'Máquina não informada')+' — '+(x.os.setor||'Setor não informado'),x=>x.parada).slice(0,12);
-  const maquinasGrafico=g.map(([label,total])=>{const item=(OS_PARADA_ATUAL||[]).find(x=>x&&x.os&&((x.os.maquina||'Máquina não informada')+' — '+(x.os.setor||'Setor não informado'))===label);return item?{maquina:item.os.maquina||'Máquina não informada',setor:item.os.setor||'Setor não informado'}:null});
-  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x[1])),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('parada',item.setor,item.maquina)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
+  titulo.textContent='Tempo total parado';
+  const gruposParada=new Map();
+  (OS_PARADA_ATUAL||[]).forEach(x=>{
+    const os=x.os||{},id=resolverIdMaquinaRegistro(os),chave=id?'id:'+id:'legacy:'+normalizarIdentificadorReincidencia(os.setor)+'|'+normalizarIdentificadorReincidencia(os.maquina);
+    if(!gruposParada.has(chave))gruposParada.set(chave,{label:(os.maquina||'Máquina não informada')+(id&&MAQUINAS.find(m=>Number(m.id)===id)?.prefixo?' • '+MAQUINAS.find(m=>Number(m.id)===id).prefixo:'')+' — '+(os.setor||'Setor não informado'),maquina:os.maquina||'Máquina não informada',setor:os.setor||'Setor não informado',maquina_id:id,total:0});
+    gruposParada.get(chave).total+=Number(x.parada)||0;
+  });
+  const g=[...gruposParada.values()].sort((a,b)=>b.total-a.total).slice(0,12),maquinasGrafico=g;
+  cfg={type:'bar',data:{labels:g.map(x=>x.label),datasets:[{label:'Minutos parados',data:g.map(x=>Math.round(x.total)),backgroundColor:'#f97316'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('parada',item.setor,item.maquina,item.maquina_id)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}};
   lista=ordenarOSRecentes((OS_PARADA_ATUAL||[]).map(x=>x.os));
   explicacao='Considera somente horários produtivos e evita duplicar minutos de O.S. sobrepostas na mesma máquina.';
   box.innerHTML=lista.length?lista.map(itemOS).join(''):'<p>Nenhuma O.S. com parada neste filtro.</p>';
  }else if(tipo==='resposta'||tipo==='mttr'){
   const resp=tipo==='resposta';titulo.textContent=resp?'Tempo de resposta':'MTTR — tempo de reparo';
-  lista=dados.filter(c=>c.data_atendimento&&(!resp?c.data_conclusao:true)&&min(resp?c.created_at:c.data_atendimento,resp?c.data_atendimento:c.data_conclusao)>=0);const g={};
+  lista=(resp?dados:dadosMTTR).filter(c=>c.data_atendimento&&(!resp?c.data_conclusao:true)&&min(resp?c.created_at:c.data_atendimento,resp?c.data_atendimento:c.data_conclusao)>=0);const g={};
   lista.forEach(c=>{const n=c.tecnico||'Sem técnico',v=min(resp?c.created_at:c.data_atendimento,resp?c.data_atendimento:c.data_conclusao);if(v>=0){if(!g[n])g[n]={s:0,n:0};g[n].s+=v;g[n].n++}});
   const a=Object.entries(g).map(([n,v])=>[n,v.n?v.s/v.n:0]).sort((x,y)=>y[1]-x[1]);
   cfg={type:'bar',data:{labels:a.map(x=>x[0]),datasets:[{label:'Média em minutos',data:a.map(x=>Math.round(x[1])),backgroundColor:resp?'#2563eb':'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,title:{display:true,text:'minutos'}}}}};
   explicacao='Média por técnico, calculada a partir dos horários registrados nas O.S.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma O.S. com os horários necessários.</p>';
  }else if(tipo==='mtbf'){
-  titulo.textContent='MTBF — intervalo médio entre falhas';const mtbfDados=OS_MTBF_ATUAL||[];const g=agrupar(mtbfDados,c=>(c.maquina||'Máquina não informada')+' — '+(c.setor||'Setor não informado'),()=>1).slice(0,12);
-  const maquinasGrafico=g.map(([label])=>{const os=mtbfDados.find(c=>((c.maquina||'Máquina não informada')+' — '+(c.setor||'Setor não informado'))===label);return os?{maquina:os.maquina||'Máquina não informada',setor:os.setor||'Setor não informado'}:null});
-  cfg={type:'bar',data:{labels:g.map(x=>x[0]),datasets:[{label:'Falhas registradas',data:g.map(x=>x[1]),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('mtbf',item.setor,item.maquina)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  titulo.textContent='MTBF — intervalo médio entre falhas';const mtbfDados=OS_MTBF_ATUAL||[],gruposMTBF=new Map();
+  mtbfDados.forEach(os=>{
+    const id=resolverIdMaquinaRegistro(os),chave=id?'id:'+id:'legacy:'+normalizarIdentificadorReincidencia(os.setor)+'|'+normalizarIdentificadorReincidencia(os.maquina);
+    if(!gruposMTBF.has(chave))gruposMTBF.set(chave,{maquina:os.maquina||'Máquina não informada',setor:os.setor||'Setor não informado',maquina_id:id,prefixo:MAQUINAS.find(m=>Number(m.id)===Number(id))?.prefixo||'',total:0});
+    gruposMTBF.get(chave).total++;
+  });
+  const g=[...gruposMTBF.values()].sort((a,b)=>b.total-a.total).slice(0,12),maquinasGrafico=g;
+  cfg={type:'bar',data:{labels:g.map(x=>x.maquina+(x.prefixo?' • '+x.prefixo:'')+' — '+x.setor),datasets:[{label:'Falhas registradas',data:g.map(x=>x.total),backgroundColor:'#0d9488'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(_evento,elementos)=>{if(!elementos.length)return;const item=maquinasGrafico[elementos[0].index];if(item)abrirDetalheMaquinaIndicador('mtbf',item.setor,item.maquina,item.maquina_id)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=mtbfDados;explicacao='O gráfico e a lista usam exatamente as O.S. consideradas no MTBF geral: máquinas cadastradas dos setores produtivos com horário válido, respeitando período e turno selecionados.';box.innerHTML=lista.length?ordenarOSRecentes(lista).map(itemOS).join(''):'<p>Nenhuma falha registrada na base produtiva com horário válido.</p>';
  }else if(tipo==='total'){
   titulo.textContent='Total de O.S.';const g={};todos.forEach(c=>{const n=c.status||'Sem status';g[n]=(g[n]||0)+1});const labels=Object.keys(g);
@@ -10126,28 +10186,28 @@ function abrirDetalheMetrica(tipo){
   titulo.textContent='Reincidência por defeito';const mapa=calcularReincidenciasHistorico(chamados),grupos={};
   dados.forEach(os=>{
     const info=mapa.get(String(os.id));if(!info)return;
-    const maquina=os.maquina||'Máquina não informada',setor=os.setor||'Setor não informado',k=normalizarIdentificadorReincidencia(setor)+'|'+normalizarIdentificadorReincidencia(maquina)+'|'+info.grupo;
-    if(!grupos[k])grupos[k]={maquina,setor,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
+    const maquina=os.maquina||'Máquina não informada',setor=os.setor||'Setor não informado',maquina_id=resolverIdMaquinaRegistro(os),prefixo=MAQUINAS.find(m=>String(m.id)===String(maquina_id))?.prefixo||'',k=(maquina_id?'id:'+maquina_id:'legacy:'+normalizarIdentificadorReincidencia(setor)+'|'+normalizarIdentificadorReincidencia(maquina))+'|'+info.grupo;
+    if(!grupos[k])grupos[k]={maquina,setor,maquina_id,prefixo,problema:info.grupo,os:[],primeiraOS:info.primeiraOS};
     grupos[k].os.push(os);
   });
   let r=Object.values(grupos).sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
-  if(REINCIDENCIA_SELECAO){const sel=REINCIDENCIA_SELECAO;REINCIDENCIA_SELECAO=null;r=r.filter(g=>g.setor===sel.setor&&g.maquina===sel.maquina&&(sel.problema==null||g.problema===sel.problema))}
+  if(REINCIDENCIA_SELECAO){const sel=REINCIDENCIA_SELECAO;REINCIDENCIA_SELECAO=null;r=r.filter(g=>g.setor===sel.setor&&g.maquina===sel.maquina&&String(g.maquina_id||'')===String(sel.maquina_id||'')&&(sel.problema==null||g.problema===sel.problema))}
   const porMaquina=new Map();
   r.forEach(g=>{
-    const chave=g.setor+'|'+g.maquina;
-    if(!porMaquina.has(chave))porMaquina.set(chave,{maquina:g.maquina,setor:g.setor,total:0,problemas:[]});
+    const chave=g.maquina_id?'id:'+g.maquina_id:'legacy:'+g.setor+'|'+g.maquina;
+    if(!porMaquina.has(chave))porMaquina.set(chave,{maquina:g.maquina,setor:g.setor,maquina_id:g.maquina_id,prefixo:g.prefixo,total:0,problemas:[]});
     const item=porMaquina.get(chave);item.total+=g.os.length+1;item.problemas.push(g);
   });
   const maquinasOrdenadas=[...porMaquina.values()].sort((a,b)=>b.total-a.total||a.maquina.localeCompare(b.maquina,'pt-BR'));
   const ranking=maquinasOrdenadas.slice(0,12);
-  cfg={type:'bar',data:{labels:ranking.map(x=>x.maquina+' — '+x.setor),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x.total),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(evento,elementos)=>{if(!elementos.length)return;const maquinaSelecionada=ranking[elementos[0].index];if(maquinaSelecionada)abrirDetalheReincidenciaMaquina(encodeURIComponent(maquinaSelecionada.setor),encodeURIComponent(maquinaSelecionada.maquina))},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
+  cfg={type:'bar',data:{labels:ranking.map(x=>x.maquina+(x.prefixo?' • '+x.prefixo:'')+' — '+x.setor),datasets:[{label:'Reincidências no período',data:ranking.map(x=>x.total),backgroundColor:'#dc3545'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',onClick:(evento,elementos)=>{if(!elementos.length)return;const maquinaSelecionada=ranking[elementos[0].index];if(maquinaSelecionada)abrirDetalheReincidenciaMaquina(encodeURIComponent(maquinaSelecionada.setor),encodeURIComponent(maquinaSelecionada.maquina),maquinaSelecionada.maquina_id)},plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}};
   lista=maquinasOrdenadas.flatMap(m=>m.problemas.flatMap(g=>[g.primeiraOS,...g.os])).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i);
   explicacao='As ordens estão agrupadas primeiro por máquina e depois por tipo de problema. Dentro de cada problema, as O.S. aparecem da mais recente para a mais antiga, incluindo a primeira ocorrência que originou a reincidência. A comparação considera a mesma máquina e o mesmo setor; descrições ambíguas não são classificadas automaticamente.';
   const cronologica=arr=>arr.slice().sort((a,b)=>{const ta=Date.parse(a?.created_at||''),tb=Date.parse(b?.created_at||'');if(Number.isFinite(tb)&&Number.isFinite(ta))return tb-ta;if(Number.isFinite(tb))return -1;if(Number.isFinite(ta))return 1;return 0});
   box.innerHTML=maquinasOrdenadas.length?maquinasOrdenadas.map((maquina,idx)=>{
     const problemas=maquina.problemas.sort((a,b)=>b.os.length-a.os.length||a.problema.localeCompare(b.problema,'pt-BR'));
-    return '<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA SELECIONADA</small><h3>'+escaparHtml(maquina.maquina)+'</h3><p>'+escaparHtml(maquina.setor)+'</p></div><strong>'+maquina.total+' O.S. no histórico</strong></header>'+
-      problemas.map((g,i)=>'<article class="metrics-recurrence-detail-problem"><button type="button" class="metrics-recurrence-detail-problem-head" onclick="abrirDetalheReincidenciaGrupo(\''+encodeURIComponent(g.setor).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.maquina).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.problema).replace(/'/g,'%27')+'\')"><b>'+String(i+1).padStart(2,'0')+' · '+escaparHtml(g.problema)+'</b><span>'+(g.os.length+1)+' O.S. no problema · abrir O.S.</span></button><div class="metrics-recurrence-detail-sequence">'+cronologica([g.primeiraOS,...g.os]).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).map((os,i)=>'<div class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(diaLocal(os.created_at)||'Data não informada')+'</b><p>'+escaparHtml(os.descricao||'Descrição não informada')+'</p><small>'+escaparHtml(os.status||'Status não informado')+'</small></div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>').join('')+'</div></article>').join('')+'</section>';
+    return '<section class="metrics-recurrence-detail-machine"><header><div><small>MÁQUINA SELECIONADA</small><h3>'+escaparHtml(maquina.maquina)+(maquina.prefixo?' • '+escaparHtml(maquina.prefixo):'')+'</h3><p>'+escaparHtml(maquina.setor)+'</p></div><strong>'+maquina.total+' O.S. no histórico</strong></header>'+
+      problemas.map((g,i)=>'<article class="metrics-recurrence-detail-problem"><button type="button" class="metrics-recurrence-detail-problem-head" onclick="abrirDetalheReincidenciaGrupo(\''+encodeURIComponent(g.setor).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.maquina).replace(/'/g,'%27')+'\',\''+encodeURIComponent(g.problema).replace(/'/g,'%27')+'\','+Number(g.maquina_id||0)+')"><b>'+String(i+1).padStart(2,'0')+' · '+escaparHtml(g.problema)+'</b><span>'+(g.os.length+1)+' O.S. no problema · abrir O.S.</span></button><div class="metrics-recurrence-detail-sequence">'+cronologica([g.primeiraOS,...g.os]).filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).map((os,i)=>'<div class="metrics-recurrence-detail-order"><span class="metrics-recurrence-step">'+String(i+1).padStart(2,'0')+'</span><div><b>'+escaparHtml(nOS(os))+' · '+escaparHtml(diaLocal(os.created_at)||'Data não informada')+'</b><p>'+escaparHtml(os.descricao||'Descrição não informada')+'</p><small>'+escaparHtml(os.status||'Status não informado')+'</small></div><button type="button" class="btn-action btn-assumir" onclick="fecharDetalheMetrica();abrirOSNoPainel('+Number(os.id)+')">Abrir O.S.</button></div>').join('')+'</div></article>').join('')+'</section>';
   }).join(''):'<p>Nenhuma reincidência identificada com segurança neste filtro.</p>';
  }else{return}
  if(tipo==='total'||tipo==='conclusao')cfg.options.onClick=(_evt,items)=>{if(!items?.length)return;const label=cfg.data.labels?.[items[0].index]||'';const fonte=tipo==='total'?todos:dados;const relacionados=fonte.filter(os=>String(os.status||'Sem status')===String(label));mostrarOSDetalhe((tipo==='total'?'O.S. com situação: ':'O.S. da taxa de conclusão: ')+label,ordenarOSRecentes(relacionados))};
@@ -10158,14 +10218,16 @@ function abrirDetalheMetrica(tipo){
 
 function atualizarMetricasReais(){
   const dia=filtroDia.value,mes=filtroMes.value,dataInicio=document.getElementById('filtroDataInicio')?.value||'',dataFim=document.getElementById('filtroDataFim')?.value||'',periodoPersonalizado=!!(dataInicio&&dataFim),tn=filtroTurnoMetrica.value,st=filtroSetorMetrica.value,mq=filtroMaquinaMetrica.value,tp=filtroTipoMetrica.value;
+  const resolverMaquinaIdOS=resolverIdMaquinaRegistro;
   const dataBR=v=>v?String(v).split('-').reverse().join('/'):'';
   const periodoResumo=periodoPersonalizado?dataBR(dataInicio)+' a '+dataBR(dataFim):dia?'Dia '+dataBR(dia):mes?'Mês '+mes:'Todo o histórico';
   const resumoFiltros=document.getElementById('metricsFiltroResumo');
-  if(resumoFiltros)resumoFiltros.textContent=[periodoResumo,tn==='Todos'?'Todos os turnos':tn,st==='Todos'?'Todos os setores':st,mq==='Todas'?'Todas as máquinas':mq,tp==='Todos'?'Todos os tipos':tp].join('  •  ');
+  const maquinaResumo=mq==='Todas'?'Todas as máquinas':(()=>{const m=MAQUINAS.find(x=>String(x.id)===String(mq));return m?m.nome+(m.prefixo?' • '+m.prefixo:''):'Máquina selecionada'})();
+  if(resumoFiltros)resumoFiltros.textContent=[periodoResumo,tn==='Todos'?'Todos os turnos':tn,st==='Todos'?'Todos os setores':st,maquinaResumo,tp==='Todos'?'Todos os tipos':tp].join('  •  ');
   const avisoHorario=document.getElementById('metricsHorarioAviso');
   const turnoNum=tn==='Todos'?null:+tn.slice(-1);
   // Disponibilidade e MTBF consideram apenas equipamentos da produção; Manutenção Predial fica fora dessa base.
-  const maquinasMetricaEscopo=MAQUINAS.filter(m=>m.setor!=='Manutenção Predial'&&(st==='Todos'||m.setor===st)&&(mq==='Todas'||m.nome===mq));
+  const maquinasMetricaEscopo=MAQUINAS.filter(m=>m.setor!=='Manutenção Predial'&&(st==='Todos'||m.setor===st)&&(mq==='Todas'||String(m.id)===String(mq)));
   const setoresEscopo=[...new Set(maquinasMetricaEscopo.map(m=>m&&m.setor).filter(Boolean))];
   const setoresComHorarioFiltro=setoresEscopo.filter(setor=>periodoPersonalizado?setorTemHorarioConfirmadoPeriodo(setor,turnoNum,dataInicio,dataFim):setorTemHorarioConfirmado(setor,turnoNum,dia||null));
   const setoresComHorarioSet=new Set(setoresComHorarioFiltro);
@@ -10191,7 +10253,7 @@ function atualizarMetricasReais(){
   const f=chamados.filter(c=>{
     const d=c.created_at?diaLocal(c.created_at):'';
     const dentroPeriodo=periodoPersonalizado?(d>=dataInicio&&d<=dataFim):dia?d===dia:mes?d.startsWith(mes):true;
-    return dentroPeriodo&&(tn==='Todos'||normalizarTurnoMetrica(c.turno)===tn)&&(st==='Todos'||c.setor===st)&&(mq==='Todas'||c.maquina===mq)&&c.tipo!=='Preventiva'&&(tp==='Todos'||c.tipo===tp);
+    return dentroPeriodo&&(tn==='Todos'||normalizarTurnoMetrica(c.turno)===tn)&&(st==='Todos'||c.setor===st)&&(mq==='Todas'||String(resolverMaquinaIdOS(c)||'')===String(mq))&&c.tipo!=='Preventiva'&&(tp==='Todos'||c.tipo===tp);
   });
 
   const fIndicadores=f.filter(c=>c.status!=='Cancelada');
@@ -10202,7 +10264,7 @@ function atualizarMetricasReais(){
   // não no turno de abertura da O.S. (que pode ser diferente do turno da conclusão).
   const baseEscopo=chamados.filter(os=>
     os.status!=='Cancelada'&&(st==='Todos'||os.setor===st)&&
-    (mq==='Todas'||os.maquina===mq)&&os.tipo!=='Preventiva'&&(tp==='Todos'||os.tipo===tp)
+    (mq==='Todas'||String(resolverMaquinaIdOS(os)||'')===String(mq))&&os.tipo!=='Preventiva'&&(tp==='Todos'||os.tipo===tp)
   );
   const eventoNoPeriodo=data=>{
     if(!data)return false;
@@ -10241,13 +10303,16 @@ function atualizarMetricasReais(){
     const atribuido=ativos.length===1?ativos[0]:responsavel;
     return atribuido===turnoNum&&ativos.includes(atribuido);
   };
+  // MTTR segue a data e o turno da conclusão; tempo de resposta segue a abertura.
+  const fConclusao=baseEscopo.filter(os=>os.status==='Concluída'&&os.data_atendimento&&os.data_conclusao&&eventoNoPeriodo(os.data_conclusao)&&eventoNoTurno(os,os.data_conclusao));
+  FILTRADAS_MTTR=fConclusao;
   // agregadores
   let parada=0,sResp=0,nResp=0,sRep=0,nRep=0,concl=0,abertas=0;
-  const chaveMetricaMaq=(setor,nome)=>JSON.stringify([String(setor||''),String(nome||'')]);
+  const chaveMetricaMaq=(setor,nome,maquinaId)=>JSON.stringify([String(setor||''),String(nome||''),maquinaId?String(maquinaId):'legacy']);
   const maq={},setor={},tec={},tipo={},causa={},turno={'Turno 1':0,'Turno 2':0,'Turno 3':0},hora=Array(24).fill(0),aberDia={},conclDia={};
 
   fIndicadores.forEach(c=>{
-    const chave=chaveMetricaMaq(c.setor,c.maquina);
+    const chave=chaveMetricaMaq(c.setor,c.maquina,resolverMaquinaIdOS(c));
     const m=maq[chave]||(maq[chave]={nome:c.maquina,falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});
     m.falhas++;
     tipo[c.tipo]=(tipo[c.tipo]||0)+1;const cz=c.causa||'Não informada';causa[cz]=(causa[cz]||0)+1;
@@ -10263,13 +10328,9 @@ function atualizarMetricasReais(){
       if(r>=0){sResp+=r;nResp++;
         if(c.tecnico){const t=tec[c.tecnico]||(tec[c.tecnico]={sR:0,nR:0,sP:0,nP:0});t.sR+=r;t.nR++}}
     }
-    if(c.status!=='Cancelada'&&c.data_atendimento&&c.data_conclusao){
-      const r=min(c.data_atendimento,c.data_conclusao);
-      if(r>=0){sRep+=r;nRep++;m.sRep+=r;m.nRep++;
-        if(c.tecnico){const t=tec[c.tecnico]||(tec[c.tecnico]={sR:0,nR:0,sP:0,nP:0});t.sP+=r;t.nP++}}
-      const dd=diaLocal(c.data_conclusao);conclDia[dd]=(conclDia[dd]||0)+1;
-    }
+    if(c.status==='Concluída'&&c.data_conclusao){const dd=diaLocal(c.data_conclusao);conclDia[dd]=(conclDia[dd]||0)+1;}
   });
+  fConclusao.forEach(c=>{const r=min(c.data_atendimento,c.data_conclusao);if(!(r>=0))return;sRep+=r;nRep++;const chave=chaveMetricaMaq(c.setor,c.maquina,resolverMaquinaIdOS(c)),m=maq[chave]||(maq[chave]={nome:c.maquina,falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});m.sRep=(m.sRep||0)+r;m.nRep=(m.nRep||0)+1;if(c.tecnico){const t=tec[c.tecnico]||(tec[c.tecnico]={sR:0,nR:0,sP:0,nP:0});t.sP+=r;t.nP++}});
 
   // Período dos indicadores: a parada é atribuída ao turno/dia em que ocorreu,
   // mesmo quando a O.S. foi aberta no turno ou dia anterior.
@@ -10283,7 +10344,7 @@ function atualizarMetricasReais(){
     // uma O.S. aberta no Turno 1 pode gerar parada atribuída ao Turno 2.
     const chamadosEscopo=chamados.filter(c=>
       setoresEscopo.includes(c.setor)&&c.tipo!=='Preventiva'&&c.status!=='Cancelada'&&
-      (st==='Todos'||c.setor===st)&&(mq==='Todas'||c.maquina===mq)&&(tp==='Todos'||c.tipo===tp)
+      (st==='Todos'||c.setor===st)&&(mq==='Todas'||String(resolverMaquinaIdOS(c)||'')===String(mq))&&(tp==='Todos'||c.tipo===tp)
     );
     pIni=chamadosEscopo.length?new Date(Math.min(...chamadosEscopo.map(c=>new Date(c.created_at)))):new Date(hoje);
     pIni.setHours(0,0,0,0);pFim=hoje
@@ -10296,7 +10357,7 @@ function atualizarMetricasReais(){
   const fp=chamados.filter(c=>{
     if(c.tipo==='Preventiva'||c.status==='Cancelada')return false;
     if(!setoresComHorarioSet.has(c.setor))return false;
-    if((st!=='Todos'&&c.setor!==st)||(mq!=='Todas'&&c.maquina!==mq)||(tp!=='Todos'&&c.tipo!==tp))return false;
+    if((st!=='Todos'&&c.setor!==st)||(mq!=='Todas'&&String(resolverMaquinaIdOS(c)||'')!==String(mq))||(tp!=='Todos'&&c.tipo!==tp))return false;
     const ini=new Date(c.created_at),fim=new Date(c.data_conclusao||Date.now());
     return fim>pLimiteIni&&ini<pLimiteFim;
   });
@@ -10309,7 +10370,7 @@ function atualizarMetricasReais(){
     .filter(c=>Number.isFinite(new Date(c.created_at).getTime()))
     .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   fpOrdenadas.forEach(c=>{
-    const chave=chaveMetricaMaq(c.setor,String(c.maquina||'').trim()||'__maquina_nao_informada__');
+    const chave=chaveMetricaMaq(c.setor,String(c.maquina||'').trim()||'__maquina_nao_informada__',resolverMaquinaIdOS(c));
     const inicio=new Date(c.created_at).getTime();
     const retomada=c.rodando_em?new Date(c.rodando_em).getTime():NaN;
     const fim=Number.isFinite(retomada)?retomada:new Date(c.data_conclusao||Date.now()).getTime();
@@ -10348,12 +10409,12 @@ function atualizarMetricasReais(){
   // Disponibilidade e MTBF usam apenas ativos cadastrados, para não dividir horas
   // de máquinas conhecidas por paradas/falhas de equipamentos sem cadastro.
   OS_PARADA_PARETO=osParada;
-  const chavesMaquinasCadastradas=new Set(maquinasMetricaEscopo.map(m=>chaveMetricaMaq(m.setor,m.nome)));
-  const osParadaCadastradas=osParada.filter(x=>chavesMaquinasCadastradas.has(chaveMetricaMaq(x.os.setor,x.os.maquina)));
+  const nomesCadastrados=new Set(maquinasMetricaEscopo.map(m=>JSON.stringify([normSetor(m.setor),String(m.nome||'').trim()])));
+  const osParadaCadastradas=osParada.filter(x=>mq!=='Todas'?String(resolverMaquinaIdOS(x.os)||'')===String(mq):nomesCadastrados.has(JSON.stringify([normSetor(x.os.setor),String(x.os.maquina||'').trim()])));
   osParadaCadastradas.forEach(({os,parada:p})=>{
-    const chave=chaveMetricaMaq(os.setor,os.maquina);
-    const m=maq[chave]||(maq[chave]={nome:os.maquina,falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:os.setor});
-    parada+=p;m.parada+=p;setor[os.setor]=(setor[os.setor]||0)+p;
+    const idMaquina=resolverMaquinaIdOS(os);
+    parada+=p;setor[os.setor]=(setor[os.setor]||0)+p;
+    if(idMaquina){const chave=chaveMetricaMaq(os.setor,os.maquina,idMaquina),m=maq[chave]||(maq[chave]={nome:os.maquina,maquina_id:idMaquina,prefixo:MAQUINAS.find(x=>Number(x.id)===idMaquina)?.prefixo||'',falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:os.setor});m.parada+=p;}
   });
   OS_PARADA_ATUAL=osParadaCadastradas;
 
@@ -10364,7 +10425,7 @@ function atualizarMetricasReais(){
   fIndicadores.forEach(c=>{
     if(reincidenciasHistorico.has(String(c.id))){
       reincOS++;
-      const chave=chaveMetricaMaq(c.setor,c.maquina);
+      const chave=chaveMetricaMaq(c.setor,c.maquina,resolverMaquinaIdOS(c));
     const m=maq[chave]||(maq[chave]={nome:c.maquina,falhas:0,parada:0,sRep:0,nRep:0,reinc:0,setor:c.setor});
       m.reinc++;
     }
@@ -10380,32 +10441,34 @@ function atualizarMetricasReais(){
     // Em períodos que chegam até hoje (ou avançam para o futuro), limita a base ao instante atual.
     const limiteFimEfetivo=Math.min(limiteFim.getTime(),Date.now());
     const filtroTurno=tn==='Todos'?null:+tn.slice(-1);
-    total=intervalosProdutivosPeriodo(sx,limiteIni.getTime(),limiteFimEfetivo,filtroTurno).reduce((s,p)=>s+(p[1]-p[0])/60000,0);
+    const intervalos=filtroTurno?intervalosProdutivosTurnoExclusivo(sx,limiteIni.getTime(),limiteFimEfetivo,filtroTurno):intervalosProdutivosPeriodo(sx,limiteIni.getTime(),limiteFimEfetivo,null);
+    total=intervalos.reduce((s,p)=>s+(p[1]-p[0])/60000,0);
     return total};
   const maqsBase=maquinasMetricaEscopo.filter(m=>setoresComHorarioSet.has(m.setor));
-  const gruposMaqBase=new Map();
-  maqsBase.forEach(m=>{const chave=chaveMetricaMaq(m.setor,m.nome),grupo=gruposMaqBase.get(chave)||{nome:m.nome,setor:m.setor,quantidade:0};grupo.quantidade++;gruposMaqBase.set(chave,grupo)});
-  const maqsBaseAgrupadas=[...gruposMaqBase.values()];
+  const maqsBaseAgrupadas=maqsBase.map(m=>({id:Number(m.id),nome:m.nome,prefixo:m.prefixo||'',setor:m.setor,quantidade:1}));
   const base=maqsBase.reduce((t,m)=>t+baseDe(m.setor),0);
-  const chavesMaquinasBase=new Set(maqsBase.map(m=>chaveMetricaMaq(m.setor,m.nome)));
+  const chavesMaquinasBase=new Set(maqsBase.map(m=>chaveMetricaMaq(m.setor,m.nome,m.id)));
   const metricasPorMaquinaTurno=new Map();
   OS_MTBF_ATUAL=[];
   baseEscopo.forEach(os=>{
-    const chave=chaveMetricaMaq(os.setor,os.maquina);
-    if(!setoresComHorarioSet.has(os.setor)||!chavesMaquinasBase.has(chave)||!eventoNoPeriodo(os.created_at)||(tn!=='Todos'&&!eventoNoTurno(os,os.created_at)))return;
+    const idMaquina=resolverMaquinaIdOS(os),chave=chaveMetricaMaq(os.setor,os.maquina,idMaquina);
+    const correspondeNome=maquinasMetricaEscopo.some(m=>normSetor(m.setor)===normSetor(os.setor)&&String(m.nome||'').trim()===String(os.maquina||'').trim());
+    if(!idMaquina||!setoresComHorarioSet.has(os.setor)||!correspondeNome||!eventoNoPeriodo(os.created_at)||(tn!=='Todos'&&!eventoNoTurno(os,os.created_at)))return;
     OS_MTBF_ATUAL.push(os);
+    OS_MTBF_ATUAL.push(os);
+    if(!idMaquina)return;
     const info=metricasPorMaquinaTurno.get(chave)||{falhas:0,sRep:0,nRep:0,reinc:0};
     info.falhas++;
-    if(os.data_atendimento&&os.data_conclusao){const tempo=min(os.data_atendimento,os.data_conclusao);if(tempo>=0){info.sRep+=tempo;info.nRep++}}
     if(reincidenciasHistorico.has(String(os.id)))info.reinc++;
     metricasPorMaquinaTurno.set(chave,info);
   });
-  const falhasComHorario=[...metricasPorMaquinaTurno.values()].reduce((s,m)=>s+m.falhas,0);
+  fConclusao.forEach(os=>{const idMaquina=resolverMaquinaIdOS(os);if(!idMaquina)return;const chave=chaveMetricaMaq(os.setor,os.maquina,idMaquina),info=metricasPorMaquinaTurno.get(chave)||{falhas:0,sRep:0,nRep:0,reinc:0};const tempo=min(os.data_atendimento,os.data_conclusao);if(tempo>=0){info.sRep+=tempo;info.nRep++}metricasPorMaquinaTurno.set(chave,info)});
+  const falhasComHorario=OS_MTBF_ATUAL.length;
   const disp=base>0?Math.max(0,Math.min(100,Math.round((1-parada/base)*100))):null;
   const mtbf=falhasComHorario>0&&base>0?Math.max(0,(base-parada)/falhasComHorario):null;
 
   // Gráfico de pizza: disponibilidade (verde) x parada (vermelho).
-  mk('chEfGeral',{type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:0}]},options:{cutout:'68%',responsive:true,maintainAspectRatio:true,aspectRatio:1.65,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9,padding:16,font:{size:11},generateLabels(chart){const labels=Chart.defaults.plugins.legend.labels.generateLabels(chart);const vals=chart.data.datasets[0].data||[];const total=vals.reduce((a,b)=>a+(Number(b)||0),0);return labels.map((item,i)=>({...item,text:item.text+' — '+(total?Math.round((Number(vals[i])||0)/total*100):0)+'%'}))}}},tooltip:{callbacks:{label(ctx){const vals=ctx.dataset.data||[],total=vals.reduce((a,b)=>a+(Number(b)||0),0),pct=total?Math.round((Number(ctx.raw)||0)/total*100):0;return ctx.label+': '+fmt(ctx.raw)+' ('+pct+'%)'}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBaseAgrupadas.map(m=>{const previsto=baseDe(m.setor)*m.quantidade,chave=chaveMetricaMaq(m.setor,m.nome),par=Math.min(previsto,(maq[chave]&&maq[chave].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome+(m.quantidade>1?' ('+m.quantidade+' cadastros)':''),setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('disp. registrada',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
+  mk('chEfGeral',{type:'doughnut',data:{labels:['Sem parada registrada','Parada registrada'],datasets:[{data:[base>0?Math.max(0,base-parada):0,base>0?parada:0],backgroundColor:['#28a745','#dc3545'],borderColor:'#fff',borderWidth:3,hoverOffset:0}]},options:{cutout:'68%',responsive:true,maintainAspectRatio:true,aspectRatio:1.65,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:9,boxHeight:9,padding:16,font:{size:11},generateLabels(chart){const labels=Chart.defaults.plugins.legend.labels.generateLabels(chart);const vals=chart.data.datasets[0].data||[];const total=vals.reduce((a,b)=>a+(Number(b)||0),0);return labels.map((item,i)=>({...item,text:item.text+' — '+(total?Math.round((Number(vals[i])||0)/total*100):0)+'%'}))}}},tooltip:{callbacks:{label(ctx){const vals=ctx.dataset.data||[],total=vals.reduce((a,b)=>a+(Number(b)||0),0),pct=total?Math.round((Number(ctx.raw)||0)/total*100):0;return ctx.label+': '+fmt(ctx.raw)+' ('+pct+'%)'}}}},onClick(_evt,items){if(!items.length)return;if(items[0].index===1){mostrarOSParada(OS_PARADA_ATUAL);return}const rodando=maqsBaseAgrupadas.map(m=>{const previsto=baseDe(m.setor)*m.quantidade,chave=chaveMetricaMaq(m.setor,m.nome,m.id),par=Math.min(previsto,(maq[chave]&&maq[chave].parada)||0),rodou=Math.max(0,previsto-par);return{nome:m.nome+(m.quantidade>1?' ('+m.quantidade+' cadastros)':''),setor:m.setor,rodou,pct:previsto?Math.round(rodou/previsto*100):0}});mostrarMaquinasRodando(rodando)}},plugins:[{id:'eficienciaCentro',afterDraw(chart){const {ctx,chartArea}=chart;if(!chartArea)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#1f2937';ctx.font='bold 27px sans-serif';ctx.fillText(disp===null?'—':disp+'%',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2-5);ctx.font='12px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('disp. registrada',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2+19);ctx.restore()}}]});
 
   // cards
   cDisp.innerText=disp===null?'—':disp+'%';
@@ -10415,26 +10478,26 @@ function atualizarMetricasReais(){
   cResp.innerText=fmt(media(sResp,nResp));
   cMTTR.innerText=fmt(media(sRep,nRep));
   cMTBF.innerText=mtbf===null?'—':fmt(mtbf);
-  cTotal.innerText=f.length;cTotalSub.innerText=abertas+' em aberto • '+(f.length-fIndicadores.length)+' canceladas';
+  cTotal.innerText=f.length;cTotalSub.innerText=abertas+' pendentes • '+(f.length-fIndicadores.length)+' canceladas';
   cTaxa.innerText=(fIndicadores.length?Math.round(concl/fIndicadores.length*100):0)+'%';
   cReinc.innerText=(fIndicadores.length?Math.round(reincOS/fIndicadores.length*100):0)+'%';
 
   // Ranking visual de máquinas: mesmos dados e cálculos, em cartões responsivos.
   // O ranking exibe disponibilidade e MTBF por máquina: mantém o mesmo escopo produtivo da base geral.
-  const chavesRank=new Set([...metricasPorMaquinaTurno.keys(),...(OS_PARADA_ATUAL||[]).map(x=>chaveMetricaMaq(x.os.setor,x.os.maquina))]);
+  const chavesRank=new Set([...metricasPorMaquinaTurno.keys(),...(OS_PARADA_ATUAL||[]).map(x=>{const id=resolverMaquinaIdOS(x.os);return id?chaveMetricaMaq(x.os.setor,x.os.maquina,id):null}).filter(Boolean)]);
   const rank=[...chavesRank].map(chave=>{
-    const dados=maq[chave]||{},metricas=metricasPorMaquinaTurno.get(chave)||{},[setor,nome]=JSON.parse(chave);
-    return{nome:dados.nome||nome,setor:dados.setor||setor,parada:dados.parada||0,sRep:metricas.sRep||0,nRep:metricas.nRep||0,reinc:metricas.reinc||0,falhas:metricas.falhas||0};
-  }).filter(m=>maqsBase.some(base=>base.nome===m.nome&&base.setor===m.setor)&&(m.falhas>0||m.parada>0)).sort((a,b)=>b.parada-a.parada);
+    const dados=maq[chave]||{},metricas=metricasPorMaquinaTurno.get(chave)||{},[setor,nome,identidade]=JSON.parse(chave),cadastro=MAQUINAS.find(m=>String(m.id)===String(identidade));
+    return{nome:dados.nome||nome,setor:dados.setor||setor,maquina_id:cadastro?.id||null,prefixo:cadastro?.prefixo||'',parada:dados.parada||0,sRep:metricas.sRep||0,nRep:metricas.nRep||0,reinc:metricas.reinc||0,falhas:metricas.falhas||0};
+  }).filter(m=>maqsBase.some(base=>String(base.id)===String(m.maquina_id))&&(m.falhas>0||m.parada>0)).sort((a,b)=>b.parada-a.parada);
   const tbRanking=document.getElementById('tbRanking');
   if(tbRanking)tbRanking.innerHTML=rank.length?rank.slice(0,30).map((m,i)=>{
-    const n=m.nome,qtd=maqsBase.filter(base=>base.nome===n&&base.setor===m.setor).length,bd=baseDe(m.setor)*qtd,rodou=Math.max(0,bd-m.parada),pct=bd?Math.max(0,Math.min(100,Math.round(rodou/bd*100))):0;
+    const n=m.nome,bd=baseDe(m.setor),rodou=Math.max(0,bd-m.parada),pct=bd?Math.max(0,Math.min(100,Math.round(rodou/bd*100))):0;
     const mt=m.falhas?(bd-m.parada)/m.falhas:0,cor=pct>=90?'#16845b':pct>=75?'#c47a18':'#c24141';
     const pos=i+1,classe=pos===1?'is-first':pos===2?'is-second':pos===3?'is-third':'';
     return `<article class="downtime-machine-card ${classe}">
       <div class="downtime-machine-top">
         <span class="downtime-rank">#${pos}</span>
-        <div class="downtime-machine-name"><strong>${escaparHtml(n)}</strong><small>Máquina${qtd>1?' • '+qtd+' cadastros':''} • ${m.falhas} falha(s) registrada(s)</small></div>
+        <div class="downtime-machine-name"><strong>${escaparHtml(n)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</strong><small>Máquina • ${m.falhas} falha(s) registrada(s)</small></div>
         <div class="downtime-main-value"><strong>${fmt(m.parada)}</strong><small>tempo parado</small></div>
       </div>
       <div class="downtime-availability">
@@ -10470,16 +10533,16 @@ function atualizarMetricasReais(){
   if(listaRankingReinc)listaRankingReinc.innerHTML=rankingReinc.length?rankingReinc.map((maquina,idx)=>{
     const problemas=[...maquina.problemas.values()].sort((a,b)=>b.total-a.total||a.nome.localeCompare(b.nome,'pt-BR'));
     return `<article class="metrics-recurrence-machine">
-      <button type="button" class="metrics-recurrence-machine-head" onclick="abrirDetalheReincidenciaMaquina('${encodeURIComponent(maquina.setor).replace(/'/g,'%27')}','${encodeURIComponent(maquina.nome).replace(/'/g,'%27')}')" aria-label="Abrir histórico de reincidências de ${escaparHtml(maquina.nome)}">
+      <button type="button" class="metrics-recurrence-machine-head" onclick="abrirDetalheReincidenciaMaquina('${encodeURIComponent(maquina.setor).replace(/'/g,'%27')}','${encodeURIComponent(maquina.nome).replace(/'/g,'%27')}','${maquina.maquina_id||''}')" aria-label="Abrir histórico de reincidências de ${escaparHtml(maquina.nome)}">
         <span class="metrics-recurrence-rank">${String(idx+1).padStart(2,'0')}</span>
-        <span class="metrics-recurrence-machine-title"><strong>${escaparHtml(maquina.nome)}</strong><small>${escaparHtml(maquina.setor)}</small></span>
+        <span class="metrics-recurrence-machine-title"><strong>${escaparHtml(maquina.nome)}${maquina.prefixo?' • '+escaparHtml(maquina.prefixo):''}</strong><small>${escaparHtml(maquina.setor)}</small></span>
         <span class="metrics-recurrence-total"><b>${maquina.total+problemas.length}</b><small>O.S. no histórico</small></span>
       </button>
       <div class="metrics-recurrence-problems">${problemas.map((problema,i)=>`<div class="metrics-recurrence-problem">
-        <button type="button" class="metrics-recurrence-problem-head" onclick="abrirDetalheReincidenciaGrupo('${encodeURIComponent(maquina.setor).replace(/'/g,'%27')}','${encodeURIComponent(maquina.nome).replace(/'/g,'%27')}','${encodeURIComponent(problema.nome).replace(/'/g,'%27')}')"><span>${i+1}. ${escaparHtml(problema.nome)}</span><b>${problema.total+1} O.S. no problema · abrir O.S.</b></button>
+        <button type="button" class="metrics-recurrence-problem-head" onclick="abrirDetalheReincidenciaGrupo('${encodeURIComponent(maquina.setor).replace(/'/g,'%27')}','${encodeURIComponent(maquina.nome).replace(/'/g,'%27')}','${encodeURIComponent(problema.nome).replace(/'/g,'%27')}','${maquina.maquina_id||''}')"><span>${i+1}. ${escaparHtml(problema.nome)}</span><b>${problema.total+1} O.S. no problema · abrir O.S.</b></button>
         <div class="metrics-recurrence-os-sequence">${[problema.primeiraOS,...problema.os].filter((os,i,arr)=>os&&arr.findIndex(x=>String(x.id)===String(os.id))===i).sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0)).map(os=>`<span>${escaparHtml(nOS(os))} · ${escaparHtml(diaLocal(os.created_at)||'Data não informada')}</span>`).join('<i aria-hidden="true">→</i>')}</div>
       </div>`).join('')}</div>
-      <button type="button" class="metrics-recurrence-open" onclick="abrirDetalheReincidenciaMaquina('${encodeURIComponent(maquina.setor).replace(/'/g,'%27')}','${encodeURIComponent(maquina.nome).replace(/'/g,'%27')}')">Ver sequência completa das O.S. <span aria-hidden="true">›</span></button>
+      <button type="button" class="metrics-recurrence-open" onclick="abrirDetalheReincidenciaMaquina('${encodeURIComponent(maquina.setor).replace(/'/g,'%27')}','${encodeURIComponent(maquina.nome).replace(/'/g,'%27')}','${maquina.maquina_id||''}')">Ver sequência completa das O.S. <span aria-hidden="true">›</span></button>
     </article>`;
   }).join(''):'<div class="metrics-recurrence-empty">Nenhuma reincidência identificada neste filtro.</div>';
 
@@ -10606,8 +10669,8 @@ function atualizarMetricasReais(){
 
   // eficiência real = (horas previstas − parada) ÷ horas previstas, por máquina cadastrada e por setor
   const efM=[],efS={},semHorarioMaq=maquinasMetricaEscopo.filter(m=>!setoresComHorarioSet.has(m.setor));
-  maqsBaseAgrupadas.forEach(m=>{const bd=baseDe(m.setor)*m.quantidade;if(!bd)return;const chave=chaveMetricaMaq(m.setor,m.nome),pa=Math.min(bd,(maq[chave]&&maq[chave].parada)||0);
-    efM.push({n:m.nome+(m.quantidade>1?' ('+m.quantidade+' cadastros)':''),nome:m.nome,setor:m.setor,prev:bd,par:pa,run:bd-pa,pct:Math.round((bd-pa)/bd*100)});
+  maqsBaseAgrupadas.forEach(m=>{const bd=baseDe(m.setor);if(!bd)return;const chave=chaveMetricaMaq(m.setor,m.nome,m.id),pa=Math.min(bd,(maq[chave]&&maq[chave].parada)||0);
+    efM.push({n:m.nome+(m.prefixo?' • '+m.prefixo:''),nome:m.nome,prefixo:m.prefixo,maquina_id:m.id,setor:m.setor,prev:bd,par:pa,run:bd-pa,pct:Math.round((bd-pa)/bd*100)});
     const e=efS[m.setor]||(efS[m.setor]={prev:0,par:0});e.prev+=bd;e.par+=pa});
   const efChart=(id,arr,avisos=[])=>{
     arr.sort((x,y)=>x.pct-y.pct);
@@ -10620,7 +10683,7 @@ function atualizarMetricasReais(){
       wrapper.insertBefore(aviso,wrapper.firstChild);
     }
     wrapper.style.height=Math.max(220,arr.length*30+70+(avisos.length?100:0))+'px';
-    DETALHES_GRAFICOS[id]=(ds,i)=>{const item=arr[i],nome=item?.nome||item?.n,setorOS=item?.setor;const paradaLista=(OS_PARADA_ATUAL||[]).filter(x=>x.os&&(id==='chEfMaq'?x.os.maquina===nome&&x.os.setor===setorOS:x.os.setor===nome)).map(x=>x.os);const lista=ds===1?paradaLista:(baseEscopo||[]).filter(os=>id==='chEfMaq'?os.maquina===nome&&os.setor===setorOS:os.setor===nome);return{titulo:(ds===1?'O.S. com parada registrada — ':'O.S. relacionadas — ')+nome+' — '+(setorOS||''),lista}};
+    DETALHES_GRAFICOS[id]=(ds,i)=>{const item=arr[i],nome=item?.nome||item?.n,setorOS=item?.setor,maquinaId=item?.maquina_id;const corresponde=os=>id==='chEfMaq'?String(resolverIdMaquinaRegistro(os)||'')===String(maquinaId)&&os.setor===setorOS:os.setor===nome;const paradaLista=(OS_PARADA_ATUAL||[]).filter(x=>x.os&&corresponde(x.os)).map(x=>x.os);const lista=ds===1?paradaLista:(fIndicadores||[]).filter(corresponde);return{titulo:(ds===1?'O.S. com parada registrada — ':'O.S. relacionadas no período — ')+nome+(item?.prefixo?' • '+item.prefixo:'')+' — '+(setorOS||''),lista}};
     mk(id,{type:'bar',data:{labels:arr.map(x=>`${x.n} — ${x.pct}%`),datasets:[{label:'Sem parada registrada (h)',data:arr.map(x=>+(x.run/60).toFixed(1)),backgroundColor:'#28a745'},{label:'Parada registrada (h)',data:arr.map(x=>+(x.par/60).toFixed(1)),backgroundColor:'#dc3545'}]},options:{indexAxis:'y',scales:{x:{stacked:true,title:{display:true,text:'horas'}},y:{stacked:true}}}});
   };
   const avisosMaq=semHorarioMaq.map(m=>`${m.nome} — ${m.setor||'setor não definido'}`);
@@ -10646,11 +10709,11 @@ function atualizarMetricasReais(){
     const heat=efM.slice().sort((a,b)=>a.pct-b.pct);
     heatmap.innerHTML=heat.length?heat.map(m=>{
       const nivel=m.pct>=95?'alta':m.pct>=85?'media':'baixa';
-      return '<button type="button" class="metrics-heat-row" data-machine="'+escaparHtml(m.nome)+'" data-sector="'+escaparHtml(m.setor)+'"><span class="metrics-heat-name">'+escaparHtml(m.n)+'</span><span class="metrics-heat-track"><i class="metrics-heat-fill '+nivel+'" style="width:'+Math.max(0,Math.min(100,m.pct))+'%"></i></span><b>'+m.pct+'%</b><small>'+fmt(m.par)+' parado</small></button>';
+      return '<button type="button" class="metrics-heat-row" data-machine-id="'+Number(m.maquina_id)+'" data-machine="'+escaparHtml(m.nome)+'" data-sector="'+escaparHtml(m.setor)+'"><span class="metrics-heat-name">'+escaparHtml(m.n)+'</span><span class="metrics-heat-track"><i class="metrics-heat-fill '+nivel+'" style="width:'+Math.max(0,Math.min(100,m.pct))+'%"></i></span><b>'+m.pct+'%</b><small>'+fmt(m.par)+' parado</small></button>';
     }).join(''):'<p class="metrics-heat-empty">Sem máquinas com horário de produção confirmado neste filtro.</p>';
-    heatmap.querySelectorAll('[data-machine]').forEach(btn=>btn.addEventListener('click',()=>{
-      const nome=btn.getAttribute('data-machine'),setor=btn.getAttribute('data-sector');
-      mostrarOSDetalhe('O.S. com parada registrada — '+nome,(OS_PARADA_ATUAL||[]).filter(item=>item.os&&item.os.maquina===nome&&item.os.setor===setor).map(item=>item.os));
+    heatmap.querySelectorAll('[data-machine-id]').forEach(btn=>btn.addEventListener('click',()=>{
+      const nome=btn.getAttribute('data-machine'),setor=btn.getAttribute('data-sector'),maquinaId=btn.getAttribute('data-machine-id');
+      mostrarOSDetalhe('O.S. com parada registrada — '+nome,(OS_PARADA_ATUAL||[]).filter(item=>item.os&&String(resolverIdMaquinaRegistro(item.os)||'')===maquinaId&&item.os.setor===setor).map(item=>item.os));
     }));
   }
 
@@ -10713,13 +10776,13 @@ function atualizarMetricasReais(){
   fIndicadores.forEach(os=>{
     const info=reincidenciasHistorico.get(String(os.id));
     if(!info)return;
-    const nome=os.maquina||'Máquina não informada',setorOS=os.setor||'—',chave=chaveMetricaMaq(setorOS,nome);
-    if(!reincidenciasPorMaq.has(chave))reincidenciasPorMaq.set(chave,{nome,setor:setorOS,total:0,lista:[]});
+    const nome=os.maquina||'Máquina não informada',setorOS=os.setor||'—',maquinaId=resolverIdMaquinaRegistro(os),cadastro=MAQUINAS.find(m=>Number(m.id)===Number(maquinaId)),chave=chaveMetricaMaq(setorOS,nome,maquinaId);
+    if(!reincidenciasPorMaq.has(chave))reincidenciasPorMaq.set(chave,{nome,setor:setorOS,maquina_id:maquinaId,prefixo:cadastro?.prefixo||'',total:0,lista:[]});
     const grupo=reincidenciasPorMaq.get(chave);grupo.total++;grupo.lista.push(os);
   });
   const topReincidencias=[...reincidenciasPorMaq.values()].sort((a,b)=>b.total-a.total).slice(0,10);
-  DETALHES_GRAFICOS.chReincidenciaMaquina=(_ds,i)=>({titulo:'Falhas recorrentes — '+topReincidencias[i]?.nome+' — '+topReincidencias[i]?.setor,lista:topReincidencias[i]?.lista||[]});
-  mk('chReincidenciaMaquina',{type:'bar',data:{labels:topReincidencias.map(x=>x.nome+' — '+x.setor),datasets:[{label:'Reincidências identificadas',data:topReincidencias.map(x=>x.total),backgroundColor:'#b45309',borderRadius:7}]},options:{indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{ticks:{autoSkip:false}}},plugins:{legend:{display:false}}}});
+  DETALHES_GRAFICOS.chReincidenciaMaquina=(_ds,i)=>({titulo:'Falhas recorrentes — '+topReincidencias[i]?.nome+(topReincidencias[i]?.prefixo?' • '+topReincidencias[i].prefixo:'')+' — '+topReincidencias[i]?.setor,lista:topReincidencias[i]?.lista||[]});
+  mk('chReincidenciaMaquina',{type:'bar',data:{labels:topReincidencias.map(x=>x.nome+(x.prefixo?' • '+x.prefixo:'')+' — '+x.setor),datasets:[{label:'Reincidências identificadas',data:topReincidencias.map(x=>x.total),backgroundColor:'#b45309',borderRadius:7}]},options:{indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{ticks:{autoSkip:false}}},plugins:{legend:{display:false}}}});
 
   const cs=Object.entries(causa).sort((a,b)=>b[1]-a[1]);
   DETALHES_GRAFICOS.chCausas=(_ds,i)=>{const nome=cs[i]?.[0];return{titulo:'O.S. com causa: '+nome,lista:fIndicadores.filter(c=>(c.causa||'Não informada')===nome)}};
@@ -10757,23 +10820,23 @@ function atualizarMetricasReais(){
 
   // Fase 7 — central de decisões: sinais explícitos, sem score artificial ou escrita no banco.
   const mapaPrioridades=new Map();
-  const obterPrioridade=(setorOS,nome)=>{
-    const chave=chaveMetricaMaq(setorOS,nome);
-    if(!mapaPrioridades.has(chave))mapaPrioridades.set(chave,{nome,setor:setorOS||'—',parada:0,falhas:0,reinc:0,pendentes:[],motivos:[]});
+  const obterPrioridade=(setorOS,nome,maquinaId=null)=>{
+    const chave=chaveMetricaMaq(setorOS,nome,maquinaId);
+    if(!mapaPrioridades.has(chave))mapaPrioridades.set(chave,{nome,setor:setorOS||'—',maquina_id:maquinaId||null,prefixo:MAQUINAS.find(m=>String(m.id)===String(maquinaId))?.prefixo||'',parada:0,falhas:0,reinc:0,pendentes:[],motivos:[]});
     return mapaPrioridades.get(chave);
   };
   rank.forEach(d=>{
     if(!(Number(d.parada)>0))return;
-    const p=obterPrioridade(d.setor,d.nome);p.parada=Number(d.parada)||0;
+    const p=obterPrioridade(d.setor,d.nome,d.maquina_id);p.parada=Number(d.parada)||0;
   });
   rankingReinc.forEach(d=>{
-    const p=obterPrioridade(d.setor,d.nome);p.reinc=d.total||0;
+    const p=obterPrioridade(d.setor,d.nome,d.maquina_id);p.reinc=d.total||0;
   });
   faixasIdade.slice(3).forEach(faixa=>faixa.lista.forEach(os=>{
-    const nome=os.maquina||'Máquina não informada';const p=obterPrioridade(os.setor||'—',nome);
+    const nome=os.maquina||'Máquina não informada';const p=obterPrioridade(os.setor||'—',nome,resolverIdMaquinaRegistro(os));
     if(!p.pendentes.some(x=>String(x.id)===String(os.id)))p.pendentes.push(os);
   }));
-  mapaPrioridades.forEach(p=>{p.falhas=fIndicadores.filter(os=>os.maquina===p.nome&&os.setor===p.setor).length;});
+  mapaPrioridades.forEach(p=>{p.falhas=fIndicadores.filter(os=>String(resolverIdMaquinaRegistro(os)||'')===String(p.maquina_id||'')&&os.maquina===p.nome&&os.setor===p.setor).length;});
   const prioridadesOrdenadas=[...mapaPrioridades.values()].map(p=>{
     if(p.pendentes.length)p.motivos.push(p.pendentes.some(os=>{const dias=(agoraIdade-new Date(os.created_at).getTime())/86400000;return dias>15})?'O.S. há mais de 15 dias':'O.S. há mais de 7 dias');
     if(p.reinc)p.motivos.push('Reincidência identificada');
@@ -10785,23 +10848,23 @@ function atualizarMetricasReais(){
     gradeAcoes.innerHTML=prioridadesOrdenadas.length?prioridadesOrdenadas.map((p,i)=>{
       const tags=p.motivos.map(m=>'<span class="metrics-action-tag '+(m.includes('15 dias')?'is-danger':m.includes('7 dias')||m.includes('Reincidência')?'is-alert':'')+'">'+escaparHtml(m)+'</span>').join('');
       const recomendacao=p.pendentes.length?'Revisar a O.S. pendente mais antiga, suas dependências e a previsão de atendimento.':p.reinc?'Investigar a causa raiz das reincidências e conferir se a solução anterior eliminou o problema.':'Avaliar o histórico das paradas e verificar se cabe uma ação preventiva.';
-      return '<article class="metrics-action-card"><div class="metrics-action-card-head"><div><h4>'+escaparHtml(p.nome)+'</h4><small class="metrics-action-sector">'+escaparHtml(p.setor)+'</small></div><span class="metrics-action-tag">#'+(i+1)+'</span></div><div class="metrics-action-tags">'+tags+'</div><p><b>Registros:</b> '+p.falhas+' falha(s) no recorte • '+p.reinc+' reincidência(s) identificada(s) • '+p.pendentes.length+' O.S. antiga(s) ainda pendente(s).</p><p class="metrics-action-suggestion"><b>Próximo passo sugerido:</b> '+escaparHtml(recomendacao)+'</p><button type="button" class="metrics-action-open" data-machine="'+escaparHtml(p.nome)+'" data-sector="'+escaparHtml(p.setor)+'">Ver histórico e O.S. da máquina</button></article>';
+      return '<article class="metrics-action-card"><div class="metrics-action-card-head"><div><h4>'+escaparHtml(p.nome)+(p.prefixo?' • '+escaparHtml(p.prefixo):'')+'</h4><small class="metrics-action-sector">'+escaparHtml(p.setor)+'</small></div><span class="metrics-action-tag">#'+(i+1)+'</span></div><div class="metrics-action-tags">'+tags+'</div><p><b>Registros:</b> '+p.falhas+' falha(s) no recorte • '+p.reinc+' reincidência(s) identificada(s) • '+p.pendentes.length+' O.S. antiga(s) ainda pendente(s).</p><p class="metrics-action-suggestion"><b>Próximo passo sugerido:</b> '+escaparHtml(recomendacao)+'</p><button type="button" class="metrics-action-open" data-machine-id="'+(p.maquina_id||'')+'" data-machine="'+escaparHtml(p.nome)+'" data-sector="'+escaparHtml(p.setor)+'">Ver histórico e O.S. da máquina</button></article>';
     }).join(''):'<p class="metrics-action-empty">Nenhuma máquina com sinais de atenção identificados neste escopo. Isso não substitui a inspeção de rotina.</p>';
-    gradeAcoes.querySelectorAll('[data-machine]').forEach(btn=>btn.addEventListener('click',()=>{
-      const nome=btn.getAttribute('data-machine'),setorOS=btn.getAttribute('data-sector');
-      const lista=[...f,...baseEscopo.filter(os=>os.maquina===nome&&os.setor===setorOS)].filter(os=>os.maquina===nome&&os.setor===setorOS);
+    gradeAcoes.querySelectorAll('[data-machine-id]').forEach(btn=>btn.addEventListener('click',()=>{
+      const maquinaId=btn.getAttribute('data-machine-id'),nome=btn.getAttribute('data-machine'),setorOS=btn.getAttribute('data-sector');
+      const lista=[...f,...baseEscopo.filter(os=>String(resolverIdMaquinaRegistro(os)||'')===maquinaId&&os.setor===setorOS)].filter(os=>String(resolverIdMaquinaRegistro(os)||'')===maquinaId&&os.setor===setorOS);
       const unicas=lista.filter((os,idx,arr)=>arr.findIndex(x=>String(x.id)===String(os.id))===idx);
       mostrarOSDetalhe('Histórico de '+nome+' — '+setorOS,unicas);
     }));
   }
   // Fase 8 — comparação histórica simples para sinalizar tendências, sem previsão artificial.
-  const baseEscopoAberturas=baseEscopo.filter(os=>tn==='Todos'||normalizarTurnoMetrica(os.turno)===tn);
-  const mesesPreventivos=[...new Set(baseEscopoAberturas.filter(os=>os.status!=='Cancelada'&&os.created_at).map(os=>diaLocal(os.created_at).slice(0,7)).filter(Boolean))].sort();
+  const baseEscopoAberturas=baseEscopo.filter(os=>os.status!=='Cancelada'&&os.created_at&&eventoNoPeriodo(os.created_at)&&eventoNoTurno(os,os.created_at));
+  const mesesPreventivos=[...new Set(baseEscopoAberturas.map(os=>diaLocal(os.created_at).slice(0,7)).filter(Boolean))].sort();
   const gradePreventiva=document.getElementById('metricsPreventiveGrid');
   const periodoPreventivo=document.getElementById('metricsPreventivePeriod');
   if(mesesPreventivos.length>=2){
     const mesAtualPrev=mesesPreventivos[mesesPreventivos.length-1],mesAnteriorPrev=mesesPreventivos[mesesPreventivos.length-2];
-    const registrosMesPrev=mes=>baseEscopoAberturas.filter(os=>os.status!=='Cancelada'&&os.created_at&&diaLocal(os.created_at).startsWith(mes));
+    const registrosMesPrev=mes=>baseEscopoAberturas.filter(os=>os.created_at&&diaLocal(os.created_at).startsWith(mes));
     const atualPrev=registrosMesPrev(mesAtualPrev),anteriorPrev=registrosMesPrev(mesAnteriorPrev);
     const porMaquinaPrev=arr=>{const mapa={};arr.forEach(os=>{const nome=os.maquina||'Máquina não informada',setorOS=os.setor||'—',chave=chaveMetricaMaq(setorOS,nome);if(!mapa[chave])mapa[chave]={nome,setor:setorOS,total:0};mapa[chave].total++});return mapa};
     const maqAtualPrev=porMaquinaPrev(atualPrev),maqAnteriorPrev=porMaquinaPrev(anteriorPrev);
@@ -10835,7 +10898,7 @@ function atualizarMetricasReais(){
     const t=tec[nome];
     return '<tr><td>'+escaparHtml(nome)+'</td><td>'+(t.nR||0)+'</td><td>'+(t.nP||0)+'</td><td>'+((t.nR||0)?escaparHtml(fmt(media(t.sR,t.nR))):'—')+'</td><td>'+((t.nP||0)?escaparHtml(fmt(media(t.sP,t.nP))):'—')+'</td></tr>';
   }).join(''):'<tr><td colspan="5">Sem tempos de atendimento registrados para os filtros selecionados.</td></tr>';
-  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const lista=fIndicadores.filter(c=>c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao)&&min(ds===0?c.created_at:c.data_atendimento,ds===0?c.data_atendimento:c.data_conclusao)>=0);return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
+  DETALHES_GRAFICOS.chTecnico=(ds,i)=>{const nome=tn_[i];const fonte=ds===0?fIndicadores:fConclusao;const lista=fonte.filter(c=>c.tecnico===nome&&(ds===0?!!c.data_atendimento:!!c.data_atendimento&&!!c.data_conclusao)&&min(ds===0?c.created_at:c.data_atendimento,ds===0?c.data_atendimento:c.data_conclusao)>=0);return{titulo:(ds===0?'Tempo de resposta — ':'Tempo de reparo — ')+nome,lista}};
   mk('chTecnico',{type:'bar',data:{labels:tn_,datasets:[
     {label:'Resposta (min)',data:tn_.map(t=>Math.round(media(tec[t].sR,tec[t].nR))),backgroundColor:'#0056b3'},
     {label:'Reparo (min)',data:tn_.map(t=>Math.round(media(tec[t].sP,tec[t].nP))),backgroundColor:'#28a745'}]}});
@@ -11226,7 +11289,7 @@ async function carregarMaquinas(){
 }
 function carregarMaquinasSetor(){
   const l=MAQUINAS.filter(m=>m.setor===setor.value);
-  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':(l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option value="${escaparHtml(m.nome)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):''}</option>`).join(''):'<option value="">Nenhuma máquina cadastrada neste setor</option>')+'<option value="__outros__">Outros</option>';
+  maquina.innerHTML=!setor.value?'<option value="">Escolha o setor primeiro</option>':(l.length?'<option value="">Selecione a máquina...</option>'+l.map(m=>`<option value="${Number(m.id)}">${escaparHtml(m.nome)}${m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado'}</option>`).join(''):'<option value="">Nenhuma máquina cadastrada neste setor</option>')+'<option value="__outros__">Outros</option>';
   alternarOutroEquipamento();
 }
 function alternarOutroEquipamento(){
@@ -13682,18 +13745,24 @@ function pvMaquinas(){
   }
   const mesmoSetor=PV_SETOR_RENDERIZADO===pvSetor.value;
   const selecionadas=mesmoSetor?[...lista.querySelectorAll('.pv-maquina:checked')].map(e=>e.value):[];
-  const ativos=new Set(selecionadas.filter(nome=>itens.some(m=>m.nome===nome)));
-  if(!ativos.size)ativos.add(itens[0].nome);
-  lista.innerHTML=itens.map(m=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-maquina" type="checkbox" value="'+escaparHtml(m.nome)+'" '+(ativos.has(m.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):'')+'</label>').join('');
+  const ativos=new Set(selecionadas.filter(id=>itens.some(m=>String(m.id)===String(id))));
+  if(!ativos.size)ativos.add(String(itens[0].id));
+  lista.innerHTML=itens.map(m=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-maquina" type="checkbox" value="'+Number(m.id)+'" '+(ativos.has(String(m.id))?'checked':'')+' style="width:auto"> '+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado')+'</label>').join('');
   PV_SETOR_RENDERIZADO=pvSetor.value;
 }
 function maquinasDaPreventiva(p){
   const lista=Array.isArray(p&&p.maquinas)?p.maquinas.filter(x=>typeof x==='string'&&x.trim()):[];
   return lista.length?lista:(p&&p.maquina?[p.maquina]:[]);
 }
+function registrosMaquinasPreventiva(p){
+  const nomes=maquinasDaPreventiva(p),ids=Array.isArray(p&&p.maquinas_ids)?p.maquinas_ids.map(Number).filter(Number.isFinite):[];
+  if(ids.length&&ids.length===nomes.length){const registros=ids.map(id=>MAQUINAS.find(m=>Number(m.id)===id)).filter(Boolean);if(registros.length===ids.length)return registros;}
+  return nomes.map(nome=>{const encontrados=MAQUINAS.filter(m=>m.setor===p.setor&&String(m.nome).trim()===String(nome).trim());return encontrados.length===1?encontrados[0]:{id:null,nome,prefixo:null,setor:p.setor}});
+}
+function rotulosMaquinasPreventiva(p){return registrosMaquinasPreventiva(p).map(m=>m.nome+(m.prefixo?' • '+m.prefixo:' • Identificação pendente')).join(', ');}
 function resumoMaquinasPreventiva(p){
-  const lista=maquinasDaPreventiva(p);
-  return lista.length>1?lista.length+' máquinas do setor':(lista[0]||'Máquina não informada');
+  const lista=registrosMaquinasPreventiva(p);
+  return lista.length>1?lista.length+' máquinas do setor':(lista[0]?(lista[0].nome+(lista[0].prefixo?' • '+lista[0].prefixo:' • Identificação pendente')):'Máquina não informada');
 }
 function renderPainelPreventivas(){
   const kpis=document.getElementById('metricsScheduleKpis');
@@ -13747,22 +13816,25 @@ async function addPrev(){
   const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value);
   if(!pvSetor.value)return alert('Escolha um setor.');
   const todas=document.getElementById('pvTodasMaquinas').checked;
-  const maquinasSetor=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome).map(m=>m.nome);
-  const maquinasSelecionadas=todas?maquinasSetor:[...document.querySelectorAll('#pvListaMaquinas .pv-maquina:checked')].map(e=>e.value);
+  const maquinasSetor=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome);
+  const maquinasSelecionadas=todas?maquinasSetor.map(m=>String(m.id)):[...document.querySelectorAll('#pvListaMaquinas .pv-maquina:checked')].map(e=>e.value);
   if(!maquinasSelecionadas.length)return alert('Selecione pelo menos uma máquina do setor.');
   if(descricao.length<3)return alert('Descreva a atividade com pelo menos 3 caracteres.');
   if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
   if(!dataPrevista)return alert('Escolha a próxima data prevista.');
   if(!tecnico)return alert('Selecione o técnico responsável.');
   const equipeSelecionada=[...new Set([...document.querySelectorAll('#pvEquipeTecnicos .pv-tecnico-equipe:checked')].map(e=>e.value).concat(tecnico.nome))];
-  const maquinasUnicas=[...new Set(maquinasSelecionadas)];
-  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:maquinasUnicas.length===1?maquinasUnicas[0]:maquinasUnicas.length+' máquinas do setor',maquinas:maquinasUnicas,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
+  const idsUnicos=[...new Set(maquinasSelecionadas.map(Number))];
+  const registros=MAQUINAS.filter(m=>m.setor===pvSetor.value&&idsUnicos.includes(Number(m.id)));
+  if(registros.length!==idsUnicos.length)return alert('Uma das máquinas selecionadas não foi encontrada. Atualize a lista e tente novamente.');
+  const nomesMaquinas=registros.map(m=>m.nome);
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:nomesMaquinas.length===1?nomesMaquinas[0]:nomesMaquinas.length+' máquinas do setor',maquinas:nomesMaquinas,maquinas_ids:idsUnicos,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
   if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
   pvDesc.value='';
   document.getElementById('pvTodasMaquinas').checked=false;
   pvMaquinas();
   await carregarPreventivas();
-  alert('Preventiva cadastrada com sucesso para '+maquinasUnicas.length+' máquina(s).');
+  alert('Preventiva cadastrada com sucesso para '+idsUnicos.length+' máquina(s).');
 }
 async function delPrev(id){
   if(!erimaxExigirGestorCadastro())return;
@@ -13781,7 +13853,7 @@ async function carregarPreventivas(){
   PREV=data||[];
   renderAlertaPreventivas();
   renderPainelPreventivas();
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>'+escaparHtml(resumoMaquinasPreventiva(p))+'</strong><small>'+escaparHtml(p.setor)+' · '+escaparHtml(p.descricao)+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><p>A cada '+(Number(p.intervalo_dias)||0)+' dia(s) · '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+'</p><p>Máquinas: '+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</p><p>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' · Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</p><button type="button" class="btn-action btn-excluir" onclick="delPrev('+Number(p.id)+')">Apagar preventiva</button></div></article>').join(''):'<p class="cadastro-empty-item">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>'+escaparHtml(resumoMaquinasPreventiva(p))+'</strong><small>'+escaparHtml(p.setor)+' · '+escaparHtml(p.descricao)+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><p>A cada '+(Number(p.intervalo_dias)||0)+' dia(s) · '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+'</p><p>Máquinas: '+escaparHtml(rotulosMaquinasPreventiva(p))+'</p><p>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' · Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</p><button type="button" class="btn-action btn-excluir" onclick="delPrev('+Number(p.id)+')">Apagar preventiva</button></div></article>').join(''):'<p class="cadastro-empty-item">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
     let base;
@@ -13790,7 +13862,7 @@ async function carregarPreventivas(){
     const dias=Math.ceil((base.getTime()-hoje.getTime())/864e5);
     return {...p,dias};
   }).filter(p=>Number.isFinite(p.dias)&&p.dias<=3).sort((a,b)=>a.dias-b.dias);
-  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
+  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(rotulosMaquinasPreventiva(p))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
 }
 async function gerarOSPrev(id){
   const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
@@ -13799,12 +13871,13 @@ async function gerarOSPrev(id){
   if(!confirm('Gerar uma nova ordem de serviço para esta preventiva?'))return;
   window.__erimaxPrevGerando.add(String(id));
   try{
-    const h=new Date().getHours(),maquinas=maquinasDaPreventiva(p);
+    const h=new Date().getHours(),registros=registrosMaquinasPreventiva(p),maquinas=registros.map(m=>m.nome);
+    if(!registros.length||registros.some(m=>!m.id))return alert('Esta preventiva possui máquina sem identificação única. Refaça o vínculo no cadastro antes de gerar a O.S.');
     const maquinaLabel=maquinas.length>1?maquinas.length+' máquinas do setor':(maquinas[0]||p.maquina);
-    const maquinasExecucao=maquinas.length>1?maquinas.map(nome=>({nome,concluida:false,concluida_em:null})):[];
+    const maquinasExecucao=maquinas.length>1?registros.map(m=>({maquina_id:Number(m.id),nome:m.nome,prefixo:m.prefixo||null,concluida:false,concluida_em:null})):[];
     const descricaoOS='Preventiva: '+p.descricao+(maquinas.length>1?'\nMáquinas: '+maquinas.join(', '):'');
     const equipeOS=[...new Set((Array.isArray(p.tecnicos_participantes)?p.tecnicos_participantes:[]).filter(x=>typeof x==='string'&&x.trim()).concat(p.tecnico_responsavel||[]))];
-    const {error}=await _supabase.from('os').insert([{preventiva_id:p.id,turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
+    const {error}=await _supabase.from('os').insert([{preventiva_id:p.id,maquina_id:registros.length===1?Number(registros[0].id):null,turno:h<14?'Turno 1':h<22?'Turno 2':'Turno 3',setor:p.setor,maquina:maquinaLabel,maquinas_execucao:maquinasExecucao,tecnicos_participantes:equipeOS,tipo:'Preventiva',prioridade:'Média',descricao:descricaoOS,status:'Aberta',tecnico:p.tecnico_responsavel||null}]);
     if(error){alert('Não foi possível gerar a O.S.: '+error.message);return}
     await Promise.all([carregarPreventivas(),carregarDadosSupabase()]);
     alert('O.S. preventiva criada para '+maquinas.length+' máquina(s) em uma única ordem e atribuída a '+(p.tecnico_responsavel||'nenhum técnico')+'. A próxima data será atualizada somente quando a O.S. for concluída.');
@@ -14903,11 +14976,11 @@ function atualizarListaComparacaoMaquinas(){
   if(!setor||!lista)return;
   const anterior=[...lista.selectedOptions].map(o=>o.value);
   const nomeSetor=setor.value;
-  const maquinas=[...new Set(MAQUINAS.filter(m=>m&&m.nome&&m.setor===nomeSetor).map(m=>m.nome))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  lista.innerHTML=maquinas.map(nome=>'<option value="'+escaparHtml(nome)+'">'+escaparHtml(nome)+'</option>').join('');
-  anterior.forEach(nome=>{const opt=[...lista.options].find(o=>o.value===nome);if(opt)opt.selected=true});
+  const maquinas=MAQUINAS.filter(m=>m&&m.nome&&m.setor===nomeSetor).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR')||String(a.prefixo||'').localeCompare(String(b.prefixo||''),'pt-BR'));
+  lista.innerHTML=maquinas.map(m=>'<option value="'+Number(m.id)+'">'+escaparHtml(m.nome)+(m.prefixo?' • '+escaparHtml(m.prefixo):' • Código não informado')+'</option>').join('');
+  anterior.forEach(id=>{const opt=[...lista.options].find(o=>o.value===id);if(opt)opt.selected=true});
   const ajuda=document.getElementById('comparacaoAjuda');
-  if(ajuda)ajuda.textContent=maquinas.length?maquinas.length+' máquina(s) cadastrada(s) neste setor. Você pode selecionar quantas quiser.':'Nenhuma máquina cadastrada neste setor.';
+  if(ajuda)ajuda.textContent=maquinas.length?maquinas.length+' máquina(s) cadastrada(s) neste setor. Cada opção é identificada pelo código.':'Nenhuma máquina cadastrada neste setor.';
 }
 function atualizarSetoresComparacaoMaquinas(){
   const setor=document.getElementById('comparacaoSetor');if(!setor)return;
@@ -14939,8 +15012,9 @@ function renderizarComparacaoMaquinas(){
   else{ini=null;fim=null}
   const tnum=turno==='Todos'?null:+turno.slice(-1);
   const dentroData=os=>{const d=os.created_at?new Date(os.created_at):null;return !!d&&(!ini||d>=ini)&&(!fim||d<fim)};
-  const dados=selecionadas.map(nome=>{
-    const todos=chamados.filter(os=>os.maquina===nome&&os.setor===setor&&os.tipo!=='Preventiva'&&os.status!=='Cancelada'&&(tipo==='Todos'||os.tipo===tipo));
+  const dados=selecionadas.map(maquinaId=>{
+    const cadastro=MAQUINAS.find(m=>String(m.id)===String(maquinaId)),nome=cadastro?.nome||'Máquina não encontrada',codigo=cadastro?.prefixo||'';
+    const todos=chamados.filter(os=>String(resolverIdMaquinaRegistro(os)||'')===String(maquinaId)&&os.setor===setor&&os.tipo!=='Preventiva'&&os.status!=='Cancelada'&&(tipo==='Todos'||os.tipo===tipo));
      const abertasPeriodo=todos.filter(os=>{
        const texto=String(os.turno??'').trim();
        const numero=(texto.match(/(?:^|\D)0?([1-3])(?:\D|$)/)||[])[1];
@@ -14969,14 +15043,14 @@ function renderizarComparacaoMaquinas(){
     });
     const causas={};abertasPeriodo.forEach(os=>{const c=os.causa||'Não informada';causas[c]=(causas[c]||0)+1});
     const principais=Object.entries(causas).sort((a,b)=>b[1]-a[1]).slice(0,3);
-    return{nome,total:abertasPeriodo.length,abertas:abertasPeriodo.length-concluidas,concluidas,parado,resp:media(somaResp,nResp),mttr:media(somaMTTR,nMTTR),causas:principais,listaConcluidas,listaEmAberto,listaParadas,listaMTTR};
+    return{nome,codigo,maquina_id:Number(maquinaId),total:abertasPeriodo.length,abertas:abertasPeriodo.length-concluidas,concluidas,parado,resp:media(somaResp,nResp),mttr:media(somaMTTR,nMTTR),causas:principais,listaConcluidas,listaEmAberto,listaParadas,listaMTTR};
   });
   DETALHES_GRAFICOS.chComparacaoOS=(ds,i)=>{const d=dados[i];return{titulo:(ds===0?'O.S. concluídas — ':'O.S. em aberto — ')+(d?.nome||'máquina'),lista:d?(ds===0?d.listaConcluidas:d.listaEmAberto):[]}};
   DETALHES_GRAFICOS.chComparacaoTempos=(ds,i)=>{const d=dados[i];return{titulo:(ds===0?'O.S. com parada — ':'O.S. com tempo de reparo — ')+(d?.nome||'máquina'),lista:d?(ds===0?d.listaParadas:d.listaMTTR):[]}};
-  resultado.innerHTML='<div class="metrics-compare-grid">'+dados.map(d=>'<article class="metrics-compare-machine"><h4>'+escaparHtml(d.nome)+'</h4><div class="cmp-main"><span>O.S. no período</span><strong>'+d.total+'</strong></div><div class="cmp-main"><span>Concluídas / abertas</span><strong>'+d.concluidas+' / '+d.abertas+'</strong></div><div class="cmp-main"><span>Tempo parado</span><strong>'+fmt(d.parado)+'</strong></div><div class="cmp-main"><span>Tempo médio de resposta</span><strong>'+fmt(d.resp)+'</strong></div><div class="cmp-main"><span>MTTR médio</span><strong>'+fmt(d.mttr)+'</strong></div><div class="cmp-causes"><b>Principais causas:</b> '+(d.causas.length?d.causas.map(c=>escaparHtml(c[0])+' ('+c[1]+')').join(' • '):'Sem registros')+'</div></article>').join('')+'</div>';
+  resultado.innerHTML='<div class="metrics-compare-grid">'+dados.map(d=>'<article class="metrics-compare-machine"><h4>'+escaparHtml(d.nome)+(d.codigo?' • '+escaparHtml(d.codigo):'')+'</h4><div class="cmp-main"><span>O.S. no período</span><strong>'+d.total+'</strong></div><div class="cmp-main"><span>Concluídas / abertas</span><strong>'+d.concluidas+' / '+d.abertas+'</strong></div><div class="cmp-main"><span>Tempo parado</span><strong>'+fmt(d.parado)+'</strong></div><div class="cmp-main"><span>Tempo médio de resposta</span><strong>'+fmt(d.resp)+'</strong></div><div class="cmp-main"><span>MTTR médio</span><strong>'+fmt(d.mttr)+'</strong></div><div class="cmp-causes"><b>Principais causas:</b> '+(d.causas.length?d.causas.map(c=>escaparHtml(c[0])+' ('+c[1]+')').join(' • '):'Sem registros')+'</div></article>').join('')+'</div>';
   if(graficos)graficos.style.display='';
-  mk('chComparacaoOS',{type:'bar',data:{labels:dados.map(d=>d.nome),datasets:[{label:'Concluídas',data:dados.map(d=>d.concluidas),backgroundColor:'#0f9d8a',borderRadius:6},{label:'Em aberto / atendimento',data:dados.map(d=>d.abertas),backgroundColor:'#d97706',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
-  mk('chComparacaoTempos',{type:'bar',data:{labels:dados.map(d=>d.nome),datasets:[{label:'Tempo parado (min)',data:dados.map(d=>Math.round(d.parado)),backgroundColor:'#dc3545',borderRadius:6},{label:'MTTR médio (min)',data:dados.map(d=>Math.round(d.mttr)),backgroundColor:'#2563eb',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+  mk('chComparacaoOS',{type:'bar',data:{labels:dados.map(d=>d.nome+(d.codigo?' • '+d.codigo:'')),datasets:[{label:'Concluídas',data:dados.map(d=>d.concluidas),backgroundColor:'#0f9d8a',borderRadius:6},{label:'Em aberto / atendimento',data:dados.map(d=>d.abertas),backgroundColor:'#d97706',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+  mk('chComparacaoTempos',{type:'bar',data:{labels:dados.map(d=>d.nome+(d.codigo?' • '+d.codigo:'')),datasets:[{label:'Tempo parado (min)',data:dados.map(d=>Math.round(d.parado)),backgroundColor:'#dc3545',borderRadius:6},{label:'MTTR médio (min)',data:dados.map(d=>Math.round(d.mttr)),backgroundColor:'#2563eb',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
   const ajuda=document.getElementById('comparacaoAjuda');if(ajuda)ajuda.textContent='Comparação de '+dados.length+' máquinas • '+(personalizado?inicioTxt.split('-').reverse().join('/')+' a '+fimTxt.split('-').reverse().join('/'):dia||mes||'todo o histórico')+' • '+(turno==='Todos'?'todos os turnos':turno)+' • '+(tipo==='Todos'?'todos os tipos':tipo);
 }
 </script>
