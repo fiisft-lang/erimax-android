@@ -13702,13 +13702,14 @@ function maquinasDaPreventiva(p){
   return lista.length?lista:(p&&p.maquina?[p.maquina]:[]);
 }
 function registrosMaquinasPreventiva(p){
-  const ids=Array.isArray(p&&p.maquinas_ids)?p.maquinas_ids.map(Number).filter(Number.isFinite):[];
-  if(ids.length)return ids.map(id=>MAQUINAS.find(m=>Number(m.id)===id)).filter(Boolean);
-  return maquinasDaPreventiva(p).map(nome=>{const encontrados=MAQUINAS.filter(m=>m.setor===p.setor&&String(m.nome).trim()===String(nome).trim());return encontrados.length===1?encontrados[0]:{id:null,nome,prefixo:null,setor:p.setor}});
+  const nomes=maquinasDaPreventiva(p),ids=Array.isArray(p&&p.maquinas_ids)?p.maquinas_ids.map(Number).filter(Number.isFinite):[];
+  if(ids.length&&ids.length===nomes.length){const registros=ids.map(id=>MAQUINAS.find(m=>Number(m.id)===id)).filter(Boolean);if(registros.length===ids.length)return registros;}
+  return nomes.map(nome=>{const encontrados=MAQUINAS.filter(m=>m.setor===p.setor&&String(m.nome).trim()===String(nome).trim());return encontrados.length===1?encontrados[0]:{id:null,nome,prefixo:null,setor:p.setor}});
 }
+function rotulosMaquinasPreventiva(p){return registrosMaquinasPreventiva(p).map(m=>m.nome+(m.prefixo?' • '+m.prefixo:' • Identificação pendente')).join(', ');}
 function resumoMaquinasPreventiva(p){
-  const lista=maquinasDaPreventiva(p);
-  return lista.length>1?lista.length+' máquinas do setor':(lista[0]||'Máquina não informada');
+  const lista=registrosMaquinasPreventiva(p);
+  return lista.length>1?lista.length+' máquinas do setor':(lista[0]?(lista[0].nome+(lista[0].prefixo?' • '+lista[0].prefixo:' • Identificação pendente')):'Máquina não informada');
 }
 function renderPainelPreventivas(){
   const kpis=document.getElementById('metricsScheduleKpis');
@@ -13799,7 +13800,7 @@ async function carregarPreventivas(){
   PREV=data||[];
   renderAlertaPreventivas();
   renderPainelPreventivas();
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>'+escaparHtml(resumoMaquinasPreventiva(p))+'</strong><small>'+escaparHtml(p.setor)+' · '+escaparHtml(p.descricao)+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><p>A cada '+(Number(p.intervalo_dias)||0)+' dia(s) · '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+'</p><p>Máquinas: '+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</p><p>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' · Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</p><button type="button" class="btn-action btn-excluir" onclick="delPrev('+Number(p.id)+')">Apagar preventiva</button></div></article>').join(''):'<p class="cadastro-empty-item">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>'+escaparHtml(resumoMaquinasPreventiva(p))+'</strong><small>'+escaparHtml(p.setor)+' · '+escaparHtml(p.descricao)+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><p>A cada '+(Number(p.intervalo_dias)||0)+' dia(s) · '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+'</p><p>Máquinas: '+escaparHtml(rotulosMaquinasPreventiva(p))+'</p><p>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' · Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</p><button type="button" class="btn-action btn-excluir" onclick="delPrev('+Number(p.id)+')">Apagar preventiva</button></div></article>').join(''):'<p class="cadastro-empty-item">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
     let base;
@@ -13808,7 +13809,7 @@ async function carregarPreventivas(){
     const dias=Math.ceil((base.getTime()-hoje.getTime())/864e5);
     return {...p,dias};
   }).filter(p=>Number.isFinite(p.dias)&&p.dias<=3).sort((a,b)=>a.dias-b.dias);
-  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(maquinasDaPreventiva(p).join(', '))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
+  boxPrev.innerHTML=v.length?'<div class="card"><h4 style="color:var(--secondary)">🗓️ Preventivas a fazer</h4>'+v.map(p=>'<div class="maq-row"><span><b>'+escaparHtml(resumoMaquinasPreventiva(p))+'</b> <small>• '+escaparHtml(p.descricao)+'<br><span style="color:#64748b">'+escaparHtml(rotulosMaquinasPreventiva(p))+'</span><br><span class="'+(p.dias<0?'alerta':'')+'">'+(p.dias<0?'atrasada '+(-p.dias)+' dia(s)':p.dias===0?'vence hoje':'vence em '+p.dias+' dia(s)')+' • Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+'</span></small></span><button class="btn-action btn-assumir" style="flex:none" onclick="gerarOSPrev('+Number(p.id)+')">Gerar OS</button></div>').join('')+'</div>':'';
 }
 async function gerarOSPrev(id){
   const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
