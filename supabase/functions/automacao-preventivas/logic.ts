@@ -24,7 +24,7 @@ export function notificationStart(due: string) {
 }
 
 export function deadlineFor(start: string) {
-  return new Date(addDays(start, 3) + 'T00:00:00-03:00').getTime() - 1000
+  return new Date(addDays(start, 2) + 'T00:00:00-03:00').getTime() - 1000
 }
 
 export function machineRecords(p: any, machines: any[]) {
@@ -33,8 +33,8 @@ export function machineRecords(p: any, machines: any[]) {
     : (p.maquina ? [p.maquina] : [])
   const ids = Array.isArray(p.maquinas_ids) ? p.maquinas_ids.map(Number) : []
   if (!names.length) return []
-  if (ids.length === names.length && ids.every((id: number) => Number.isSafeInteger(id) && id > 0)) {
-    return ids.map((id: number) => machines.find(m => Number(m.id) === id)).filter(Boolean)
+  if (ids.length === names.length && new Set(ids).size === ids.length && ids.every((id: number) => Number.isSafeInteger(id) && id > 0)) {
+    return ids.map((id: number) => machines.find(m => Number(m.id) === id && m.setor === p.setor)).filter(Boolean)
   }
   return names.map((name: string) => {
     const matches = machines.filter(m => m.setor === p.setor && String(m.nome).trim() === String(name).trim())
