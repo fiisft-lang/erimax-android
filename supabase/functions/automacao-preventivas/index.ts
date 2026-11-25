@@ -161,7 +161,7 @@ Deno.serve(async (req: Request) => {
         // Recupera uma O.S. criada manualmente no mesmo ciclo ou por uma execução
         // que tenha sido interrompida depois do INSERT, antes de vincular o id.
         const { data: existingOS, error: existingError } = await admin.from('os').select('id,status')
-          .eq('preventiva_id', p.id).gte('created_at', execution.criado_em)
+          .eq('preventiva_id', p.id).gte('created_at', start + 'T00:00:00-03:00')
           .order('id', { ascending: true }).limit(1).maybeSingle()
         if (existingError) throw existingError
         if (existingOS) {
@@ -302,7 +302,7 @@ Deno.serve(async (req: Request) => {
           .filter((x: unknown) => typeof x === 'string' && x.trim()))]
         if (!teamNames.length) continue
         const { data: profiles, error: profileError } = await admin.from('perfis')
-          .select('id,nome,perfil').in('nome', teamNames).in('perfil', ['tecnico'])
+          .select('id,nome,perfil').in('nome', teamNames)
         if (profileError) throw profileError
         const profileList = (profiles || []).filter((p: any) => p.perfil === 'tecnico' || p.id === FIi_ID)
         const profileIds = profileList.map((p: any) => p.id)
