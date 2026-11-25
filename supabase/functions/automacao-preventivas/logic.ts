@@ -24,7 +24,7 @@ export function notificationStart(due: string) {
 }
 
 export function deadlineFor(start: string) {
-  return new Date(addDays(start, 2) + 'T00:00:00-03:00').getTime() - 1000
+  return new Date(addDays(start, 3) + 'T00:00:00-03:00').getTime() - 1000
 }
 
 export function machineRecords(p: any, machines: any[]) {
