@@ -322,28 +322,33 @@ Deno.serve(async (req: Request) => {
         }
         if (!claim) continue
 
-        const { data: live, error: liveError } = await admin.from('status_tecnicos')
-          .select('user_id').in('user_id', onlineIds).in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
-        if (liveError) throw liveError
-        const liveIds = (live || []).map((p: any) => p.user_id)
-        const { data: devices, error: deviceError } = liveIds.length
-          ? await admin.from('dispositivos').select('token').in('user_id', liveIds)
-          : { data: [], error: null }
-        if (deviceError) throw deviceError
-        const tokens = [...new Set((devices || []).map((d: any) => d.token).filter(Boolean))]
-        if (!tokens.length) {
+        try {
+          const { data: live, error: liveError } = await admin.from('status_tecnicos')
+            .select('user_id').in('user_id', onlineIds).in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
+          if (liveError) throw liveError
+          const liveIds = (live || []).map((p: any) => p.user_id)
+          const { data: devices, error: deviceError } = liveIds.length
+            ? await admin.from('dispositivos').select('token').in('user_id', liveIds)
+            : { data: [], error: null }
+          if (deviceError) throw deviceError
+          const tokens = [...new Set((devices || []).map((d: any) => d.token).filter(Boolean))]
+          if (!tokens.length) {
+            await admin.from('preventiva_lembretes_enviados').delete().eq('id', claim.id)
+            continue
+          }
+          const result = await sendFcm(tokens, { ...commonData, tipo_alerta: 'preventiva_lembrete' }, sa, access)
+          if (result.invalid.length) await admin.from('dispositivos').delete().in('token', result.invalid)
+          if (result.sent) {
+            await admin.from('preventiva_lembretes_enviados').update({
+              status: 'enviado', destinatarios: liveIds, enviado_em: now.toISOString(),
+            }).eq('id', claim.id)
+            lembretes += result.sent
+          } else {
+            await admin.from('preventiva_lembretes_enviados').delete().eq('id', claim.id)
+          }
+        } catch (error) {
           await admin.from('preventiva_lembretes_enviados').delete().eq('id', claim.id)
-          continue
-        }
-        const result = await sendFcm(tokens, { ...commonData, tipo_alerta: 'preventiva_lembrete' }, sa, access)
-        if (result.invalid.length) await admin.from('dispositivos').delete().in('token', result.invalid)
-        if (result.sent) {
-          await admin.from('preventiva_lembretes_enviados').update({
-            status: 'enviado', destinatarios: liveIds, enviado_em: now.toISOString(),
-          }).eq('id', claim.id)
-          lembretes += result.sent
-        } else {
-          await admin.from('preventiva_lembretes_enviados').delete().eq('id', claim.id)
+          throw error
         }
       }
     }
