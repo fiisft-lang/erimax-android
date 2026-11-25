@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - ota-atualizacao-android-staging-20261109
+      - feat/automacao-os-preventiva
     paths-ignore:
       - "ota/**"
 
