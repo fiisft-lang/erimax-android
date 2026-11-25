@@ -70,7 +70,7 @@ public class IncomingCallMessagingService extends MessagingService {
           : number + " • " + machine + "\\n" + sector));
       if (preventiva) {
         builder.addAction(android.R.drawable.ic_menu_view, preventivaAtrasada ? "Abrir O.S." : "Começar preventiva",
-          preventivaActionIntent(data, preventivaAtrasada ? "iniciar_preventiva" : "iniciar_preventiva"));
+          preventivaActionIntent(data, preventivaAtrasada ? "abrir_preventiva" : "iniciar_preventiva"));
         if (!preventivaAtrasada) builder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Adiar",
           preventivaActionIntent(data, "adiar_preventiva"));
       } else {
