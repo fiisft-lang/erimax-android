@@ -90,6 +90,10 @@ begin
            atualizado_em = now()
      where os_id = new.id
        and status not in ('concluida','cancelada');
+
+    if new.preventiva_atrasada then
+      update public.os set preventiva_atrasada = false where id = new.id;
+    end if;
   end if;
 
   return new;
