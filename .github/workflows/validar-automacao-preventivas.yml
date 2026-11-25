@@ -4,13 +4,8 @@ on:
   push:
     branches:
       - feat/automacao-os-preventiva
-    paths:
-      - "supabase/functions/automacao-preventivas/**"
-      - "supabase/migrations/*automacao_preventivas*"
   pull_request:
-    paths:
-      - "supabase/functions/automacao-preventivas/**"
-      - "supabase/migrations/*automacao_preventivas*"
+  workflow_dispatch:
 
 jobs:
   validar:
