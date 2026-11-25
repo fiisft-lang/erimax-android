@@ -7929,15 +7929,15 @@ function atualizarNavegacaoMobileEriMax(id){
 <button class="btn-submit" onclick="entrar()">Entrar</button></div></div>
 
 <div id="modal"><div class="box"><h2>Concluir OS</h2>
-<div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
+<div id="mdCamposConclusao"><div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
 <div class="form-group"><label for="mdPeca">Peça utilizada (opcional)</label><input id="mdPeca" list="almoxSugestoesPecas" placeholder="Ex.: Correia A35 ou Rolamento 6204"><datalist id="almoxSugestoesPecas"></datalist><small style="display:block;color:#64748b;margin-top:4px">Use o nome ou código cadastrado no Almoxarifado. Ao concluir a O.S., a baixa será automática se houver saldo; se não estiver cadastrado ou faltar estoque, o gestor receberá uma pendência.</small></div>
 <div class="form-group"><label for="mdPecaQtd">Quantidade utilizada</label><input id="mdPecaQtd" type="number" min="0.001" step="0.001" value="1"></div>
 <div class="form-group"><label for="mdServico">Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
 <div class="form-group"><label>Mecânicos auxiliares (opcional)</label><div id="mdMecanicosAuxiliares" class="md-auxiliares-list"><small style="color:#64748b">Carregando técnicos...</small></div><small style="display:block;color:#64748b;margin-top:5px">Você pode selecionar quantos mecânicos participaram desta manutenção. O técnico responsável continua identificado separadamente.</small></div>
-<details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" aria-label="Observação de máquina rodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details>
+<details id="mdRodandoDetails" class="os-rodando-details"><summary>▶ Máquina voltou a rodar? Registrar em observação</summary><div class="os-rodando-fields"><input id="mdObsRodando" aria-label="Observação de máquina rodando" type="text" maxlength="500" placeholder="Observação curta (opcional)"><button type="button" class="os-rodando-save" onclick="registrarMaquinaRodandoObservacao()">Registrar e manter O.S. aberta</button></div></details></div>
 <div class="form-group" id="mdMaquinasWrap" style="display:none"><label>Execução por máquina</label><p style="font-size:.75rem;color:#64748b;margin:4px 0 8px">Marque cada máquina somente depois de executar o serviço nela. A O.S. só poderá ser concluída quando todas estiverem marcadas.</p><div id="mdListaMaquinas"></div><button type="button" class="btn-submit" style="background:#0f766e;margin-top:8px" onclick="salvarProgressoMaquinas()">💾 Salvar andamento sem fechar a O.S.</button></div>
-<div class="form-group"><label for="mdHora">Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
-<div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
+<div class="form-group" id="mdHoraWrap"><label for="mdHora">Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
+<div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button id="mdConcluirBtn" class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
 <div id="modalReabrirOS" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1250;align-items:center;justify-content:center;padding:16px">
   <div class="box" style="max-width:420px">
@@ -9442,10 +9442,17 @@ let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
 function concluirOS(id){
   const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
-  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||osResponsavel.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
+  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||(osResponsavel.tecnico!==PERFIL.nome&&!(Array.isArray(osResponsavel.tecnicos_participantes)&&osResponsavel.tecnicos_participantes.includes(PERFIL.nome)))))return alert('Somente o responsável ou um integrante da equipe desta preventiva pode registrar o andamento das máquinas.');
   osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';if(document.getElementById('mdPecaQtd'))document.getElementById('mdPecaQtd').value='1';
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
+  const somenteBaixaPreventiva=!!(osAtual&&osAtual.tipo==='Preventiva'&&PERFIL&&PERFIL.perfil==='tecnico'&&osAtual.tecnico!==PERFIL.nome);
+  const camposConclusao=document.getElementById('mdCamposConclusao');
+  const horaConclusao=document.getElementById('mdHoraWrap');
+  const botaoConcluir=document.getElementById('mdConcluirBtn');
+  if(camposConclusao)camposConclusao.style.display=somenteBaixaPreventiva?'none':'';
+  if(horaConclusao)horaConclusao.style.display=somenteBaixaPreventiva?'none':'';
+  if(botaoConcluir)botaoConcluir.style.display=somenteBaixaPreventiva?'none':'';
   const rodandoDetails=document.getElementById('mdRodandoDetails');
   const obsRodando=document.getElementById('mdObsRodando');
   if(rodandoDetails){rodandoDetails.style.display=osAtual&&osAtual.status==='Em Atendimento'&&String(osAtual.situacao_equipamento||'').toLowerCase()==='parado'?'':'none';rodandoDetails.open=false}
@@ -9488,7 +9495,16 @@ function obterMaquinasExecucaoModal(){
 async function salvarProgressoMaquinas(){
   const lista=obterMaquinasExecucaoModal();
   if(!lista.length)return;
-  const {error}=await _supabase.from('os').update({maquinas_execucao:lista}).eq('id',osConcluir);
+  const osAtual=chamados.find(c=>Number(c.id)===Number(osConcluir));
+  if(!osAtual)return alert('O.S. não encontrada. Atualize a lista antes de continuar.');
+  let error=null;
+  if(osAtual.tipo==='Preventiva'&&PERFIL&&PERFIL.perfil==='tecnico'){
+    const resultado=await _supabase.rpc('erimax_salvar_progresso_preventiva',{p_os_id:Number(osConcluir),p_maquinas_execucao:lista});
+    error=resultado.error;
+  }else{
+    const resultado=await _supabase.from('os').update({maquinas_execucao:lista}).eq('id',osConcluir);
+    error=resultado.error;
+  }
   if(error)return alert('Não foi possível salvar o andamento das máquinas: '+error.message);
   fecharModal();await carregarDadosSupabase();
   alert('Andamento das máquinas salvo. A O.S. continua em atendimento.');
