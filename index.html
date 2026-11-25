@@ -13539,68 +13539,7 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
-<script>
-(function(){
-  try {
-    if (location.hostname === 'erimax.pages.dev' || new URLSearchParams(location.search).get('previewPreventiva') !== '1' || window.__ERIMAX_PREVENTIVA_PREVIEW__) return;
-    window.__ERIMAX_PREVENTIVA_PREVIEW__ = true;
-    const html = `
-      <style>
-        #erimaxPrevPreview{position:fixed;inset:0;z-index:999999;background:rgba(3,14,23,.88);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Arial,sans-serif;color:#fff}
-        #erimaxPrevPreview .pv-card{width:min(100%,460px);max-height:94vh;overflow:auto;background:linear-gradient(160deg,#071824,#0d2736 55%,#081b28);border:1px solid #31546a;border-radius:24px;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.5)}
-        #erimaxPrevPreview .pv-brand{display:inline-block;background:#133141;border:1px solid #2f5365;border-radius:24px;padding:10px 18px;font-size:11px;font-weight:800;letter-spacing:1px}
-        #erimaxPrevPreview .pv-eyebrow{margin:26px 0 8px;color:#ffa442;font-size:10px;font-weight:800;letter-spacing:1.5px}
-        #erimaxPrevPreview h2{margin:0 0 8px;text-align:center;font-size:24px;line-height:1.2}
-        #erimaxPrevPreview .pv-number{text-align:center;color:#ffa442;font-weight:800;margin-bottom:18px}
-        #erimaxPrevPreview .pv-info{background:#112b3a;border:1px solid #2f5365;border-radius:18px;padding:14px 16px}
-        #erimaxPrevPreview .pv-row{padding:11px 0;border-bottom:1px solid #234252}
-        #erimaxPrevPreview .pv-row:last-child{border:0}
-        #erimaxPrevPreview .pv-label{display:block;color:#a9c2cd;font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:5px}
-        #erimaxPrevPreview .pv-value{font-size:14px;font-weight:700;line-height:1.4;overflow-wrap:anywhere}
-        #erimaxPrevPreview .pv-actions{display:grid;gap:10px;margin-top:18px}
-        #erimaxPrevPreview button{border:0;border-radius:13px;padding:16px;font-size:13px;font-weight:800;cursor:pointer}
-        #erimaxPrevPreview .pv-start{background:#19ab6f;color:white}
-        #erimaxPrevPreview .pv-later{background:#234252;color:white;border:1px solid #47677a}
-        #erimaxPrevPreview .pv-note{color:#a9c2cd;font-size:11px;text-align:center;line-height:1.5;margin:12px 4px 0}
-        #erimaxPrevPreview .pv-close{float:right;background:transparent;color:#b9cbd3;padding:4px 8px;font-size:20px}
-        #erimaxPrevPreview .pv-status{display:none;margin-top:12px;padding:10px;border-radius:10px;background:#173d35;color:#d7f8e9;font-size:12px;line-height:1.4}
-      </style>
-      <div class="pv-card">
-        <button class="pv-close" id="erimaxPrevClose" aria-label="Fechar prévia">×</button>
-        <div class="pv-brand">ERIMAX / MANUTENÇÃO</div>
-        <div class="pv-eyebrow">LEMBRETE DE MANUTENÇÃO</div>
-        <h2>Hora de realizar a preventiva</h2>
-        <div class="pv-number">O.S. PREVENTIVA • TESTE VISUAL</div>
-        <div class="pv-info">
-          <div class="pv-row"><span class="pv-label">SETOR</span><div class="pv-value">Setor de exemplo</div></div>
-          <div class="pv-row"><span class="pv-label">SERVIÇO</span><div class="pv-value">Lubrificação e inspeção preventiva</div></div>
-          <div class="pv-row"><span class="pv-label">MÁQUINAS ENVOLVIDAS</span><div class="pv-value">Máquina 01 • Código 001<br>Máquina 02 • Código 002</div></div>
-          <div class="pv-row"><span class="pv-label">PRAZO FINAL</span><div class="pv-value">Sábado • 23h59</div></div>
-        </div>
-        <div class="pv-actions">
-          <button class="pv-start" id="erimaxPrevStart">COMEÇAR PREVENTIVA</button>
-          <button class="pv-later" id="erimaxPrevLater">ADIAR</button>
-        </div>
-        <div class="pv-note">Prévia visual. No aplicativo Android, “Começar preventiva” abre a O.S. real; “Adiar” silencia somente este alerta e mantém o próximo horário programado.</div>
-        <div class="pv-status" id="erimaxPrevStatus"></div>
-      </div>`;
-    const overlay = document.createElement('div');
-    overlay.id = 'erimaxPrevPreview';
-    overlay.innerHTML = html;
-    document.body.appendChild(overlay);
-    document.getElementById('erimaxPrevClose').onclick = () => overlay.remove();
-    const status = document.getElementById('erimaxPrevStatus');
-    document.getElementById('erimaxPrevStart').onclick = () => {
-      status.style.display = 'block';
-      status.textContent = 'Na versão Android, a O.S. é assumida e aberta para iniciar o atendimento. Esta prévia não grava dados.';
-    };
-    document.getElementById('erimaxPrevLater').onclick = () => {
-      status.style.display = 'block';
-      status.textContent = 'Alerta silenciado. O próximo horário programado permanece ativo; nenhum dado foi alterado nesta prévia.';
-    };
-  } catch (e) { console.warn('Prévia visual da preventiva indisponível:', e); }
-})();
-</script>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -14205,6 +14144,69 @@ window.onload=async function(){
   }
 };
 </script>
+<script>
+(function(){
+  try {
+    if (location.hostname === 'erimax.pages.dev' || new URLSearchParams(location.search).get('previewPreventiva') !== '1' || window.__ERIMAX_PREVENTIVA_PREVIEW__) return;
+    window.__ERIMAX_PREVENTIVA_PREVIEW__ = true;
+    const html = `
+      <style>
+        #erimaxPrevPreview{position:fixed;inset:0;z-index:999999;background:rgba(3,14,23,.88);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Arial,sans-serif;color:#fff}
+        #erimaxPrevPreview .pv-card{width:min(100%,460px);max-height:94vh;overflow:auto;background:linear-gradient(160deg,#071824,#0d2736 55%,#081b28);border:1px solid #31546a;border-radius:24px;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+        #erimaxPrevPreview .pv-brand{display:inline-block;background:#133141;border:1px solid #2f5365;border-radius:24px;padding:10px 18px;font-size:11px;font-weight:800;letter-spacing:1px}
+        #erimaxPrevPreview .pv-eyebrow{margin:26px 0 8px;color:#ffa442;font-size:10px;font-weight:800;letter-spacing:1.5px}
+        #erimaxPrevPreview h2{margin:0 0 8px;text-align:center;font-size:24px;line-height:1.2}
+        #erimaxPrevPreview .pv-number{text-align:center;color:#ffa442;font-weight:800;margin-bottom:18px}
+        #erimaxPrevPreview .pv-info{background:#112b3a;border:1px solid #2f5365;border-radius:18px;padding:14px 16px}
+        #erimaxPrevPreview .pv-row{padding:11px 0;border-bottom:1px solid #234252}
+        #erimaxPrevPreview .pv-row:last-child{border:0}
+        #erimaxPrevPreview .pv-label{display:block;color:#a9c2cd;font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:5px}
+        #erimaxPrevPreview .pv-value{font-size:14px;font-weight:700;line-height:1.4;overflow-wrap:anywhere}
+        #erimaxPrevPreview .pv-actions{display:grid;gap:10px;margin-top:18px}
+        #erimaxPrevPreview button{border:0;border-radius:13px;padding:16px;font-size:13px;font-weight:800;cursor:pointer}
+        #erimaxPrevPreview .pv-start{background:#19ab6f;color:white}
+        #erimaxPrevPreview .pv-later{background:#234252;color:white;border:1px solid #47677a}
+        #erimaxPrevPreview .pv-note{color:#a9c2cd;font-size:11px;text-align:center;line-height:1.5;margin:12px 4px 0}
+        #erimaxPrevPreview .pv-close{float:right;background:transparent;color:#b9cbd3;padding:4px 8px;font-size:20px}
+        #erimaxPrevPreview .pv-status{display:none;margin-top:12px;padding:10px;border-radius:10px;background:#173d35;color:#d7f8e9;font-size:12px;line-height:1.4}
+      </style>
+      <div class="pv-card">
+        <button class="pv-close" id="erimaxPrevClose" aria-label="Fechar prévia">×</button>
+        <div class="pv-brand">ERIMAX / MANUTENÇÃO</div>
+        <div class="pv-eyebrow">LEMBRETE DE MANUTENÇÃO</div>
+        <h2>Hora de realizar a preventiva</h2>
+        <div class="pv-number">O.S. PREVENTIVA • TESTE VISUAL</div>
+        <div class="pv-info">
+          <div class="pv-row"><span class="pv-label">SETOR</span><div class="pv-value">Setor de exemplo</div></div>
+          <div class="pv-row"><span class="pv-label">SERVIÇO</span><div class="pv-value">Lubrificação e inspeção preventiva</div></div>
+          <div class="pv-row"><span class="pv-label">MÁQUINAS ENVOLVIDAS</span><div class="pv-value">Máquina 01 • Código 001<br>Máquina 02 • Código 002</div></div>
+          <div class="pv-row"><span class="pv-label">PRAZO FINAL</span><div class="pv-value">Sábado • 23h59</div></div>
+        </div>
+        <div class="pv-actions">
+          <button class="pv-start" id="erimaxPrevStart">COMEÇAR PREVENTIVA</button>
+          <button class="pv-later" id="erimaxPrevLater">ADIAR</button>
+        </div>
+        <div class="pv-note">Prévia visual. No aplicativo Android, “Começar preventiva” abre a O.S. real; “Adiar” silencia somente este alerta e mantém o próximo horário programado.</div>
+        <div class="pv-status" id="erimaxPrevStatus"></div>
+      </div>`;
+    const overlay = document.createElement('div');
+    overlay.id = 'erimaxPrevPreview';
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay);
+    document.getElementById('erimaxPrevClose').onclick = () => overlay.remove();
+    const status = document.getElementById('erimaxPrevStatus');
+    document.getElementById('erimaxPrevStart').onclick = () => {
+      status.style.display = 'block';
+      status.textContent = 'Na versão Android, a O.S. é assumida e aberta para iniciar o atendimento. Esta prévia não grava dados.';
+    };
+    document.getElementById('erimaxPrevLater').onclick = () => {
+      status.style.display = 'block';
+      status.textContent = 'Alerta silenciado. O próximo horário programado permanece ativo; nenhum dado foi alterado nesta prévia.';
+    };
+  } catch (e) { console.warn('Prévia visual da preventiva indisponível:', e); }
+})();
+</script>
+
 <script id="erimax-almoxarifado-logic-2026">
 let ALMOX_MATERIAIS=[],ALMOX_MOVIMENTOS=[],ALMOX_SOLICITACOES=[];
 function gestorAlmox(){return !!(PERFIL&&PERFIL.perfil==='gestor'&&MEU_ID)}
