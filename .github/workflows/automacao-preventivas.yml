@@ -16,20 +16,17 @@ jobs:
     steps:
       - name: Validar configuração do agendador
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          test -n "$SUPABASE_URL" || { echo "Secret SUPABASE_URL não configurado."; exit 1; }
           test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Secret SUPABASE_SERVICE_ROLE_KEY não configurado."; exit 1; }
 
       - name: Executar automação de preventivas
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
           curl --fail-with-body --silent --show-error \
-            --request POST "${SUPABASE_URL%/}/functions/v1/automacao-preventivas" \
+            --request POST "https://qzjbpvgedfpmfnxsvqhu.supabase.co/functions/v1/automacao-preventivas" \
             --header "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
             --header "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
             --header "Content-Type: application/json" \
