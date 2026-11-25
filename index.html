@@ -11254,6 +11254,9 @@ async function executarLinkOS(id,action){
     if(action==='aceitar_transferencia')await aceitarTransferenciaOS(Number(id));
     else if(action==='recusar_transferencia')await recusarTransferenciaOS(Number(id));
     else if(action==='assumir')await assumirOS(Number(id));
+    else if(action==='iniciar_preventiva'&&os.status==='Aberta')await assumirOS(Number(id));
+    // abrir_preventiva é usado no alerta de atraso: abre a ordem sem assumir
+    // ou alterar o responsável já definido para a preventiva.
     etapa='abertura da O.S. no painel';
     await abrirOSNoPainel(id);
     ACOES_LINK_OS.delete(chave);
