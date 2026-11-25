@@ -17,3 +17,5 @@ jobs:
           deno-version: v2.x
       - name: Verificar Edge Function
         run: deno check supabase/functions/automacao-preventivas/index.ts
+      - name: Testar regras da automação
+        run: deno test supabase/functions/automacao-preventivas/index_test.ts
