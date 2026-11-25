@@ -9163,7 +9163,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     let menuAcoes='';
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
     const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
-    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&tecnicoAtual):(gestor||tecnicoAtual);
+    const tecnicoParticipantePreventiva=!!(PERFIL&&PERFIL.perfil==='tecnico'&&Array.isArray(os.tecnicos_participantes)&&os.tecnicos_participantes.includes(PERFIL.nome));
+    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&(tecnicoAtual||tecnicoParticipantePreventiva)):(gestor||tecnicoAtual);
     const adicionarOpcao=html=>{menuAcoes+=html};
     if(statusNormalizado==='aberta'&&PERFIL&&['tecnico','gestor'].includes(String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR'))){
       b+='<button type="button" class="btn-action btn-assumir os-action-primary" onclick="assumirOS('+id+')">Assumir</button>';
@@ -9172,7 +9173,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
     }
     if(status==='Em Atendimento'){
-      if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir os-action-primary" onclick="concluirOS('+id+')">Concluir</button>';
+      if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir os-action-primary" onclick="concluirOS('+id+')">'+(os.tipo==='Preventiva'&&!tecnicoAtual?'Registrar máquinas':'Concluir')+'</button>';
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="transferirOS('+id+')">🔄 Transferir</button>');
       if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
