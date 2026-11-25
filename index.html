@@ -8229,9 +8229,13 @@ function iniciarSincronizacaoFallback(){
       const haNovas=(resumo||[]).some(os=>!idsLocais.has(Number(os.id)));
       const haExcluidas=(chamados||[]).some(os=>!idsServidor.has(Number(os.id)));
       let mudou=false;
+      let listaOSMudou=false;
+      let listaFoiRecarregada=false;
       if(haNovas||haExcluidas){
         await carregarDadosSupabase();
         mudou=true;
+        listaOSMudou=true;
+        listaFoiRecarregada=true;
       }else{
         const alteradas=(resumo||[]).filter(os=>{
           const local=locais.get(Number(os.id));
@@ -8252,6 +8256,7 @@ function iniciarSincronizacaoFallback(){
             if(i>=0)chamados[i]={...chamados[i],...os,setor:normSetor(os.setor)};
           });
           mudou=true;
+          listaOSMudou=true;
         }
       }
       const {data:status,error:statusError}=await _supabase.from('status_tecnicos')
@@ -8271,10 +8276,14 @@ function iniciarSincronizacaoFallback(){
         if(badge)badge.innerText=chamados.filter(os=>os.status==='Aberta').length;
         // Métricas não são redesenhadas pela sincronização de fundo; isso evita movimento periódico dos gráficos.
       }
-      // Mantém a lista visível sincronizada mesmo quando o evento Realtime foi perdido
-      // ou o DOM ficou desatualizado após uma mudança de status.
-      if(document.getElementById('tab-ordens-servico')?.classList.contains('active'))renderizarChamados();
-      if(document.getElementById('tab-ordens-abertas')?.classList.contains('active'))renderizarChamados('listaOSAbertas',true);
+      // Só reconstrói os cards quando a consulta de segurança encontrou mudança real
+      // nas O.S. Novas/excluídas já foram redesenhadas por carregarDadosSupabase().
+      if(listaOSMudou&&!listaFoiRecarregada){
+        if(document.getElementById('tab-ordens-servico')?.classList.contains('active'))renderizarChamados();
+        if(document.getElementById('tab-ordens-abertas')?.classList.contains('active'))renderizarChamados('listaOSAbertas',true);
+      }
+      // Mantém a contagem de duração atualizada sem recriar os cards nem interromper a rolagem.
+      atualizarDuracoesOSVisiveis();
     }catch(e){console.error('Sincronização automática de segurança falhou:',e.message||e)}
     finally{sincronizacaoFallbackEmCurso=false}
   };
@@ -8998,6 +9007,15 @@ function minutosPausaOS(id){
     return total+(Number.isFinite(ini)&&Number.isFinite(fim)?Math.max(0,fim-ini)/60000:0);
   },0);
 }
+function atualizarDuracoesOSVisiveis(){
+  const agora=Date.now();
+  document.querySelectorAll('[data-duracao-os]').forEach(el=>{
+    const inicio=el.dataset.inicioOs?Number(el.dataset.inicioOs):NaN;
+    const fim=el.dataset.statusOs==='Concluída'?(el.dataset.fimOs?Number(el.dataset.fimOs):NaN):agora;
+    if(!Number.isFinite(inicio)||!Number.isFinite(fim)){el.textContent='—';return}
+    el.textContent=fmt(Math.max(0,Math.floor((fim-inicio)/60000)));
+  });
+}
 function atualizarTemposParadaPainel(){
   document.querySelectorAll('[data-tempo-parada-os]').forEach(el=>{
     const id=Number(el.dataset.tempoParadaOs),os=chamados.find(c=>Number(c.id)===id);
@@ -9179,7 +9197,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     const fimOS=status==='Concluída'&&os.data_conclusao?new Date(os.data_conclusao).getTime():Date.now();
     const duracaoOS=Number.isFinite(inicioOS)?fmt(Math.max(0,Math.floor((fimOS-inicioOS)/60000))):'—';
     const responsavelOS=os.tecnico|| (os.transferencia_para?'Aguardando aceite de '+os.transferencia_para:'Aguardando técnico');
-    html+=listaAbertasCompacta?'<div class="oa-card-facts"><span><small>SITUAÇÃO DA MÁQUINA</small><b class="'+(String(os.situacao_equipamento||'').toLowerCase()==='parado'?'oa-machine-stopped':'')+'">'+escaparHtml(os.situacao_equipamento||'Não informada')+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>':'<div class="os-resumo-info"><span><small>PRIORIDADE</small><b class="os-prioridade-'+prioridade.toLowerCase().replace('é','e')+'">'+escaparHtml(prioridade)+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+escaparHtml(duracaoOS)+'</b></span></div>';
+    const duracaoHtml='<span data-duracao-os="'+id+'" data-inicio-os="'+(Number.isFinite(inicioOS)?inicioOS:'')+'" data-fim-os="'+(status==='Concluída'&&Number.isFinite(fimOS)?fimOS:'')+'" data-status-os="'+escaparHtml(status)+'">'+escaparHtml(duracaoOS)+'</span>';
+    html+=listaAbertasCompacta?'<div class="oa-card-facts"><span><small>SITUAÇÃO DA MÁQUINA</small><b class="'+(String(os.situacao_equipamento||'').toLowerCase()==='parado'?'oa-machine-stopped':'')+'">'+escaparHtml(os.situacao_equipamento||'Não informada')+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+duracaoHtml+'</b></span></div>':'<div class="os-resumo-info"><span><small>PRIORIDADE</small><b class="os-prioridade-'+prioridade.toLowerCase().replace('é','e')+'">'+escaparHtml(prioridade)+'</b></span><span><small>RESPONSÁVEL</small><b>'+escaparHtml(responsavelOS)+'</b></span><span><small>'+(status==='Concluída'?'DURAÇÃO TOTAL':'TEMPO EM ABERTO')+'</small><b>'+duracaoHtml+'</b></span></div>';
     if(listaAbertasCompacta)html+='<div class="oa-card-problem"><span>PROBLEMA RELATADO</span><p>'+escaparHtml(os.problema||os.descricao||os.defeito||'Problema não informado')+'</p></div><details class="oa-more"><summary>Ver detalhes da O.S.</summary><div class="oa-more-content">';if(os.ajustado_em){html+='<div class="os-zoom-extra-60" style="margin:7px 0;padding:8px;background:#fff7ed;border:1px solid #f59e0b;border-radius:6px;color:#9a3412;font-size:.78rem"><b>⚠️ HORÁRIO CORRIGIDO PELO GESTOR</b><br>Por: '+escaparHtml(os.ajustado_por||'Gestor')+' • Em: '+escaparHtml(new Date(os.ajustado_em).toLocaleString('pt-BR'))+'<br>Motivo: '+escaparHtml(os.ajuste_obs||'Não informado')+'</div>'}
     html+='<p class="os-zoom-extra-80" style="font-size:.8rem;color:var(--primary-dark)">Aberta por: <b>'+escaparHtml(os.aberto_por||'—')+'</b> • Equipamento: <b>'+escaparHtml(os.situacao_equipamento||'—')+'</b></p>';
     if(os.data_atendimento)html+='<p class="os-zoom-extra-80" style="font-size:.72rem;color:#64748b">🕐 Início do atendimento: '+escaparHtml(hm(os.data_atendimento))+(os.data_conclusao?' • Fechada: '+escaparHtml(hm(os.data_conclusao)):'')+'</p>';
