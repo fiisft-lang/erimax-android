@@ -38,16 +38,21 @@ async function sendFcm(tokens: string[], data: Record<string, string>, sa: any, 
   const delivered: string[] = []
   const errors: string[] = []
   await Promise.all(tokens.map(async token => {
-    const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: { token, android: { priority: 'HIGH', ttl: '45s' }, data } }),
-    })
-    if (response.ok) delivered.push(token)
-    else {
-      const details = await response.text()
-      errors.push(details.slice(0, 240))
-      if (/UNREGISTERED|NOT_FOUND/.test(details)) invalid.push(token)
+    try {
+      const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: { token, android: { priority: 'HIGH', ttl: '45s' }, data } }),
+      })
+      if (response.ok) delivered.push(token)
+      else {
+        const details = await response.text()
+        errors.push(details.slice(0, 240))
+        if (/UNREGISTERED|NOT_FOUND/.test(details)) invalid.push(token)
+      }
+    } catch (error) {
+      // Preserva os tokens confirmados mesmo se outro envio falhar por rede.
+      errors.push(String(error).slice(0, 240))
     }
   }))
   return { sent: delivered.length, delivered, invalid, errors }
