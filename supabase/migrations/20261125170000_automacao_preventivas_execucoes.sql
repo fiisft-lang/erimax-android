@@ -52,6 +52,10 @@ alter table public.preventiva_lembretes_enviados enable row level security;
 
 revoke all on public.preventiva_execucoes from anon, authenticated;
 revoke all on public.preventiva_lembretes_enviados from anon, authenticated;
+grant all on public.preventiva_execucoes to service_role;
+grant all on public.preventiva_lembretes_enviados to service_role;
+grant usage, select on sequence public.preventiva_execucoes_id_seq to service_role;
+grant usage, select on sequence public.preventiva_lembretes_enviados_id_seq to service_role;
 
 -- Mantém o estado da execução alinhado à O.S. sem depender de uma gravação
 -- adicional do aplicativo cliente ao concluir ou cancelar a ordem.
