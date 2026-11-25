@@ -45,6 +45,8 @@ public class IncomingCallActivity extends Activity {
     if (osId == null) osId = "";
     String notificationAction = getIntent().getStringExtra("notification_action");
     if ("silenciar".equals(notificationAction)) { dismissCall(); return; }
+    if ("adiar_preventiva".equals(notificationAction)) { postponePreventiva(); return; }
+    if ("iniciar_preventiva".equals(notificationAction) || "abrir_preventiva".equals(notificationAction)) { startPreventiva(); return; }
     if ("recusar_transferencia".equals(notificationAction)) { rejectTransfer(); return; }
     if ("assumir".equals(notificationAction) || "aceitar_transferencia".equals(notificationAction)) { answerCall(); return; }
 
@@ -427,7 +429,8 @@ public class IncomingCallActivity extends Activity {
     stopAlarm();
     dismissNotification();
     Intent open = new Intent(Intent.ACTION_VIEW,
-      Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=iniciar_preventiva"),
+      Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=" +
+        ("preventiva_atrasada".equals(getIntent().getStringExtra("tipo_alerta")) ? "abrir_preventiva" : "iniciar_preventiva")),
       this, MainActivity.class);
     open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     startActivity(open);
