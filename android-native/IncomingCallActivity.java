@@ -416,7 +416,7 @@ public class IncomingCallActivity extends Activity {
       note.setPadding(dp(8), dp(12), dp(8), 0);
       root.addView(note);
     } else {
-      TextView note = label("A gestão foi avisada sobre o atraso.", 11, MUTED);
+      TextView note = label("O prazo desta preventiva foi ultrapassado. Verifique a ordem de serviço.", 11, MUTED);
       note.setGravity(Gravity.CENTER);
       note.setPadding(dp(8), dp(12), dp(8), 0);
       root.addView(note);
