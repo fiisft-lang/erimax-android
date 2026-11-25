@@ -35,7 +35,7 @@ async function googleAccessToken(sa: { private_key: string; client_email: string
 }
 async function sendFcm(tokens: string[], data: Record<string, string>, sa: any, access: string) {
   const invalid: string[] = []
-  let sent = 0
+  const delivered: string[] = []
   const errors: string[] = []
   await Promise.all(tokens.map(async token => {
     const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
@@ -43,14 +43,14 @@ async function sendFcm(tokens: string[], data: Record<string, string>, sa: any, 
       headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: { token, android: { priority: 'HIGH', ttl: '45s' }, data } }),
     })
-    if (response.ok) sent++
+    if (response.ok) delivered.push(token)
     else {
       const details = await response.text()
       errors.push(details.slice(0, 240))
       if (/UNREGISTERED|NOT_FOUND/.test(details)) invalid.push(token)
     }
   }))
-  return { sent, invalid, errors }
+  return { sent: delivered.length, delivered, invalid, errors }
 }
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
@@ -282,12 +282,29 @@ Deno.serve(async (req: Request) => {
         const onlineIds = (online || []).map((p: any) => p.user_id)
         if (!onlineIds.length) continue
 
-        const { data: claim, error: claimError } = await admin.from('preventiva_lembretes_enviados')
+        let claim: any = null
+        let deliveredIds: string[] = []
+        const { data: inserted, error: insertError } = await admin.from('preventiva_lembretes_enviados')
           .insert({ execucao_id: execution.id, slot_key: slotKey, horario: now.toISOString(), status: 'processando' })
-          .select('id').maybeSingle()
-        if (claimError) {
-          if (claimError.code === '23505') continue
-          throw claimError
+          .select('id,destinatarios').maybeSingle()
+        if (insertError && insertError.code !== '23505') throw insertError
+        if (inserted) {
+          claim = inserted
+        } else {
+          const { data: existing, error: existingError } = await admin.from('preventiva_lembretes_enviados')
+            .select('id,status,horario,destinatarios').eq('execucao_id', execution.id).eq('slot_key', slotKey).maybeSingle()
+          if (existingError) throw existingError
+          if (!existing || existing.status === 'enviado') continue
+          deliveredIds = Array.isArray(existing.destinatarios) ? existing.destinatarios.map(String) : []
+          const stale = new Date(now.getTime() - 5 * 60 * 1000).toISOString()
+          const reclaim = await admin.from('preventiva_lembretes_enviados')
+            .update({ status: 'processando', horario: now.toISOString() })
+            .eq('id', existing.id).eq('status', existing.status)
+            .or(existing.status === 'parcial' ? 'status.eq.parcial' : 'horario.lt.' + stale)
+            .select('id').maybeSingle()
+          if (reclaim.error) throw reclaim.error
+          if (!reclaim.data) continue
+          claim = { id: existing.id }
         }
         if (!claim) continue
 
@@ -295,28 +312,43 @@ Deno.serve(async (req: Request) => {
           const { data: live, error: liveError } = await admin.from('status_tecnicos')
             .select('user_id').in('user_id', onlineIds).in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
           if (liveError) throw liveError
-          const liveIds = (live || []).map((p: any) => p.user_id)
-          const { data: devices, error: deviceError } = liveIds.length
-            ? await admin.from('dispositivos').select('token').in('user_id', liveIds)
-            : { data: [], error: null }
+          const liveIds = [...new Set((live || []).map((p: any) => String(p.user_id)))]
+          const pendingIds = liveIds.filter((id: string) => !deliveredIds.includes(id))
+          if (!pendingIds.length) {
+            await admin.from('preventiva_lembretes_enviados').update({
+              status: 'enviado', destinatarios: deliveredIds, enviado_em: now.toISOString(),
+            }).eq('id', claim.id).eq('status', 'processando')
+            continue
+          }
+          const { data: devices, error: deviceError } = await admin.from('dispositivos')
+            .select('token,user_id').in('user_id', pendingIds)
           if (deviceError) throw deviceError
-          const tokens = [...new Set((devices || []).map((d: any) => d.token).filter(Boolean))]
+          const deviceRows = (devices || []).filter((d: any) => d.token && d.user_id)
+          const tokens = [...new Set(deviceRows.map((d: any) => d.token))]
           if (!tokens.length) {
-            await admin.from('preventiva_lembretes_enviados').delete().eq('id', claim.id)
+            await admin.from('preventiva_lembretes_enviados').update({
+              status: 'parcial', destinatarios: deliveredIds,
+            }).eq('id', claim.id).eq('status', 'processando')
             continue
           }
           const result = await sendFcm(tokens, { ...commonData, tipo_alerta: 'preventiva_lembrete' }, sa, access)
           if (result.invalid.length) await admin.from('dispositivos').delete().in('token', result.invalid)
-          if (result.sent) {
-            await admin.from('preventiva_lembretes_enviados').update({
-              status: 'enviado', destinatarios: liveIds, enviado_em: now.toISOString(),
-            }).eq('id', claim.id)
-            lembretes += result.sent
-          } else {
-            await admin.from('preventiva_lembretes_enviados').delete().eq('id', claim.id)
-          }
+          const deliveredTokenSet = new Set(result.delivered)
+          const newlyDelivered = [...new Set(deviceRows
+            .filter((d: any) => deliveredTokenSet.has(d.token))
+            .map((d: any) => String(d.user_id)))]
+          deliveredIds = [...new Set([...deliveredIds, ...newlyDelivered])]
+          const complete = liveIds.every((id: string) => deliveredIds.includes(id))
+          const { error: saveError } = await admin.from('preventiva_lembretes_enviados').update({
+            status: complete ? 'enviado' : 'parcial',
+            destinatarios: deliveredIds,
+            enviado_em: complete ? now.toISOString() : null,
+          }).eq('id', claim.id).eq('status', 'processando')
+          if (saveError) throw saveError
+          lembretes += result.sent
         } catch (error) {
-          await admin.from('preventiva_lembretes_enviados').delete().eq('id', claim.id)
+          await admin.from('preventiva_lembretes_enviados').update({ status: 'parcial' })
+            .eq('id', claim.id).eq('status', 'processando')
           throw error
         }
       }
