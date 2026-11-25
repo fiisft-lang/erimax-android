@@ -161,11 +161,14 @@ Deno.serve(async (req: Request) => {
         // Recupera uma O.S. criada manualmente no mesmo ciclo ou por uma execução
         // que tenha sido interrompida depois do INSERT, antes de vincular o id.
         const { data: existingOS, error: existingError } = await admin.from('os').select('id,status')
-          .eq('preventiva_id', p.id).gte('created_at', start + 'T00:00:00-03:00')
+          .eq('preventiva_id', p.id).in('status', ['Aberta', 'Em Atendimento', 'Pausada'])
           .order('id', { ascending: true }).limit(1).maybeSingle()
         if (existingError) throw existingError
         if (existingOS) {
           const status = existingOS.status === 'Concluída' ? 'concluida' : existingOS.status === 'Cancelada' ? 'cancelada' : 'aberta'
+          const { error: prazoError } = await admin.from('os')
+            .update({ prazo_preventiva_em: deadline }).eq('id', existingOS.id)
+          if (prazoError) throw prazoError
           const { error } = await admin.from('preventiva_execucoes')
             .update({ os_id: existingOS.id, status, gerada_em: now.toISOString(), geracao_claim_em: null, atualizado_em: now.toISOString() })
             .eq('id', execution.id).is('os_id', null)
