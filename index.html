@@ -9010,8 +9010,8 @@ function minutosPausaOS(id){
 function atualizarDuracoesOSVisiveis(){
   const agora=Date.now();
   document.querySelectorAll('[data-duracao-os]').forEach(el=>{
-    const inicio=Number(el.dataset.inicioOs);
-    const fim=el.dataset.statusOs==='Concluída'?Number(el.dataset.fimOs):agora;
+    const inicio=el.dataset.inicioOs?Number(el.dataset.inicioOs):NaN;
+    const fim=el.dataset.statusOs==='Concluída'?(el.dataset.fimOs?Number(el.dataset.fimOs):NaN):agora;
     if(!Number.isFinite(inicio)||!Number.isFinite(fim)){el.textContent='—';return}
     el.textContent=fmt(Math.max(0,Math.floor((fim-inicio)/60000)));
   });
