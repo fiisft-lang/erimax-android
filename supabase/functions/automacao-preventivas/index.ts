@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
+import { TZ, localParts, notificationStart, deadlineFor, machineRecords, uniqueTeam } from './logic.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -8,30 +9,8 @@ const cors = {
 }
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
-const TZ = 'America/Sao_Paulo'
 const FIi_ID = 'e978d5b1-9382-41de-be43-549a4e1e081e'
 
-function localParts(date: Date) {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).formatToParts(date)
-  return Object.fromEntries(parts.map(p => [p.type, p.value])) as Record<string, string>
-}
-function addDays(iso: string, amount: number) {
-  const d = new Date(iso + 'T12:00:00Z')
-  d.setUTCDate(d.getUTCDate() + amount)
-  return d.toISOString().slice(0, 10)
-}
-function notificationStart(due: string) {
-  const weekday = new Date(due + 'T12:00:00Z').getUTCDay()
-  if (weekday >= 1 && weekday <= 3) return due
-  const daysSinceThursday = weekday === 0 ? 3 : weekday - 4
-  return addDays(due, -daysSinceThursday)
-}
-function deadlineFor(start: string) {
-  return new Date(addDays(start, 3) + 'T00:00:00-03:00').getTime() - 1000
-}
 function parseClaims(jwt: string) {
   const part = jwt.split('.')[1]
   if (!part) throw new Error('JWT sem payload')
@@ -73,27 +52,6 @@ async function sendFcm(tokens: string[], data: Record<string, string>, sa: any, 
   }))
   return { sent, invalid, errors }
 }
-function machineRecords(p: any, machines: any[]) {
-  const names = Array.isArray(p.maquinas) && p.maquinas.length
-    ? p.maquinas.filter((x: unknown) => typeof x === 'string' && x.trim())
-    : (p.maquina ? [p.maquina] : [])
-  const ids = Array.isArray(p.maquinas_ids) ? p.maquinas_ids.map(Number) : []
-  if (!names.length) return []
-  if (ids.length === names.length && ids.every((id: number) => Number.isSafeInteger(id) && id > 0)) {
-    return ids.map((id: number) => machines.find(m => Number(m.id) === id)).filter(Boolean)
-  }
-  return names.map((name: string) => {
-    const matches = machines.filter(m => m.setor === p.setor && String(m.nome).trim() === String(name).trim())
-    return matches.length === 1 ? matches[0] : null
-  }).filter(Boolean)
-}
-function uniqueTeam(p: any) {
-  const list = (Array.isArray(p.tecnicos_participantes) ? p.tecnicos_participantes : [])
-    .filter((x: unknown) => typeof x === 'string' && x.trim())
-  if (typeof p.tecnico_responsavel === 'string' && p.tecnico_responsavel.trim()) list.push(p.tecnico_responsavel)
-  return [...new Set(list)]
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   if (req.method !== 'POST') return json({ erro: 'Método não permitido.' }, 405)
