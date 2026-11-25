@@ -121,7 +121,7 @@ Deno.serve(async (req: Request) => {
         const cycleStart = start + 'T00:00:00-03:00'
         const { data: existingOS, error: existingError } = await admin.from('os').select('id,status')
           .eq('preventiva_id', p.id).gte('created_at', cycleStart)
-          .in('status', ['Aberta', 'Em Atendimento', 'Pausada'])
+          .in('status', ['Aberta', 'Em Atendimento', 'Pausada', 'Concluída', 'Cancelada'])
           .order('id', { ascending: true }).limit(1).maybeSingle()
         if (existingError) throw existingError
         if (existingOS) {
