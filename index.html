@@ -13890,7 +13890,7 @@ function popularTecnicosPreventiva(){
   const atual=sel.value;
   const equipe=document.getElementById('pvEquipeTecnicos');
   const selecionados=new Set(equipe?[...equipe.querySelectorAll('.pv-tecnico-equipe:checked')].map(e=>e.value):[]);
-  const tecnicos=TECNICOS.filter(t=>t.perfil==='tecnico');
+  const tecnicos=TECNICOS.filter(t=>t.perfil==='tecnico'||t.id==='e978d5b1-9382-41de-be43-549a4e1e081e');
   sel.innerHTML='<option value="">Selecione o técnico...</option>'+tecnicos.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
   if(tecnicos.some(t=>t.nome===atual))sel.value=atual;
   if(equipe)equipe.innerHTML=tecnicos.length?tecnicos.map(t=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-tecnico-equipe" type="checkbox" value="'+escaparHtml(t.nome)+'" '+(selecionados.has(t.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(t.nome)+'</label>').join(''):'<small style="color:#64748b">Nenhum manutentor cadastrado.</small>';
