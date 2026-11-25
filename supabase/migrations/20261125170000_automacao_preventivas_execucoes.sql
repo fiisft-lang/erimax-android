@@ -61,6 +61,7 @@ grant usage, select on sequence public.preventiva_lembretes_enviados_id_seq to s
 -- adicional do aplicativo cliente ao concluir ou cancelar a ordem.
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
+grant usage on schema private to service_role;
 
 create or replace function private.sincronizar_execucao_preventiva_os()
 returns trigger
@@ -96,6 +97,7 @@ end;
 $$;
 
 revoke all on function private.sincronizar_execucao_preventiva_os() from public, anon, authenticated;
+grant execute on function private.sincronizar_execucao_preventiva_os() to service_role;
 
 drop trigger if exists trg_sincronizar_execucao_preventiva_os on public.os;
 create trigger trg_sincronizar_execucao_preventiva_os
