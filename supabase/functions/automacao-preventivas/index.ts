@@ -188,7 +188,7 @@ Deno.serve(async (req: Request) => {
     let lembretes = 0
     let atrasadas = 0
     const { data: executions, error: execError } = await admin.from('preventiva_execucoes')
-      .select('id,preventiva_id,data_vencimento,data_geracao,os_id,prazo_em,status,atraso_notificado_em')
+      .select('id,preventiva_id,data_vencimento,data_geracao,os_id,prazo_em,status,atraso_notificado_em,atraso_destinatarios,atraso_processando_em')
       .in('status', ['aberta', 'atrasada']).not('os_id', 'is', null)
     if (execError) throw execError
 
@@ -227,38 +227,64 @@ Deno.serve(async (req: Request) => {
 
       if (now.getTime() > new Date(execution.prazo_em).getTime()) {
         if (!execution.atraso_notificado_em) {
+          const stale = new Date(now.getTime() - 5 * 60 * 1000).toISOString()
           const { data: claim, error: claimError } = await admin.from('preventiva_execucoes')
-            .update({ atraso_notificado_em: now.toISOString(), atualizado_em: now.toISOString() })
-            .eq('id', execution.id).is('atraso_notificado_em', null).select('id').maybeSingle()
+            .update({ atraso_processando_em: now.toISOString(), atualizado_em: now.toISOString() })
+            .eq('id', execution.id).is('atraso_notificado_em', null)
+            .or('atraso_processando_em.is.null,atraso_processando_em.lt.' + stale)
+            .select('id').maybeSingle()
           if (claimError) throw claimError
           if (claim) {
             try {
               const { data: managers, error: managerError } = await admin.from('perfis').select('id').eq('perfil', 'gestor')
               if (managerError) throw managerError
-              const ids = (managers || []).map((p: any) => p.id)
-              const { data: online, error: onlineError } = ids.length
-                ? await admin.from('status_tecnicos').select('user_id').in('user_id', ids)
+              const managerIds = [...new Set((managers || []).map((p: any) => String(p.id)))]
+              const { data: online, error: onlineError } = managerIds.length
+                ? await admin.from('status_tecnicos').select('user_id').in('user_id', managerIds)
                     .in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
                 : { data: [], error: null }
               if (onlineError) throw onlineError
-              const onlineIds = (online || []).map((p: any) => p.user_id)
-              const { data: devices, error: deviceError } = onlineIds.length
-                ? await admin.from('dispositivos').select('token').in('user_id', onlineIds)
-                : { data: [], error: null }
-              if (deviceError) throw deviceError
-              const tokens = [...new Set((devices || []).map((d: any) => d.token).filter(Boolean))]
-              if (tokens.length) {
-                const result = await sendFcm(tokens, { ...commonData, tipo_alerta: 'preventiva_atrasada' }, sa, access)
-                if (result.invalid.length) await admin.from('dispositivos').delete().in('token', result.invalid)
-                if (!result.sent) await admin.from('preventiva_execucoes').update({ atraso_notificado_em: null })
-                  .eq('id', execution.id).eq('atraso_notificado_em', now.toISOString())
+              const onlineIds = [...new Set((online || []).map((p: any) => String(p.user_id)))]
+              const deliveredIds = Array.isArray(execution.atraso_destinatarios)
+                ? execution.atraso_destinatarios.map(String) : []
+              const pendingIds = onlineIds.filter((id: string) => !deliveredIds.includes(id))
+              if (!onlineIds.length) {
+                await admin.from('preventiva_execucoes').update({ atraso_processando_em: null })
+                  .eq('id', execution.id).is('atraso_notificado_em', null)
+              } else if (!pendingIds.length) {
+                await admin.from('preventiva_execucoes').update({
+                  atraso_notificado_em: now.toISOString(), atraso_processando_em: null,
+                }).eq('id', execution.id).is('atraso_notificado_em', null)
               } else {
-                await admin.from('preventiva_execucoes').update({ atraso_notificado_em: null })
-                  .eq('id', execution.id).eq('atraso_notificado_em', now.toISOString())
+                const { data: devices, error: deviceError } = await admin.from('dispositivos')
+                  .select('token,user_id').in('user_id', pendingIds)
+                if (deviceError) throw deviceError
+                const deviceRows = (devices || []).filter((d: any) => d.token && d.user_id)
+                const tokens = [...new Set(deviceRows.map((d: any) => d.token))]
+                if (!tokens.length) {
+                  await admin.from('preventiva_execucoes').update({ atraso_processando_em: null })
+                    .eq('id', execution.id).is('atraso_notificado_em', null)
+                } else {
+                  const result = await sendFcm(tokens, { ...commonData, tipo_alerta: 'preventiva_atrasada' }, sa, access)
+                  if (result.invalid.length) await admin.from('dispositivos').delete().in('token', result.invalid)
+                  const deliveredTokenSet = new Set(result.delivered)
+                  const newlyDelivered = [...new Set(deviceRows
+                    .filter((d: any) => deliveredTokenSet.has(d.token))
+                    .map((d: any) => String(d.user_id)))]
+                  const nextDelivered = [...new Set([...deliveredIds, ...newlyDelivered])]
+                  const complete = onlineIds.every((id: string) => nextDelivered.includes(id))
+                  const { error: saveError } = await admin.from('preventiva_execucoes').update({
+                    atraso_destinatarios: nextDelivered,
+                    atraso_notificado_em: complete ? now.toISOString() : null,
+                    atraso_processando_em: null,
+                    atualizado_em: now.toISOString(),
+                  }).eq('id', execution.id).is('atraso_notificado_em', null)
+                  if (saveError) throw saveError
+                }
               }
             } catch (error) {
-              await admin.from('preventiva_execucoes').update({ atraso_notificado_em: null })
-                .eq('id', execution.id).eq('atraso_notificado_em', now.toISOString())
+              await admin.from('preventiva_execucoes').update({ atraso_processando_em: null })
+                .eq('id', execution.id).is('atraso_notificado_em', null)
               throw error
             }
           }
