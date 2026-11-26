@@ -1,8 +1,8 @@
 \set ON_ERROR_STOP on
 
-create role anon;
-create role authenticated;
-create role service_role;
+do $ begin create role anon; exception when duplicate_object then null; end $;
+do $ begin create role authenticated; exception when duplicate_object then null; end $;
+do $ begin create role service_role; exception when duplicate_object then null; end $;
 
 create schema auth;
 create or replace function auth.uid()
