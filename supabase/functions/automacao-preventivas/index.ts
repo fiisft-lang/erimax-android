@@ -224,7 +224,7 @@ Deno.serve(async (req: Request) => {
         maquinas: String(machinesLabel || os.maquina || 'Não informadas'),
         setor: String(os.setor || 'Setor não informado'),
         numero: String(os.numero_mes || os.id),
-        servico: String(os.descricao || 'Serviço preventivo').replace(/^Preventiva:\\s*/, ''),
+        servico: String(os.descricao || 'Serviço preventivo').replace(/^Preventiva:\s*/, ''),
         prazo: new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, dateStyle: 'short', timeStyle: 'short' })
           .format(new Date(execution.prazo_em)),
       }
