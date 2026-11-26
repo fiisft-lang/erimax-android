@@ -23,8 +23,12 @@ export function notificationStart(due: string) {
   return addDays(due, -daysSinceThursday)
 }
 
+export function cycleEndExclusive(start: string) {
+  return addDays(start, 3) + 'T00:00:00-03:00'
+}
+
 export function deadlineFor(start: string) {
-  return new Date(addDays(start, 3) + 'T00:00:00-03:00').getTime() - 1000
+  return new Date(cycleEndExclusive(start)).getTime() - 1000
 }
 
 export function machineRecords(p: any, machines: any[]) {
