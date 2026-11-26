@@ -1,4 +1,4 @@
-import { deadlineFor, localParts, machineRecords, notificationStart, uniqueTeam } from './logic.ts'
+import { deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
 
 function assertEquals(actual: unknown, expected: unknown, message: string) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
@@ -58,4 +58,14 @@ Deno.test('equipe inclui responsável sem duplicar nomes', () => {
     tecnico_responsavel: 'Pedro',
     tecnicos_participantes: ['Marcelo', 'Pedro', 'Marcelo'],
   }), ['Marcelo', 'Pedro'], 'equipe sem duplicidade')
+})
+
+Deno.test('lembretes incluem técnicos e o encarregado Fii, mas não outros gestores', () => {
+  const result = reminderRecipients([
+    { id: '1', nome: 'Ana', perfil: 'tecnico' },
+    { id: '2', nome: 'Fii', perfil: 'gestor' },
+    { id: '3', nome: 'Outro gestor', perfil: 'gestor' },
+    { id: '4', nome: 'Operador', perfil: 'operador' },
+  ])
+  assertEquals(result.map((p: any) => p.nome), ['Ana', 'Fii'], 'destinatários permitidos')
 })
