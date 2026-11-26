@@ -7517,6 +7517,32 @@ body .tbl-wrap td{color:#344d5e}
   #mdMecanicosAuxiliares.md-auxiliares-list{grid-template-columns:minmax(0,1fr)!important}
 }
 </style>
+
+<style id="fix-contraste-campo-peca-os-2026">
+/* Corrige somente a digitação da peça na conclusão da O.S. em WebViews com tema escuro. */
+#modal #mdPeca{
+  color-scheme:light!important;
+  background-color:#fff!important;
+  color:#18394d!important;
+  -webkit-text-fill-color:#18394d!important;
+  caret-color:#18394d!important;
+  border:1px solid #cbd9e2!important;
+  opacity:1!important;
+}
+#modal #mdPeca::placeholder{
+  color:#8496a3!important;
+  -webkit-text-fill-color:#8496a3!important;
+  opacity:1!important;
+}
+#modal #mdPeca:focus{
+  background-color:#fff!important;
+  color:#18394d!important;
+  -webkit-text-fill-color:#18394d!important;
+  border-color:#4b9a99!important;
+  box-shadow:0 0 0 3px rgba(44,135,133,.15)!important;
+  outline:0!important;
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
