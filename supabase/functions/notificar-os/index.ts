@@ -140,27 +140,32 @@ Deno.serve(async (req: Request) => {
     const errors: string[] = []
 
     await Promise.all(liveTokens.map(async (deviceToken: string) => {
-      const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: {
-            token: deviceToken,
-            // Data-only: entrega o evento ao serviço nativo personalizado
-            // mesmo com o app em segundo plano ou com a tela bloqueada.
-            android: {
-              priority: 'HIGH',
-              ttl: '15s',
+      try {
+        const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: {
+              token: deviceToken,
+              // Data-only: entrega o evento ao serviço nativo personalizado
+              // mesmo com o app em segundo plano ou com a tela bloqueada.
+              android: {
+                priority: 'HIGH',
+                ttl: '15s',
+              },
+              data,
             },
-            data,
-          },
-        }),
-      })
-      if (response.ok) enviados++
-      else {
-        const details = await response.text()
-        errors.push(details.slice(0, 350))
-        if (/UNREGISTERED|NOT_FOUND/.test(details)) invalid.push(deviceToken)
+          }),
+        })
+        if (response.ok) enviados++
+        else {
+          const details = await response.text()
+          errors.push(details.slice(0, 350))
+          if (/UNREGISTERED|NOT_FOUND/.test(details)) invalid.push(deviceToken)
+        }
+      } catch (error) {
+        // Uma falha de rede em um aparelho não pode apagar a confirmação dos demais.
+        errors.push(String(error).slice(0, 350))
       }
     }))
 
@@ -170,7 +175,13 @@ Deno.serve(async (req: Request) => {
       claimTime = null
       return json({ erro: 'O Firebase não aceitou nenhum envio.', detalhes: errors.slice(0, 2) }, 502)
     }
-    return json({ ok: true, enviados, total_dispositivos: liveTokens.length })
+    return json({
+      ok: true,
+      enviados,
+      total_dispositivos: liveTokens.length,
+      parcial: enviados < liveTokens.length,
+      ...(errors.length ? { avisos: errors.slice(0, 2) } : {}),
+    })
   } catch (error) {
     if (claimTime !== null && osId !== null) {
       await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
