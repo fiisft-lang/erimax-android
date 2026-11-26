@@ -16,7 +16,7 @@ Deno.test('janela começa na quinta para vencimentos de quinta a sábado', () =>
   assertEquals(notificationStart('2026-11-26'), '2026-11-26', 'quinta-feira')
   assertEquals(notificationStart('2026-11-27'), '2026-11-26', 'sexta-feira')
   assertEquals(notificationStart('2026-11-28'), '2026-11-26', 'sábado')
-  assertEquals(notificationStart('2026-11-29'), '2026-11-26', 'domingo retorna ao ciclo iniciado na quinta-feira')
+  assertEquals(notificationStart('2026-11-29'), '2026-11-30', 'domingo é adiantado para segunda-feira e entra no ciclo de segunda a quarta')
 })
 
 Deno.test('prazo termina às 23:59:59 do terceiro dia local', () => {
