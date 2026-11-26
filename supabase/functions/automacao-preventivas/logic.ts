@@ -22,7 +22,7 @@ export function configuredReminderTimes(value: unknown): string[] {
   if (!Array.isArray(value) || !value.length) return defaults
   return [...new Set(value.filter((h): h is string =>
     typeof h === 'string' && /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(h) &&
-    Number(h.slice(3, 5)) % 15 === 0 && h >= '06:00' && h <= '22:45'
+    h >= '06:00' && h <= '22:45'
   ))].sort()
 }
 

@@ -6,9 +6,9 @@ function assertEquals(actual: unknown, expected: unknown, message: string) {
   }
 }
 
-Deno.test('horários individuais aceitam apenas intervalos de 15 minutos entre 06h e 22h45', () => {
-  assertEquals(configuredReminderTimes(['08:00', '09:15', '16:45', '09:15']), ['08:00', '09:15', '16:45'], 'horários únicos e ordenados')
-  assertEquals(configuredReminderTimes(['05:45', '23:00', '08:10', 'inválido']), [], 'horários fora da janela ou sem intervalo de 15 minutos')
+Deno.test('horários individuais aceitam qualquer minuto entre 06h e 22h45', () => {
+  assertEquals(configuredReminderTimes(['12:00', '16:00', '17:50', '09:17', '17:50']), ['09:17', '12:00', '16:00', '17:50'], 'horários únicos e ordenados, inclusive minutos livres')
+  assertEquals(configuredReminderTimes(['05:59', '22:46', '23:00', 'inválido']), [], 'horários fora da janela ou inválidos')
   assertEquals(configuredReminderTimes(null), ['08:00', '12:00', '16:00'], 'cadastros antigos mantêm os horários padrão')
 })
 
