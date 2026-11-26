@@ -15,7 +15,7 @@ export function addDays(iso: string, amount: number) {
 }
 
 // Vencimentos de segunda a quarta usam a janela fixa de segunda a quarta.
-// Vencimentos de quinta a domingo usam a janela de quinta a sábado.
+// Vencimentos de quinta a sábado usam a janela de quinta a sábado.
 export function notificationStart(due: string) {
   const weekday = new Date(due + 'T12:00:00Z').getUTCDay()
   if (weekday >= 1 && weekday <= 3) return addDays(due, -(weekday - 1))
