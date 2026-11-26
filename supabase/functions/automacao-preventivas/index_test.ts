@@ -1,4 +1,5 @@
-import { deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, normalNotificationRecipients, uniqueTeam } from './logic.ts'
+import { deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
+import { normalNotificationRecipients } from '../_shared/notification-recipients.ts'
 
 function assertEquals(actual: unknown, expected: unknown, message: string) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
