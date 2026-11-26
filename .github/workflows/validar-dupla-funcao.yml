@@ -6,6 +6,8 @@ on:
       - feat/automacao-os-preventiva
     paths:
       - .github/workflows/validar-dupla-funcao.yml
+      - supabase/tests/dual_role_functions_setup.sql
+      - supabase/tests/dual_role_functions_assert.sql
 
 permissions:
   contents: write
