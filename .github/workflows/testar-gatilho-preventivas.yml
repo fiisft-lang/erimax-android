@@ -7,9 +7,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   postgres-isolado:
     runs-on: ubuntu-latest
@@ -29,37 +26,6 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
-
-      - name: Configurar Supabase CLI
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/automacao-os-preventiva' && github.event.head_commit.message != 'chore(db): gerar migration com Supabase CLI'
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      - name: Gerar migration pelo Supabase CLI e validar funções TEC
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/automacao-os-preventiva' && github.event.head_commit.message != 'chore(db): gerar migration com Supabase CLI'
-        env:
-          PGPASSWORD: postgres
-        run: |
-          supabase migration new permitir_dupla_funcao_fii_guilherme
-          generated="$(find supabase/migrations -maxdepth 1 -type f -name '*_permitir_dupla_funcao_fii_guilherme.sql' -print -quit)"
-          test -n "$generated"
-          cp supabase/migrations/20261126141318_permitir_guilherme_como_tecnico.sql "$generated"
-          psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/dual_role_functions_setup.sql
-          psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f "$generated"
-          psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/dual_role_functions_assert.sql
-          echo "MIGRATION_FILE=$generated" >> "$GITHUB_ENV"
-
-      - name: Registrar arquivo gerado pelo CLI
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/automacao-os-preventiva' && github.event.head_commit.message != 'chore(db): gerar migration com Supabase CLI'
-        run: |
-          git rm supabase/migrations/20261126141318_permitir_guilherme_como_tecnico.sql
-          git add "$MIGRATION_FILE"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(db): gerar migration com Supabase CLI"
-          git push origin "HEAD:$GITHUB_REF_NAME"
-
       - name: Executar cenários isolados do gatilho
         env:
           PGPASSWORD: postgres
