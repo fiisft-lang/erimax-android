@@ -14,12 +14,13 @@ export function addDays(iso: string, amount: number) {
   return d.toISOString().slice(0, 10)
 }
 
+// Vencimentos de domingo são transferidos para segunda-feira e entram no ciclo de segunda a quarta.
 // Vencimentos de segunda a quarta usam a janela fixa de segunda a quarta.
-// Vencimentos de quinta a sábado e domingo usam a janela de quinta a sábado.
+// Vencimentos de quinta a sábado usam a janela de quinta a sábado.
 export function notificationStart(due: string): string {
   const weekday = new Date(due + 'T12:00:00Z').getUTCDay()
+  if (weekday === 0) return addDays(due, 1)
   if (weekday >= 1 && weekday <= 3) return addDays(due, -(weekday - 1))
-  if (weekday === 0) return addDays(due, -3)
   return addDays(due, -(weekday - 4))
 }
 
