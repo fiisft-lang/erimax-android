@@ -297,13 +297,16 @@ Deno.serve(async (req: Request) => {
       }
 
       if (slotKey && minute >= 0 && minute < 60) {
-        const teamNames = [...new Set([os.tecnico, ...(Array.isArray(os.tecnicos_participantes) ? os.tecnicos_participantes : [])]
+        // Fii é o encarregado gestor que participa da rotina preventiva e recebe
+        // os lembretes normais; os demais gestores continuam fora deste envio.
+        const teamNames = [...new Set([os.tecnico, ...(Array.isArray(os.tecnicos_participantes) ? os.tecnicos_participantes : []), 'Fii']
           .filter((x: unknown) => typeof x === 'string' && x.trim()))]
         if (!teamNames.length) continue
         const { data: profiles, error: profileError } = await admin.from('perfis')
           .select('id,nome,perfil').in('nome', teamNames)
         if (profileError) throw profileError
-        const profileList = (profiles || []).filter((p: any) => p.perfil === 'tecnico')
+        const profileList = (profiles || []).filter((p: any) =>
+          p.perfil === 'tecnico' || (p.nome === 'Fii' && p.perfil === 'gestor'))
         const profileIds = profileList.map((p: any) => p.id)
         if (!profileIds.length) continue
         const { data: online, error: onlineError } = await admin.from('status_tecnicos')
