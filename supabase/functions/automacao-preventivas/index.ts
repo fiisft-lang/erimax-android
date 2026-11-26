@@ -295,8 +295,8 @@ Deno.serve(async (req: Request) => {
       }
 
       const preventivaConfig = (preventivas || []).find((p: any) => Number(p.id) === Number(execution.preventiva_id))
-      const horariosConfigurados = Array.isArray(preventivaConfig?.horarios_disparo)
-        ? preventivaConfig.horarios_disparo.filter((h: unknown) => typeof h === 'string' && /^([01]\\d|2[0-3]):[0-5]\\d$/.test(h) && Number(h.slice(3, 5)) % 15 === 0)
+      const horariosConfigurados = Array.isArray(preventivaConfig?.horarios_disparo) && preventivaConfig.horarios_disparo.length
+        ? preventivaConfig.horarios_disparo.filter((h: unknown) => typeof h === 'string' && /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(h) && Number(h.slice(3, 5)) % 15 === 0)
         : ['08:00', '12:00', '16:00']
       const horariosAtivos = [...new Set(horariosConfigurados)]
       const slotKey = preventivaConfig?.alarme_ativo === false || !horariosAtivos.includes(currentTime)
