@@ -61,19 +61,28 @@ Deno.serve(async (req: Request) => {
     } catch {
       return json({ erro: 'Sessão inválida.' }, 401)
     }
-    if (claims.role !== 'authenticated' || typeof claims.sub !== 'string' || !claims.sub) {
-      return json({ erro: 'Sessão inválida.' }, 401)
-    }
-    const userId = claims.sub
+    const serviceRole = claims.role === 'service_role'
+    const authenticated = claims.role === 'authenticated' && typeof claims.sub === 'string' && !!claims.sub
+    if (!serviceRole && !authenticated) return json({ erro: 'Sessão inválida.' }, 401)
+    const userId = authenticated ? claims.sub! : null
 
-    const { data: profile, error: profileError } = await admin.from('perfis')
-      .select('perfil').eq('id', userId).maybeSingle()
-    if (profileError) throw profileError
-    if (!profile || !['gestor', 'operador', 'tecnico'].includes(profile.perfil)) {
-      return json({ erro: 'Seu perfil não pode processar notificações de O.S.' }, 403)
+    if (authenticated) {
+      const { data: profile, error: profileError } = await admin.from('perfis')
+        .select('perfil').eq('id', userId).maybeSingle()
+      if (profileError) throw profileError
+      if (!profile || !['gestor', 'operador', 'tecnico'].includes(profile.perfil)) {
+        return json({ erro: 'Seu perfil não pode processar notificações de O.S.' }, 403)
+      }
     }
 
     const body = await req.json().catch(() => ({}))
+    if (body?.acao === 'reprocessar_todas_pendentes' && !serviceRole) {
+      return json({ erro: 'Ação restrita ao serviço interno.' }, 403)
+    }
+    if (serviceRole && body?.acao !== 'reprocessar_todas_pendentes') {
+      return json({ erro: 'A chave de serviço só pode reprocessar entregas pendentes.' }, 403)
+    }
+    if (!serviceRole && !authenticated) return json({ erro: 'Não autenticado.' }, 401)
     const now = new Date()
     const nowIso = now.toISOString()
     const stale = new Date(now.getTime() - 5 * 60 * 1000).toISOString()
@@ -203,17 +212,20 @@ Deno.serve(async (req: Request) => {
     }
 
     let deliveries: Delivery[] = []
-    if (body?.acao === 'reprocessar_minhas') {
-      const { data, error } = await admin.from('os_notificacao_entregas')
+    if (body?.acao === 'reprocessar_minhas' || body?.acao === 'reprocessar_todas_pendentes') {
+      let query = admin.from('os_notificacao_entregas')
         .select('id,os_id,user_id,tentativas,status,claim_em')
-        .eq('user_id', userId)
         .in('status', ['pendente', 'processando'])
         .lte('proxima_tentativa_em', nowIso)
         .or('claim_em.is.null,claim_em.lt.' + stale)
-        .order('criado_em', { ascending: true }).limit(20)
+        .order('criado_em', { ascending: true })
+        .limit(serviceRole ? 100 : 20)
+      if (!serviceRole) query = query.eq('user_id', userId)
+      const { data, error } = await query
       if (error) throw error
       deliveries = (data || []) as Delivery[]
     } else {
+      if (!authenticated) return json({ erro: 'Ação exige sessão de usuário.' }, 403)
       const osId = Number(body?.os_id)
       if (!Number.isSafeInteger(osId) || osId <= 0) return json({ erro: 'Informe uma O.S. válida.' }, 400)
 
