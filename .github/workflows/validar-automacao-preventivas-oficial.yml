@@ -1,0 +1,46 @@
+name: Validar automação de preventivas (branch oficial)
+
+on:
+  push:
+    branches:
+      - feat/automacao-preventivas-oficial
+  pull_request:
+    branches:
+      - versaooficialerimax
+  workflow_dispatch:
+
+jobs:
+  validar-deno:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Verificar Edge Function
+        run: deno check supabase/functions/automacao-preventivas/index.ts
+      - name: Testar calendário, máquinas e destinatários
+        run: deno test supabase/functions/automacao-preventivas/index_test.ts
+
+  validar-trigger-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: erimax_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d erimax_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Executar testes isolados do gatilho
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/preventiva_trigger_test.sql
