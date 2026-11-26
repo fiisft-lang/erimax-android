@@ -66,7 +66,7 @@ public class IncomingCallMessagingService extends MessagingService {
         .setFullScreenIntent(full, true)
         .setContentIntent(full)
         .setStyle(new NotificationCompat.BigTextStyle().bigText(preventiva
-          ? data.getOrDefault("servico", "Serviço preventivo") + "\\n" + sector + "\\n" + data.getOrDefault("maquinas", machine) + "\\nPrazo: " + data.getOrDefault("prazo", "Não informado")
+          ? data.getOrDefault("servico", "Serviço preventivo") + "\n" + sector + "\n" + data.getOrDefault("maquinas", machine) + "\nPrazo: " + data.getOrDefault("prazo", "Não informado")
           : number + " • " + machine + "\\n" + sector));
       if (preventiva) {
         builder.addAction(android.R.drawable.ic_menu_view, preventivaAtrasada ? "Abrir O.S." : "Começar preventiva",
