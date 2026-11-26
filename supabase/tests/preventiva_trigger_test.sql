@@ -90,3 +90,37 @@ do $$ begin
   if (select ultima from public.preventivas where id=4) is distinct from (now() at time zone 'America/Sao_Paulo')::date
   then raise exception 'Falha: fallback de data_conclusao nula'; end if;
 end $$;
+
+-- 6. Cancelar depois da conclusão restaura o snapshot quando ainda é o ciclo atual.
+insert into public.preventivas values (5, date '2026-07-01', date '2026-07-31', 30);
+insert into public.os values (501, 5, 'Em Atendimento', timestamptz '2026-07-10 15:00:00+00', false);
+insert into public.preventiva_execucoes (os_id,status) values (501,'aberta');
+update public.os set status='Concluída' where id=501;
+update public.os set status='Cancelada' where id=501;
+do $$ begin
+  if (select ultima from public.preventivas where id=5) <> date '2026-07-01'
+     or (select data_prevista from public.preventivas where id=5) <> date '2026-07-31'
+     or (select status from public.preventiva_execucoes where os_id=501) <> 'cancelada'
+  then raise exception 'Falha: cancelamento após conclusão não restaurou snapshot'; end if;
+end $$;
+
+-- 7. Intervalo nulo ou zero usa o padrão de 30 dias.
+insert into public.preventivas values (6, date '2026-08-01', date '2026-08-31', 0);
+insert into public.os values (601, 6, 'Em Atendimento', timestamptz '2026-08-10 15:00:00+00', false);
+insert into public.preventiva_execucoes (os_id,status) values (601,'aberta');
+update public.os set status='Concluída' where id=601;
+do $$ begin
+  if (select data_prevista from public.preventivas where id=6) <> date '2026-09-09'
+  then raise exception 'Falha: intervalo zero não usou 30 dias'; end if;
+end $$;
+
+-- 8. Conversão para a data de São Paulo considera virada de dia local.
+insert into public.preventivas values (7, date '2026-09-01', date '2026-10-01', 30);
+insert into public.os values (701, 7, 'Em Atendimento', timestamptz '2026-09-10 02:30:00+00', false);
+insert into public.preventiva_execucoes (os_id,status) values (701,'aberta');
+update public.os set status='Concluída' where id=701;
+do $$ begin
+  if (select ultima from public.preventivas where id=7) <> date '2026-09-09'
+     or (select data_prevista from public.preventivas where id=7) <> date '2026-10-09'
+  then raise exception 'Falha: conversão de fuso horário de São Paulo'; end if;
+end $$;
