@@ -27,6 +27,9 @@ public class IncomingCallMessagingService extends MessagingService {
       String sector = data.getOrDefault("setor", "Manutenção");
       String number = data.getOrDefault("numero", "Nova O.S.");
       boolean transferencia = "transferencia_os".equals(data.get("acao"));
+      String tipoAlerta = data.getOrDefault("tipo_alerta", "");
+      boolean preventiva = "preventiva_lembrete".equals(tipoAlerta) || "preventiva_atrasada".equals(tipoAlerta);
+      boolean preventivaAtrasada = "preventiva_atrasada".equals(tipoAlerta);
       createChannel();
       Intent screen = new Intent(this, IncomingCallActivity.class);
       screen.putExtra("os_id", id);
@@ -34,19 +37,27 @@ public class IncomingCallMessagingService extends MessagingService {
       screen.putExtra("setor", sector);
       screen.putExtra("numero", number);
       screen.putExtra("problema", data.getOrDefault("problema", "Não informado"));
+      screen.putExtra("tipo_alerta", tipoAlerta);
+      screen.putExtra("servico", data.getOrDefault("servico", data.getOrDefault("problema", "Serviço preventivo")));
+      screen.putExtra("prazo", data.getOrDefault("prazo", "Não informado"));
+      screen.putExtra("maquinas", data.getOrDefault("maquinas", machine));
       screen.putExtra("acao", transferencia ? "transferencia_os" : "nova_os");
       screen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
       PendingIntent full = PendingIntent.getActivity(this, id.hashCode(), screen,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-      Notification n = new NotificationCompat.Builder(this, CHANNEL)
+      NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL)
         .setSound(null)
         .setVibrate(null)
         .setSmallIcon(getApplicationInfo().icon)
         .setColor(Color.rgb(16, 43, 58))
         .setColorized(true)
         .setSubText("ERIMAX • MANUTENÇÃO")
-        .setContentTitle(transferencia ? "O.S. aguardando seu aceite" : "Nova ordem de serviço")
-        .setContentText(transferencia ? number + " • " + machine + " • " + sector : machine + " • " + sector)
+        .setContentTitle(preventiva
+          ? (preventivaAtrasada ? "Preventiva atrasada" : "Lembrete de preventiva")
+          : (transferencia ? "O.S. aguardando seu aceite" : "Nova ordem de serviço"))
+        .setContentText(preventiva
+          ? data.getOrDefault("servico", "Serviço preventivo") + " • " + sector
+          : (transferencia ? number + " • " + machine + " • " + sector : machine + " • " + sector))
         .setCategory(NotificationCompat.CATEGORY_CALL)
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -54,10 +65,21 @@ public class IncomingCallMessagingService extends MessagingService {
         .setAutoCancel(false)
         .setFullScreenIntent(full, true)
         .setContentIntent(full)
-        .addAction(android.R.drawable.ic_menu_view, transferencia ? "Aceitar transferência" : "Assumir", actionIntent(id, machine, sector, number, transferencia ? "aceitar_transferencia" : "assumir"))
-        .addAction(android.R.drawable.ic_menu_close_clear_cancel, transferencia ? "Recusar transferência" : "Silenciar", actionIntent(id, machine, sector, number, transferencia ? "recusar_transferencia" : "silenciar"))
-        .setStyle(new NotificationCompat.BigTextStyle().bigText(number + " • " + machine + "\n" + sector))
-        .build();
+        .setStyle(new NotificationCompat.BigTextStyle().bigText(preventiva
+          ? data.getOrDefault("servico", "Serviço preventivo") + "\n" + sector + "\n" + data.getOrDefault("maquinas", machine) + "\nPrazo: " + data.getOrDefault("prazo", "Não informado")
+          : number + " • " + machine + "\\n" + sector));
+      if (preventiva) {
+        builder.addAction(android.R.drawable.ic_menu_view, preventivaAtrasada ? "Abrir O.S." : "Começar preventiva",
+          preventivaActionIntent(data, preventivaAtrasada ? "abrir_preventiva" : "iniciar_preventiva"));
+        if (!preventivaAtrasada) builder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Adiar",
+          preventivaActionIntent(data, "adiar_preventiva"));
+      } else {
+        builder.addAction(android.R.drawable.ic_menu_view, transferencia ? "Aceitar transferência" : "Assumir",
+          actionIntent(id, machine, sector, number, transferencia ? "aceitar_transferencia" : "assumir"));
+        builder.addAction(android.R.drawable.ic_menu_close_clear_cancel, transferencia ? "Recusar transferência" : "Silenciar",
+          actionIntent(id, machine, sector, number, transferencia ? "recusar_transferencia" : "silenciar"));
+      }
+      Notification n = builder.build();
       NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       nm.notify(id.hashCode(), n);
       vibrateForIncomingOS();
@@ -68,6 +90,25 @@ public class IncomingCallMessagingService extends MessagingService {
     } else {
       super.onMessageReceived(message);
     }
+  }
+
+  private PendingIntent preventivaActionIntent(Map<String,String> data, String action) {
+    String id = data.getOrDefault("os_id", "");
+    Intent intent = new Intent(this, IncomingCallActivity.class);
+    intent.putExtra("os_id", id);
+    intent.putExtra("maquina", data.getOrDefault("maquina", "Manutenção"));
+    intent.putExtra("setor", data.getOrDefault("setor", "Setor não informado"));
+    intent.putExtra("numero", data.getOrDefault("numero", "O.S. " + id));
+    intent.putExtra("problema", data.getOrDefault("servico", "Serviço preventivo"));
+    intent.putExtra("tipo_alerta", data.getOrDefault("tipo_alerta", "preventiva_lembrete"));
+    intent.putExtra("servico", data.getOrDefault("servico", "Serviço preventivo"));
+    intent.putExtra("prazo", data.getOrDefault("prazo", "Não informado"));
+    intent.putExtra("maquinas", data.getOrDefault("maquinas", "Não informadas"));
+    intent.putExtra("notification_action", action);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    int requestCode = (id + ":" + action).hashCode();
+    return PendingIntent.getActivity(this, requestCode, intent,
+      PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
   }
 
   private PendingIntent actionIntent(String id, String machine, String sector, String number, String action) {
