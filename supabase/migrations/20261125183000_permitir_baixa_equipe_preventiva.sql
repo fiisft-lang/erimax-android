@@ -70,7 +70,7 @@ begin
     select e.value, e.ordinality
     from jsonb_array_elements(p_maquinas_execucao) with ordinality as e(value, ordinality)
   loop
-    v_original := coalesce(v_os.maquinas_execucao, '[]'::jsonb) -> (v_ordem - 1);
+    v_original := coalesce(v_os.maquinas_execucao, '[]'::jsonb) -> (v_ordem - 1)::integer;
 
     if (v_item - 'concluida' - 'concluida_em') is distinct from
        (v_original - 'concluida' - 'concluida_em') then
