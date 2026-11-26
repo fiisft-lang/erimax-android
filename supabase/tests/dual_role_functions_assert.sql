@@ -32,6 +32,7 @@ BEGIN
   END IF;
 END;
 $assert_guilherme_aceitou$;
+UPDATE public.os SET status = 'Concluída' WHERE id = 1;
 
 -- Guilherme solicita transferência para Fii; Fii está EM SERVIÇO e aceita.
 UPDATE public.status_tecnicos SET status = 'EM SERVIÇO' WHERE user_id = 'e978d5b1-9382-41de-be43-549a4e1e081e';
@@ -50,6 +51,7 @@ BEGIN
   END IF;
 END;
 $assert_fii_aceitou$;
+UPDATE public.os SET status = 'Concluída' WHERE id = 2;
 
 -- Os dois também conseguem recusar transferências destinadas a eles.
 SELECT set_config('request.jwt.claim.sub', 'e978d5b1-9382-41de-be43-549a4e1e081e', false);
