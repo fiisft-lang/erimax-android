@@ -9,7 +9,6 @@ const cors = {
 }
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
-const FIi_ID = 'e978d5b1-9382-41de-be43-549a4e1e081e'
 
 function parseClaims(jwt: string) {
   const part = jwt.split('.')[1]
@@ -304,7 +303,7 @@ Deno.serve(async (req: Request) => {
         const { data: profiles, error: profileError } = await admin.from('perfis')
           .select('id,nome,perfil').in('nome', teamNames)
         if (profileError) throw profileError
-        const profileList = (profiles || []).filter((p: any) => p.perfil === 'tecnico' || p.id === FIi_ID)
+        const profileList = (profiles || []).filter((p: any) => p.perfil === 'tecnico')
         const profileIds = profileList.map((p: any) => p.id)
         if (!profileIds.length) continue
         const { data: online, error: onlineError } = await admin.from('status_tecnicos')
