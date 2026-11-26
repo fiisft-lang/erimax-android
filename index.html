@@ -13549,13 +13549,6 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
   }
 }
 </style>
-
-
-
-
-
-
-
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
