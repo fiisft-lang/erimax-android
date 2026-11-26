@@ -60,11 +60,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: migration-dupla-funcao-tec
-          path: ${{ env.MIGRATION_FILE }}
+          path: supabase/migrations/*_permitir_dupla_funcao_fii_guilherme.sql
           if-no-files-found: error
 
       - name: Registrar migration gerada pelo CLI
         run: |
+          generated="$(find supabase/migrations -maxdepth 1 -type f -name '*_permitir_dupla_funcao_fii_guilherme.sql' -print -quit)"
+          test -n "$generated"
           git rm supabase/migrations/20261126141318_permitir_guilherme_como_tecnico.sql
           git add "$generated"
           git config user.name "github-actions[bot]"
