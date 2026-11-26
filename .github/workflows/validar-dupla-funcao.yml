@@ -8,6 +8,7 @@ on:
       - .github/workflows/validar-dupla-funcao.yml
       - supabase/tests/dual_role_functions_setup.sql
       - supabase/tests/dual_role_functions_assert.sql
+      - supabase/migrations/20261126141318_permitir_guilherme_como_tecnico.sql
 
 permissions:
   contents: write
