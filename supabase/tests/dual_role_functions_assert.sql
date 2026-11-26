@@ -33,7 +33,8 @@ BEGIN
 END;
 $assert_guilherme_aceitou$;
 
--- Guilherme solicita transferência para Fii; Fii aceita.
+-- Guilherme solicita transferência para Fii; Fii está EM SERVIÇO e aceita.
+UPDATE public.status_tecnicos SET status = 'EM SERVIÇO' WHERE user_id = 'e978d5b1-9382-41de-be43-549a4e1e081e';
 SELECT set_config('request.jwt.claim.sub', 'c1b96ae1-aa45-4563-83f6-a9cb33aa0a1c', false);
 SELECT public.erimax_solicitar_transferencia_os(2, 'Fii', 'Teste de transferência');
 SELECT set_config('request.jwt.claim.sub', 'e978d5b1-9382-41de-be43-549a4e1e081e', false);
