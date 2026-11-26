@@ -8047,6 +8047,12 @@ if(ERIMAX_PREVIEW_READ_ONLY){
 }
 
 let PERFIL=null,MAQUINAS=[],osConcluir=null,FILTRADAS=[],FILTRADAS_TODAS=[],FILTRADAS_MTTR=[],PREV=[],MEU_ID=null,TECNICOS=[],USUARIOS_STATUS=[],STATUS_TECNICOS=[],TODOS_USUARIOS=[],PRESENCAS=[];
+function ehTecnicoAtual(){
+  return !!PERFIL&&(ehTecnicoAtual()||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e'||MEU_ID==='c1b96ae1-aa45-4563-83f6-a9cb33aa0a1c');
+}
+function ehMembroEquipeTecnica(usuario){
+  return !!usuario&&(usuario.perfil==='tecnico'||usuario.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||usuario.id==='c1b96ae1-aa45-4563-83f6-a9cb33aa0a1c');
+}
 let intervaloPresenca=null,ultimaPresencaEnviada=0,PRESENCA_EM_ENVIO=false;
 let SETOR_MAQUINAS_EM_EDICAO=null;
 let MAQUINA_EM_EDICAO=null;
@@ -8459,7 +8465,7 @@ async function carregarDadosSupabase(){
   HISTORICO_SITUACAO_OS=hs||[];
   if(auditoriaError)console.error('Erro ao carregar auditoria das O.S.:',auditoriaError.message);
   HISTORICO_EDICOES_OS=auditoria||[];
-  TODOS_USUARIOS=pf||[];const equipeTecnica=(pf||[]).filter(x=>x.perfil==='tecnico'||x.id==='e978d5b1-9382-41de-be43-549a4e1e081e'||(x.id===MEU_ID&&x.perfil==='gestor'));TECNICOS=equipeTecnica;USUARIOS_STATUS=equipeTecnica;
+  TODOS_USUARIOS=pf||[];const equipeTecnica=(pf||[]).filter(ehMembroEquipeTecnica);TECNICOS=equipeTecnica;USUARIOS_STATUS=equipeTecnica;
   // Atualiza os seletores da preventiva após carregar os usuários técnicos.
   popularTecnicosPreventiva();
   if(stError)console.error('Erro ao carregar status dos técnicos:',stError.message);
@@ -8930,7 +8936,7 @@ function renderStatusTurno(){
   if(!PERFIL||!['tecnico','operador','gestor'].includes(PERFIL.perfil)){box.innerHTML='';return}
   const st=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const ativa=!!(st&&st.turno_ativo);
-  const emServico=PERFIL.perfil==='tecnico'&&chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
+  const emServico=ehTecnicoAtual()&&chamados.some(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome);
   const status=emServico?'EM SERVIÇO':(ativa?'ONLINE':'OFFLINE');
   const cor=status==='ONLINE'?'#16a34a':status==='EM SERVIÇO'?'#d97706':'#64748b';
   const nome=String(PERFIL.nome||'Usuário').trim();
@@ -8970,7 +8976,7 @@ async function alternarTurno(){
   const atual=STATUS_TECNICOS.find(x=>x.user_id===MEU_ID);
   const agora=new Date().toISOString();
   if(atual&&atual.turno_ativo){
-    const em=PERFIL.perfil==='tecnico'?chamados.filter(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome):[];
+    const em=ehTecnicoAtual()?chamados.filter(c=>c.status==='Em Atendimento'&&c.tecnico===PERFIL.nome):[];
     if(em.length)return alert('Você ainda tem uma O.S. em serviço. Conclua ou transfira antes de encerrar o turno.');
     const {data:encerrado,error}=await _supabase.from('status_tecnicos').update({status:'OFFLINE',turno_ativo:false,turno_fim:agora,os_atual_id:null,atualizado_em:agora}).eq('user_id',MEU_ID).select('user_id').maybeSingle();
     if(error)return alert('Não foi possível encerrar o turno: '+error.message);
@@ -8987,7 +8993,7 @@ async function alternarTurno(){
       if(error)return alert('Não foi possível iniciar o expediente: '+error.message);
     }
   }
-  if(PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
+  if(ehTecnicoAtual())await recalcularStatusTecnico(MEU_ID);
   await carregarDadosSupabase();
 }
 async function recalcularStatusTecnico(userId){
@@ -9162,13 +9168,13 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     let b='';
     let menuAcoes='';
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
-    const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
-    const tecnicoParticipantePreventiva=!!(PERFIL&&PERFIL.perfil==='tecnico'&&Array.isArray(os.tecnicos_participantes)&&os.tecnicos_participantes.includes(PERFIL.nome));
-    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&PERFIL.perfil==='tecnico'&&(tecnicoAtual||tecnicoParticipantePreventiva)):(gestor||tecnicoAtual);
+    const tecnicoAtual=PERFIL&&ehTecnicoAtual()&&os.tecnico===PERFIL.nome;
+    const tecnicoParticipantePreventiva=!!(PERFIL&&ehTecnicoAtual()&&Array.isArray(os.tecnicos_participantes)&&os.tecnicos_participantes.includes(PERFIL.nome));
+    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&ehTecnicoAtual()&&(tecnicoAtual||tecnicoParticipantePreventiva)):(gestor||tecnicoAtual);
     const adicionarOpcao=html=>{menuAcoes+=html};
     if(statusNormalizado==='aberta'&&PERFIL&&['tecnico','gestor'].includes(String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR'))){
       b+='<button type="button" class="btn-action btn-assumir os-action-primary" onclick="assumirOS('+id+')">Assumir</button>';
-      if(PERFIL.perfil==='tecnico')adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">Silenciar alerta</button>');
+      if(ehTecnicoAtual())adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="silenciarAlarmeNativo();mostrarToastOS(\'🔕 Alerta sonoro e vibração silenciados.\')">Silenciar alerta</button>');
     }else if(statusNormalizado==='concluída'&&PERFIL&&String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR')==='gestor'){
       b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
     }
@@ -9176,13 +9182,13 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir os-action-primary" onclick="concluirOS('+id+')">'+(os.tipo==='Preventiva'&&!tecnicoAtual?'Registrar máquinas':'Concluir')+'</button>';
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="transferirOS('+id+')">🔄 Transferir</button>');
-      if(PERFIL&&(PERFIL.perfil==='tecnico'||MEU_ID==='e978d5b1-9382-41de-be43-549a4e1e081e')&&os.transferencia_para===PERFIL.nome){
+      if(PERFIL&&ehTecnicoAtual()&&os.transferencia_para===PERFIL.nome){
         adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="aceitarTransferenciaOS('+id+')">🤝 Aceitar transferência</button>');
         adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="recusarTransferenciaOS('+id+')">✖️ Recusar transferência</button>');
       }
     }else if(status==='Pausada'){
       const pausaAtiva=[...HISTORICO_PAUSAS].filter(p=>Number(p.os_id)===id&&!p.retomada_em).sort((a,b)=>Number(b.id)-Number(a.id))[0];
-      const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
+      const tecnicoQuePausou=PERFIL&&ehTecnicoAtual()&&pausaAtiva&&pausaAtiva.tecnico===PERFIL.nome;
       if(gestor||tecnicoAtual||tecnicoQuePausou)adicionarOpcao('<button type="button" class="btn-action btn-assumir" role="menuitem" onclick="event.preventDefault();event.stopPropagation();retomarOS('+id+',event)">▶️ Retomar</button>');
     }
 
@@ -9325,7 +9331,7 @@ async function assumirOS(id){
   if(!PERFIL||!['tecnico','gestor'].includes(PERFIL.perfil))return alert('Somente técnicos e gestores podem assumir uma O.S.');
   const t=PERFIL.perfil==='tecnico'?PERFIL.nome:localStorage.getItem('erimax_tecnico');
   if(!t)return alert('Selecione o técnico responsável antes de assumir a O.S.');
-  if(PERFIL&&PERFIL.perfil==='tecnico'){
+  if(PERFIL&&ehTecnicoAtual()){
     const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',MEU_ID).maybeSingle();
     if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
     if(!st||!st.turno_ativo||st.status!=='ONLINE')return alert('Você precisa estar ONLINE e sem outra O.S. em serviço para assumir uma nova ordem.');
@@ -9334,14 +9340,14 @@ async function assumirOS(id){
   const {data:assumida,error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id).eq('status','Aberta').select('id').maybeSingle();
   if(error)return alert('Erro ao assumir OS: '+error.message);
   if(!assumida){await carregarDadosSupabase();return alert('Esta O.S. já foi assumida ou alterada por outra pessoa. A lista foi atualizada.');}
-  if(PERFIL&&PERFIL.perfil==='tecnico')await recalcularStatusTecnico(MEU_ID);
+  if(PERFIL&&ehTecnicoAtual())await recalcularStatusTecnico(MEU_ID);
   await carregarDadosSupabase();
 }
 
 async function pausarOS(id){
   const os=chamados.find(c=>Number(c.id)===Number(id));if(!os||os.status!=='Em Atendimento')return;
   const gestor=PERFIL&&PERFIL.perfil==='gestor';
-  const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
+  const tecnicoAtual=PERFIL&&ehTecnicoAtual()&&os.tecnico===PERFIL.nome;
   if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode pausar esta O.S.');
   if(!os.tecnico)return alert('Esta O.S. ainda não tem um técnico responsável.');
   const escolha=prompt('Por que deseja pausar esta O.S.?\n\n1 - Aguardando peça\n2 - Outra ordem mais urgente\n3 - Falta de material ou ferramenta\n4 - Equipamento indisponível\n5 - Outro motivo\n\nDigite o número da opção:');
@@ -9373,8 +9379,8 @@ async function retomarOS(id,evt){
   const gestor=PERFIL&&PERFIL.perfil==='gestor';
   const {data:registroAtivo,error:registroError}=await _supabase.from('historico_pausas_os').select('id,tecnico').eq('os_id',id).is('retomada_em',null).order('id',{ascending:false}).limit(1).maybeSingle();
   if(registroError)return alert('Não foi possível verificar quem pausou esta O.S.: '+registroError.message);
-  const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
-  const tecnicoQuePausou=PERFIL&&PERFIL.perfil==='tecnico'&&registroAtivo?.tecnico===PERFIL.nome;
+  const tecnicoAtual=PERFIL&&ehTecnicoAtual()&&os.tecnico===PERFIL.nome;
+  const tecnicoQuePausou=PERFIL&&ehTecnicoAtual()&&registroAtivo?.tecnico===PERFIL.nome;
   if(!gestor&&!tecnicoAtual&&!tecnicoQuePausou)return alert('Somente o técnico responsável, quem pausou a O.S. ou o gestor pode retomar.');
   if(!gestor){
     const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',MEU_ID).maybeSingle();
@@ -9395,7 +9401,7 @@ async function retomarOS(id,evt){
 async function transferirOS(id){
   const os=chamados.find(c=>c.id===id);if(!os)return;
   const gestor=PERFIL&&PERFIL.perfil==='gestor';
-  const tecnicoAtual=PERFIL&&PERFIL.perfil==='tecnico'&&os.tecnico===PERFIL.nome;
+  const tecnicoAtual=PERFIL&&ehTecnicoAtual()&&os.tecnico===PERFIL.nome;
   if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode iniciar uma transferência.');
   if(os.transferencia_para)return alert('Esta O.S. já tem uma transferência aguardando aceite.');
   const novo=prompt(`${nOS(os)} atualmente com: ${os.tecnico}\n\nDigite o nome do técnico que receberá a O.S.:`);
@@ -9417,7 +9423,7 @@ async function transferirOS(id){
   await carregarDadosSupabase();
 }
 async function aceitarTransferenciaOS(id){
-  if(!PERFIL||(PERFIL.perfil!=='tecnico'&&MEU_ID!=='e978d5b1-9382-41de-be43-549a4e1e081e'))return alert('Somente o técnico destinatário pode aceitar esta transferência.');
+  if(!PERFIL||(!ehTecnicoAtual()&&MEU_ID!=='e978d5b1-9382-41de-be43-549a4e1e081e'))return alert('Somente o técnico destinatário pode aceitar esta transferência.');
   const os=chamados.find(c=>c.id===id);
   if(!os||os.transferencia_para!==PERFIL.nome)return alert('Esta transferência não está destinada a você.');
   const {error}=await _supabase.rpc('erimax_aceitar_transferencia_os',{p_os_id:id});
@@ -9430,7 +9436,7 @@ async function aceitarTransferenciaOS(id){
 }
 
 async function recusarTransferenciaOS(id){
-  if(!PERFIL||(PERFIL.perfil!=='tecnico'&&MEU_ID!=='e978d5b1-9382-41de-be43-549a4e1e081e'))return alert('Somente o técnico destinatário pode recusar esta transferência.');
+  if(!PERFIL||(!ehTecnicoAtual()&&MEU_ID!=='e978d5b1-9382-41de-be43-549a4e1e081e'))return alert('Somente o técnico destinatário pode recusar esta transferência.');
   const os=chamados.find(c=>Number(c.id)===Number(id));
   if(!os||os.transferencia_para!==PERFIL.nome)return alert('Esta transferência não está destinada a você.');
   const {error}=await _supabase.rpc('erimax_recusar_transferencia_os',{p_os_id:id});
@@ -9443,11 +9449,11 @@ let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
 function concluirOS(id){
   const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
-  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||(osResponsavel.tecnico!==PERFIL.nome&&!(Array.isArray(osResponsavel.tecnicos_participantes)&&osResponsavel.tecnicos_participantes.includes(PERFIL.nome)))))return alert('Somente o responsável ou um integrante da equipe desta preventiva pode registrar o andamento das máquinas.');
+  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||!ehTecnicoAtual()||(osResponsavel.tecnico!==PERFIL.nome&&!(Array.isArray(osResponsavel.tecnicos_participantes)&&osResponsavel.tecnicos_participantes.includes(PERFIL.nome)))))return alert('Somente o responsável ou um integrante da equipe desta preventiva pode registrar o andamento das máquinas.');
   osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';if(document.getElementById('mdPecaQtd'))document.getElementById('mdPecaQtd').value='1';
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
-  const somenteBaixaPreventiva=!!(osAtual&&osAtual.tipo==='Preventiva'&&PERFIL&&PERFIL.perfil==='tecnico'&&osAtual.tecnico!==PERFIL.nome);
+  const somenteBaixaPreventiva=!!(osAtual&&osAtual.tipo==='Preventiva'&&PERFIL&&ehTecnicoAtual()&&osAtual.tecnico!==PERFIL.nome);
   const camposConclusao=document.getElementById('mdCamposConclusao');
   const horaConclusao=document.getElementById('mdHoraWrap');
   const botaoConcluir=document.getElementById('mdConcluirBtn');
@@ -9462,7 +9468,7 @@ function concluirOS(id){
   const wrap=document.getElementById('mdMaquinasWrap'),lista=document.getElementById('mdListaMaquinas');
   const listaAux=document.getElementById('mdMecanicosAuxiliares');
   if(listaAux){
-    const auxiliares=(TECNICOS||[]).filter(t=>t&&t.perfil==='tecnico'&&t.nome&&t.nome!==osAtual?.tecnico).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+    const auxiliares=(TECNICOS||[]).filter(t=>ehMembroEquipeTecnica(t)&&t.nome&&t.nome!==osAtual?.tecnico).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
     const equipeSalva=Array.isArray(osAtual?.tecnicos_participantes)?osAtual.tecnicos_participantes:[];
     const selecionados=new Set(equipeSalva.length?equipeSalva:[osAtual?.mecanico_auxiliar].filter(Boolean));
     listaAux.innerHTML=auxiliares.length?auxiliares.map((t,i)=>'<label class="md-auxiliar-option"><input type="checkbox" class="md-auxiliar-check" value="'+escaparHtml(t.nome)+'" '+(selecionados.has(t.nome)?'checked':'')+'><span>'+escaparHtml(t.nome)+'</span></label>').join(''):'<small style="color:#64748b">Nenhum outro técnico disponível para selecionar.</small>';
@@ -9499,7 +9505,7 @@ async function salvarProgressoMaquinas(){
   const osAtual=chamados.find(c=>Number(c.id)===Number(osConcluir));
   if(!osAtual)return alert('O.S. não encontrada. Atualize a lista antes de continuar.');
   let error=null;
-  if(osAtual.tipo==='Preventiva'&&PERFIL&&PERFIL.perfil==='tecnico'){
+  if(osAtual.tipo==='Preventiva'&&PERFIL&&ehTecnicoAtual()){
     const resultado=await _supabase.rpc('erimax_salvar_progresso_preventiva',{p_os_id:Number(osConcluir),p_maquinas_execucao:lista});
     error=resultado.error;
   }else{
@@ -9670,7 +9676,7 @@ async function confirmarConclusao(){
   if(!mdCausa.value||!mdServico.value.trim())return alert('Informe a causa e o serviço executado.');
   const os0=chamados.find(c=>Number(c.id)===Number(osConcluir)),agora=new Date();
   if(!os0||os0.status!=='Em Atendimento')return alert('Esta O.S. não está mais em atendimento. Atualize a lista antes de continuar.');
-  if(os0.tipo==='Preventiva'&&(!PERFIL||PERFIL.perfil!=='tecnico'||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
+  if(os0.tipo==='Preventiva'&&(!PERFIL||!ehTecnicoAtual()||os0.tecnico!==PERFIL.nome))return alert('Somente o manutentor definido como responsável pode finalizar esta O.S.');
   const maquinasExecucao=obterMaquinasExecucaoModal();
   if(maquinasExecucao.length&&maquinasExecucao.some(m=>!m.concluida))return alert('Marque todas as máquinas como concluídas. Se alguma ainda estiver pendente, use “Salvar andamento” e finalize a O.S. depois.');
   let fim=mdHora.value?new Date(mdHora.value):agora;
@@ -9680,7 +9686,7 @@ async function confirmarConclusao(){
   if(fim>new Date(agora.getTime()+60000))return alert('O horário de conclusão não pode ser no futuro.');
   if(os0.data_atendimento&&fim<new Date(os0.data_atendimento))return alert('O horário de conclusão não pode ser antes do início do atendimento ('+hm(os0.data_atendimento)+').');
   const diferenca=Math.abs(agora-fim);
-  if(PERFIL&&PERFIL.perfil==='tecnico'&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
+  if(PERFIL&&ehTecnicoAtual()&&diferenca>180000)return alert('O técnico pode concluir a O.S. com horário próximo do momento atual. Para corrigir um horário anterior, solicite o ajuste ao gestor.');
   const aj=PERFIL&&PERFIL.perfil==='gestor'&&diferenca>120000?{ajustado_por:PERFIL.nome,ajustado_em:agora.toISOString(),ajuste_obs:'Fechamento informado após o término'}:{};
   const pecaInformada=mdPeca.value.trim();const pecaQtd=Number(document.getElementById('mdPecaQtd')?.value||1);if(pecaInformada&&(!Number.isFinite(pecaQtd)||pecaQtd<=0))return alert('Informe uma quantidade válida para a peça utilizada.');
   const mecanicosAuxiliares=[...new Set([...document.querySelectorAll('#mdMecanicosAuxiliares .md-auxiliar-check:checked')].map(el=>String(el.value||'').trim()).filter(Boolean))];
@@ -13912,7 +13918,7 @@ function popularTecnicosPreventiva(){
   const atual=sel.value;
   const equipe=document.getElementById('pvEquipeTecnicos');
   const selecionados=new Set(equipe?[...equipe.querySelectorAll('.pv-tecnico-equipe:checked')].map(e=>e.value):[]);
-  const tecnicos=TECNICOS.filter(t=>t.perfil==='tecnico'||t.id==='e978d5b1-9382-41de-be43-549a4e1e081e');
+  const tecnicos=TECNICOS.filter(ehMembroEquipeTecnica);
   sel.innerHTML='<option value="">Selecione o técnico...</option>'+tecnicos.map(t=>'<option value="'+escaparHtml(t.nome)+'">'+escaparHtml(t.nome)+'</option>').join('');
   if(tecnicos.some(t=>t.nome===atual))sel.value=atual;
   if(equipe)equipe.innerHTML=tecnicos.length?tecnicos.map(t=>'<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.85rem"><input class="pv-tecnico-equipe" type="checkbox" value="'+escaparHtml(t.nome)+'" '+(selecionados.has(t.nome)?'checked':'')+' style="width:auto"> '+escaparHtml(t.nome)+'</label>').join(''):'<small style="color:#64748b">Nenhum manutentor cadastrado.</small>';
