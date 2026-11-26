@@ -82,7 +82,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const { data: profiles, error: profilesError } = await admin.from('perfis')
-      .select('id,perfil').in('perfil', ['tecnico', 'gestor', 'operador'])
+      .select('id,perfil').in('perfil', ['tecnico', 'gestor'])
     if (profilesError) throw profilesError
 
     const { data: onlineStatuses, error: statusError } = await admin.from('status_tecnicos')
@@ -90,7 +90,7 @@ Deno.serve(async (req: Request) => {
     if (statusError) throw statusError
     const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
     const recipientIds = (profiles || [])
-      // Técnicos, gestores e operadores recebem o aviso quando estiverem
+      // Somente técnicos e gestores recebem o aviso quando estiverem
       // ONLINE ou EM SERVIÇO, desde que o turno esteja ativo.
       .filter((p: { id: string; perfil: string }) => onlineIds.has(p.id))
       .map((p: { id: string }) => p.id)
@@ -147,8 +147,8 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           message: {
             token: deviceToken,
-            // Data-only: obriga o FCM a entregar o evento ao serviço nativo
-            // personalizado mesmo com o app em segundo plano/tela bloqueada.
+            // Data-only: entrega o evento ao serviço nativo personalizado
+            // mesmo com o app em segundo plano ou com a tela bloqueada.
             android: {
               priority: 'HIGH',
               ttl: '15s',
