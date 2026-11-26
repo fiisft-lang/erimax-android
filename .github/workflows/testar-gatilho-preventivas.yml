@@ -1,0 +1,33 @@
+name: Testar gatilho SQL de preventivas
+
+on:
+  push:
+    branches:
+      - feat/automacao-os-preventiva
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  postgres-isolado:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: erimax_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d erimax_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Executar cenários isolados do gatilho
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/preventiva_trigger_test.sql
