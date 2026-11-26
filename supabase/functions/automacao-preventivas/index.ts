@@ -298,8 +298,8 @@ Deno.serve(async (req: Request) => {
       }
 
       if (slotKey && minute >= 0 && minute < 60) {
-        // Fii é o encarregado gestor que participa da rotina preventiva e recebe
-        // os lembretes normais; os demais gestores continuam fora deste envio.
+        // A lista é formada apenas pelo responsável e pela equipe cadastrada.
+        // A filtragem por perfil/ID mantém os demais gestores fora dos lembretes normais.
         const teamNames = [...new Set([os.tecnico, ...(Array.isArray(os.tecnicos_participantes) ? os.tecnicos_participantes : [])]
           .filter((x: unknown) => typeof x === 'string' && x.trim()))]
         if (!teamNames.length) continue
