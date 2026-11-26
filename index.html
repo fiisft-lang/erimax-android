@@ -7489,6 +7489,34 @@ body .tbl-wrap td{color:#344d5e}
 }
 </style>
 
+<style id="erimax-alinhamento-auxiliares-os-2026">
+/* Ajuste exclusivo da lista de mecânicos auxiliares no modal de conclusão da O.S. */
+#mdMecanicosAuxiliares.md-auxiliares-list{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:stretch!important;gap:8px!important;max-height:210px!important;
+  overflow-y:auto!important;padding:10px!important;border:1px solid #dbe3ea!important;
+  border-radius:10px!important;background:#f8fafc!important;
+}
+#mdMecanicosAuxiliares .md-auxiliar-option{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:flex-start!important;gap:9px!important;box-sizing:border-box!important;
+  min-width:0!important;min-height:42px!important;margin:0!important;padding:9px 10px!important;
+  border:1px solid #e2e8f0!important;border-radius:8px!important;background:#fff!important;
+  font-size:.88rem!important;line-height:1.35!important;text-align:left!important;cursor:pointer!important;
+}
+#mdMecanicosAuxiliares .md-auxiliar-option input.md-auxiliar-check{
+  display:block!important;position:static!important;float:none!important;flex:0 0 18px!important;
+  width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;
+  margin:0!important;padding:0!important;align-self:center!important;vertical-align:middle!important;
+}
+#mdMecanicosAuxiliares .md-auxiliar-option span{
+  display:block!important;flex:1 1 auto!important;min-width:0!important;margin:0!important;
+  padding:0!important;line-height:1.35!important;text-align:left!important;overflow-wrap:anywhere!important;
+}
+@media(max-width:560px){
+  #mdMecanicosAuxiliares.md-auxiliares-list{grid-template-columns:minmax(0,1fr)!important}
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -13521,10 +13549,6 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
   }
 }
 </style>
-
-
-
-
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
