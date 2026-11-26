@@ -64,7 +64,7 @@ Deno.test('equipe inclui responsável sem duplicar nomes', () => {
   }), ['Marcelo', 'Pedro'], 'equipe sem duplicidade')
 })
 
-Deno.test('lembretes incluem técnicos e o encarregado Fii, mas não outros gestores', () => {
+Deno.test('lembretes incluem técnicos e dupla função, mas não outros gestores', () => {
   const result = reminderRecipients([
     { id: '1', nome: 'Ana', perfil: 'tecnico' },
     { id: 'e978d5b1-9382-41de-be43-549a4e1e081e', nome: 'Fii', perfil: 'gestor' },
