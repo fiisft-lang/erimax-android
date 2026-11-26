@@ -1,4 +1,4 @@
-import { deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
+import { cycleEndExclusive, deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
 import { normalNotificationRecipients } from '../_shared/notification-recipients.ts'
 
 function assertEquals(actual: unknown, expected: unknown, message: string) {
@@ -22,6 +22,10 @@ Deno.test('janela começa na quinta para vencimentos de quinta a sábado', () =>
 Deno.test('prazo termina às 23:59:59 do terceiro dia local', () => {
   assertEquals(new Date(deadlineFor('2026-11-23')).toISOString(), '2026-11-26T02:59:59.000Z', 'ciclo segunda a quarta')
   assertEquals(new Date(deadlineFor('2026-11-26')).toISOString(), '2026-11-29T02:59:59.000Z', 'ciclo quinta a sábado')
+})
+
+Deno.test('limite exclusivo inclui todo o sábado sem alcançar domingo', () => {
+  assertEquals(cycleEndExclusive('2026-11-26'), '2026-11-29T00:00:00-03:00', 'fim do ciclo quinta a sábado')
 })
 
 Deno.test('horário local respeita America/Sao_Paulo', () => {
