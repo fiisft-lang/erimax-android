@@ -321,6 +321,11 @@ jobs:
                   debug {
                       signingConfig signingConfigs.erimaxPermanent
                   }
+                  release {
+                      signingConfig signingConfigs.erimaxPermanent
+                      minifyEnabled false
+                      shrinkResources false
+                  }
               }
           }
           GRADLE
@@ -340,11 +345,11 @@ jobs:
           else
             printf '\nnetworkTimeout=120000\n' >> gradle/wrapper/gradle-wrapper.properties
           fi
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleRelease --stacktrace
 
       - name: Verificar APK
         run: |
-          APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          APK="android/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
           unzip -t "$APK"
           echo "Tamanho do APK:"
@@ -356,6 +361,6 @@ jobs:
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
-          name: erimax-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: erimax-apk-oficial
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
