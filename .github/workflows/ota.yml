@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - versaooficialerimax
       - ota-atualizacao-android-staging-20261109
     paths-ignore:
       - "ota/**"
@@ -52,7 +53,7 @@ jobs:
             exit 1
           fi
           CHECKSUM="$(sha256sum ota/latest.zip | awk '{print $1}')"
-          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+          if [ "${GITHUB_REF_NAME}" = "main" ] || [ "${GITHUB_REF_NAME}" = "versaooficialerimax" ]; then
             CHANNEL="production"
           else
             CHANNEL="staging"
