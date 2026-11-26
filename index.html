@@ -13525,6 +13525,45 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 
 
 
+
+<style id="erimax-alinhamento-auxiliares-os-2026">
+/* Ajuste isolado: alinhamento dos seletores de mecânicos auxiliares no fechamento da O.S. */
+#mdMecanicosAuxiliares .md-auxiliar-option{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  box-sizing:border-box!important;
+  min-height:42px!important;
+  line-height:1.35!important;
+  text-align:left!important;
+}
+#mdMecanicosAuxiliares .md-auxiliar-option input.md-auxiliar-check{
+  display:block!important;
+  position:static!important;
+  float:none!important;
+  flex:0 0 18px!important;
+  width:18px!important;
+  height:18px!important;
+  min-width:18px!important;
+  min-height:18px!important;
+  margin:0!important;
+  padding:0!important;
+  vertical-align:middle!important;
+  align-self:center!important;
+}
+#mdMecanicosAuxiliares .md-auxiliar-option span{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1.35!important;
+  text-align:left!important;
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
