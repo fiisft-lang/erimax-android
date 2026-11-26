@@ -404,7 +404,7 @@ public class IncomingCallActivity extends Activity {
     start.setOnClickListener(v -> startPreventiva());
 
     if (!atrasada) {
-      TextView postpone = label("SILENCIAR", 13, Color.WHITE);
+      TextView postpone = label("ADIAR", 13, Color.WHITE);
       postpone.setTypeface(null, Typeface.BOLD);
       postpone.setGravity(Gravity.CENTER);
       postpone.setPadding(dp(14), dp(15), dp(14), dp(15));
