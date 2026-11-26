@@ -7542,6 +7542,12 @@ body .tbl-wrap td{color:#344d5e}
   box-shadow:0 0 0 3px rgba(44,135,133,.15)!important;
   outline:0!important;
 }
+
+.md-peca-autocomplete{position:relative;width:100%}
+#modal .md-peca-sugestoes{position:absolute;z-index:2200;top:calc(100% + 4px);left:0;right:0;max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:0;background:#fff;border:1px solid #cbd9e2;border-radius:10px;box-shadow:0 8px 22px rgba(15,23,42,.18);padding:4px}
+#modal .md-peca-sugestoes button{display:block;flex:0 0 auto;width:100%;min-height:42px;text-align:left;white-space:normal;background:#fff;color:#18394d;border:0;border-bottom:1px solid #e7edf1;border-radius:0;padding:10px 12px;font-size:.88rem;font-weight:500}
+#modal .md-peca-sugestoes button:last-child{border-bottom:0}
+#modal .md-peca-sugestoes button:active,#modal .md-peca-sugestoes button:focus{background:#eaf3f6;color:#18394d;outline:0}
 </style>
 </head>
 <body>
@@ -7985,7 +7991,7 @@ function atualizarNavegacaoMobileEriMax(id){
 
 <div id="modal"><div class="box"><h2>Concluir OS</h2>
 <div id="mdCamposConclusao"><div class="form-group"><label for="mdCausa">Causa da falha *</label><select id="mdCausa"></select></div>
-<div class="form-group"><label for="mdPeca">Peça utilizada (opcional)</label><input id="mdPeca" list="almoxSugestoesPecas" placeholder="Ex.: Correia A35 ou Rolamento 6204"><datalist id="almoxSugestoesPecas"></datalist><small style="display:block;color:#64748b;margin-top:4px">Use o nome ou código cadastrado no Almoxarifado. Ao concluir a O.S., a baixa será automática se houver saldo; se não estiver cadastrado ou faltar estoque, o gestor receberá uma pendência.</small></div>
+<div class="form-group"><label for="mdPeca">Peça utilizada (opcional)</label><div class="md-peca-autocomplete"><input id="mdPeca" autocomplete="off" aria-autocomplete="list" aria-controls="mdPecaSugestoesVertical" placeholder="Ex.: Correia A35 ou Rolamento 6204"><div id="mdPecaSugestoesVertical" class="md-peca-sugestoes" role="listbox" style="display:none"></div></div><datalist id="almoxSugestoesPecas"></datalist><small style="display:block;color:#64748b;margin-top:4px">Use o nome ou código cadastrado no Almoxarifado. Ao concluir a O.S., a baixa será automática se houver saldo; se não estiver cadastrado ou faltar estoque, o gestor receberá uma pendência.</small></div>
 <div class="form-group"><label for="mdPecaQtd">Quantidade utilizada</label><input id="mdPecaQtd" type="number" min="0.001" step="0.001" value="1"></div>
 <div class="form-group"><label for="mdServico">Serviço executado *</label><textarea id="mdServico" rows="3" placeholder="O que foi feito para corrigir?"></textarea></div>
 <div class="form-group"><label>Mecânicos auxiliares (opcional)</label><div id="mdMecanicosAuxiliares" class="md-auxiliares-list"><small style="color:#64748b">Carregando técnicos...</small></div><small style="display:block;color:#64748b;margin-top:5px">Você pode selecionar quantos mecânicos participaram desta manutenção. O técnico responsável continua identificado separadamente.</small></div>
@@ -14244,6 +14250,36 @@ window.onload=async function(){
     console.error('[EriMax] Não foi possível recuperar a sessão:',e);
   }
 };
+</script>
+
+<script id="erimax-lista-vertical-pecas-os">
+(function(){
+ function iniciarListaVerticalPecasOS(){
+  const campo=document.getElementById('mdPeca'),lista=document.getElementById('mdPecaSugestoesVertical'),dados=document.getElementById('almoxSugestoesPecas');
+  if(!campo||!lista||!dados||campo.dataset.listaVerticalAtiva==='1')return;
+  campo.dataset.listaVerticalAtiva='1';
+  function fechar(){lista.style.display='none';lista.innerHTML='';campo.setAttribute('aria-expanded','false')}
+  function atualizar(){
+   const termo=campo.value.trim().toLocaleLowerCase('pt-BR');
+   const valores=Array.from(dados.options).map(o=>o.value).filter(Boolean);
+   const filtrados=valores.filter((v,i,a)=>a.indexOf(v)===i&&(!termo||v.toLocaleLowerCase('pt-BR').includes(termo))).slice(0,30);
+   lista.innerHTML='';
+   if(!filtrados.length){fechar();return}
+   filtrados.forEach(valor=>{
+    const botao=document.createElement('button');botao.type='button';botao.role='option';botao.textContent=valor;
+    botao.addEventListener('mousedown',e=>e.preventDefault());
+    botao.addEventListener('click',()=>{campo.value=valor;fechar();campo.focus()});
+    lista.appendChild(botao);
+   });
+   lista.style.display='flex';campo.setAttribute('aria-expanded','true');
+  }
+  campo.addEventListener('focus',atualizar);
+  campo.addEventListener('input',atualizar);
+  campo.addEventListener('keydown',e=>{if(e.key==='Escape')fechar()});
+  document.addEventListener('click',e=>{if(!e.target.closest('.md-peca-autocomplete'))fechar()});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciarListaVerticalPecasOS);else iniciarListaVerticalPecasOS();
+})();
 </script>
 <script id="erimax-almoxarifado-logic-2026">
 let ALMOX_MATERIAIS=[],ALMOX_MOVIMENTOS=[],ALMOX_SOLICITACOES=[];
