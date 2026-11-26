@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Recupera entregas parciais ou temporariamente indisponíveis.
-    - cron: '*/15 * * * *'
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: read
