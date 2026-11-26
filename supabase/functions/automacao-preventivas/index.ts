@@ -305,7 +305,7 @@ Deno.serve(async (req: Request) => {
         const { data: profiles, error: profileError } = await admin.from('perfis')
           .select('id,nome,perfil').in('nome', teamNames)
         if (profileError) throw profileError
-        const profileList = normalNotificationRecipients(profiles || []))
+        const profileList = normalNotificationRecipients(profiles || [])
         const profileIds = profileList.map((p: any) => p.id)
         if (!profileIds.length) continue
         const { data: online, error: onlineError } = await admin.from('status_tecnicos')
