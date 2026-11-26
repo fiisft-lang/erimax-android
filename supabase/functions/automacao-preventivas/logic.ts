@@ -26,6 +26,22 @@ export function configuredReminderTimes(value: unknown): string[] {
   ))].sort()
 }
 
+/**
+ * Retorna todos os horários configurados que venceram nos últimos cinco minutos.
+ * O slot usa o horário originalmente configurado para impedir duplicidade entre execuções.
+ */
+export function dueReminderSlots(times: string[], now: Date): { time: string; slotKey: string }[] {
+  const parts = localParts(now)
+  const today = `${parts.year}-${parts.month}-${parts.day}`
+  const currentMinute = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), Number(parts.hour), Number(parts.minute)) / 60000
+  return times.flatMap(time => {
+    const [hour, minute] = time.split(':').map(Number)
+    const targetMinute = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), hour, minute) / 60000
+    const elapsed = currentMinute - targetMinute
+    return elapsed >= 0 && elapsed < 5 ? [{ time, slotKey: today + '-' + time.replace(':', '') }] : []
+  })
+}
+
 export function notificationStart(due: string): string {
   const weekday = new Date(due + 'T12:00:00Z').getUTCDay()
   if (weekday === 0) return addDays(due, 1)
