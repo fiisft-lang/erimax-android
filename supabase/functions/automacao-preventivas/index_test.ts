@@ -1,4 +1,4 @@
-import { configuredReminderTimes, cycleEndExclusive, deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
+import { configuredReminderTimes, dueReminderSlots, cycleEndExclusive, deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
 
 function assertEquals(actual: unknown, expected: unknown, message: string) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
@@ -10,6 +10,15 @@ Deno.test('horários individuais aceitam qualquer minuto entre 06h e 22h45', () 
   assertEquals(configuredReminderTimes(['12:00', '16:00', '17:50', '09:17', '17:50']), ['09:17', '12:00', '16:00', '17:50'], 'horários únicos e ordenados, inclusive minutos livres')
   assertEquals(configuredReminderTimes(['05:59', '22:46', '23:00', 'inválido']), [], 'horários fora da janela ou inválidos')
   assertEquals(configuredReminderTimes(null), ['08:00', '12:00', '16:00'], 'cadastros antigos mantêm os horários padrão')
+})
+
+Deno.test('disparo reconhece minutos livres dentro da janela de cinco minutos e mantém slots distintos', () => {
+  const now = new Date('2026-11-26T21:05:00.000Z') // 18:05 em Brasília
+  assertEquals(dueReminderSlots(['18:01', '18:05', '18:10'], now), [
+    { time: '18:01', slotKey: '2026-11-26-1801' },
+    { time: '18:05', slotKey: '2026-11-26-1805' },
+  ], 'processa todos os horários vencidos sem duplicar o identificador')
+  assertEquals(dueReminderSlots(['18:00'], now), [], 'não repete horário fora da janela')
 })
 
 Deno.test('vencimentos de segunda a quarta usam a janela fixa de segunda a quarta', () => {
