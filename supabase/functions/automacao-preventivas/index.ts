@@ -345,9 +345,12 @@ Deno.serve(async (req: Request) => {
           const liveIds = [...new Set((live || []).map((p: any) => String(p.user_id)))]
           const pendingIds = liveIds.filter((id: string) => !deliveredIds.includes(id))
           if (!pendingIds.length) {
-            await admin.from('preventiva_lembretes_enviados').update({
-              status: 'enviado', destinatarios: deliveredIds, enviado_em: now.toISOString(),
-            }).eq('id', claim.id).eq('status', 'processando')
+            // Se todos ficaram offline entre a primeira e a segunda consulta,
+            // não marcar o horário como entregue: manter pendente para nova tentativa.
+            await admin.from('preventiva_lembretes_enviados').update(liveIds.length
+              ? { status: 'enviado', destinatarios: deliveredIds, enviado_em: now.toISOString() }
+              : { status: 'parcial', destinatarios: deliveredIds, enviado_em: null }
+            ).eq('id', claim.id).eq('status', 'processando')
             continue
           }
           const { data: devices, error: deviceError } = await admin.from('dispositivos')
