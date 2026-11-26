@@ -1,8 +1,8 @@
 {
-  "bundleId": "e1ec592bf197fd8bca1d5953db2763ea89344950",
+  "bundleId": "0aa884a4cd335143ea2a8e7e42f8b84d3779847d",
   "channel": "staging",
-  "url": "https://raw.githubusercontent.com/fiisft-lang/erimax-android/feat/automacao-os-preventiva/ota/latest.zip?v=e1ec592bf197fd8bca1d5953db2763ea89344950",
-  "checksum": "c427375d4a3d4fa4073cfdcc0f03f676d587a7ea2c40f4128b4f90be9461a6c8",
+  "url": "https://raw.githubusercontent.com/fiisft-lang/erimax-android/feat/automacao-os-preventiva/ota/latest.zip?v=0aa884a4cd335143ea2a8e7e42f8b84d3779847d",
+  "checksum": "c5e06af23041e686d0e4e76cba660c54fd90951e0bdebdf3339d3e6fc56bf026",
   "minimumNativeVersionCode": 1,
   "message": "Há melhorias e correções disponíveis no EriMax."
 }
