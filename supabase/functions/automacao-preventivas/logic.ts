@@ -42,6 +42,15 @@ export function machineRecords(p: any, machines: any[]) {
   }).filter(Boolean)
 }
 
+/**
+ * Técnicos da equipe recebem lembretes; o encarregado Fii também recebe
+ * como exceção nominal. Outros gestores não recebem lembretes normais.
+ */
+export function reminderRecipients(profiles: any[]) {
+  return profiles.filter(p =>
+    p.perfil === 'tecnico' || (p.nome === 'Fii' && p.perfil === 'gestor'))
+}
+
 export function uniqueTeam(p: any) {
   const list = (Array.isArray(p.tecnicos_participantes) ? p.tecnicos_participantes : [])
     .filter((x: unknown) => typeof x === 'string' && x.trim())
