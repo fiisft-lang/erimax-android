@@ -57,12 +57,22 @@ create table public.os (
 \i supabase/migrations/20261125190000_retentativa_lembretes_preventiva.sql
 \i supabase/migrations/20261125191000_retentativa_alerta_atraso_gestores.sql
 \i supabase/migrations/20261125200000_sincronizar_proxima_data_preventiva.sql
+\i supabase/migrations/20261126180000_configuracao_alarmas_preventivas.sql
 
 insert into public.preventivas
   (id,setor,maquina,descricao,intervalo_dias,ultima,data_prevista,tecnico_responsavel,maquinas,tecnicos_participantes,maquinas_ids)
 values
   (1,'Corte','Máquina 1','Inspeção e lubrificação',30,date '2026-10-27',date '2026-11-26','Ana',
    '["Máquina 1"]'::jsonb,'["Ana","Fii"]'::jsonb,array[10]::bigint[]);
+
+do $
+begin
+  if (select horarios_disparo from public.preventivas where id=1) <> array['08:00','12:00','16:00']::text[]
+     or (select alarme_ativo from public.preventivas where id=1) is not true then
+    raise exception 'Falha: preventiva existente não recebeu configuração padrão dos alarmes';
+  end if;
+end
+$;
 
 insert into public.perfis (id,nome,perfil) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Ana','tecnico'),
