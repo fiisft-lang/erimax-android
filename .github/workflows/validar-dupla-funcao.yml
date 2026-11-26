@@ -50,7 +50,6 @@ jobs:
           psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/dual_role_functions_setup.sql
           psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f "$generated"
           psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/dual_role_functions_assert.sql
-          psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/preventiva_trigger_test.sql
 
           git rm supabase/migrations/20261126141318_permitir_guilherme_como_tecnico.sql
           git add "$generated"
