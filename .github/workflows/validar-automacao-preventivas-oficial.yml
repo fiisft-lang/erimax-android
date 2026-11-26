@@ -44,7 +44,11 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/preventiva_trigger_test.sql
+      - name: Criar banco isolado para validar migrations
+        env:
+          PGPASSWORD: postgres
+        run: createdb -h localhost -U postgres erimax_migrations_test
       - name: Validar migrations, permissões e sincronização
         env:
           PGPASSWORD: postgres
-        run: psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/preventiva_migrations_test.sql
+        run: psql -h localhost -U postgres -d erimax_migrations_test -v ON_ERROR_STOP=1 -f supabase/tests/preventiva_migrations_test.sql
