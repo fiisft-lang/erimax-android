@@ -51,11 +51,6 @@ export function reminderRecipients(profiles: any[]) {
     p.perfil === 'tecnico' || (p.nome === 'Fii' && p.perfil === 'gestor'))
 }
 
-/** Técnicos e o encarregado Fii recebem notificações normais; outros gestores não. */
-export function normalNotificationRecipients(profiles: any[]) {
-  return profiles.filter(p =>
-    p.perfil === 'tecnico' || (p.nome === 'Fii' && p.perfil === 'gestor'))
-}
 
 export function uniqueTeam(p: any) {
   const list = (Array.isArray(p.tecnicos_participantes) ? p.tecnicos_participantes : [])
