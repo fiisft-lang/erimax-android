@@ -176,6 +176,8 @@ public class IncomingCallActivity extends Activity {
     String notificationAction = intent.getStringExtra("notification_action");
     if ("silenciar".equals(notificationAction)) {
       dismissCall();
+    } else if ("adiar_preventiva".equals(notificationAction)) {
+      postponePreventiva();
     } else if ("recusar_transferencia".equals(notificationAction)) {
       rejectTransfer();
     } else if ("assumir".equals(notificationAction) || "aceitar_transferencia".equals(notificationAction)) {
@@ -402,7 +404,7 @@ public class IncomingCallActivity extends Activity {
     start.setOnClickListener(v -> startPreventiva());
 
     if (!atrasada) {
-      TextView postpone = label("ADIAR", 13, Color.WHITE);
+      TextView postpone = label("SILENCIAR", 13, Color.WHITE);
       postpone.setTypeface(null, Typeface.BOLD);
       postpone.setGravity(Gravity.CENTER);
       postpone.setPadding(dp(14), dp(15), dp(14), dp(15));
