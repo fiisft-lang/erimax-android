@@ -1,4 +1,4 @@
-import { deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
+import { deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, normalNotificationRecipients, uniqueTeam } from './logic.ts'
 
 function assertEquals(actual: unknown, expected: unknown, message: string) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
@@ -68,4 +68,14 @@ Deno.test('lembretes incluem técnicos e o encarregado Fii, mas não outros gest
     { id: '4', nome: 'Operador', perfil: 'operador' },
   ])
   assertEquals(result.map((p: any) => p.nome), ['Ana', 'Fii'], 'destinatários permitidos')
+})
+
+Deno.test('notificações normais de O.S. incluem Fii, mas não outros gestores nem operadores', () => {
+  const result = normalNotificationRecipients([
+    { id: '1', nome: 'Ana', perfil: 'tecnico' },
+    { id: '2', nome: 'Fii', perfil: 'gestor' },
+    { id: '3', nome: 'Outro gestor', perfil: 'gestor' },
+    { id: '4', nome: 'Operador', perfil: 'operador' },
+  ])
+  assertEquals(result.map((p: any) => p.nome), ['Ana', 'Fii'], 'destinatários de novas O.S.')
 })
