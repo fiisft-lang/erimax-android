@@ -92,11 +92,16 @@ Deno.serve(async (req: Request) => {
     const getAccess = async () => {
       if (!sa) {
         if (!raw) throw new Error('Segredo FCM_SERVICE_ACCOUNT não configurado.')
-        sa = JSON.parse(raw)
-        if (!sa.project_id || !sa.client_email || !sa.private_key) throw new Error('Segredo FCM_SERVICE_ACCOUNT inválido.')
+        const parsed = JSON.parse(raw) as { project_id: string; client_email: string; private_key: string }
+        if (!parsed.project_id || !parsed.client_email || !parsed.private_key) {
+          throw new Error('Segredo FCM_SERVICE_ACCOUNT inválido.')
+        }
+        sa = parsed
       }
-      if (!access) access = await googleAccessToken(sa)
-      return { sa, access }
+      const serviceAccount = sa
+      if (!serviceAccount) throw new Error('Segredo FCM_SERVICE_ACCOUNT inválido.')
+      if (!access) access = await googleAccessToken(serviceAccount)
+      return { sa: serviceAccount, access }
     }
 
     async function processDelivery(delivery: Delivery) {
