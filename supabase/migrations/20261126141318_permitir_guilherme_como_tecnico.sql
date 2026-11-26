@@ -282,7 +282,7 @@ BEGIN
     SELECT e.value, e.ordinality
     FROM jsonb_array_elements(p_maquinas_execucao) WITH ORDINALITY AS e(value, ordinality)
   LOOP
-    v_original := coalesce(v_os.maquinas_execucao, '[]'::jsonb) -> (v_ordem - 1);
+    v_original := coalesce(v_os.maquinas_execucao, '[]'::jsonb) -> ((v_ordem - 1)::int);
 
     IF (v_item - 'concluida' - 'concluida_em') IS DISTINCT FROM
        (v_original - 'concluida' - 'concluida_em') THEN
