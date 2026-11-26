@@ -65,14 +65,14 @@ values
   (1,'Corte','Máquina 1','Inspeção e lubrificação',30,date '2026-10-27',date '2026-11-26','Ana',
    '["Máquina 1"]'::jsonb,'["Ana","Fii"]'::jsonb,array[10]::bigint[]);
 
-do $
+do $alarm_check$
 begin
   if (select horarios_disparo from public.preventivas where id=1) <> array['08:00','12:00','16:00']::text[]
      or (select alarme_ativo from public.preventivas where id=1) is not true then
     raise exception 'Falha: preventiva existente não recebeu configuração padrão dos alarmes';
   end if;
 end
-$;
+$alarm_check$;
 
 insert into public.perfis (id,nome,perfil) values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Ana','tecnico'),
