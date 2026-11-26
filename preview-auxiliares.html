@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERIMAX · Teste dos mecânicos auxiliares</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;background:#f1f5f9;color:#1e293b;font:15px/1.45 Arial,sans-serif}
+main{max-width:680px;margin:0 auto}.notice{padding:11px 14px;margin-bottom:16px;border:1px solid #f5d58a;border-radius:10px;background:#fff7df;color:#76530b;font-size:12px;font-weight:700}
+h1{font-size:20px;margin:0 0 5px}p{margin:0 0 16px;color:#64748b;font-size:13px}
+.panel{padding:16px;background:#fff;border:1px solid #dbe3ea;border-radius:14px;box-shadow:0 4px 14px #0f172a0a}
+.panel h2{font-size:16px;margin:0 0 12px}
+#mdMecanicosAuxiliares.md-auxiliares-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;max-height:420px;overflow-y:auto;padding:10px;border:1px solid #dbe3ea;border-radius:10px;background:#f8fafc}
+#mdMecanicosAuxiliares .md-auxiliar-option{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:9px;min-width:0;min-height:42px;margin:0;padding:9px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:.88rem;line-height:1.35;text-align:left;cursor:pointer}
+#mdMecanicosAuxiliares .md-auxiliar-option input.md-auxiliar-check{display:block;position:static;float:none;flex:0 0 18px;width:18px;height:18px;min-width:18px;min-height:18px;margin:0;padding:0;align-self:center;vertical-align:middle}
+#mdMecanicosAuxiliares .md-auxiliar-option span{display:block;flex:1 1 auto;min-width:0;margin:0;padding:0;line-height:1.35;text-align:left;overflow-wrap:anywhere}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.actions button{border:0;border-radius:8px;padding:10px 14px;background:#155e9a;color:#fff;font-weight:700}.actions button.secondary{background:#e2e8f0;color:#334155}
+#status{margin-top:12px;font-size:13px;color:#475569}
+@media(max-width:560px){body{padding:12px}#mdMecanicosAuxiliares.md-auxiliares-list{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<main>
+<div class="notice">TESTE INTERATIVO ISOLADO · NÃO ACESSA NEM ALTERA O BANCO DE DADOS DO ERIMAX</div>
+<h1>Fechamento da O.S. — Mecânicos auxiliares</h1>
+<p>Marque e desmarque os nomes para conferir o alinhamento dos quadradinhos, inclusive nos nomes que ocupam mais de uma linha.</p>
+<section class="panel">
+<h2>Selecione os mecânicos auxiliares</h2>
+<div id="mdMecanicosAuxiliares" class="md-auxiliares-list">
+<label class="md-auxiliar-option"><input class="md-auxiliar-check" type="checkbox"><span>João da Silva</span></label>
+<label class="md-auxiliar-option"><input class="md-auxiliar-check" type="checkbox"><span>Marcos Antônio Pereira dos Santos</span></label>
+<label class="md-auxiliar-option"><input class="md-auxiliar-check" type="checkbox"><span>Rafael Oliveira</span></label>
+<label class="md-auxiliar-option"><input class="md-auxiliar-check" type="checkbox"><span>José Carlos de Almeida Junior</span></label>
+<label class="md-auxiliar-option"><input class="md-auxiliar-check" type="checkbox"><span>André Luiz</span></label>
+<label class="md-auxiliar-option"><input class="md-auxiliar-check" type="checkbox"><span>Wellington Rodrigues da Costa</span></label>
+</div>
+<div class="actions"><button type="button" id="marcar">Marcar todos</button><button type="button" class="secondary" id="limpar">Limpar seleção</button></div>
+<div id="status" aria-live="polite">0 mecânicos selecionados</div>
+</section>
+</main>
+<script>
+const checks=[...document.querySelectorAll('.md-auxiliar-check')],status=document.getElementById('status');
+function atualizar(){status.textContent=checks.filter(c=>c.checked).length+' mecânico(s) selecionado(s) — teste local, nada será salvo.'}
+checks.forEach(c=>c.addEventListener('change',atualizar));
+document.getElementById('marcar').addEventListener('click',()=>{checks.forEach(c=>c.checked=true);atualizar()});
+document.getElementById('limpar').addEventListener('click',()=>{checks.forEach(c=>c.checked=false);atualizar()});
+</script>
+</body></html>
