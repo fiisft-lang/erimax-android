@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
-import { TZ, localParts, notificationStart, deadlineFor, machineRecords, uniqueTeam, reminderRecipients } from './logic.ts'
+import { TZ, localParts, notificationStart, deadlineFor, machineRecords, uniqueTeam } from './logic.ts'
 import { normalNotificationRecipients } from '../_shared/notification-recipients.ts'
 
 const cors = {
@@ -125,7 +125,7 @@ Deno.serve(async (req: Request) => {
         // que tenha sido interrompida depois do INSERT, antes de vincular o id.
         const cycleStart = start + 'T00:00:00-03:00'
         const { data: existingOS, error: existingError } = await admin.from('os').select('id,status')
-          .eq('preventiva_id', p.id).gte('created_at', cycleStart)
+          .eq('preventiva_id', p.id).gte('created_at', cycleStart).lte('created_at', deadline)
           .in('status', ['Aberta', 'Em Atendimento', 'Pausada', 'Concluída', 'Cancelada'])
           .order('id', { ascending: true }).limit(1).maybeSingle()
         if (existingError) throw existingError
