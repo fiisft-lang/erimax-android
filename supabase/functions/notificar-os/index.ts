@@ -82,7 +82,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const { data: profiles, error: profilesError } = await admin.from('perfis')
-      .select('id,perfil').in('perfil', ['tecnico', 'gestor'])
+      .select('id,nome,perfil').in('perfil', ['tecnico', 'gestor'])
     if (profilesError) throw profilesError
 
     const { data: onlineStatuses, error: statusError } = await admin.from('status_tecnicos')
@@ -90,9 +90,11 @@ Deno.serve(async (req: Request) => {
     if (statusError) throw statusError
     const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
     const recipientIds = (profiles || [])
-      // Somente técnicos e gestores recebem o aviso quando estiverem
-      // ONLINE ou EM SERVIÇO, desde que o turno esteja ativo.
-      .filter((p: { id: string; perfil: string }) => onlineIds.has(p.id))
+      // Técnicos e o encarregado Fii recebem avisos normais de novas O.S.
+      // Os demais gestores recebem somente alertas de preventiva atrasada.
+      .filter((p: { id: string; nome: string; perfil: string }) =>
+        (p.perfil === 'tecnico' || (p.nome === 'Fii' && p.perfil === 'gestor')) &&
+        onlineIds.has(p.id))
       .map((p: { id: string }) => p.id)
     if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE ou EM SERVIÇO para receber a nova O.S.' })
 
