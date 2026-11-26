@@ -29,12 +29,19 @@ async function googleAccessToken(sa: { private_key: string; client_email: string
   return result.access_token as string
 }
 
+type Delivery = {
+  id: number
+  os_id: number
+  user_id: string
+  tentativas: number
+  status: string
+  claim_em: string | null
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   if (req.method !== 'POST') return json({ erro: 'Método não permitido.' }, 405)
 
-  let osId: number | null = null
-  let claimTime: string | null = null
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
@@ -44,8 +51,7 @@ Deno.serve(async (req: Request) => {
     const jwt = auth.startsWith('Bearer ') ? auth.slice(7) : ''
     if (!jwt) return json({ erro: 'Não autenticado.' }, 401)
 
-    // A plataforma já validou a assinatura deste JWT (verify_jwt=true).
-    // Lemos apenas as claims autenticadas para evitar uma segunda validação remota.
+    // A plataforma valida a assinatura do JWT (verify_jwt=true); aqui lemos as claims autenticadas.
     let claims: { sub?: string; role?: string }
     try {
       const part = jwt.split('.')[1]
@@ -58,135 +64,218 @@ Deno.serve(async (req: Request) => {
     if (claims.role !== 'authenticated' || typeof claims.sub !== 'string' || !claims.sub) {
       return json({ erro: 'Sessão inválida.' }, 401)
     }
-    const user = { id: claims.sub }
+    const userId = claims.sub
 
     const { data: profile, error: profileError } = await admin.from('perfis')
-      .select('perfil').eq('id', user.id).maybeSingle()
+      .select('perfil').eq('id', userId).maybeSingle()
     if (profileError) throw profileError
     if (!profile || !['gestor', 'operador', 'tecnico'].includes(profile.perfil)) {
-      return json({ erro: 'Seu perfil não pode disparar notificações de novas OS.' }, 403)
+      return json({ erro: 'Seu perfil não pode processar notificações de O.S.' }, 403)
     }
 
     const body = await req.json().catch(() => ({}))
-    osId = Number(body.os_id)
-    if (!Number.isSafeInteger(osId) || osId <= 0) return json({ erro: 'Informe uma OS válida.' }, 400)
-
-    const { data: os, error: osError } = await admin.from('os')
-      .select('id,numero_mes,setor,maquina,prioridade,descricao,status,created_at,notificado_em')
-      .eq('id', osId).maybeSingle()
-    if (osError) throw osError
-    if (!os) return json({ erro: 'OS não encontrada.' }, 404)
-    if (os.notificado_em) return json({ ok: true, ja_enviado: true })
-    if (os.status !== 'Aberta') return json({ erro: 'Somente OS aberta pode gerar chamado.' }, 400)
-    if (!os.created_at || Date.now() - new Date(os.created_at).getTime() > 5 * 60 * 1000) {
-      return json({ erro: 'OS fora da janela de envio de 5 minutos.' }, 400)
-    }
-
-    const { data: profiles, error: profilesError } = await admin.from('perfis')
-      .select('id,nome,perfil').in('perfil', ['tecnico', 'gestor'])
-    if (profilesError) throw profilesError
-
-    const { data: onlineStatuses, error: statusError } = await admin.from('status_tecnicos')
-      .select('user_id').in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
-    if (statusError) throw statusError
-    const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
-    const recipientIds = normalNotificationRecipients(profiles || [])
-      .filter((p: { id: string }) => onlineIds.has(p.id))
-      .map((p: { id: string }) => p.id)
-    if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE ou EM SERVIÇO para receber a nova O.S.' })
-
-    const { data: devices, error: devicesError } = await admin.from('dispositivos')
-      .select('token').in('user_id', recipientIds)
-    if (devicesError) throw devicesError
-    const tokens = [...new Set((devices || []).map((d: { token: string }) => d.token).filter(Boolean))]
-    if (!tokens.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum celular registrado para receber notificações.' })
-
+    const now = new Date()
+    const nowIso = now.toISOString()
+    const stale = new Date(now.getTime() - 5 * 60 * 1000).toISOString()
     const raw = Deno.env.get('FCM_SERVICE_ACCOUNT')
-    if (!raw) throw new Error('Segredo FCM_SERVICE_ACCOUNT não configurado.')
-    const sa = JSON.parse(raw)
-    if (!sa.project_id || !sa.client_email || !sa.private_key) throw new Error('Segredo FCM_SERVICE_ACCOUNT inválido.')
-    const access = await googleAccessToken(sa)
-
-    claimTime = new Date().toISOString()
-    const { data: claim, error: claimError } = await admin.from('os').update({ notificado_em: claimTime })
-      .eq('id', osId).is('notificado_em', null).select('id').maybeSingle()
-    if (claimError) throw claimError
-    if (!claim) return json({ ok: true, ja_enviado: true })
-
-    const numero = os.numero_mes ? String(os.numero_mes) : String(os.id)
-    const data = {
-      os_id: String(os.id),
-      maquina: String(os.maquina || 'Manutenção'),
-      setor: String(os.setor || 'Setor não informado'),
-      numero: numero,
-      problema: String(os.descricao || "Não informado"),
+    let sa: { project_id: string; client_email: string; private_key: string } | null = null
+    let access: string | null = null
+    const getAccess = async () => {
+      if (!sa) {
+        if (!raw) throw new Error('Segredo FCM_SERVICE_ACCOUNT não configurado.')
+        sa = JSON.parse(raw)
+        if (!sa.project_id || !sa.client_email || !sa.private_key) throw new Error('Segredo FCM_SERVICE_ACCOUNT inválido.')
+      }
+      if (!access) access = await googleAccessToken(sa)
+      return { sa, access }
     }
-    // Última conferência antes de enviar: exige expediente ativo.
-    const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')
-      .select('user_id').in('user_id', recipientIds).in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
-    if (liveStatusError) throw liveStatusError
-    const liveIds = (liveStatuses || []).map((s: { user_id: string }) => s.user_id)
-    const liveDeviceResult = liveIds.length ? await admin.from('dispositivos').select('token').in('user_id', liveIds) : { data: [], error: null }
-    if (liveDeviceResult.error) throw liveDeviceResult.error
-    const liveTokens = [...new Set((liveDeviceResult.data || []).map((d: { token: string }) => d.token).filter(Boolean))]
-    if (!liveTokens.length) {
-      await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
-      claimTime = null
-      return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário continua com expediente ativo.' })
+
+    async function processDelivery(delivery: Delivery) {
+      const { data: claim, error: claimError } = await admin.from('os_notificacao_entregas')
+        .update({ status: 'processando', claim_em: nowIso, atualizado_em: nowIso })
+        .eq('id', delivery.id)
+        .in('status', ['pendente', 'processando'])
+        .lte('proxima_tentativa_em', nowIso)
+        .or('claim_em.is.null,claim_em.lt.' + stale)
+        .select('id').maybeSingle()
+      if (claimError) throw claimError
+      if (!claim) return { enviados: 0, ignorada: true }
+
+      const liberar = async (erro: string, atrasoMinutos = 5, contarTentativa = false) => {
+        const update: Record<string, unknown> = {
+          status: 'pendente',
+          claim_em: null,
+          proxima_tentativa_em: new Date(Date.now() + atrasoMinutos * 60 * 1000).toISOString(),
+          ultimo_erro: erro.slice(0, 500),
+          atualizado_em: new Date().toISOString(),
+        }
+        if (contarTentativa) update.tentativas = delivery.tentativas + 1
+        const { error } = await admin.from('os_notificacao_entregas').update(update)
+          .eq('id', delivery.id).eq('status', 'processando')
+        if (error) throw error
+      }
+
+      try {
+        const { data: os, error: osError } = await admin.from('os')
+          .select('id,numero_mes,setor,maquina,descricao,status,notificado_em')
+          .eq('id', delivery.os_id).maybeSingle()
+        if (osError) throw osError
+        if (!os || os.status !== 'Aberta') {
+          const { error } = await admin.from('os_notificacao_entregas').update({
+            status: 'dispensado', claim_em: null, atualizado_em: new Date().toISOString(),
+            ultimo_erro: 'A O.S. não está mais aberta.',
+          }).eq('id', delivery.id).eq('status', 'processando')
+          if (error) throw error
+          return { enviados: 0, dispensada: true }
+        }
+
+        const { data: status, error: statusError } = await admin.from('status_tecnicos')
+          .select('user_id').eq('user_id', delivery.user_id)
+          .in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true).maybeSingle()
+        if (statusError) throw statusError
+        if (!status) {
+          await liberar('Destinatário sem expediente ativo.')
+          return { enviados: 0, aguardando: true }
+        }
+
+        const { data: devices, error: devicesError } = await admin.from('dispositivos')
+          .select('token').eq('user_id', delivery.user_id)
+        if (devicesError) throw devicesError
+        const tokens = [...new Set((devices || []).map((d: { token: string }) => d.token).filter(Boolean))]
+        if (!tokens.length) {
+          await liberar('Nenhum celular registrado para o destinatário.')
+          return { enviados: 0, aguardando: true }
+        }
+
+        const credentials = await getAccess()
+        const results = await Promise.all(tokens.map(async (token: string) => {
+          try {
+            const response = await fetch(`https://fcm.googleapis.com/v1/projects/${credentials.sa.project_id}/messages:send`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${credentials.access}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                message: {
+                  token,
+                  android: { priority: 'HIGH', ttl: '15s' },
+                  data: {
+                    os_id: String(os.id),
+                    maquina: String(os.maquina || 'Manutenção'),
+                    setor: String(os.setor || 'Setor não informado'),
+                    numero: String(os.numero_mes || os.id),
+                    problema: String(os.descricao || 'Não informado'),
+                  },
+                },
+              }),
+            })
+            if (response.ok) return { token, ok: true, error: '' }
+            const details = await response.text()
+            return { token, ok: false, error: details.slice(0, 350), invalid: /UNREGISTERED|NOT_FOUND/.test(details) }
+          } catch (error) {
+            return { token, ok: false, error: String(error).slice(0, 350) }
+          }
+        }))
+
+        const invalid = results.filter(r => !r.ok && r.invalid).map(r => r.token)
+        if (invalid.length) {
+          const { error } = await admin.from('dispositivos').delete().in('token', invalid)
+          if (error) throw error
+        }
+        const enviados = results.filter(r => r.ok).length
+        if (enviados > 0) {
+          const { error } = await admin.from('os_notificacao_entregas').update({
+            status: 'enviado', enviado_em: new Date().toISOString(), claim_em: null,
+            ultimo_erro: results.some(r => !r.ok) ? 'Entrega confirmada em pelo menos um dispositivo.' : null,
+            atualizado_em: new Date().toISOString(),
+          }).eq('id', delivery.id).eq('status', 'processando')
+          if (error) throw error
+          return { enviados }
+        }
+
+        const tentativa = delivery.tentativas + 1
+        const espera = Math.min(30, Math.max(2, 2 ** Math.min(tentativa, 5)))
+        const detalhe = results.map(r => r.error).filter(Boolean).slice(0, 2).join(' | ') || 'O Firebase não confirmou nenhum dispositivo.'
+        await liberar(detalhe, espera, true)
+        return { enviados: 0, falha: true }
+      } catch (error) {
+        await liberar(String(error), Math.min(30, Math.max(2, 2 ** Math.min(delivery.tentativas + 1, 5))), true)
+        throw error
+      }
+    }
+
+    let deliveries: Delivery[] = []
+    if (body?.acao === 'reprocessar_minhas') {
+      const { data, error } = await admin.from('os_notificacao_entregas')
+        .select('id,os_id,user_id,tentativas,status,claim_em')
+        .eq('user_id', userId)
+        .in('status', ['pendente', 'processando'])
+        .lte('proxima_tentativa_em', nowIso)
+        .or('claim_em.is.null,claim_em.lt.' + stale)
+        .order('criado_em', { ascending: true }).limit(20)
+      if (error) throw error
+      deliveries = (data || []) as Delivery[]
+    } else {
+      const osId = Number(body?.os_id)
+      if (!Number.isSafeInteger(osId) || osId <= 0) return json({ erro: 'Informe uma O.S. válida.' }, 400)
+
+      const { data: os, error: osError } = await admin.from('os')
+        .select('id,numero_mes,setor,maquina,prioridade,descricao,status,created_at,notificado_em')
+        .eq('id', osId).maybeSingle()
+      if (osError) throw osError
+      if (!os) return json({ erro: 'O.S. não encontrada.' }, 404)
+      if (os.notificado_em) return json({ ok: true, ja_enviado: true })
+      if (os.status !== 'Aberta') return json({ erro: 'Somente O.S. aberta pode gerar chamado.' }, 400)
+      if (!os.created_at || Date.now() - new Date(os.created_at).getTime() > 5 * 60 * 1000) {
+        return json({ erro: 'O.S. fora da janela inicial de envio de 5 minutos.' }, 400)
+      }
+
+      const { data: profiles, error: profilesError } = await admin.from('perfis')
+        .select('id,nome,perfil').in('perfil', ['tecnico', 'gestor'])
+      if (profilesError) throw profilesError
+      const recipientIds = [...new Set(normalNotificationRecipients(profiles || []).map((p: { id: string }) => p.id))]
+      if (!recipientIds.length) return json({ ok: true, enviados: 0, pendentes: 0, aviso: 'Nenhum destinatário habilitado para O.S. normal.' })
+
+      const rows = recipientIds.map(id => ({ os_id: osId, user_id: id }))
+      const { error: insertError } = await admin.from('os_notificacao_entregas')
+        .upsert(rows, { onConflict: 'os_id,user_id', ignoreDuplicates: true })
+      if (insertError) throw insertError
+
+      const { data, error } = await admin.from('os_notificacao_entregas')
+        .select('id,os_id,user_id,tentativas,status,claim_em')
+        .eq('os_id', osId).in('status', ['pendente', 'processando'])
+        .lte('proxima_tentativa_em', nowIso)
+        .or('claim_em.is.null,claim_em.lt.' + stale)
+      if (error) throw error
+      deliveries = (data || []) as Delivery[]
     }
 
     let enviados = 0
-    const invalid: string[] = []
-    const errors: string[] = []
-
-    await Promise.all(liveTokens.map(async (deviceToken: string) => {
-      try {
-        const response = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: {
-              token: deviceToken,
-              // Data-only: entrega o evento ao serviço nativo personalizado
-              // mesmo com o app em segundo plano ou com a tela bloqueada.
-              android: {
-                priority: 'HIGH',
-                ttl: '15s',
-              },
-              data,
-            },
-          }),
-        })
-        if (response.ok) enviados++
-        else {
-          const details = await response.text()
-          errors.push(details.slice(0, 350))
-          if (/UNREGISTERED|NOT_FOUND/.test(details)) invalid.push(deviceToken)
-        }
-      } catch (error) {
-        // Uma falha de rede em um aparelho não pode apagar a confirmação dos demais.
-        errors.push(String(error).slice(0, 350))
-      }
-    }))
-
-    if (invalid.length) await admin.from('dispositivos').delete().in('token', invalid)
-    if (enviados === 0) {
-      await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
-      claimTime = null
-      return json({ erro: 'O Firebase não aceitou nenhum envio.', detalhes: errors.slice(0, 2) }, 502)
+    let falhas = 0
+    for (const delivery of deliveries) {
+      const result = await processDelivery(delivery)
+      enviados += result.enviados
+      if (result.falha) falhas++
     }
+
+    const osIds = [...new Set(deliveries.map(d => d.os_id))]
+    let pendentes = 0
+    for (const id of osIds) {
+      const { count, error } = await admin.from('os_notificacao_entregas')
+        .select('id', { count: 'exact', head: true })
+        .eq('os_id', id).in('status', ['pendente', 'processando'])
+      if (error) throw error
+      pendentes += count || 0
+      if (!count) {
+        await admin.from('os').update({ notificado_em: new Date().toISOString() })
+          .eq('id', id).is('notificado_em', null)
+      }
+    }
+
     return json({
-      ok: true,
-      enviados,
-      total_dispositivos: liveTokens.length,
-      parcial: enviados < liveTokens.length,
-      ...(errors.length ? { avisos: errors.slice(0, 2) } : {}),
+      ok: true, enviados, pendentes, destinatarios_processados: deliveries.length,
+      ...(falhas ? { falhas } : {}),
     })
   } catch (error) {
-    if (claimTime !== null && osId !== null) {
-      await admin.from('os').update({ notificado_em: null }).eq('id', osId).eq('notificado_em', claimTime)
-    }
     console.error('Erro em notificar-os:', error)
-    return json({ erro: 'Falha ao processar a notificação. Consulte os logs da função.' }, 500)
+    return json({ erro: 'Falha ao processar notificações de O.S. Consulte os logs da função.' }, 500)
   }
 })
