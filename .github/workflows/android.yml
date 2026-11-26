@@ -11,6 +11,7 @@ on:
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
       - ota-atualizacao-android-staging-20261109
+      - feat/automacao-os-preventiva
     paths-ignore:
       - "ota/**"
 
@@ -41,7 +42,7 @@ jobs:
           ERIMAX_BUILD_ID: ${{ github.sha }}
         run: |
           npm run build
-          if [ "$GITHUB_REF_NAME" = "ota-atualizacao-android-staging-20261109" ]; then
+          if [ "$GITHUB_REF_NAME" = "ota-atualizacao-android-staging-20261109" ] || [ "$GITHUB_REF_NAME" = "feat/automacao-os-preventiva" ]; then
             node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.plugins.LiveUpdate.defaultChannel='staging';fs.writeFileSync(p,JSON.stringify(c,null,2)+'\\n');"
           fi
           npx cap add android
@@ -320,6 +321,11 @@ jobs:
                   debug {
                       signingConfig signingConfigs.erimaxPermanent
                   }
+                  release {
+                      signingConfig signingConfigs.erimaxPermanent
+                      minifyEnabled false
+                      shrinkResources false
+                  }
               }
           }
           GRADLE
@@ -339,11 +345,11 @@ jobs:
           else
             printf '\nnetworkTimeout=120000\n' >> gradle/wrapper/gradle-wrapper.properties
           fi
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleRelease --stacktrace
 
       - name: Verificar APK
         run: |
-          APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          APK="android/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
           unzip -t "$APK"
           echo "Tamanho do APK:"
@@ -355,6 +361,6 @@ jobs:
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
-          name: erimax-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: erimax-apk-oficial
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error

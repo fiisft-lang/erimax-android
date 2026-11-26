@@ -1,0 +1,33 @@
+name: Automação de preventivas - lembretes 8h, 12h e 16h
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Horário de Brasília (UTC-3): 08h, 12h e 16h.
+    # Repetição a cada 15 minutos permite recuperar pequenos atrasos do scheduler.
+    - cron: '*/15 11,15,19 * * *'
+
+jobs:
+  processar:
+    # O agendamento só deve executar na branch principal depois da aprovação.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validar configuração do agendador
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Secret SUPABASE_SERVICE_ROLE_KEY não configurado."; exit 1; }
+
+      - name: Executar automação de preventivas
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            --request POST "https://qzjbpvgedfpmfnxsvqhu.supabase.co/functions/v1/automacao-preventivas" \
+            --header "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            --header "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            --header "Content-Type: application/json" \
+            --data '{"origem":"github-actions"}'

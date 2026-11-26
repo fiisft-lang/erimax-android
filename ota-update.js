@@ -25,7 +25,6 @@
       return null;
     });
     const result = await readyPromise;
-    // Confirma ao usuário se o pacote que foi selecionado realmente entrou em uso.
     const expected = storageGet(PENDING_KEY);
     if(expected){
       let current = null;
@@ -69,7 +68,9 @@
       await ready();
       const channelInfo = typeof live.getChannel === 'function' ? await live.getChannel().catch(()=>null) : null;
       const channel = channelInfo && channelInfo.channel === 'staging' ? 'staging' : 'production';
-      const branch = channel === 'staging' ? 'ota-atualizacao-android-staging-20261109' : 'main';
+      // O APK de testes desta branch publica seu manifesto nesta mesma branch.
+      // Não apontar staging para a branch histórica, que contém um bundle diferente.
+      const branch = channel === 'staging' ? 'feat/automacao-os-preventiva' : 'main';
       const manifestUrl = RAW_BASE + branch + '/ota/manifest.json?ts=' + Date.now();
       const response = await fetch(manifestUrl, {cache:'no-store'});
       if(!response.ok) throw new Error('Manifesto de atualização indisponível (' + response.status + '). Canal detectado: ' + channel + '.');
@@ -79,9 +80,6 @@
       const bundleUrl = new URL(manifest.url);
       const allowedPath = '/fiisft-lang/erimax-android/' + branch + '/ota/';
       if(bundleUrl.origin !== 'https://raw.githubusercontent.com' || !bundleUrl.pathname.startsWith(allowedPath)) throw new Error('Endereço do pacote não corresponde ao canal '+channel+'.');
-      // Compara o pacote ativo com o conteúdo embarcado no APK.
-      // Se o APK instalado já contém exatamente o build publicado, mas o
-      // Android ainda serve um bundle OTA antigo, volta ao pacote nativo.
       const current = await live.getCurrentBundle();
       const localBuildResponse = await fetch('ota-build.json?ts=' + Date.now(), {cache:'no-store'});
       let localBuild = null;
@@ -111,8 +109,6 @@
       try{
         await live.downloadBundle({url:bundleUrl.toString(),bundleId:manifest.bundleId,checksum:manifest.checksum});
       }catch(downloadError){
-        // O LiveUpdate pode manter um pacote já baixado mesmo que ele ainda
-        // não esteja selecionado. Nesse caso, reutiliza o bundle existente.
         const message = downloadError && downloadError.message ? downloadError.message : String(downloadError);
         if(!/bundle already exists/i.test(message)) throw downloadError;
         console.info('[EriMax OTA] Pacote já existe localmente; reutilizando:',manifest.bundleId);
@@ -120,15 +116,15 @@
       await live.setNextBundle({bundleId:manifest.bundleId});
       const next = typeof live.getNextBundle === 'function' ? await live.getNextBundle() : null;
       if(!next || next.bundleId !== manifest.bundleId) throw new Error('O pacote foi baixado, mas o Android não confirmou a seleção para atualização.');
-      const notes = typeof manifest.message === 'string' && manifest.message.trim() ? '\n\n' + manifest.message.trim() : '';
-      const applyNow = window.confirm('Nova atualização do EriMax disponível!' + notes + '\n\nDeseja atualizar agora? Se estiver preenchendo uma O.S., escolha “Cancelar” e a atualização será aplicada na próxima abertura do aplicativo.');
+      const notes = typeof manifest.message === 'string' && manifest.message.trim() ? '\\n\\n' + manifest.message.trim() : '';
+      const applyNow = window.confirm('Nova atualização do EriMax disponível!' + notes + '\\n\\nDeseja atualizar agora? Se estiver preenchendo uma O.S., escolha “Cancelar” e a atualização será aplicada na próxima abertura do aplicativo.');
       if(applyNow){
         storageSet(PENDING_KEY,manifest.bundleId);
         await live.reload();
       }
     }catch(error){
       console.error('[EriMax OTA] Verificação/instalação não concluída:',error);
-      alert('Não foi possível concluir a atualização do EriMax.\n\nMotivo: '+(error && error.message ? error.message : String(error))+'\n\nNenhum dado das ordens de serviço foi apagado.');
+      alert('Não foi possível concluir a atualização do EriMax.\\n\\nMotivo: '+(error && error.message ? error.message : String(error))+'\\n\\nNenhum dado das ordens de serviço foi apagado.');
     }finally{
       checking = false;
     }

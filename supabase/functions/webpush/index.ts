@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
+import { normalNotificationRecipients } from "../_shared/notification-recipients.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -86,25 +87,27 @@ Deno.serve(async (req: Request) => {
     if (!Number.isSafeInteger(osId) || osId <= 0) return json({ erro: "Informe uma O.S. válida." }, 400);
 
     const { data: os, error: osError } = await admin.from("os")
-      .select("id,numero_mes,setor,maquina,status,created_at,web_notificado_em")
+      .select("id,numero_mes,setor,maquina,status,tipo,preventiva_id,created_at,web_notificado_em")
       .eq("id", osId).maybeSingle();
     if (osError) throw osError;
     if (!os) return json({ erro: "O.S. não encontrada." }, 404);
+    if (os.preventiva_id !== null || os.tipo === "Preventiva") {
+      return json({ erro: "Preventivas usam o fluxo próprio de notificações." }, 409);
+    }
     if (os.web_notificado_em) return json({ ok: true, ja_enviado: true });
     if (os.status !== "Aberta" || !os.created_at || Date.now() - new Date(os.created_at).getTime() > 5 * 60 * 1000) {
       return json({ erro: "O.S. fora da janela de envio." }, 400);
     }
 
     const { data: profiles, error: profilesError } = await admin.from("perfis")
-      .select("id,perfil").in("perfil", ["tecnico", "gestor"]);
+      .select("id,nome,perfil").in("perfil", ["tecnico", "gestor"]);
     if (profilesError) throw profilesError;
     const { data: statuses, error: statusesError } = await admin.from("status_tecnicos")
-      .select("user_id").eq("status", "ONLINE").eq("turno_ativo", true);
+      .select("user_id").in("status", ["ONLINE", "EM SERVIÇO"]).eq("turno_ativo", true);
     if (statusesError) throw statusesError;
     const online = new Set((statuses || []).map((s: { user_id: string }) => s.user_id));
-    const recipientIds = (profiles || [])
-      // Somente Fii recebe aviso mesmo quando está EM SERVIÇO.
-      .filter((p: { id: string; perfil: string }) => online.has(p.id))
+    const recipientIds = normalNotificationRecipients(profiles || [])
+      .filter((p: { id: string }) => online.has(p.id))
       .map((p: { id: string }) => p.id);
     if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: "Nenhum usuário ONLINE." });
 
@@ -136,7 +139,7 @@ Deno.serve(async (req: Request) => {
     });
     // Última conferência antes de enviar: exige expediente ativo.
     const { data: liveStatuses, error: liveStatusError } = await admin.from('status_tecnicos')
-      .select('user_id').in('user_id', recipientIds).eq('status', 'ONLINE').eq('turno_ativo', true);
+      .select('user_id').in('user_id', recipientIds).in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true);
     if (liveStatusError) throw liveStatusError;
     const liveIds = new Set((liveStatuses || []).map((s: { user_id: string }) => s.user_id));
     const liveSubscriptions = subscriptions.filter((item: { user_id: string }) => liveIds.has(item.user_id));

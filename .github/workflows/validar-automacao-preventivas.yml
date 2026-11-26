@@ -1,0 +1,31 @@
+name: Validar automação de preventivas
+
+on:
+  push:
+    branches:
+      - feat/automacao-os-preventiva
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Verificar Edge Function de preventivas
+        run: deno check supabase/functions/automacao-preventivas/index.ts
+      - name: Verificar notificação de novas O.S.
+        run: deno check supabase/functions/notificar-os/index.ts
+      - name: Verificar notificações Web Push
+        run: deno check --node-modules-dir=auto supabase/functions/webpush/index.ts
+      - name: Verificar gerenciamento de usuários
+        run: deno check supabase/functions/criar-usuario/index.ts
+      - name: Testar regras da automação
+        run: deno test supabase/functions/automacao-preventivas/index_test.ts
+      - name: Testar retentativas de notificações normais
+        run: deno test supabase/functions/notificar-os/index_test.ts
+      - name: Testar destinatários das notificações
+        run: deno test supabase/functions/_shared/notification-recipients_test.ts
