@@ -1,0 +1,35 @@
+name: Reprocessar notificações pendentes de O.S.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Recupera entregas parciais ou temporariamente indisponíveis.
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  reprocessar:
+    # Nunca executa contra produção a partir de branches de teste.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validar segredo do Supabase
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Secret SUPABASE_SERVICE_ROLE_KEY não configurado."; exit 1; }
+
+      - name: Reprocessar entregas pendentes
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            --request POST "https://qzjbpvgedfpmfnxsvqhu.supabase.co/functions/v1/notificar-os" \
+            --header "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            --header "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            --header "Content-Type: application/json" \
+            --data '{"acao":"reprocessar_todas_pendentes"}'
