@@ -17,6 +17,9 @@ create table if not exists public.preventiva_execucoes (
   ultima_anterior date,
   data_prevista_anterior date,
   sincronizada_em timestamptz,
+  -- Valores aplicados por esta conclusão; impedem rollback sobre ciclos posteriores.
+  ultima_aplicada date,
+  data_prevista_aplicada date,
   criado_em timestamptz not null default now(),
   atualizado_em timestamptz not null default now(),
   constraint preventiva_execucoes_ciclo_uidx unique (preventiva_id, data_vencimento)
