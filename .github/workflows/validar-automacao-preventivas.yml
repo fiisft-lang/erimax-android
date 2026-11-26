@@ -19,9 +19,13 @@ jobs:
         run: deno check supabase/functions/automacao-preventivas/index.ts
       - name: Verificar notificação de novas O.S.
         run: deno check supabase/functions/notificar-os/index.ts
+      - name: Verificar notificações Web Push
+        run: deno check supabase/functions/webpush/index.ts
       - name: Verificar gerenciamento de usuários
         run: deno check supabase/functions/criar-usuario/index.ts
       - name: Testar regras da automação
         run: deno test supabase/functions/automacao-preventivas/index_test.ts
       - name: Testar retentativas de notificações normais
         run: deno test supabase/functions/notificar-os/index_test.ts
+      - name: Testar destinatários das notificações
+        run: deno test supabase/functions/_shared/notification-recipients_test.ts
