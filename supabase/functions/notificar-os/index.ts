@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
-import { normalNotificationRecipients } from '../automacao-preventivas/logic.ts'
+import { normalNotificationRecipients } from '../_shared/notification-recipients.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
