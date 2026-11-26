@@ -13,6 +13,10 @@ create table if not exists public.preventiva_execucoes (
   status text not null default 'aguardando'
     check (status in ('aguardando','gerando','aberta','concluida','atrasada','cancelada')),
   atraso_notificado_em timestamptz,
+  -- Snapshot para reverter a data da preventiva se a O.S. for reaberta.
+  ultima_anterior date,
+  data_prevista_anterior date,
+  sincronizada_em timestamptz,
   criado_em timestamptz not null default now(),
   atualizado_em timestamptz not null default now(),
   constraint preventiva_execucoes_ciclo_uidx unique (preventiva_id, data_vencimento)
