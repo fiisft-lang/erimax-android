@@ -1,7 +1,11 @@
 -- Campos usados pela automação para controlar entregas parciais do alerta de atraso.
+-- Também garante os campos de snapshot mesmo se a tabela já existia antes desta sequência.
 -- Esta migration permanece somente na branch de testes até validação e aprovação.
 
 alter table public.preventiva_execucoes
+  add column if not exists ultima_anterior date,
+  add column if not exists data_prevista_anterior date,
+  add column if not exists sincronizada_em timestamptz,
   add column if not exists atraso_destinatarios jsonb not null default '[]'::jsonb,
   add column if not exists atraso_processando_em timestamptz;
 
