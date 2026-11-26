@@ -14,11 +14,11 @@ export function addDays(iso: string, amount: number) {
   return d.toISOString().slice(0, 10)
 }
 
-// Segunda a quarta: começa no próprio vencimento.
-// Quinta a domingo: começa na quinta-feira daquela semana.
+// Vencimentos de segunda a quarta usam a janela fixa de segunda a quarta.
+// Vencimentos de quinta a domingo usam a janela de quinta a sábado.
 export function notificationStart(due: string) {
   const weekday = new Date(due + 'T12:00:00Z').getUTCDay()
-  if (weekday >= 1 && weekday <= 3) return due
+  if (weekday >= 1 && weekday <= 3) return addDays(due, -(weekday - 1))
   const daysSinceThursday = weekday === 0 ? 3 : weekday - 4
   return addDays(due, -daysSinceThursday)
 }
