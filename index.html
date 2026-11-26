@@ -7775,6 +7775,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group"><label for="pvDesc">Descrição</label><input id="pvDesc" placeholder="Ex.: Lubrificar correntes"></div>
 <div class="form-group"><label for="pvDias">Repetir a cada (dias)</label><input id="pvDias" type="number" min="1" value="30"></div>
 <div class="form-group"><label for="pvDataPrevista">Próxima data prevista</label><input id="pvDataPrevista" type="date"></div>
+<div class="form-group"><label for="pvHorarios">Horários dos alarmes (HH:MM, separados por vírgula)</label><input id="pvHorarios" type="text" value="08:00,12:00,16:00" placeholder="08:00,12:00,16:00"><small style="color:#64748b">Até 12 disparos por dia, em intervalos de 15 minutos.</small></div>
 <div class="form-group"><label for="pvTecnico">Manutentor responsável pela O.S. (poderá finalizar)</label><select id="pvTecnico"><option value="">Selecione o técnico...</option></select></div>
 <div class="form-group"><label>Equipe que realizará o serviço</label><div id="pvEquipeTecnicos" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px;max-height:180px;overflow:auto"><small style="color:#64748b">Carregando manutentores...</small></div><small style="color:#64748b">Selecione todos os manutentores que participarão. O responsável também será incluído automaticamente.</small></div>
 <button class="btn-submit" onclick="addPrev()">➕ Cadastrar preventiva</button></div></div>
@@ -14026,9 +14027,52 @@ function renderPainelPreventivas(){
     return '<article class="metrics-schedule-item"><div class="metrics-schedule-item-main"><strong class="metrics-schedule-item-title">'+escaparHtml(p.descricao||'Manutenção programada')+'</strong><span class="metrics-schedule-item-meta">'+escaparHtml(p.setor||'Setor não informado')+' • '+escaparHtml(maquina)+'<br>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' • A cada '+(Number(p.intervalo_dias)||0)+' dia(s)</span></div><div class="metrics-schedule-item-side"><strong class="metrics-schedule-date">'+x.vencimento.toLocaleDateString('pt-BR')+'</strong><span class="metrics-schedule-status '+classe+'">'+status+'</span></div></article>';
   }).join('');
 }
+function parseHorariosPreventiva(valor){
+  const itens=String(valor||'').split(',').map(x=>x.trim()).filter(Boolean);
+  if(!itens.length||itens.length>12)return [];
+  const validos=[];
+  for(const item of itens){
+    if(!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(item))return [];
+    const [h,m]=item.split(':').map(Number);
+    if(m%15!==0)return [];
+    validos.push(item);
+  }
+  return [...new Set(validos)].sort();
+}
+function cicloPreventiva(data){
+  if(!data)return 'Ciclo não definido';
+  const dia=new Date(String(data).slice(0,10)+'T12:00:00Z').getUTCDay();
+  if(dia===0)return 'Domingo → segunda-feira (ciclo de segunda a quarta)';
+  if(dia>=1&&dia<=3)return 'Ciclo de segunda a quarta';
+  return 'Ciclo de quinta a sábado';
+}
+function editarPrev(id){
+  if(!erimaxExigirGestorCadastro())return;
+  const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
+  const details=[...document.querySelectorAll('#listaPrev .cadastro-record-details')].find(el=>el.querySelector('[data-prev-edit="'+Number(id)+'"]'));
+  const target=details||[...document.querySelectorAll('#listaPrev .cadastro-record-details')].find(el=>el.innerHTML.includes('delPrev('+Number(id)+')'));
+  if(!target)return;
+  const atual=document.getElementById('pvEdit'+id);if(atual){atual.remove();return;}
+  const horarios=Array.isArray(p.horarios_disparo)&&p.horarios_disparo.length?p.horarios_disparo:['08:00','12:00','16:00'];
+  target.insertAdjacentHTML('beforeend','<div id="pvEdit'+Number(id)+'" style="margin-top:12px;padding:12px;border:1px solid var(--border,#cbd5e1);border-radius:12px"><strong>Editar programação da preventiva</strong><div class="form-group"><label>Próxima data prevista</label><input id="pvEditData'+Number(id)+'" type="date" value="'+escaparHtml(String(p.data_prevista||'').slice(0,10))+'"></div><div class="form-group"><label>Repetir a cada (dias)</label><input id="pvEditIntervalo'+Number(id)+'" type="number" min="1" max="3650" value="'+(Number(p.intervalo_dias)||30)+'"></div><div class="form-group"><label>Horários dos alarmes (HH:MM separados por vírgula)</label><input id="pvEditHorarios'+Number(id)+'" type="text" value="'+escaparHtml(horarios.join(','))+'"><small style="color:#64748b">De 1 a 12 disparos por dia; horários em intervalos de 15 minutos.</small></div><label style="display:flex;align-items:center;gap:8px"><input id="pvEditAtivo'+Number(id)+'" type="checkbox" style="width:auto" '+(p.alarme_ativo===false?'':'checked')+'> Alarmes ativos</label><p style="font-size:.78rem;color:#64748b">O dia escolhido respeita automaticamente os ciclos: segunda a quarta, quinta a sábado; domingo passa para segunda.</p><button type="button" class="btn-submit" onclick="salvarEdicaoPrev('+Number(id)+')">Salvar alterações</button></div>');
+}
+async function salvarEdicaoPrev(id){
+  if(!erimaxExigirGestorCadastro())return;
+  const data=document.getElementById('pvEditData'+id)?.value;
+  const intervalo=Number(document.getElementById('pvEditIntervalo'+id)?.value);
+  const horarios=parseHorariosPreventiva(document.getElementById('pvEditHorarios'+id)?.value);
+  const ativo=!!document.getElementById('pvEditAtivo'+id)?.checked;
+  if(!data)return alert('Escolha a próxima data prevista.');
+  if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
+  if(!horarios.length)return alert('Informe de 1 a 12 horários válidos em intervalos de 15 minutos.');
+  const {error}=await _supabase.from('preventivas').update({data_prevista:data,intervalo_dias:intervalo,horarios_disparo:horarios,alarme_ativo:ativo}).eq('id',id);
+  if(error)return alert('Não foi possível atualizar a preventiva: '+error.message);
+  await carregarPreventivas();
+  alert('Programação da preventiva atualizada.');
+}
 async function addPrev(){
   if(!erimaxExigirGestorCadastro())return;
-  const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value);
+  const descricao=pvDesc.value.trim(),intervalo=Number(pvDias.value),dataPrevista=pvDataPrevista.value,tecnico=TECNICOS.find(t=>t.nome===pvTecnico.value),horarios=parseHorariosPreventiva(document.getElementById('pvHorarios').value);
   if(!pvSetor.value)return alert('Escolha um setor.');
   const todas=document.getElementById('pvTodasMaquinas').checked;
   const maquinasSetor=MAQUINAS.filter(m=>m.setor===pvSetor.value&&m.nome);
@@ -14037,15 +14081,17 @@ async function addPrev(){
   if(descricao.length<3)return alert('Descreva a atividade com pelo menos 3 caracteres.');
   if(!Number.isInteger(intervalo)||intervalo<1||intervalo>3650)return alert('O intervalo deve ser um número inteiro entre 1 e 3650 dias.');
   if(!dataPrevista)return alert('Escolha a próxima data prevista.');
+  if(!horarios.length)return alert('Informe de 1 a 12 horários válidos, separados por vírgula, em intervalos de 15 minutos (ex.: 08:00,12:00,16:00).');
   if(!tecnico)return alert('Selecione o técnico responsável.');
   const equipeSelecionada=[...new Set([...document.querySelectorAll('#pvEquipeTecnicos .pv-tecnico-equipe:checked')].map(e=>e.value).concat(tecnico.nome))];
   const idsUnicos=[...new Set(maquinasSelecionadas.map(Number))];
   const registros=MAQUINAS.filter(m=>m.setor===pvSetor.value&&idsUnicos.includes(Number(m.id)));
   if(registros.length!==idsUnicos.length)return alert('Uma das máquinas selecionadas não foi encontrada. Atualize a lista e tente novamente.');
   const nomesMaquinas=registros.map(m=>m.nome);
-  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:nomesMaquinas.length===1?nomesMaquinas[0]:nomesMaquinas.length+' máquinas do setor',maquinas:nomesMaquinas,maquinas_ids:idsUnicos,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada}]);
+  const {error}=await _supabase.from('preventivas').insert([{setor:pvSetor.value,maquina:nomesMaquinas.length===1?nomesMaquinas[0]:nomesMaquinas.length+' máquinas do setor',maquinas:nomesMaquinas,maquinas_ids:idsUnicos,descricao,intervalo_dias:intervalo,data_prevista:dataPrevista,tecnico_responsavel:tecnico.nome,tecnicos_participantes:equipeSelecionada,horarios_disparo:horarios,alarme_ativo:true}]);
   if(error)return alert('Não foi possível cadastrar a preventiva: '+error.message);
   pvDesc.value='';
+  document.getElementById('pvHorarios').value='08:00,12:00,16:00';
   document.getElementById('pvTodasMaquinas').checked=false;
   pvMaquinas();
   await carregarPreventivas();
@@ -14068,7 +14114,7 @@ async function carregarPreventivas(){
   PREV=data||[];
   renderAlertaPreventivas();
   renderPainelPreventivas();
-  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>'+escaparHtml(resumoMaquinasPreventiva(p))+'</strong><small>'+escaparHtml(p.setor)+' · '+escaparHtml(p.descricao)+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><p>A cada '+(Number(p.intervalo_dias)||0)+' dia(s) · '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+'</p><p>Máquinas: '+escaparHtml(rotulosMaquinasPreventiva(p))+'</p><p>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' · Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</p><button type="button" class="btn-action btn-excluir" onclick="delPrev('+Number(p.id)+')">Apagar preventiva</button></div></article>').join(''):'<p class="cadastro-empty-item">Nenhuma preventiva cadastrada.</p>';
+  listaPrev.innerHTML=PREV.length?PREV.map(p=>'<article class="cadastro-record-item"><div class="cadastro-record-head"><div><strong>'+escaparHtml(resumoMaquinasPreventiva(p))+'</strong><small>'+escaparHtml(p.setor)+' · '+escaparHtml(p.descricao)+'</small></div><button type="button" class="btn-action btn-transferir" onclick="alternarCadastroRegistro(this)" aria-expanded="false">Abrir</button></div><div class="cadastro-record-details" hidden><p>A cada '+(Number(p.intervalo_dias)||0)+' dia(s) · '+(p.data_prevista?'Prevista: '+escaparHtml(p.data_prevista.split('-').reverse().join('/')):'Data calculada pelo intervalo')+'</p><p>'+escaparHtml(cicloPreventiva(p.data_prevista))+' · Alarmes: '+(p.alarme_ativo===false?'pausados':'ativos')+' · '+escaparHtml((Array.isArray(p.horarios_disparo)&&p.horarios_disparo.length?p.horarios_disparo:['08:00','12:00','16:00']).join(', '))+'</p><p>Máquinas: '+escaparHtml(rotulosMaquinasPreventiva(p))+'</p><p>Responsável: '+escaparHtml(p.tecnico_responsavel||'Não definido')+' · Equipe: '+escaparHtml((Array.isArray(p.tecnicos_participantes)&&p.tecnicos_participantes.length?p.tecnicos_participantes:[p.tecnico_responsavel].filter(Boolean)).join(', ')||'Não definida')+'</p><button type="button" class="btn-action btn-transferir" data-prev-edit="'+Number(p.id)+'" onclick="editarPrev('+Number(p.id)+')">Editar programação</button> <button type="button" class="btn-action btn-excluir" onclick="delPrev('+Number(p.id)+')">Apagar preventiva</button></div></article>').join(''):'<p class="cadastro-empty-item">Nenhuma preventiva cadastrada.</p>';
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const v=PREV.map(p=>{
     let base;
