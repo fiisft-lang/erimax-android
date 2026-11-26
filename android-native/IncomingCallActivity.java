@@ -45,8 +45,16 @@ public class IncomingCallActivity extends Activity {
     if (osId == null) osId = "";
     String notificationAction = getIntent().getStringExtra("notification_action");
     if ("silenciar".equals(notificationAction)) { dismissCall(); return; }
+    if ("adiar_preventiva".equals(notificationAction)) { postponePreventiva(); return; }
+    if ("iniciar_preventiva".equals(notificationAction) || "abrir_preventiva".equals(notificationAction)) { startPreventiva(); return; }
     if ("recusar_transferencia".equals(notificationAction)) { rejectTransfer(); return; }
     if ("assumir".equals(notificationAction) || "aceitar_transferencia".equals(notificationAction)) { answerCall(); return; }
+
+    String tipoAlerta = getIntent().getStringExtra("tipo_alerta");
+    if ("preventiva_lembrete".equals(tipoAlerta) || "preventiva_atrasada".equals(tipoAlerta)) {
+      renderPreventivaAlert("preventiva_atrasada".equals(tipoAlerta));
+      return;
+    }
 
     boolean transferencia = "transferencia_os".equals(getIntent().getStringExtra("acao"));
     String machine = safe(getIntent().getStringExtra("maquina"), "Não informada");
@@ -168,6 +176,8 @@ public class IncomingCallActivity extends Activity {
     String notificationAction = intent.getStringExtra("notification_action");
     if ("silenciar".equals(notificationAction)) {
       dismissCall();
+    } else if ("adiar_preventiva".equals(notificationAction)) {
+      postponePreventiva();
     } else if ("recusar_transferencia".equals(notificationAction)) {
       rejectTransfer();
     } else if ("assumir".equals(notificationAction) || "aceitar_transferencia".equals(notificationAction)) {
@@ -331,9 +341,115 @@ public class IncomingCallActivity extends Activity {
     return v;
   }
 
+
+  private void renderPreventivaAlert(boolean atrasada) {
+    String service = safe(getIntent().getStringExtra("servico"), "Serviço preventivo");
+    String sector = safe(getIntent().getStringExtra("setor"), "Setor não informado");
+    String machines = safe(getIntent().getStringExtra("maquinas"), safe(getIntent().getStringExtra("maquina"), "Não informadas"));
+    String deadline = safe(getIntent().getStringExtra("prazo"), "Prazo não informado");
+    String number = safe(getIntent().getStringExtra("numero"), "O.S. " + osId);
+
+    ScrollView scroll = new ScrollView(this);
+    LinearLayout root = new LinearLayout(this);
+    root.setOrientation(LinearLayout.VERTICAL);
+    root.setGravity(Gravity.CENTER_HORIZONTAL);
+    root.setPadding(dp(22), dp(26), dp(22), dp(24));
+    root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+      new int[]{Color.rgb(7, 24, 36), Color.rgb(13, 39, 54), Color.rgb(8, 27, 40)}));
+
+    TextView brand = label("ERIMAX  /  MANUTENÇÃO", 12, Color.WHITE);
+    brand.setTypeface(null, Typeface.BOLD);
+    brand.setGravity(Gravity.CENTER);
+    brand.setPadding(dp(18), dp(10), dp(18), dp(10));
+    brand.setBackground(rounded(PANEL, dp(24), BORDER));
+    root.addView(brand);
+
+    TextView eyebrow = label(atrasada ? "PRAZO DE PREVENTIVA ENCERRADO" : "LEMBRETE DE MANUTENÇÃO", 10, ACCENT);
+    eyebrow.setTypeface(null, Typeface.BOLD);
+    eyebrow.setLetterSpacing(0.12f);
+    LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(-1, -2);
+    ep.topMargin = dp(28);
+    root.addView(eyebrow, ep);
+
+    TextView title = label(atrasada ? "Preventiva atrasada" : "Hora de realizar a preventiva", 23, Color.WHITE);
+    title.setTypeface(null, Typeface.BOLD);
+    title.setGravity(Gravity.CENTER);
+    title.setPadding(0, dp(8), 0, dp(8));
+    root.addView(title, new LinearLayout.LayoutParams(-1, -2));
+
+    TextView osNumber = label(number, 15, ACCENT);
+    osNumber.setTypeface(null, Typeface.BOLD);
+    osNumber.setGravity(Gravity.CENTER);
+    root.addView(osNumber, new LinearLayout.LayoutParams(-1, -2));
+
+    LinearLayout card = new LinearLayout(this);
+    card.setOrientation(LinearLayout.VERTICAL);
+    card.setPadding(dp(17), dp(15), dp(17), dp(14));
+    card.setBackground(rounded(PANEL, dp(19), BORDER));
+    LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, -2);
+    cp.topMargin = dp(18);
+    cp.bottomMargin = dp(18);
+    root.addView(card, cp);
+    addInfoRow(card, "SETOR", sector, "▦");
+    addInfoRow(card, "SERVIÇO", service, "⚙");
+    addInfoRow(card, "MÁQUINAS ENVOLVIDAS", machines, "▤");
+    addInfoRow(card, "PRAZO FINAL", deadline, "◷");
+
+    TextView start = label(atrasada ? "ABRIR ORDEM DE SERVIÇO" : "COMEÇAR PREVENTIVA", 14, Color.WHITE);
+    start.setTypeface(null, Typeface.BOLD);
+    start.setGravity(Gravity.CENTER);
+    start.setPadding(dp(14), dp(17), dp(14), dp(17));
+    start.setBackground(rounded(Color.rgb(25, 171, 111), dp(14), Color.rgb(25, 171, 111)));
+    root.addView(start, new LinearLayout.LayoutParams(-1, -2));
+    start.setOnClickListener(v -> startPreventiva());
+
+    if (!atrasada) {
+      TextView postpone = label("SILENCIAR", 13, Color.WHITE);
+      postpone.setTypeface(null, Typeface.BOLD);
+      postpone.setGravity(Gravity.CENTER);
+      postpone.setPadding(dp(14), dp(15), dp(14), dp(15));
+      postpone.setBackground(rounded(Color.rgb(35, 63, 78), dp(14), BORDER));
+      LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(-1, -2);
+      pp.topMargin = dp(10);
+      root.addView(postpone, pp);
+      postpone.setOnClickListener(v -> postponePreventiva());
+      TextView note = label("O próximo lembrete continuará no horário programado.", 11, MUTED);
+      note.setGravity(Gravity.CENTER);
+      note.setPadding(dp(8), dp(12), dp(8), 0);
+      root.addView(note);
+    } else {
+      TextView note = label("O prazo desta preventiva foi ultrapassado. Verifique a ordem de serviço.", 11, MUTED);
+      note.setGravity(Gravity.CENTER);
+      note.setPadding(dp(8), dp(12), dp(8), 0);
+      root.addView(note);
+    }
+    scroll.addView(root);
+    setContentView(scroll);
+  }
+
+  private void startPreventiva() {
+    stopAlarm();
+    dismissNotification();
+    Intent open = new Intent(Intent.ACTION_VIEW,
+      Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=" +
+        ("preventiva_atrasada".equals(getIntent().getStringExtra("tipo_alerta")) ? "abrir_preventiva" : "iniciar_preventiva")),
+      this, MainActivity.class);
+    open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    startActivity(open);
+    finish();
+  }
+
+  private void postponePreventiva() {
+    stopAlarm();
+    dismissNotification();
+    finish();
+  }
+
   private void answerCall() {
     stopAlarm(); dismissNotification();
-    String action = "transferencia_os".equals(getIntent().getStringExtra("acao")) ? "aceitar_transferencia" : "assumir";
+    String action = "preventiva_lembrete".equals(getIntent().getStringExtra("tipo_alerta"))
+      ? "iniciar_preventiva"
+      : ("transferencia_os".equals(getIntent().getStringExtra("acao")) ? "aceitar_transferencia" : "assumir");
     Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse("erimax://os/" + Uri.encode(osId) + "?action=" + action), this, MainActivity.class);
     open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     startActivity(open); finish();
