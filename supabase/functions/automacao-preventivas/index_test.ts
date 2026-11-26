@@ -1,10 +1,16 @@
-import { cycleEndExclusive, deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
+import { configuredReminderTimes, cycleEndExclusive, deadlineFor, localParts, machineRecords, notificationStart, reminderRecipients, uniqueTeam } from './logic.ts'
 
 function assertEquals(actual: unknown, expected: unknown, message: string) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     throw new Error(message + ': esperado ' + JSON.stringify(expected) + ', recebido ' + JSON.stringify(actual))
   }
 }
+
+Deno.test('horários individuais aceitam apenas intervalos de 15 minutos entre 06h e 22h45', () => {
+  assertEquals(configuredReminderTimes(['08:00', '09:15', '16:45', '09:15']), ['08:00', '09:15', '16:45'], 'horários únicos e ordenados')
+  assertEquals(configuredReminderTimes(['05:45', '23:00', '08:10', 'inválido']), [], 'horários fora da janela ou sem intervalo de 15 minutos')
+  assertEquals(configuredReminderTimes(null), ['08:00', '12:00', '16:00'], 'cadastros antigos mantêm os horários padrão')
+})
 
 Deno.test('vencimentos de segunda a quarta usam a janela fixa de segunda a quarta', () => {
   assertEquals(notificationStart('2026-11-23'), '2026-11-23', 'segunda-feira')

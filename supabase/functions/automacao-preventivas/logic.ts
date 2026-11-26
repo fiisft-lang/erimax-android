@@ -17,6 +17,15 @@ export function addDays(iso: string, amount: number) {
 // Vencimentos de domingo são transferidos para segunda-feira e entram no ciclo de segunda a quarta.
 // Vencimentos de segunda a quarta usam a janela fixa de segunda a quarta.
 // Vencimentos de quinta a sábado usam a janela de quinta a sábado.
+export function configuredReminderTimes(value: unknown): string[] {
+  const defaults = ['08:00', '12:00', '16:00']
+  if (!Array.isArray(value) || !value.length) return defaults
+  return [...new Set(value.filter((h): h is string =>
+    typeof h === 'string' && /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(h) &&
+    Number(h.slice(3, 5)) % 15 === 0 && h >= '06:00' && h <= '22:45'
+  ))].sort()
+}
+
 export function notificationStart(due: string): string {
   const weekday = new Date(due + 'T12:00:00Z').getUTCDay()
   if (weekday === 0) return addDays(due, 1)

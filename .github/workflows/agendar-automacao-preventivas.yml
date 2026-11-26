@@ -2,9 +2,10 @@ name: Agendar automação de preventivas
 
 on:
   schedule:
-    # O GitHub executa schedule somente na branch padrão (main).
-    # Horários de Brasília: 08:00, 12:00 e 16:00; retries a cada 15 minutos na primeira hora.
-    - cron: "*/15 11,15,19 * * 1-6"
+    # Brasília (UTC-3): verifica horários configurados a cada 15 min, de 06:00 a 22:45.
+    # A segunda regra cobre 21:00-22:45 locais, que caem no dia UTC seguinte.
+    - cron: "*/15 9-23 * * 1-6"
+    - cron: "*/15 0-1 * * 0,2-6"
 
 permissions:
   contents: read

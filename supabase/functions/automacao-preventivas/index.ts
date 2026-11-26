@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
-import { TZ, localParts, notificationStart, deadlineFor, cycleEndExclusive, machineRecords, uniqueTeam, reminderRecipients } from './logic.ts'
+import { TZ, localParts, notificationStart, deadlineFor, cycleEndExclusive, machineRecords, uniqueTeam, reminderRecipients, configuredReminderTimes } from './logic.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -75,14 +75,11 @@ Deno.serve(async (req: Request) => {
     const now = new Date()
     const parts = localParts(now)
     const today = `${parts.year}-${parts.month}-${parts.day}`
-    const hour = Number(parts.hour)
-    const minute = Number(parts.minute)
-    const slotHour = [8, 12, 16].includes(hour) ? hour : null
-    const slotKey = slotHour === null ? null : `${today}-${String(slotHour).padStart(2, '0')}`
+    const currentTime = `${parts.hour}:${parts.minute}`
     const access = await googleAccessToken(sa)
 
     const [{ data: preventivas, error: prevError }, { data: machines, error: machineError }] = await Promise.all([
-      admin.from('preventivas').select('id,setor,maquina,descricao,intervalo_dias,data_prevista,tecnico_responsavel,maquinas,tecnicos_participantes,maquinas_ids'),
+      admin.from('preventivas').select('id,setor,maquina,descricao,intervalo_dias,data_prevista,tecnico_responsavel,maquinas,tecnicos_participantes,maquinas_ids,horarios_disparo,alarme_ativo'),
       admin.from('maquinas').select('id,setor,nome,prefixo'),
     ])
     if (prevError) throw prevError
@@ -297,7 +294,12 @@ Deno.serve(async (req: Request) => {
         continue
       }
 
-      if (slotKey && minute >= 0 && minute < 60) {
+      const preventivaConfig = (preventivas || []).find((p: any) => Number(p.id) === Number(execution.preventiva_id))
+      const horariosAtivos = configuredReminderTimes(preventivaConfig?.horarios_disparo)
+      const slotKey = preventivaConfig?.alarme_ativo === false || !horariosAtivos.includes(currentTime)
+        ? null
+        : today + '-' + currentTime.replace(':', '')
+      if (slotKey) {
         // A lista é formada apenas pelo responsável e pela equipe cadastrada.
         // A filtragem por perfil/ID mantém os demais gestores fora dos lembretes normais.
         const teamNames = [...new Set([os.tecnico, ...(Array.isArray(os.tecnicos_participantes) ? os.tecnicos_participantes : [])]
