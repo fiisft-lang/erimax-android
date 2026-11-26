@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - versaooficialerimax
       - finalizar-exportacao-android-20261109
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
