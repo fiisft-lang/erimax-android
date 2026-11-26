@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
+import { normalNotificationRecipients } from '../automacao-preventivas/logic.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -89,12 +90,8 @@ Deno.serve(async (req: Request) => {
       .select('user_id').in('status', ['ONLINE', 'EM SERVIÇO']).eq('turno_ativo', true)
     if (statusError) throw statusError
     const onlineIds = new Set((onlineStatuses || []).map((s: { user_id: string }) => s.user_id))
-    const recipientIds = (profiles || [])
-      // Técnicos e o encarregado Fii recebem avisos normais de novas O.S.
-      // Os demais gestores recebem somente alertas de preventiva atrasada.
-      .filter((p: { id: string; nome: string; perfil: string }) =>
-        (p.perfil === 'tecnico' || (p.nome === 'Fii' && p.perfil === 'gestor')) &&
-        onlineIds.has(p.id))
+    const recipientIds = normalNotificationRecipients(profiles || [])
+      .filter((p: { id: string }) => onlineIds.has(p.id))
       .map((p: { id: string }) => p.id)
     if (!recipientIds.length) return json({ ok: true, enviados: 0, aviso: 'Nenhum usuário ONLINE ou EM SERVIÇO para receber a nova O.S.' })
 
