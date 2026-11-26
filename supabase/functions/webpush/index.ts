@@ -87,10 +87,13 @@ Deno.serve(async (req: Request) => {
     if (!Number.isSafeInteger(osId) || osId <= 0) return json({ erro: "Informe uma O.S. válida." }, 400);
 
     const { data: os, error: osError } = await admin.from("os")
-      .select("id,numero_mes,setor,maquina,status,created_at,web_notificado_em")
+      .select("id,numero_mes,setor,maquina,status,tipo,preventiva_id,created_at,web_notificado_em")
       .eq("id", osId).maybeSingle();
     if (osError) throw osError;
     if (!os) return json({ erro: "O.S. não encontrada." }, 404);
+    if (os.preventiva_id !== null || os.tipo === "Preventiva") {
+      return json({ erro: "Preventivas usam o fluxo próprio de notificações." }, 409);
+    }
     if (os.web_notificado_em) return json({ ok: true, ja_enviado: true });
     if (os.status !== "Aberta" || !os.created_at || Date.now() - new Date(os.created_at).getTime() > 5 * 60 * 1000) {
       return json({ erro: "O.S. fora da janela de envio." }, 400);
