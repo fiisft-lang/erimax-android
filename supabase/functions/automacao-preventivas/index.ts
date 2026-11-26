@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
-import { TZ, localParts, notificationStart, deadlineFor, cycleEndExclusive, machineRecords, uniqueTeam, reminderRecipients } from './logic.ts'
+import { TZ, localParts, notificationStart, deadlineFor, cycleEndExclusive, machineRecords, uniqueTeam, reminderRecipients, configuredReminderTimes } from './logic.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -295,10 +295,7 @@ Deno.serve(async (req: Request) => {
       }
 
       const preventivaConfig = (preventivas || []).find((p: any) => Number(p.id) === Number(execution.preventiva_id))
-      const horariosConfigurados = Array.isArray(preventivaConfig?.horarios_disparo) && preventivaConfig.horarios_disparo.length
-        ? preventivaConfig.horarios_disparo.filter((h: unknown) => typeof h === 'string' && /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(h) && Number(h.slice(3, 5)) % 15 === 0)
-        : ['08:00', '12:00', '16:00']
-      const horariosAtivos = [...new Set(horariosConfigurados)]
+      const horariosAtivos = configuredReminderTimes(preventivaConfig?.horarios_disparo)
       const slotKey = preventivaConfig?.alarme_ativo === false || !horariosAtivos.includes(currentTime)
         ? null
         : today + '-' + currentTime.replace(':', '')
