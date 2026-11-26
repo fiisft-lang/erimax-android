@@ -69,7 +69,7 @@
       await ready();
       const channelInfo = typeof live.getChannel === 'function' ? await live.getChannel().catch(()=>null) : null;
       const channel = channelInfo && channelInfo.channel === 'staging' ? 'staging' : 'production';
-      const branch = channel === 'staging' ? 'ota-atualizacao-android-staging-20261109' : 'main';
+      const branch = channel === 'staging' ? 'ota-atualizacao-android-staging-20261109' : 'versaooficialerimax';
       const manifestUrl = RAW_BASE + branch + '/ota/manifest.json?ts=' + Date.now();
       const response = await fetch(manifestUrl, {cache:'no-store'});
       if(!response.ok) throw new Error('Manifesto de atualização indisponível (' + response.status + '). Canal detectado: ' + channel + '.');
