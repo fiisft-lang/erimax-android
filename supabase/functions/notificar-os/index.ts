@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SignJWT, importPKCS8 } from 'https://esm.sh/jose@5'
 import { normalNotificationRecipients } from '../_shared/notification-recipients.ts'
+import { notificationRetryDelayMinutes } from '../_shared/notification-retry.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -206,12 +207,12 @@ Deno.serve(async (req: Request) => {
         }
 
         const tentativa = delivery.tentativas + 1
-        const espera = Math.min(30, Math.max(2, 2 ** Math.min(tentativa, 5)))
+        const espera = notificationRetryDelayMinutes(delivery.tentativas)
         const detalhe = results.map(r => r.error).filter(Boolean).slice(0, 2).join(' | ') || 'O Firebase não confirmou nenhum dispositivo.'
         await liberar(detalhe, espera, true)
         return { enviados: 0, falha: true }
       } catch (error) {
-        await liberar(String(error), Math.min(30, Math.max(2, 2 ** Math.min(delivery.tentativas + 1, 5))), true)
+        await liberar(String(error), notificationRetryDelayMinutes(delivery.tentativas), true)
         throw error
       }
     }
