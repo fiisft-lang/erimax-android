@@ -15,7 +15,9 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - name: Verificar Edge Function
+      - name: Verificar Edge Function de preventivas
         run: deno check supabase/functions/automacao-preventivas/index.ts
+      - name: Verificar notificação de novas O.S.
+        run: deno check supabase/functions/notificar-os/index.ts
       - name: Testar regras da automação
         run: deno test supabase/functions/automacao-preventivas/index_test.ts
