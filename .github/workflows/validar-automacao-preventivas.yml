@@ -23,3 +23,5 @@ jobs:
         run: deno check supabase/functions/criar-usuario/index.ts
       - name: Testar regras da automação
         run: deno test supabase/functions/automacao-preventivas/index_test.ts
+      - name: Testar retentativas de notificações normais
+        run: deno test supabase/functions/notificar-os/index_test.ts
