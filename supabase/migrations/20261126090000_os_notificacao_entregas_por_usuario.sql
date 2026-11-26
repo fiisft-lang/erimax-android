@@ -25,3 +25,42 @@ alter table public.os_notificacao_entregas enable row level security;
 revoke all on public.os_notificacao_entregas from public, anon, authenticated;
 grant all on public.os_notificacao_entregas to service_role;
 grant usage, select on sequence public.os_notificacao_entregas_id_seq to service_role;
+
+-- Enfileira destinatários no próprio INSERT da O.S.; assim, a fila não depende
+-- de a chamada HTTP do aplicativo conseguir chegar à Edge Function.
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+grant usage on schema private to service_role;
+
+create or replace function private.enfileirar_notificacoes_os()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  -- Preventivas possuem fluxo de notificação próprio e não entram nesta fila.
+  if new.preventiva_id is not null or new.tipo = 'Preventiva' then
+    return new;
+  end if;
+
+  insert into public.os_notificacao_entregas (os_id, user_id)
+  select new.id, p.id
+  from public.perfis p
+  where p.perfil = 'tecnico'
+     or (p.perfil = 'gestor' and p.nome = 'Fii')
+  on conflict (os_id, user_id) do nothing;
+
+  return new;
+end;
+$$;
+
+revoke all on function private.enfileirar_notificacoes_os() from public, anon, authenticated;
+grant execute on function private.enfileirar_notificacoes_os() to service_role;
+
+drop trigger if exists trg_enfileirar_notificacoes_os on public.os;
+create trigger trg_enfileirar_notificacoes_os
+after insert on public.os
+for each row
+when (new.preventiva_id is null and new.tipo is distinct from 'Preventiva')
+execute function private.enfileirar_notificacoes_os();
