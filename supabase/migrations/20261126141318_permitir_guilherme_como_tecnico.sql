@@ -75,7 +75,7 @@ BEGIN
   FROM public.status_tecnicos s
   WHERE s.user_id = v_destino_id;
 
-  IF NOT FOUND OR NOT coalesce(v_turno_destino, false) OR v_status_destino <> 'ONLINE' THEN
+  IF NOT FOUND OR NOT coalesce(v_turno_destino, false) OR upper(coalesce(v_status_destino, '')) NOT IN ('ONLINE', 'EM SERVIÇO') THEN
     RAISE EXCEPTION 'O técnico de destino precisa estar ONLINE e com o turno ativo.';
   END IF;
 
