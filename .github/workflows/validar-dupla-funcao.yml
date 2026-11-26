@@ -13,6 +13,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: validar-dupla-funcao-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validar-migration:
     runs-on: ubuntu-latest
@@ -50,10 +54,22 @@ jobs:
           psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/dual_role_functions_setup.sql
           psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f "$generated"
           psql -h localhost -U postgres -d erimax_test -v ON_ERROR_STOP=1 -f supabase/tests/dual_role_functions_assert.sql
+          echo "MIGRATION_FILE=$generated" >> "$GITHUB_ENV"
 
+      - name: Guardar migration validada
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-dupla-funcao-tec
+          path: ${{ env.MIGRATION_FILE }}
+          if-no-files-found: error
+
+      - name: Registrar migration gerada pelo CLI
+        run: |
           git rm supabase/migrations/20261126141318_permitir_guilherme_como_tecnico.sql
           git add "$generated"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore(db): gerar migration com Supabase CLI"
+          git fetch origin "$GITHUB_REF_NAME"
+          git rebase FETCH_HEAD
           git push origin "HEAD:$GITHUB_REF_NAME"
