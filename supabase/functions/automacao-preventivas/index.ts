@@ -241,7 +241,7 @@ Deno.serve(async (req: Request) => {
           if (claimError) throw claimError
           if (claim) {
             try {
-              const { data: managers, error: managerError } = await admin.from('perfis').select('id').eq('perfil', 'gestor')
+              const { data: managers, error: managerError } = await admin.from('perfis').select('id').eq('perfil', 'gestor').eq('nome', 'Fii')
               if (managerError) throw managerError
               const managerIds = [...new Set((managers || []).map((p: any) => String(p.id)))]
               const { data: online, error: onlineError } = managerIds.length
