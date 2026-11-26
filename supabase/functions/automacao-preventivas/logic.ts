@@ -47,8 +47,8 @@ export function machineRecords(p: any, machines: any[]) {
 }
 
 /**
- * Técnicos da equipe recebem lembretes; o encarregado Fii também recebe
- * como exceção nominal. Outros gestores não recebem lembretes normais.
+ * Técnicos da equipe recebem lembretes. Fii e Guilherme também são aceitos
+ * como técnicos por seus IDs de dupla função; os demais gestores ficam fora.
  */
 const DUAL_ROLE_TECH_IDS = new Set([
   'e978d5b1-9382-41de-be43-549a4e1e081e',
