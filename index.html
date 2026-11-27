@@ -7651,6 +7651,17 @@ body .tbl-wrap td{color:#344d5e}
 #tab-almoxarifado .almox-material-more[open]{position:relative!important;z-index:41!important}
 #tab-almoxarifado .almox-material-more[open] .almox-more-menu-pop{position:absolute!important;z-index:42!important}
 </style>
+<style id="erimax-almox-global-trace-20261127">
+#tab-almoxarifado .almox-global-trace{margin:0 0 14px!important}
+#tab-almoxarifado .almox-global-trace-list{display:grid!important;gap:7px!important}
+#tab-almoxarifado .almox-global-trace-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:center!important;width:100%!important;padding:12px!important;border:1px solid #e1e9ed!important;border-radius:10px!important;background:#fff!important;text-align:left!important;font:inherit!important;cursor:pointer!important}
+#tab-almoxarifado .almox-global-trace-row:hover{border-color:#b9d4df!important;background:#f6fafc!important}
+#tab-almoxarifado .almox-global-trace-row strong{display:block!important;color:#23455e!important;font-size:.8rem!important}
+#tab-almoxarifado .almox-global-trace-row small{display:block!important;margin-top:4px!important;color:#718294!important;font-size:.69rem!important;line-height:1.4!important}
+#tab-almoxarifado .almox-global-trace-row .almox-global-trace-qty{color:#bd5148!important;font-size:.85rem!important;font-weight:900!important;white-space:nowrap!important}
+#tab-almoxarifado .almox-global-trace-empty{padding:16px!important;border:1px dashed #dce6eb!important;border-radius:10px!important;color:#718294!important;text-align:center!important;font-size:.76rem!important}
+@media(max-width:520px){#tab-almoxarifado .almox-global-trace-row{padding:10px!important;gap:7px!important}}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -7849,7 +7860,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <!-- ALMOXARIFADO -->
 <div id="tab-almoxarifado" class="tab-content">
 <section class="almox-hero"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h2>Almoxarifado</h2><p>Consulta de materiais para a equipe e controle de estoque exclusivo do gestor.</p></div><div class="almox-hero-actions"><button type="button" class="almox-refresh" onclick="document.getElementById('almoxRetiradaAvulsa')?.scrollIntoView({behavior:'smooth',block:'start'})">＋ Retirada avulsa</button><button type="button" class="almox-refresh" onclick="carregarAlmoxarifado()">↻ Atualizar</button></div></section>
-<div id="almoxReadOnlyNotice" class="almox-readonly-note" style="display:none">Consulta liberada: você pode conferir o saldo das peças e avisar o gestor quando encontrar material faltando ou ainda não cadastrado. Cadastro e movimentações são exclusivos do gestor.</div><section class="almox-panel almox-summary-panel"><div class="almox-panel-head"><div><span class="almox-kicker">VISÃO GERAL</span><h3>Resumo do estoque</h3><p>Indicadores atualizados conforme entradas, saídas e consumo nas O.S.</p></div><span class="almox-panel-icon">▦</span></div><div class="almox-stats"><article data-almox-kpi="total" role="button" tabindex="0" aria-expanded="false" aria-label="Ver todos os materiais ativos"><span>Materiais ativos</span><strong id="almoxTotal">0</strong><small>Itens cadastrados</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="disponivel" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais disponíveis"><span>Disponíveis</span><strong id="almoxDisponiveis">0</strong><small>Acima do mínimo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="baixo" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais com estoque baixo"><span>Estoque baixo</span><strong id="almoxBaixo">0</strong><small>No limite ou abaixo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="zerado" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais em falta"><span>Em falta</span><strong id="almoxZerado">0</strong><small>Saldo zerado</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="pendentes" role="button" tabindex="0" aria-expanded="false" aria-label="Ver pendências de cadastro ou estoque"><span>Pendências</span><strong id="almoxPendentes">0</strong><small>Cadastro ou estoque pendente</small><span class="almox-kpi-hint">Clique para ver as pendências</span></article></div><div id="almoxIndicadorDetalhe" class="almox-kpi-detail" hidden aria-live="polite"></div></section><div id="almoxAlertasReposicao" class="almox-replenish-alert" style="display:none"></div>
+<div id="almoxReadOnlyNotice" class="almox-readonly-note" style="display:none">Consulta liberada: você pode conferir o saldo das peças e avisar o gestor quando encontrar material faltando ou ainda não cadastrado. Cadastro e movimentações são exclusivos do gestor.</div><section class="almox-panel almox-summary-panel"><div class="almox-panel-head"><div><span class="almox-kicker">VISÃO GERAL</span><h3>Resumo do estoque</h3><p>Indicadores atualizados conforme entradas, saídas e consumo nas O.S.</p></div><span class="almox-panel-icon">▦</span></div><div class="almox-stats"><article data-almox-kpi="total" role="button" tabindex="0" aria-expanded="false" aria-label="Ver todos os materiais ativos"><span>Materiais ativos</span><strong id="almoxTotal">0</strong><small>Itens cadastrados</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="disponivel" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais disponíveis"><span>Disponíveis</span><strong id="almoxDisponiveis">0</strong><small>Acima do mínimo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="baixo" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais com estoque baixo"><span>Estoque baixo</span><strong id="almoxBaixo">0</strong><small>No limite ou abaixo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="zerado" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais em falta"><span>Em falta</span><strong id="almoxZerado">0</strong><small>Saldo zerado</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="pendentes" role="button" tabindex="0" aria-expanded="false" aria-label="Ver pendências de cadastro ou estoque"><span>Pendências</span><strong id="almoxPendentes">0</strong><small>Cadastro ou estoque pendente</small><span class="almox-kpi-hint">Clique para ver as pendências</span></article></div><div id="almoxIndicadorDetalhe" class="almox-kpi-detail" hidden aria-live="polite"></div></section><section class="almox-panel almox-global-trace" id="almoxRastreabilidadeGlobal" style="display:none"><div class="almox-panel-head"><div><span class="almox-kicker">RASTREABILIDADE DE SAÍDAS</span><h3>Rastreabilidade</h3><p>Todas as saídas de materiais, da mais recente para a mais antiga. Selecione uma saída para consultar os detalhes.</p></div><button type="button" class="almox-refresh" onclick="carregarRastreabilidadeGlobalAlmox()">↻ Atualizar</button></div><div id="almoxRastreabilidadeLista" class="almox-global-trace-list"><p class="almox-empty">Carregando saídas...</p></div></section><div id="almoxAlertasReposicao" class="almox-replenish-alert" style="display:none"></div>
 <section class="almox-panel" id="almoxAdminCadastro"><div class="almox-panel-head"><div><span class="almox-kicker">CATÁLOGO</span><h3 id="almoxTituloForm">Cadastrar material</h3><p id="almoxAjudaForm">Informe a quantidade que já está entrando no estoque. O sistema registra a entrada no histórico. Ao editar, o saldo e as movimentações são preservados.</p></div><span class="almox-panel-icon">＋</span></div>
 <form id="almoxFormMaterial" class="almox-form-grid" onsubmit="salvarMaterialAlmox(event)">
 <label>Nome do material *<input id="almoxNome" maxlength="160" required placeholder="Ex.: Rolamento 6204"></label><label>Código interno<input id="almoxCodigo" maxlength="60" placeholder="Opcional"></label><label>Categoria<input id="almoxCategoria" maxlength="80" placeholder="Ex.: Rolamentos"></label>
@@ -14533,7 +14544,7 @@ async function carregarAlmoxarifado(){
  const datalist=document.getElementById('almoxSugestoesPecas');if(datalist)datalist.innerHTML=a.flatMap(x=>['<option value="'+htmlAlmox(x.nome)+'">',x.codigo?'<option value="'+htmlAlmox(x.codigo)+'">':'']).join('');
  ['almoxAdminCadastro','almoxAdminMov','almoxAdminHistory'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isGestor?'':'none'});
  const aviso=document.getElementById('almoxReadOnlyNotice');if(aviso)aviso.style.display=isGestor?'none':'';
- renderMateriaisAlmox();renderAlertasReposicaoAlmox();renderSolicitacoesAlmox();renderHistoricoAlmox();carregarRetiradasAvulsasAlmox();
+ renderMateriaisAlmox();renderAlertasReposicaoAlmox();renderSolicitacoesAlmox();renderHistoricoAlmox();carregarRastreabilidadeGlobalAlmox();carregarRetiradasAvulsasAlmox();
  const av=document.getElementById('almoxAvulsaMaterial');if(av){const old=av.value;av.innerHTML='<option value="">Selecione um material</option>'+a.map(x=>'<option value="'+x.id+'">'+htmlAlmox(x.nome)+' — saldo: '+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</option>').join('');if(a.some(x=>x.id===old))av.value=old;atualizarSaldoRetiradaAvulsa()}
 }
 function renderMateriaisAlmox(){
@@ -14552,7 +14563,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span>'+(gestorAlmox()?'<button type="button" class="almox-trace-open" onclick="abrirRastreabilidadeMaterialAlmox(\''+x.id+'\')">⌕ Rastreabilidade</button>':'')+'</div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<details class="almox-more-menu almox-material-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Editar</button><button type="button" class="danger" onclick="excluirMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Excluir</button></div></details>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span>'+'</div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<details class="almox-more-menu almox-material-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Editar</button><button type="button" class="danger" onclick="excluirMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Excluir</button></div></details>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
@@ -14610,6 +14621,82 @@ function prepararCadastroMaterialAlmox(id){
  form.scrollIntoView({behavior:'smooth',block:'center'});
  nome.focus({preventScroll:true});
 }
+async function carregarRastreabilidadeGlobalAlmox(){
+ const card=document.getElementById('almoxRastreabilidadeGlobal'),box=document.getElementById('almoxRastreabilidadeLista');
+ if(!card||!box)return;
+ if(!gestorAlmox()){card.style.display='none';return}
+ card.style.display='';
+ box.innerHTML='<p class="almox-empty">Carregando todas as saídas...</p>';
+ try{
+  const {data,error} = await _supabase.from('almox_movimentacoes')
+   .select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,almox_materiais(nome,codigo,unidade),os(id,setor,maquina,tecnico,descricao,servico_executado,status)')
+   .eq('tipo','saida').order('criado_em',{ascending:false}).limit(5000);
+  if(error)throw error;
+  const rows=data||[];
+  if(!rows.length){box.innerHTML='<div class="almox-global-trace-empty">Nenhuma saída de estoque registrada até o momento.</div>';return}
+  box.innerHTML=rows.map(m=>{
+   const mat=Array.isArray(m.almox_materiais)?m.almox_materiais[0]:m.almox_materiais;
+   const os=Array.isArray(m.os)?m.os[0]:m.os;
+   const quando=dataRastreabilidade(m.criado_em);
+   const contexto=os?'O.S. #'+htmlAlmox(os.id)+' • '+htmlAlmox(os.setor||'Setor não informado')+' • '+htmlAlmox(os.maquina||'Máquina não informada'):'Retirada sem O.S. vinculada';
+   return '<button type="button" class="almox-global-trace-row" onclick="abrirDetalheSaidaAlmox('+JSON.stringify(String(m.id))+')"><span><strong>'+htmlAlmox(mat?.nome||'Material não identificado')+(mat?.codigo?' • Código '+htmlAlmox(mat.codigo):'')+'</strong><small>'+htmlAlmox(quando)+' • '+contexto+'<br>'+htmlAlmox(m.motivo||'Motivo não informado')+'</small></span><span class="almox-global-trace-qty">−'+Number(m.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(mat?.unidade||'')+'</span></button>';
+  }).join('');
+ }catch(error){
+  console.error('Falha ao carregar rastreabilidade global:',error);
+  box.innerHTML='<div class="almox-global-trace-empty">Não foi possível carregar as saídas. '+htmlAlmox(error?.message||'Verifique a conexão e as permissões.')+'</div>';
+ }
+}
+async function abrirDetalheSaidaAlmox(movimentoId){
+ if(!gestorAlmox())return alert('A rastreabilidade detalhada é exclusiva do Gestor.');
+ const modalId='almoxRastreabilidadeModal';
+ let modal=document.getElementById(modalId);
+ if(!modal){
+  modal=document.createElement('div');modal.id=modalId;modal.className='almox-trace-modal';
+  modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Detalhes da saída de material');
+  modal.addEventListener('click',e=>{if(e.target===modal)fecharRastreabilidadeMaterialAlmox()});
+  document.body.appendChild(modal);
+  if(!window.__erimaxAlmoxTraceEsc){document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById(modalId))fecharRastreabilidadeMaterialAlmox()});window.__erimaxAlmoxTraceEsc=true}
+ }
+ const token=++ALMOX_RASTREABILIDADE_TOKEN;
+ modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h3>Detalhes da saída</h3><p>Consultando registro de estoque...</p></div><button type="button" class="almox-trace-close" onclick="fecharRastreabilidadeMaterialAlmox()" aria-label="Fechar">×</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Carregando detalhes...</div></div></div>';
+ try{
+  const {data:m,error}=await _supabase.from('almox_movimentacoes')
+   .select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,almox_materiais(nome,codigo,unidade),os(id,setor,maquina,tecnico,descricao,servico_executado,status)')
+   .eq('id',movimentoId).eq('tipo','saida').maybeSingle();
+  if(error)throw error;
+  if(!m)throw new Error('Saída não encontrada.');
+  const os=Array.isArray(m.os)?m.os[0]:m.os;
+  const mat=Array.isArray(m.almox_materiais)?m.almox_materiais[0]:m.almox_materiais;
+  let usuario='Responsável não identificado';
+  if(m.criado_por){
+   const p=await _supabase.from('perfis').select('id,nome').eq('id',m.criado_por).maybeSingle();
+   if(!p.error&&p.data?.nome)usuario=p.data.nome;
+  }
+  if(token!==ALMOX_RASTREABILIDADE_TOKEN||!document.getElementById(modalId))return;
+  const unidade=mat?.unidade||'';
+  const body=modal.querySelector('.almox-trace-body');
+  body.innerHTML='<section class="almox-trace-summary"><div class="almox-trace-summary-top"><h4>'+htmlAlmox(mat?.nome||'Material não identificado')+'</h4><span class="almox-stock-status low">SAÍDA DE ESTOQUE</span></div><p>'+(mat?.codigo?'Código: '+htmlAlmox(mat.codigo)+' • ':'')+Number(m.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(unidade)+'</p></section><section class="almox-trace-section"><h4>Rastreabilidade da utilização</h4><div class="almox-trace-event-body">'+
+   campoRastreabilidade('Data e horário',dataRastreabilidade(m.criado_em))+
+   campoRastreabilidade('Material / peça',mat?.nome)+
+   campoRastreabilidade('Quantidade retirada',Number(m.quantidade||0).toLocaleString('pt-BR')+' '+unidade)+
+   campoRastreabilidade('Ordem de serviço',os?.id?'O.S. #'+os.id:'Sem vínculo com O.S.')+
+   campoRastreabilidade('Máquina',os?.maquina)+
+   campoRastreabilidade('Setor',os?.setor)+
+   campoRastreabilidade('Técnico responsável',os?.tecnico)+
+   campoRastreabilidade('Registrado por',usuario)+
+   campoRastreabilidade('Motivo da saída',m.motivo)+
+   campoRastreabilidade('Serviço / descrição',os?.servico_executado||os?.descricao)+
+   campoRastreabilidade('Saldo anterior',m.saldo_anterior==null?'Não informado':Number(m.saldo_anterior).toLocaleString('pt-BR')+' '+unidade)+
+   campoRastreabilidade('Saldo posterior',m.saldo_posterior==null?'Não informado':Number(m.saldo_posterior).toLocaleString('pt-BR')+' '+unidade)+
+   '</div></section>';
+ }catch(error){
+  if(token!==ALMOX_RASTREABILIDADE_TOKEN)return;
+  console.error('Falha ao consultar detalhe da saída:',error);
+  const body=modal.querySelector('.almox-trace-body');
+  if(body)body.innerHTML='<div class="almox-trace-empty">Não foi possível carregar os detalhes. '+htmlAlmox(error?.message||'Verifique a conexão.')+'</div>';
+ }
+}
+
 function renderHistoricoAlmox(){
  const box=document.getElementById('almoxHistorico');if(!box)return;
  if(!ALMOX_MOVIMENTOS.length){box.innerHTML='<p class="almox-empty">Nenhuma movimentação registrada.</p>';return}
