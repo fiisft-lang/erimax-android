@@ -9295,8 +9295,8 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
     let menuAcoes='';
     const gestor=PERFIL&&PERFIL.perfil==='gestor';
     const tecnicoAtual=PERFIL&&ehTecnicoAtual()&&os.tecnico===PERFIL.nome;
-    const tecnicoParticipantePreventiva=!!(PERFIL&&ehTecnicoAtual()&&Array.isArray(os.tecnicos_participantes)&&os.tecnicos_participantes.includes(PERFIL.nome));
-    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&ehTecnicoAtual()&&(tecnicoAtual||tecnicoParticipantePreventiva)):(gestor||tecnicoAtual);
+    // Qualquer técnico da manutenção pode registrar a baixa das máquinas de uma preventiva em atendimento.
+    const podeConcluir=os.tipo==='Preventiva'?(!!PERFIL&&ehTecnicoAtual()):(gestor||tecnicoAtual);
     const adicionarOpcao=html=>{menuAcoes+=html};
     if(statusNormalizado==='aberta'&&PERFIL&&['tecnico','gestor'].includes(String(PERFIL.perfil||'').trim().toLocaleLowerCase('pt-BR'))){
       b+='<button type="button" class="btn-action btn-assumir os-action-primary" onclick="assumirOS('+id+')">Assumir</button>';
@@ -9576,7 +9576,7 @@ let osHor=null,mdHoraInicial='';
 const loc=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
 function concluirOS(id){
   const osResponsavel=chamados.find(c=>Number(c.id)===Number(id));
-  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||!ehTecnicoAtual()||(osResponsavel.tecnico!==PERFIL.nome&&!(Array.isArray(osResponsavel.tecnicos_participantes)&&osResponsavel.tecnicos_participantes.includes(PERFIL.nome)))))return alert('Somente o responsável ou um integrante da equipe desta preventiva pode registrar o andamento das máquinas.');
+  if(osResponsavel&&osResponsavel.tipo==='Preventiva'&&(!PERFIL||!ehTecnicoAtual()))return alert('Somente técnicos podem registrar o andamento das máquinas de uma preventiva.');
   osConcluir=id;mdCausa.value='';mdPeca.value='';mdServico.value='';if(document.getElementById('mdPecaQtd'))document.getElementById('mdPecaQtd').value='1';
   mdHora.value=loc(new Date());mdHoraInicial=mdHora.value;mdHora.max=loc(new Date());
   const osAtual=chamados.find(c=>Number(c.id)===Number(id));
