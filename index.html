@@ -14663,25 +14663,51 @@ async function carregarRastreabilidadeGlobalAlmox(){
 }
 async function abrirDetalheSaidaAlmox(movimentoId){
  if(!gestorAlmox())return alert('A rastreabilidade detalhada é exclusiva do Gestor.');
+ window.__erimaxHistoricoOverflow=document.body.style.overflow;
  const modalId='almoxRastreabilidadeModal';
  let modal=document.getElementById(modalId);
  if(!modal){
-  modal=document.createElement('div');modal.id=modalId;modal.className='almox-trace-modal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Detalhes da movimentação');
-  modal.addEventListener('click',e=>{if(e.target===modal)fecharRastreabilidadeMaterialAlmox()});document.body.appendChild(modal);
-  if(!window.__erimaxAlmoxTraceEsc){document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById(modalId))fecharRastreabilidadeMaterialAlmox()});window.__erimaxAlmoxTraceEsc=true}
+  modal=document.createElement('div');modal.id=modalId;modal.className='erimax-os-history-modal';
+  modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','tituloHistoricoSaidaAlmox');
+  modal.innerHTML='<section class="erimax-os-history-panel"><header class="erimax-os-history-head"><div><small>DETALHES DA MOVIMENTAÇÃO DE ESTOQUE</small><h2 id="tituloHistoricoSaidaAlmox">Histórico da saída</h2></div><button type="button" class="erimax-os-history-close" aria-label="Voltar" onclick="fecharRastreabilidadeMaterialAlmox()">← Voltar</button></header><div id="conteudoHistoricoSaidaAlmox" class="erimax-os-history-content"><p class="erimax-os-empty">Carregando histórico da saída...</p></div><footer><button type="button" class="btn-action btn-historico" onclick="fecharRastreabilidadeMaterialAlmox()">← Voltar para as saídas</button></footer></section>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)fecharRastreabilidadeMaterialAlmox()});
+  modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fecharRastreabilidadeMaterialAlmox()}});
  }
  const token=++ALMOX_RASTREABILIDADE_TOKEN;
- modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">RASTREABILIDADE • MOVIMENTAÇÃO</span><h3>Detalhes do item</h3><p>Consultando registro de estoque...</p></div><button type="button" class="almox-trace-close" onclick="fecharRastreabilidadeMaterialAlmox()" aria-label="Voltar para as movimentações">← Voltar</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Carregando detalhes...</div></div></div>';
+ modal.style.display='flex';
+ document.body.style.overflow='hidden';
+ const conteudo=modal.querySelector('#conteudoHistoricoSaidaAlmox');
  try{
   const {data:m,error}=await _supabase.from('almox_movimentacoes').select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,almox_materiais(nome,codigo,unidade),os(id,setor,maquina,tecnico,descricao,servico_executado,status)').eq('id',movimentoId).eq('tipo','saida').maybeSingle();
-  if(error)throw error;if(!m)throw new Error('Saída não encontrada.');
+  if(error)throw error;
+  if(!m)throw new Error('Saída não encontrada.');
   const os=Array.isArray(m.os)?m.os[0]:m.os,mat=Array.isArray(m.almox_materiais)?m.almox_materiais[0]:m.almox_materiais;
   let usuario='Responsável não identificado';
   if(m.criado_por){const p=await _supabase.from('perfis').select('id,nome').eq('id',m.criado_por).maybeSingle();if(!p.error&&p.data?.nome)usuario=p.data.nome}
   if(token!==ALMOX_RASTREABILIDADE_TOKEN||!document.getElementById(modalId))return;
-  const unidade=mat?.unidade||'',body=modal.querySelector('.almox-trace-body');
-  body.innerHTML='<section class="almox-trace-summary"><div class="almox-trace-summary-top"><h4>'+htmlAlmox(mat?.nome||'Material não identificado')+'</h4><span class="almox-stock-status low">SAÍDA DE ESTOQUE</span></div><p>'+(mat?.codigo?'Código: '+htmlAlmox(mat.codigo)+' • ':'')+Number(m.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(unidade)+'</p></section><section class="almox-trace-section"><h4>O que aconteceu com este item</h4><div class="almox-trace-event-body">'+campoRastreabilidade('Data e horário',dataRastreabilidade(m.criado_em))+campoRastreabilidade('Material / peça',mat?.nome)+campoRastreabilidade('Código do material',mat?.codigo)+campoRastreabilidade('Quantidade retirada',Number(m.quantidade||0).toLocaleString('pt-BR')+' '+unidade)+campoRastreabilidade('Ordem de serviço',os?.id?'O.S. #'+os.id:'Sem vínculo com O.S.')+campoRastreabilidade('Máquina',os?.maquina)+campoRastreabilidade('Setor',os?.setor)+campoRastreabilidade('Técnico responsável',os?.tecnico)+campoRastreabilidade('Registrado por',usuario)+campoRastreabilidade('Motivo da saída',m.motivo)+campoRastreabilidade('Serviço / descrição',os?.servico_executado||os?.descricao)+campoRastreabilidade('Status da O.S.',os?.status)+campoRastreabilidade('Saldo anterior',m.saldo_anterior==null?'Não informado':Number(m.saldo_anterior).toLocaleString('pt-BR')+' '+unidade)+campoRastreabilidade('Saldo posterior',m.saldo_posterior==null?'Não informado':Number(m.saldo_posterior).toLocaleString('pt-BR')+' '+unidade)+'</div></section>';
- }catch(error){if(token!==ALMOX_RASTREABILIDADE_TOKEN)return;console.error('Falha ao consultar detalhe da saída:',error);const body=modal.querySelector('.almox-trace-body');if(body)body.innerHTML='<div class="almox-trace-empty">Não foi possível carregar os detalhes. '+htmlAlmox(error?.message||'Verifique a conexão.')+'</div>'}
+  const unidade=mat?.unidade||'';
+  const safe=v=>htmlAlmox(v==null||v===''?'—':String(v));
+  const campo=(rotulo,valor)=>'<div class="erimax-os-detail-cell"><small>'+safe(rotulo)+'</small><b>'+safe(valor)+'</b></div>';
+  const fmt=v=>dataRastreabilidade(v);
+  const titulo=modal.querySelector('#tituloHistoricoSaidaAlmox');
+  if(titulo)titulo.textContent=(mat?.nome||'Saída de material')+(mat?.codigo?' • Código '+mat.codigo:'');
+  const status=os?.status?'<span class="os-badge status-'+safe(String(os.status).replace(/\s+/g,''))+'">'+safe(os.status)+'</span>':'<span class="os-badge">Saída de estoque</span>';
+  if(conteudo)conteudo.innerHTML=
+   '<div class="erimax-os-history-status">'+status+'<span class="erimax-os-pause-total">Quantidade retirada: <b>'+Number(m.quantidade||0).toLocaleString('pt-BR')+' '+safe(unidade)+'</b></span></div>'+
+   '<h3>Resumo da saída</h3><div class="erimax-os-detail-grid">'+
+   campo('Material / peça',mat?.nome)+campo('Código do material',mat?.codigo)+campo('Quantidade retirada',Number(m.quantidade||0).toLocaleString('pt-BR')+' '+unidade)+campo('Data e horário',fmt(m.criado_em))+
+   campo('Ordem de serviço',os?.id?'O.S. #'+os.id:'Sem vínculo com O.S.')+campo('Máquina',os?.maquina)+campo('Setor',os?.setor)+campo('Técnico responsável',os?.tecnico)+
+   campo('Registrado por',usuario)+campo('Motivo da saída',m.motivo)+campo('Serviço / descrição',os?.servico_executado||os?.descricao)+campo('Status da O.S.',os?.status)+
+   campo('Saldo anterior',m.saldo_anterior==null?'Não informado':Number(m.saldo_anterior).toLocaleString('pt-BR')+' '+unidade)+
+   campo('Saldo posterior',m.saldo_posterior==null?'Não informado':Number(m.saldo_posterior).toLocaleString('pt-BR')+' '+unidade)+
+   '</div><section class="erimax-os-history-section"><h3>Histórico da movimentação</h3><div class="erimax-os-timeline"><article class="erimax-os-event erimax-event-conclusao"><span class="erimax-os-event-dot"></span><div><small>'+safe(fmt(m.criado_em))+'</small><b>Saída de estoque registrada</b><p>'+safe(Number(m.quantidade||0).toLocaleString('pt-BR')+' '+unidade+' retirado por '+usuario+'. Motivo: '+(m.motivo||'Não informado'))+'</p></div></article></div></section>';
+  modal.querySelector('.erimax-os-history-close')?.focus();
+ }catch(error){
+  if(token!==ALMOX_RASTREABILIDADE_TOKEN)return;
+  console.error('Falha ao consultar histórico da saída:',error);
+  if(conteudo)conteudo.innerHTML='<p class="erimax-os-empty">Não foi possível carregar o histórico desta saída. '+htmlAlmox(error?.message||'Verifique a conexão e as permissões.')+'</p>';
+ }
 }
 
 function renderHistoricoAlmox(){
@@ -14694,7 +14720,9 @@ let ALMOX_RASTREABILIDADE_TOKEN=0;
 function fecharRastreabilidadeMaterialAlmox(){
  ALMOX_RASTREABILIDADE_TOKEN++;
  const modal=document.getElementById('almoxRastreabilidadeModal');
- if(modal)modal.remove();
+ if(modal)modal.style.display='none';
+ document.body.style.overflow=window.__erimaxHistoricoOverflow||'';
+ window.__erimaxHistoricoOverflow='';
 }
 function normalizarChaveRastreabilidade(v){
  return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]/g,'');
