@@ -14468,7 +14468,16 @@ async function excluirSolicitacaoAlmox(id){
   let html='';
   if(tipo==='pendentes'){
    const pendencias=ALMOX_SOLICITACOES||[];
-   html=pendencias.length?pendencias.map(s=>'<article class="almox-kpi-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b>'+(gestorAlmox()?'<details class="almox-more-menu"><summary aria-label="Mais opções" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarSolicitacaoAlmox('+JSON.stringify(s.id)+')">Editar</button><button type="button" class="danger" onclick="excluirSolicitacaoAlmox('+JSON.stringify(s.id)+')">Excluir</button></div></details>':'')+'</article>').join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
+   const normalizarPendencia=v=>String(v||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ');
+   html=pendencias.length?pendencias.map(s=>{
+    const match=ALMOX_MATERIAIS.find(m=>m.ativo!==false&&(m.id===s.material_id||normalizarPendencia(m.nome)===normalizarPendencia(s.nome_material)||normalizarPendencia(m.codigo)===normalizarPendencia(s.nome_material)));
+    const escolhido=s.material_id||match?.id||'';
+    const opts=ALMOX_MATERIAIS.filter(m=>m.ativo!==false).map(m=>'<option value="'+htmlAlmox(m.id)+'" '+(String(escolhido)===String(m.id)?'selected':'')+'>'+htmlAlmox(m.nome)+' ('+Number(m.quantidade_atual||0).toLocaleString('pt-BR')+' '+htmlAlmox(m.unidade||'un')+')</option>').join('');
+    const sid=JSON.stringify(s.id);
+    const menu=gestorAlmox()?'<details class="almox-more-menu"><summary aria-label="Mais opções" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarSolicitacaoAlmox('+sid+')">Editar</button><button type="button" class="danger" onclick="excluirSolicitacaoAlmox('+sid+')">Excluir</button></div></details>':'';
+    const controls=gestorAlmox()?'<div class="almox-request-controls"><select id="almoxReqMat-'+htmlAlmox(s.id)+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" onclick="prepararCadastroMaterialAlmox('+sid+')">Cadastrar material</button>':'')+'<button class="almox-approve" type="button" onclick="aprovarSolicitacaoAlmox('+sid+')">Registrar baixa</button></div>':'';
+    return '<article class="almox-kpi-row almox-kpi-pending-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b>'+menu+controls+'</article>';
+   }).join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
   }else{
    const materiais=ALMOX_MATERIAIS.filter(x=>x.ativo!==false);
    const lista=materiais.filter(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return tipo==='total'||(tipo==='disponivel'&&n>0&&(min<=0||n>min))||(tipo==='baixo'&&n>0&&min>0&&n<=min)||(tipo==='zerado'&&n<=0)}).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
