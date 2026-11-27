@@ -15,6 +15,8 @@ create table if not exists public.almox_retiradas_avulsas (
   constraint almox_retiradas_avulsas_status_check check (status in ('pendente','aprovada','recusada'))
 );
 alter table public.almox_retiradas_avulsas enable row level security;
+revoke all on public.almox_retiradas_avulsas from anon;
+revoke insert, update, delete on public.almox_retiradas_avulsas from authenticated;
 grant select on public.almox_retiradas_avulsas to authenticated;
 drop policy if exists almox_retiradas_avulsas_select on public.almox_retiradas_avulsas;
 create policy almox_retiradas_avulsas_select on public.almox_retiradas_avulsas for select to authenticated using (auth.uid() is not null and (criado_por = auth.uid() or public.meu_perfil() = 'gestor'));
@@ -85,9 +87,9 @@ begin
   return v_id;
 end; $$;
 
-revoke all on function public.almox_solicitar_retirada_avulsa(jsonb,text,text) from public;
-revoke all on function public.almox_aprovar_retirada_avulsa(uuid) from public;
-revoke all on function public.almox_recusar_retirada_avulsa(uuid,text) from public;
+revoke all on function public.almox_solicitar_retirada_avulsa(jsonb,text,text) from public, anon, authenticated;
+revoke all on function public.almox_aprovar_retirada_avulsa(uuid) from public, anon, authenticated;
+revoke all on function public.almox_recusar_retirada_avulsa(uuid,text) from public, anon, authenticated;
 grant execute on function public.almox_solicitar_retirada_avulsa(jsonb,text,text) to authenticated;
 grant execute on function public.almox_aprovar_retirada_avulsa(uuid) to authenticated;
 grant execute on function public.almox_recusar_retirada_avulsa(uuid,text) to authenticated;
