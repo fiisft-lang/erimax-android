@@ -14656,20 +14656,21 @@ async function carregarRastreabilidadeGlobalAlmox(){
    const mat=Array.isArray(m.almox_materiais)?m.almox_materiais[0]:m.almox_materiais;
    const os=Array.isArray(m.os)?m.os[0]:m.os;
    const contexto=os?'O.S. #'+htmlAlmox(os.id)+' • '+htmlAlmox(os.setor||'Setor não informado')+' • '+htmlAlmox(os.maquina||'Máquina não informada'):'Retirada sem O.S. vinculada';
-   return '<button type="button" class="almox-global-trace-row" onclick="abrirDetalheSaidaAlmox('+JSON.stringify(String(m.id))+')"><span><strong>'+htmlAlmox(mat?.nome||'Material não identificado')+(mat?.codigo?' • Código '+htmlAlmox(mat.codigo):'')+'</strong><small>'+htmlAlmox(dataRastreabilidade(m.criado_em))+' • '+contexto+'<br>'+htmlAlmox(m.motivo||'Motivo não informado')+'</small></span><span class="almox-global-trace-qty">−'+Number(m.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(mat?.unidade||'')+'</span></button>';
+   return '<button type="button" class="almox-global-trace-row" data-almox-saida-id="'+htmlAlmox(String(m.id))+'"><span><strong>'+htmlAlmox(mat?.nome||'Material não identificado')+(mat?.codigo?' • Código '+htmlAlmox(mat.codigo):'')+'</strong><small>'+htmlAlmox(dataRastreabilidade(m.criado_em))+' • '+contexto+'<br>'+htmlAlmox(m.motivo||'Motivo não informado')+'</small></span><span class="almox-global-trace-qty">−'+Number(m.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(mat?.unidade||'')+'</span></button>';
   }).join('');
+  box.querySelectorAll('[data-almox-saida-id]').forEach(btn=>btn.addEventListener('click',()=>abrirDetalheSaidaAlmox(btn.dataset.almoxSaidaId)));
  }catch(error){console.error('Falha ao carregar rastreabilidade global:',error);box.innerHTML='<div class="almox-global-trace-empty">Não foi possível carregar as saídas. '+htmlAlmox(error?.message||'Verifique a conexão e as permissões.')+'</div>'}
  finally{ALMOX_RASTREABILIDADE_GLOBAL_CARREGANDO=false}
 }
 async function abrirDetalheSaidaAlmox(movimentoId){
  if(!gestorAlmox())return alert('A rastreabilidade detalhada é exclusiva do Gestor.');
  window.__erimaxHistoricoOverflow=document.body.style.overflow;
- const modalId='almoxRastreabilidadeModal';
+ const modalId='almoxSaidaHistoricoModal';
  let modal=document.getElementById(modalId);
  if(!modal){
   modal=document.createElement('div');modal.id=modalId;modal.className='erimax-os-history-modal';
   modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','tituloHistoricoSaidaAlmox');
-  modal.innerHTML='<section class="erimax-os-history-panel"><header class="erimax-os-history-head"><div><small>DETALHES DA MOVIMENTAÇÃO DE ESTOQUE</small><h2 id="tituloHistoricoSaidaAlmox">Histórico da saída</h2></div><button type="button" class="erimax-os-history-close" aria-label="Voltar" onclick="fecharRastreabilidadeMaterialAlmox()">← Voltar</button></header><div id="conteudoHistoricoSaidaAlmox" class="erimax-os-history-content"><p class="erimax-os-empty">Carregando histórico da saída...</p></div><footer><button type="button" class="btn-action btn-historico" onclick="fecharRastreabilidadeMaterialAlmox()">← Voltar para as saídas</button></footer></section>';
+  modal.innerHTML='<section class="erimax-os-history-panel"><header class="erimax-os-history-head"><div><small>DETALHES DA MOVIMENTAÇÃO DE ESTOQUE</small><h2 id="tituloHistoricoSaidaAlmox">Histórico da saída</h2></div><button type="button" class="erimax-os-history-close" aria-label="Voltar" onclick="fecharHistoricoSaidaAlmox()">← Voltar</button></header><div id="conteudoHistoricoSaidaAlmox" class="erimax-os-history-content"><p class="erimax-os-empty">Carregando histórico da saída...</p></div><footer><button type="button" class="btn-action btn-historico" onclick="fecharHistoricoSaidaAlmox()">← Voltar para as saídas</button></footer></section>';
   document.body.appendChild(modal);
   modal.addEventListener('click',e=>{if(e.target===modal)fecharRastreabilidadeMaterialAlmox()});
   modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fecharRastreabilidadeMaterialAlmox()}});
@@ -14710,6 +14711,15 @@ async function abrirDetalheSaidaAlmox(movimentoId){
  }
 }
 
+
+function fecharHistoricoSaidaAlmox(){
+ ALMOX_RASTREABILIDADE_TOKEN++;
+ const modal=document.getElementById('almoxSaidaHistoricoModal');
+ if(modal)modal.style.display='none';
+ document.body.style.overflow=window.__erimaxHistoricoOverflow||'';
+ window.__erimaxHistoricoOverflow='';
+}
+
 function renderHistoricoAlmox(){
  const box=document.getElementById('almoxHistorico');if(!box)return;
  if(!ALMOX_MOVIMENTOS.length){box.innerHTML='<p class="almox-empty">Nenhuma movimentação registrada.</p>';return}
@@ -14748,7 +14758,7 @@ async function abrirRastreabilidadeMaterialAlmox(materialId,movimentoId){
   document.body.appendChild(modal);
   if(!window.__erimaxAlmoxTraceEsc){document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('almoxRastreabilidadeModal'))fecharRastreabilidadeMaterialAlmox()});window.__erimaxAlmoxTraceEsc=true}
  }
- modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h3>Rastreabilidade</h3><p>'+htmlAlmox(material.nome)+(material.codigo?' • Código '+htmlAlmox(material.codigo):'')+'</p></div><button type="button" class="almox-trace-close" onclick="fecharRastreabilidadeMaterialAlmox()" aria-label="Fechar">×</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Consultando histórico de utilização...</div></div></div>';
+ modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h3>Rastreabilidade</h3><p>'+htmlAlmox(material.nome)+(material.codigo?' • Código '+htmlAlmox(material.codigo):'')+'</p></div><button type="button" class="almox-trace-close" onclick="fecharHistoricoSaidaAlmox()" aria-label="Fechar">×</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Consultando histórico de utilização...</div></div></div>';
  try{
   const [movRes,osRes]=await Promise.all([
    _supabase.from('almox_movimentacoes').select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,os(id,setor,maquina,tecnico,descricao,servico_executado,status,created_at,data_conclusao)').eq('material_id',material.id).order('criado_em',{ascending:false}).limit(1000),
