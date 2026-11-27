@@ -5456,9 +5456,59 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 .almox-replenish-alert{margin:0 0 14px;padding:15px 17px;border:1px solid #f1c98b;border-left:4px solid #d97706;border-radius:13px;background:#fff8eb;color:#854d0e;font-size:.8rem;line-height:1.5}
 .almox-replenish-alert>strong,.almox-replenish-alert>span{display:block}.almox-replenish-alert>strong{font-size:.92rem;margin-bottom:3px}.almox-replenish-alert>div{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
 .almox-replenish-item{display:inline-flex;gap:5px;align-items:center;padding:6px 9px;border:1px solid #f2d7ac;border-radius:8px;background:#fff;font-size:.73rem}
+.almox-replenish-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;margin-top:12px!important}
+.almox-replenish-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;min-width:0;padding:10px 12px;border:1px solid #f2d7ac;border-radius:10px;background:#fff}
+.almox-replenish-name{min-width:0;font-weight:800;overflow-wrap:anywhere}
+.almox-replenish-name small,.almox-replenish-qty small{display:block;margin-top:3px;font-size:.68rem;font-weight:500;color:#8a6a3c}
+.almox-replenish-qty{text-align:right;white-space:nowrap}
+.almox-replenish-qty b{font-size:.76rem}
+@media(max-width:600px){.almox-replenish-list{grid-template-columns:1fr}.almox-replenish-row{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:9px 10px}}
 .almox-request-readonly{display:block;margin-top:8px;color:#64748b;font-size:.72rem}
 </style>
 
+<style id="erimax-almox-refine-20261127">
+ #tab-almoxarifado .almox-kpi-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px;width:100%}
+ #tab-almoxarifado .almox-kpi-btn{display:inline-flex;align-items:center;justify-content:center;min-width:0;min-height:32px;padding:6px 7px;border:1px solid #dbe5ec;border-radius:8px;background:#f7fafc;color:#31566f;font-size:.7rem;line-height:1.15;font-weight:750;white-space:nowrap;cursor:pointer}
+ #tab-almoxarifado .almox-kpi-btn:hover{background:#edf4f8;border-color:#c6d7e2}
+ #tab-almoxarifado .almox-kpi-btn.danger{border-color:#f0d8d5;background:#fff8f7;color:#a64b43}
+ #tab-almoxarifado .almox-kpi-row{position:relative;align-items:center;gap:8px}
+ #tab-almoxarifado .almox-more-menu{position:relative;display:inline-flex;flex:0 0 auto;margin-left:auto;align-self:flex-start}
+ #tab-almoxarifado .almox-more-menu>summary{list-style:none;display:grid;place-items:center;width:30px;height:32px;border:1px solid #dce5eb;border-radius:8px;background:#fff;color:#31566f;font-size:21px;font-weight:800;line-height:1;cursor:pointer}
+ #tab-almoxarifado .almox-more-menu>summary::-webkit-details-marker{display:none}
+ #tab-almoxarifado .almox-more-menu-pop{position:absolute;z-index:30;right:0;top:calc(100% + 5px);display:grid;min-width:118px;padding:5px;border:1px solid #dce5eb;border-radius:10px;background:#fff;box-shadow:0 10px 26px rgba(20,48,68,.16)}
+ #tab-almoxarifado .almox-more-menu-pop button{width:100%;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:#31566f;text-align:left;font-size:.76rem;font-weight:750;cursor:pointer}
+ #tab-almoxarifado .almox-more-menu-pop button:hover{background:#f1f6f9}
+ #tab-almoxarifado .almox-more-menu-pop button.danger{color:#a64b43}
+ #tab-almoxarifado .almox-pending-menu-pop{min-width:230px;max-width:min(290px,calc(100vw - 42px));gap:3px;padding:7px}
+ #tab-almoxarifado .almox-pending-menu-pop .almox-pending-link-label{display:grid;gap:6px;padding:5px 5px 8px;color:#64798a;font-size:.68rem;font-weight:800}
+ #tab-almoxarifado .almox-pending-menu-pop select{width:100%;min-width:0;max-width:100%;padding:9px 8px;border:1px solid #d7e2ea;border-radius:8px;background:#fbfdff;color:#294a61;font:inherit;font-size:.73rem}
+ #tab-almoxarifado .almox-pending-menu-pop button.almox-register,#tab-almoxarifado .almox-pending-menu-pop button.almox-approve{padding:9px 10px;border-radius:7px;text-align:left;font-size:.74rem}
+ #tab-almoxarifado .almox-pending-menu-pop button.almox-register{background:#fff8e8;color:#916115}
+ #tab-almoxarifado .almox-pending-menu-pop button.almox-approve{background:#edf8f1;color:#17623b}
+ #tab-almoxarifado .almox-menu-separator{height:1px;margin:4px 2px;background:#e8eef2}
+ #tab-almoxarifado .almox-request-top{align-items:flex-start}
+ #tab-almoxarifado .almox-request-controls{grid-template-columns:minmax(0,1fr) auto auto;gap:7px}
+ #tab-almoxarifado .almox-request-controls .almox-register,#tab-almoxarifado .almox-request-controls .almox-approve{min-height:34px;padding:7px 11px;border-radius:8px;font-size:.72rem;white-space:nowrap}
+ #tab-almoxarifado .almox-request-controls .almox-register{border:1px solid #e6c77f;background:#fff8e8;color:#916115}
+ #tab-almoxarifado .almox-request-controls .almox-approve{border:1px solid #c9e5d4;background:#edf8f1;color:#17623b}
+ #almoxAlertasReposicao .almox-replenish-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ #almoxAlertasReposicao .almox-replenish-row{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:6px!important;min-width:0;padding:10px!important;min-height:100%}
+ #almoxAlertasReposicao .almox-replenish-name,#almoxAlertasReposicao .almox-replenish-qty{display:block!important;width:100%;min-width:0;text-align:left!important;white-space:normal!important;overflow-wrap:anywhere}
+ #almoxAlertasReposicao .almox-replenish-qty b{font-size:.76rem}
+ @media(max-width:760px){
+  #tab-almoxarifado .almox-kpi-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #tab-almoxarifado .almox-request-controls{grid-template-columns:minmax(0,1fr) auto}
+  #tab-almoxarifado .almox-request-controls select{grid-column:1/-1}
+  #almoxAlertasReposicao .almox-replenish-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ }
+ @media(max-width:380px){
+  #tab-almoxarifado .almox-request-controls{grid-template-columns:1fr}
+  #tab-almoxarifado .almox-request-controls select{grid-column:1}
+  #tab-almoxarifado .almox-request-controls button{width:100%}
+  #almoxAlertasReposicao .almox-replenish-list{gap:6px!important}
+  #almoxAlertasReposicao .almox-replenish-row{padding:8px!important}
+ }
+</style>
 <style id="erimax-design-system-unified-2026">
 /* EriMax — camada visual unificada 2026
    Refinamento transversal: mantém a identidade azul e âmbar e não altera regras de negócio. */
@@ -7548,6 +7598,21 @@ body .tbl-wrap td{color:#344d5e}
 #modal .md-peca-sugestoes button{display:block;flex:0 0 auto;width:100%;min-height:42px;text-align:left;white-space:normal;background:#fff;color:#18394d;border:0;border-bottom:1px solid #e7edf1;border-radius:0;padding:10px 12px;font-size:.88rem;font-weight:500}
 #modal .md-peca-sugestoes button:last-child{border-bottom:0}
 #modal .md-peca-sugestoes button:active,#modal .md-peca-sugestoes button:focus{background:#eaf3f6;color:#18394d;outline:0}
+</style>
+<style id="erimax-almox-card-actions-menu-20261127">
+/* Todos os cards de materiais usam o mesmo menu compacto de três pontos das pendências. */
+#tab-almoxarifado .almox-material-qty{position:relative!important}
+#tab-almoxarifado .almox-material-more{margin:0 0 0 auto!important;align-self:flex-end!important}
+#tab-almoxarifado .almox-material-more>summary,#tab-almoxarifado .almox-kpi-more>summary{width:30px!important;height:32px!important}
+#tab-almoxarifado .almox-kpi-more{margin-left:auto!important;align-self:center!important}
+#tab-almoxarifado .almox-material-more .almox-more-menu-pop,#tab-almoxarifado .almox-kpi-more .almox-more-menu-pop{right:0!important;top:calc(100% + 5px)!important}
+#tab-almoxarifado .almox-material-actions,#tab-almoxarifado .almox-kpi-actions{display:none!important}
+</style>
+<style id="erimax-almox-stock-menu-stacking-fix-20261127">
+/* Mantém o card ativo acima dos itens seguintes quando o menu de ações é aberto. */
+#tab-almoxarifado .almox-material:has(.almox-material-more[open]){position:relative!important;z-index:40!important}
+#tab-almoxarifado .almox-material-more[open]{position:relative!important;z-index:41!important}
+#tab-almoxarifado .almox-material-more[open] .almox-more-menu-pop{position:absolute!important;z-index:42!important}
 </style>
 </head>
 <body>
@@ -9874,7 +9939,7 @@ async function verHistorico(id){
   if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada')+(codigoMaquinaHistorico?' • '+codigoMaquinaHistorico:'');
   const conteudo=modal.querySelector('#conteudoHistoricoOS');
   if(conteudo)conteudo.innerHTML=
-    '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
+    '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
     '<h3>Resumo da O.S.</h3><div class="erimax-os-detail-grid">'+detalheHtml+'</div>'+
     '<section class="erimax-os-history-section"><h3>Problema relatado</h3><p>'+safe(os.problema||os.descricao||os.defeito||'Não informado')+'</p></section>'+
     '<section class="erimax-os-history-section"><h3>Diagnóstico e execução</h3><div class="erimax-os-detail-grid">'+[['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado],['Mecânico auxiliar',os.mecanico_auxiliar]].map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('')+'</div></section>'+
@@ -13602,6 +13667,7 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
   }
 }
 </style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -14308,9 +14374,11 @@ async function carregarAlmoxarifado(){
   consultaMov,
   _supabase.from('almox_solicitacoes').select('*').in('status',['pendente','estoque_insuficiente','nao_cadastrado']).order('criado_em',{ascending:false}).limit(100)
  ]);
- if(m.error||mv.error||s.error){console.error('Erro ao carregar Almoxarifado:',m.error||mv.error||s.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar os dados. Verifique as permissões.</p>';return}
- ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.data||[];ALMOX_SOLICITACOES=s.data||[];
- const a=ALMOX_MATERIAIS.filter(x=>x.ativo),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
+ if(m.error){console.error('Erro ao carregar materiais do Almoxarifado:',m.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar as peças cadastradas. Verifique as permissões de leitura do estoque.</p>';return}
+ if(mv.error)console.warn('Não foi possível carregar o histórico de movimentações:',mv.error);
+ if(s.error)console.warn('Não foi possível carregar as solicitações de materiais:',s.error);
+ ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.error?[]:(mv.data||[]);ALMOX_SOLICITACOES=s.error?[]:(s.data||[]);
+ const a=ALMOX_MATERIAIS.filter(x=>x.ativo!==false),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
  const put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
  put('almoxTotal',a.length);put('almoxDisponiveis',available);put('almoxBaixo',low);put('almoxZerado',zero);put('almoxPendentes',ALMOX_SOLICITACOES.length);
  const sel=document.getElementById('almoxMovMaterial');if(sel){const old=sel.value;sel.innerHTML='<option value="">Selecione um material</option>'+a.map(x=>'<option value="'+x.id+'">'+htmlAlmox(x.nome)+' — '+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</option>').join('');if(a.some(x=>x.id===old))sel.value=old}
@@ -14321,28 +14389,29 @@ async function carregarAlmoxarifado(){
 }
 function renderMateriaisAlmox(){
  const box=document.getElementById('almoxListaMateriais');if(!box)return;
- const q=(document.getElementById('almoxBusca')?.value||'').trim().toLowerCase(),filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
+ const normalizarBusca=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\s+/g,' ');
+ const q=normalizarBusca(document.getElementById('almoxBusca')?.value||''),filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
  const list=ALMOX_MATERIAIS.filter(x=>{
-  if(!x.ativo)return false;
+  if(x.ativo===false)return false;
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min;
   if(filtro==='zerado'&&!zero)return false;
   if(filtro==='baixo'&&!baixo)return false;
   if(filtro==='disponivel'&&(zero||baixo))return false;
-  return !q||[x.nome,x.codigo,x.categoria,x.localizacao].some(v=>String(v||'').toLowerCase().includes(q));
+  return !q||[x.nome,x.codigo,x.categoria,x.localizacao].some(v=>normalizarBusca(v).includes(q));
  }).sort((a,b)=>{const rank=x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return n<=0?0:(min>0&&n<=min?1:2)};return rank(a)-rank(b)||String(a.nome).localeCompare(String(b.nome),'pt-BR')});
- const contagem=document.getElementById('almoxContagemLista');if(contagem)contagem.textContent=list.length+' de '+ALMOX_MATERIAIS.filter(x=>x.ativo).length+' materiais';
+ const contagem=document.getElementById('almoxContagemLista');if(contagem)contagem.textContent=list.length+' de '+ALMOX_MATERIAIS.filter(x=>x.ativo!==false).length+' materiais';
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')">Editar</button><button type="button" class="almox-delete-btn" title="Excluir ou inativar material" aria-label="Excluir ou inativar material" onclick="excluirMaterialAlmox(\''+x.id+'\')">Excluir</button></div>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<details class="almox-more-menu almox-material-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Editar</button><button type="button" class="danger" onclick="excluirMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Excluir</button></div></details>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
  const box=document.getElementById('almoxAlertasReposicao');if(!box)return;
- const low=ALMOX_MATERIAIS.filter(x=>x.ativo&&Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)).sort((a,b)=>(Number(a.quantidade_atual)-Number(a.estoque_minimo))-(Number(b.quantidade_atual)-Number(b.estoque_minimo)));
+ const low=ALMOX_MATERIAIS.filter(x=>x.ativo!==false&&Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)).sort((a,b)=>(Number(a.quantidade_atual)-Number(a.estoque_minimo))-(Number(b.quantidade_atual)-Number(b.estoque_minimo)));
  if(!low.length){box.style.display='none';box.innerHTML='';return}
  box.style.display='';
- box.innerHTML='<strong>⚠ Reposição necessária</strong><span>Os materiais abaixo atingiram ou ficaram abaixo do estoque mínimo:</span><div>'+low.map(x=>'<span class="almox-replenish-item">'+htmlAlmox(x.nome)+': <b>'+Number(x.quantidade_atual).toLocaleString('pt-BR')+' / mínimo '+Number(x.estoque_minimo).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</b></span>').join('')+'</div>';
+ box.innerHTML='<strong>⚠ Reposição necessária</strong><span>Os materiais abaixo atingiram ou ficaram abaixo do estoque mínimo:</span><div class="almox-replenish-list">'+low.map(x=>'<article class="almox-replenish-row"><span class="almox-replenish-name">'+htmlAlmox(x.nome)+(x.codigo?'<small>Código: '+htmlAlmox(x.codigo)+'</small>':'')+'</span><span class="almox-replenish-qty"><b>'+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</b><small>Mínimo: '+Number(x.estoque_minimo).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small></span></article>').join('')+'</div>';
 }
 function renderSolicitacoesAlmox(){
  const box=document.getElementById('almoxListaSolicitacoes');if(!box)return;
@@ -14355,11 +14424,29 @@ function renderSolicitacoesAlmox(){
   const status=s.status==='nao_cadastrado'?'NÃO CADASTRADO':s.status==='estoque_insuficiente'?'ESTOQUE INSUFICIENTE':match?'CADASTRADO • AGUARDANDO REGULARIZAÇÃO':'NÃO CADASTRADO • AGUARDANDO VÍNCULO';
   const classe=s.status==='nao_cadastrado'?'almox-request-unregistered':'almox-request-registered';
   const sid=JSON.stringify(s.id);
+  const menu=gestorAlmox()?'<details class="almox-more-menu"><summary aria-label="Mais opções" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarSolicitacaoAlmox('+sid+')">Editar</button><button type="button" class="danger" onclick="excluirSolicitacaoAlmox('+sid+')">Excluir</button></div></details>':'';
   const controls=gestorAlmox()
-   ?'<div class="almox-request-controls"><select id="almoxReqMat-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" onclick=\'prepararCadastroMaterialAlmox('+sid+')\'>Cadastrar material</button>':'')+'<button class="almox-approve" type="button" onclick=\'aprovarSolicitacaoAlmox('+sid+')\'>Registrar baixa</button><button class="almox-reject" type="button" onclick=\'recusarSolicitacaoAlmox('+sid+')\'>Recusar</button></div>'
+   ?'<div class="almox-request-controls"><select id="almoxReqMat-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" onclick="prepararCadastroMaterialAlmox('+sid+')">Cadastrar material</button>':'')+'<button class="almox-approve" type="button" onclick="aprovarSolicitacaoAlmox('+sid+')">Registrar baixa</button></div>'
    :'<small class="almox-request-readonly">Informação enviada pela manutenção. O gestor fará o cadastro ou a regularização do estoque.</small>';
-  return '<article class="almox-request"><div class="almox-request-top"><div><strong>'+htmlAlmox(s.nome_material)+'</strong><span class="'+classe+'">'+status+'</span><small>O.S. #'+s.os_id+' • Quantidade: '+Number(s.quantidade).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade)+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small>'+(s.observacao?'<small>'+htmlAlmox(s.observacao)+'</small>':'')+'</div></div>'+controls+'</article>';
+  return '<article class="almox-request"><div class="almox-request-top"><div><strong>'+htmlAlmox(s.nome_material)+'</strong><span class="'+classe+'">'+status+'</span><small>O.S. #'+s.os_id+' • Quantidade: '+Number(s.quantidade).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade)+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small>'+(s.observacao?'<small>'+htmlAlmox(s.observacao)+'</small>':'')+'</div>'+menu+'</div>'+controls+'</article>';
  }).join('');
+}
+async function editarSolicitacaoAlmox(id){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
+ if(!s)return alert('Peça informada não encontrada. Atualize o Almoxarifado e tente novamente.');
+ const nome=prompt('Nome da peça:',s.nome_material||'');if(nome===null)return;
+ if(!nome.trim())return alert('Informe o nome da peça.');
+ const qtdTxt=prompt('Quantidade:',String(s.quantidade??1));if(qtdTxt===null)return;
+ const qtd=Number(String(qtdTxt).replace(',','.'));if(!Number.isFinite(qtd)||qtd<=0)return alert('Informe uma quantidade válida maior que zero.');
+ const unidade=prompt('Unidade (un, kg, m...):',s.unidade||'un');if(unidade===null)return;
+ if(!unidade.trim())return alert('Informe a unidade.');
+ const observacao=prompt('Observação (opcional):',s.observacao||'');if(observacao===null)return;
+ const {data,error}=await _supabase.from('almox_solicitacoes').update({nome_material:nome.trim(),quantidade:qtd,unidade:unidade.trim(),observacao:observacao.trim()||null}).eq('id',id).select('id').maybeSingle();
+ if(error){console.error('Falha ao editar peça informada:',error);return alert('Não foi possível salvar a edição: '+error.message)}
+ if(!data)return alert('A edição não foi confirmada. Verifique a permissão do perfil Gestor.');
+ document.querySelectorAll('.almox-more-menu[open]').forEach(x=>x.open=false);
+ await carregarAlmoxarifado();
 }
 function prepararCadastroMaterialAlmox(id){
  const s=ALMOX_SOLICITACOES.find(x=>x.id===id);if(!s||!gestorAlmox())return;
@@ -14374,6 +14461,20 @@ function renderHistoricoAlmox(){
  box.innerHTML=ALMOX_MOVIMENTOS.map(m=>'<div class="almox-history-row"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></div>').join('');
 }
 let MATERIAL_ALMOX_EM_EDICAO=null;
+function prepararMovimentacaoAlmox(id,tipo){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const material=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));
+ if(!material)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
+ const sel=document.getElementById('almoxMovMaterial'),campoTipo=document.getElementById('almoxMovTipo');
+ if(sel)sel.value=String(material.id);
+ if(campoTipo)campoTipo.value=tipo==='saida'?'saida':'entrada';
+ atualizarRotuloAjusteAlmox();
+ const qtd=document.getElementById('almoxMovQtd'),motivo=document.getElementById('almoxMovMotivo');
+ if(qtd)qtd.value='';
+ if(motivo)motivo.value=tipo==='saida'?'Saída de estoque':'Reposição de estoque';
+ document.getElementById('almoxAdminMov')?.scrollIntoView({behavior:'smooth',block:'center'});
+ qtd?.focus({preventScroll:true});
+}
 function editarMaterialAlmox(id){
  if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
  const m=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));if(!m)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
@@ -14487,6 +14588,16 @@ async function salvarMaterialAlmox(e){
 async function movimentarEstoqueAlmox(e){e.preventDefault();if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const tipo=document.getElementById('almoxMovTipo').value,material=document.getElementById('almoxMovMaterial').value,qtd=Number(document.getElementById('almoxMovQtd').value),motivo=document.getElementById('almoxMovMotivo').value.trim(),os=document.getElementById('almoxMovOS').value;if(!material||!Number.isFinite(qtd)||qtd<=0||motivo.length<3)return alert('Confira material, quantidade e motivo.');const {error}=await _supabase.from('almox_movimentacoes').insert({material_id:material,tipo,quantidade:qtd,motivo,os_id:os?Number(os):null,criado_por:MEU_ID});if(error){alert('Movimentação não realizada: '+error.message);return}document.getElementById('almoxFormMov').reset();atualizarRotuloAjusteAlmox();alert('Movimentação registrada e saldo atualizado.');await carregarAlmoxarifado()}
 async function aprovarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const material=document.getElementById('almoxReqMat-'+id)?.value;if(!material)return alert('Selecione o material correspondente ou cadastre-o antes de aprovar.');const {error}=await _supabase.rpc('almox_aprovar_solicitacao',{p_solicitacao_id:id,p_material_id:material,p_justificativa:null});if(error){alert('Não foi possível aprovar a saída: '+error.message);return}alert('Solicitação aprovada. A saída foi registrada no histórico da O.S.');await carregarAlmoxarifado()}
 async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const motivo=prompt('Informe o motivo da recusa:');if(motivo===null)return;if(motivo.trim().length<3)return alert('Informe um motivo com pelo menos 3 caracteres.');const {error}=await _supabase.from('almox_solicitacoes').update({status:'recusada',analisado_por:MEU_ID,analisado_em:new Date().toISOString(),justificativa_analise:motivo.trim()}).eq('id',id).eq('status','pendente');if(error){alert('Não foi possível recusar: '+error.message);return}await carregarAlmoxarifado()}
+async function excluirSolicitacaoAlmox(id){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
+ if(!s)return alert('Solicitação não encontrada. Atualize o Almoxarifado e tente novamente.');
+ if(!confirm('Excluir a peça informada "'+(s.nome_material||'Peça')+'" da lista de pendências? O registro original da O.S. não será alterado.'))return;
+ const {data,error}=await _supabase.from('almox_solicitacoes').delete().eq('id',id).select('id').maybeSingle();
+ if(error){console.error('Falha ao excluir solicitação do Almoxarifado:',error);return alert('Não foi possível excluir a peça informada: '+error.message)}
+ if(!data)return alert('O banco não confirmou a exclusão. Verifique a permissão do perfil Gestor.');
+ await carregarAlmoxarifado();
+}
 
 (function(){
  if(window.__erimaxAlmoxKpiDetails)return;window.__erimaxAlmoxKpiDetails=true;
@@ -14497,15 +14608,30 @@ async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acess
   let html='';
   if(tipo==='pendentes'){
    const pendencias=ALMOX_SOLICITACOES||[];
-   html=pendencias.length?pendencias.map(s=>'<article class="almox-kpi-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b></article>').join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
+   const normalizarPendencia=v=>String(v||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ');
+   html=pendencias.length?pendencias.map(s=>{
+    const match=ALMOX_MATERIAIS.find(m=>m.ativo!==false&&(m.id===s.material_id||normalizarPendencia(m.nome)===normalizarPendencia(s.nome_material)||normalizarPendencia(m.codigo)===normalizarPendencia(s.nome_material)));
+    const escolhido=s.material_id||match?.id||'';
+    const opts=ALMOX_MATERIAIS.filter(m=>m.ativo!==false).map(m=>'<option value="'+htmlAlmox(m.id)+'" '+(String(escolhido)===String(m.id)?'selected':'')+'>'+htmlAlmox(m.nome)+' ('+Number(m.quantidade_atual||0).toLocaleString('pt-BR')+' '+htmlAlmox(m.unidade||'un')+')</option>').join('');
+    const sid=JSON.stringify(s.id);
+    const menu=gestorAlmox()?'<details class="almox-more-menu almox-pending-menu"><summary aria-label="Ações da pendência" title="Ações da pendência">⋮</summary><div class="almox-more-menu-pop almox-pending-menu-pop"><label class="almox-pending-link-label">Vincular material cadastrado<select id="almoxReqMat-'+htmlAlmox(s.id)+'"><option value="">Selecione um material...</option>'+opts+'</select></label>'+(!match?'<button type="button" class="almox-register" onclick="prepararCadastroMaterialAlmox('+sid+')">Cadastrar material</button>':'')+'<button type="button" class="almox-approve" onclick="aprovarSolicitacaoAlmox('+sid+')">Registrar baixa</button><div class="almox-menu-separator"></div><button type="button" onclick="editarSolicitacaoAlmox('+sid+')">Editar</button><button type="button" class="danger" onclick="excluirSolicitacaoAlmox('+sid+')">Excluir</button></div></details>':'';
+    return '<article class="almox-kpi-row almox-kpi-pending-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b>'+menu+'</article>';
+   }).join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
   }else{
-   const materiais=ALMOX_MATERIAIS.filter(x=>x.ativo);
+   const materiais=ALMOX_MATERIAIS.filter(x=>x.ativo!==false);
    const lista=materiais.filter(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return tipo==='total'||(tipo==='disponivel'&&n>0&&(min<=0||n>min))||(tipo==='baixo'&&n>0&&min>0&&n<=min)||(tipo==='zerado'&&n<=0)}).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
-   html=lista.length?lista.map(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return '<article class="almox-kpi-row"><div><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+' • Mínimo: '+min.toLocaleString('pt-BR')+'</small></div><b>'+n.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade||'un')+'</b></article>'}).join(''):'<p class="almox-empty">Nenhum material nesta situação.</p>';
+   html=lista.length?lista.map(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,sid=htmlAlmox(x.id);return '<article class="almox-kpi-row"><div><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+' • Mínimo: '+min.toLocaleString('pt-BR')+'</small></div><b>'+n.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade||'un')+'</b>'+(gestorAlmox()?'<details class="almox-more-menu almox-kpi-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" data-almox-action="edit" data-id="'+sid+'">Editar</button><button type="button" data-almox-action="entrada" data-id="'+sid+'">Alimentar</button><button type="button" data-almox-action="saida" data-id="'+sid+'">Saída</button><button type="button" class="danger" data-almox-action="delete" data-id="'+sid+'">Excluir</button></div></details>':'')+'</article>'}).join(''):'<p class="almox-empty">Nenhum material nesta situação.</p>';
   }
   box.dataset.tipo=tipo;box.innerHTML='<div class="almox-kpi-detail-head"><strong>'+labels[tipo]+'</strong><button type="button" aria-label="Fechar detalhes" class="almox-kpi-close">Fechar ×</button></div><div class="almox-kpi-detail-list">'+html+'</div>';box.hidden=false;
   document.querySelectorAll('[data-almox-kpi]').forEach(x=>{const active=x.dataset.almoxKpi===tipo;x.classList.toggle('is-selected',active);x.setAttribute('aria-expanded',String(active))});
   box.querySelector('.almox-kpi-close').addEventListener('click',()=>detalhe(tipo));
+  box.querySelectorAll('[data-almox-action]').forEach(btn=>btn.addEventListener('click',e=>{
+   e.stopPropagation();btn.closest('details')?.removeAttribute('open');const id=btn.dataset.id,action=btn.dataset.almoxAction;
+   if(action==='edit')editarMaterialAlmox(id);
+   else if(action==='entrada'||action==='saida')prepararMovimentacaoAlmox(id,action);
+   else if(action==='delete')excluirMaterialAlmox(id);
+   else if(action==='delete-request')excluirSolicitacaoAlmox(id);
+  }));
  }
  function ativar(){const root=document.getElementById('tab-almoxarifado');if(!root||root.dataset.kpiReady)return;root.dataset.kpiReady='1';root.addEventListener('click',e=>{const card=e.target.closest('[data-almox-kpi]');if(card)detalhe(card.dataset.almoxKpi)});root.addEventListener('keydown',e=>{const card=e.target.closest('[data-almox-kpi]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();detalhe(card.dataset.almoxKpi)}})}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ativar);else ativar();
