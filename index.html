@@ -9831,7 +9831,7 @@ async function verHistorico(id){
   if(titulo)titulo.textContent=nOS(os)+' • '+(os.maquina||'Máquina não informada')+(codigoMaquinaHistorico?' • '+codigoMaquinaHistorico:'');
   const conteudo=modal.querySelector('#conteudoHistoricoOS');
   if(conteudo)conteudo.innerHTML=
-    '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
+    '<div class="erimax-os-history-status"><span class="os-badge status-'+safe(String(os.status||'').replace(/\s+/g,''))+'">'+safe(os.status||'Sem status')+'</span><span class="erimax-os-pause-total">Tempo acumulado em pausa: <b>'+minutosFmt(totalPausa)+'</b></span></div>'+
     '<h3>Resumo da O.S.</h3><div class="erimax-os-detail-grid">'+detalheHtml+'</div>'+
     '<section class="erimax-os-history-section"><h3>Problema relatado</h3><p>'+safe(os.problema||os.descricao||os.defeito||'Não informado')+'</p></section>'+
     '<section class="erimax-os-history-section"><h3>Diagnóstico e execução</h3><div class="erimax-os-detail-grid">'+[['Causa',os.causa],['Peça utilizada',os.peca],['Serviço executado',os.servico_executado],['Mecânico auxiliar',os.mecanico_auxiliar]].map(([k,v])=>'<div class="erimax-os-detail-cell"><small>'+safe(k)+'</small><b>'+safe(v)+'</b></div>').join('')+'</div></section>'+
@@ -14202,7 +14202,7 @@ async function carregarAlmoxarifado(){
 }
 function renderMateriaisAlmox(){
  const box=document.getElementById('almoxListaMateriais');if(!box)return;
- const normalizarBusca=s=>String(s??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\\s+/g,' ');
+ const normalizarBusca=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\\s+/g,' ');
  const q=normalizarBusca(document.getElementById('almoxBusca')?.value||''),filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
  const list=ALMOX_MATERIAIS.filter(x=>{
   if(x.ativo===false)return false;
