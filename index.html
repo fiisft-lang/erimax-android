@@ -14504,10 +14504,14 @@ function prepararCadastroMaterialAlmox(id){
  if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
  const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
  if(!s)return alert('Peça informada não encontrada. Atualize o Almoxarifado e tente novamente.');
- document.getElementById('almoxNome').value=s.nome_material||'';
- document.getElementById('almoxUnidade').value=s.unidade||'un';
- document.getElementById('almoxFormMaterial').scrollIntoView({behavior:'smooth',block:'center'});
- document.getElementById('almoxNome').focus({preventScroll:true});
+ const painel=document.getElementById('almoxAdminCadastro');
+ if(painel?.classList.contains('erimax-card-collapsed'))painel.querySelector(':scope > .almox-panel-head .erimax-card-toggle')?.click();
+ const nome=document.getElementById('almoxNome'),unidade=document.getElementById('almoxUnidade'),form=document.getElementById('almoxFormMaterial');
+ if(!nome||!unidade||!form)return alert('O formulário de cadastro não foi encontrado nesta tela. Atualize o Almoxarifado e tente novamente.');
+ nome.value=s.nome_material||'';
+ unidade.value=s.unidade||'un';
+ form.scrollIntoView({behavior:'smooth',block:'center'});
+ nome.focus({preventScroll:true});
 }
 function renderHistoricoAlmox(){
  const box=document.getElementById('almoxHistorico');if(!box)return;
