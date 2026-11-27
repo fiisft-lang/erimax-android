@@ -14373,7 +14373,9 @@ async function carregarAlmoxarifado(){
   consultaMov,
   _supabase.from('almox_solicitacoes').select('*').in('status',['pendente','estoque_insuficiente','nao_cadastrado']).order('criado_em',{ascending:false}).limit(100)
  ]);
- if(m.error||mv.error||s.error){console.error('Erro ao carregar Almoxarifado:',m.error||mv.error||s.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar os dados. Verifique as permissões.</p>';return}
+ if(m.error){console.error('Erro ao carregar materiais do Almoxarifado:',m.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar os materiais. Verifique as permissões.</p>';return}
+ if(mv.error)console.warn('Movimentações do Almoxarifado indisponíveis; mantendo o catálogo:',mv.error);
+ if(s.error)console.warn('Solicitações do Almoxarifado indisponíveis; mantendo o catálogo:',s.error);
  ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.data||[];ALMOX_SOLICITACOES=s.data||[];
  renderCategoriasAlmox();
  const a=ALMOX_MATERIAIS.filter(x=>x.ativo),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
@@ -18422,32 +18424,32 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
 <script id="erimax-almoxarifado-categorias-hierarquia-2026">
 let ALMOX_CATEGORIA_ATIVA=null;
 let ALMOX_GRUPO_EM_CRIACAO='';
-function normalizarGrupoAlmox(v){return String(v||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ')}
+function normalizarGrupoAlmox(v){return String(v||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ')}
 function nomeGrupoAlmox(v){
  const n=normalizarGrupoAlmox(v);
  const aliases={'correia':'Correias','correias':'Correias','rolamento':'Rolamentos','rolamentos':'Rolamentos','parafuso':'Parafusos','parafusos':'Parafusos','porca':'Porcas','porcas':'Porcas','arruela':'Arruelas','arruelas':'Arruelas','retentor':'Retentores','retentores':'Retentores','mancal':'Mancais','mancais':'Mancais','outro':'Outros','outros':'Outros'};
  if(aliases[n])return aliases[n];
- return String(v||'').trim().replace(/\\s+/g,' ').replace(/(^|\\s)\\S/g,m=>m.toLocaleUpperCase('pt-BR'));
+ return String(v||'').trim().replace(/\s+/g,' ').replace(/(^|\s)\S/g,m=>m.toLocaleUpperCase('pt-BR'));
 }
 function detectarCategoriaAlmox(m){
  const explicita=String(m.categoria||'').trim();if(explicita)return nomeGrupoAlmox(explicita);
  const texto=normalizarGrupoAlmox([m.nome,m.descricao,m.codigo].filter(Boolean).join(' '));
  const regras=[
-  [/\\b(correia|correias|belt|poly.?v|sincronizad[ao])\\b/,'Correias'],
-  [/\\b(rolamento|rolamentos|bearing)\\b/,'Rolamentos'],
-  [/\\b(parafuso|parafusos|allen|sextavado|philips)\\b/,'Parafusos'],
-  [/\\b(porca|porcas)\\b/,'Porcas'],
-  [/\\b(arruela|arruelas)\\b/,'Arruelas'],
-  [/\\b(retentor|retentores|vedacao|oring)\\b/,'Retentores'],
-  [/\\b(mancal|mancais|chumaceira)\\b/,'Mancais'],
-  [/\\b(graxa|oleo|lubrificante|lubrificantes)\\b/,'Lubrificantes'],
-  [/\\b(motor|sensor|contator|rele|fusivel|cabo|fio|eletrico|eletrica|eletrica)\\b/,'Elétrica'],
-  [/\\b(mangueira|pneumatic[ao]|conexao|engate|valvula)\\b/,'Pneumática'],
-  [/\\b(ferramenta|chave|alicate|broca|disco de corte)\\b/,'Ferramentas'],
-  [/\\b(filtro|filtrante)\\b/,'Filtros'],
-  [/\\b(polia|polias)\\b/,'Polias'],
-  [/\\b(corrente|correntes)\\b/,'Correntes'],
-  [/\\b(engrenagem|engrenagens)\\b/,'Engrenagens']
+  [/\b(correia|correias|belt|poly.?v|sincronizad[ao])\b/,'Correias'],
+  [/\b(rolamento|rolamentos|bearing)\b/,'Rolamentos'],
+  [/\b(parafuso|parafusos|allen|sextavado|philips)\b/,'Parafusos'],
+  [/\b(porca|porcas)\b/,'Porcas'],
+  [/\b(arruela|arruelas)\b/,'Arruelas'],
+  [/\b(retentor|retentores|vedacao|oring)\b/,'Retentores'],
+  [/\b(mancal|mancais|chumaceira)\b/,'Mancais'],
+  [/\b(graxa|oleo|lubrificante|lubrificantes)\b/,'Lubrificantes'],
+  [/\b(motor|sensor|contator|rele|fusivel|cabo|fio|eletrico|eletrica|eletrica)\b/,'Elétrica'],
+  [/\b(mangueira|pneumatic[ao]|conexao|engate|valvula)\b/,'Pneumática'],
+  [/\b(ferramenta|chave|alicate|broca|disco de corte)\b/,'Ferramentas'],
+  [/\b(filtro|filtrante)\b/,'Filtros'],
+  [/\b(polia|polias)\b/,'Polias'],
+  [/\b(corrente|correntes)\b/,'Correntes'],
+  [/\b(engrenagem|engrenagens)\b/,'Engrenagens']
  ];
  for(const [re,nome] of regras)if(re.test(texto))return nome;
  return 'Outros';
@@ -18504,7 +18506,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado nesta categoria ou situação.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(categoriaMaterialAlmox(x))+(x.descricao?' • '+htmlAlmox(x.descricao):'')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\\''+x.id+'\\')">Editar</button><button type="button" class="almox-delete-btn" title="Excluir ou inativar material" aria-label="Excluir material" onclick="excluirMaterialAlmox(\\''+x.id+'\\')">Excluir</button></div>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(categoriaMaterialAlmox(x))+(x.descricao?' • '+htmlAlmox(x.descricao):'')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\''+x.id+'\')">Editar</button><button type="button" class="almox-delete-btn" title="Excluir ou inativar material" aria-label="Excluir material" onclick="excluirMaterialAlmox(\''+x.id+'\')">Excluir</button></div>':'')+'</div></article>';
  }).join('');
 }
 (()=>{
