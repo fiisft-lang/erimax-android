@@ -1,5 +1,8 @@
 -- Cadastro de material com saldo inicial registrado como movimentação de entrada.
+-- O formulário já possui descrição; adicionamos a coluna opcional ausente no schema.
 -- A operação é atômica: se a entrada falhar, o cadastro inteiro é revertido.
+alter table public.almox_materiais add column if not exists descricao text;
+
 create or replace function public.almox_cadastrar_material(
   p_nome text,
   p_codigo text,
