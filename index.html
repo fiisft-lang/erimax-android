@@ -7609,6 +7609,30 @@ body .tbl-wrap td{color:#344d5e}
 @media(max-width:420px){#tab-almoxarifado .almox-category-card{min-height:124px}#tab-almoxarifado .almox-category-icon{width:36px;height:36px}}
 </style>
 
+
+<style id="erimax-almox-polimento-2026">
+#tab-almoxarifado .almox-inventory-panel{scroll-margin-top:18px}
+#tab-almoxarifado .almox-stock-head{flex-wrap:wrap}
+#tab-almoxarifado .almox-stock-filters{flex:1 1 440px}
+#tab-almoxarifado .almox-quick-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 13px;padding:11px 12px;border:1px solid #e5edf2;border-radius:12px;background:#f8fbfd}
+#tab-almoxarifado .almox-quick-filters{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+#tab-almoxarifado .almox-quick-filters button,#tab-almoxarifado .almox-show-all-groups{min-height:34px;padding:7px 11px;border:1px solid #dbe6ed;border-radius:9px;background:#fff;color:#456174;font-size:.7rem;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+#tab-almoxarifado .almox-quick-filters button[aria-pressed="true"]{border-color:#287b91;background:#eaf4f7;color:#17546d;box-shadow:inset 0 0 0 1px #287b91}
+#tab-almoxarifado .almox-quick-filters button:focus-visible,#tab-almoxarifado .almox-show-all-groups:focus-visible{outline:3px solid rgba(40,123,145,.22);outline-offset:2px}
+#tab-almoxarifado .almox-show-all-groups{border-color:#cfe0e8;background:#edf5f8;color:#1d5b76;white-space:nowrap}
+#tab-almoxarifado .almox-quick-caption{color:#708493;font-size:.68rem;font-weight:800}
+#tab-almoxarifado .almox-material{transition:border-color .15s,box-shadow .15s}
+#tab-almoxarifado .almox-material:hover{border-color:#c9dbe5;box-shadow:0 4px 13px rgba(25,62,86,.055)}
+#tab-almoxarifado .almox-material-info{flex:1}
+#tab-almoxarifado .almox-material-qty{min-width:78px}
+#tab-almoxarifado .almox-category-card:focus-visible{outline:3px solid rgba(40,123,145,.25);outline-offset:3px}
+@media(max-width:760px){
+ #tab-almoxarifado .almox-quick-tools{align-items:flex-start}
+ #tab-almoxarifado .almox-quick-filters{width:100%}
+ #tab-almoxarifado .almox-quick-filters button{flex:1 1 calc(50% - 7px)}
+ #tab-almoxarifado .almox-show-all-groups{width:100%}
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
@@ -18536,3 +18560,41 @@ function renderMateriaisAlmox(){
  box.innerHTML=lista.map(x=>{const n=Number(x.quantidade_atual)||0,m=Number(x.estoque_minimo)||0,z=n<=0,l=!z&&m>0&&n<=m,s=z?'EM FALTA':l?'ESTOQUE BAIXO':'DISPONÍVEL',cl=z?'zero':l?'low':'ok';return '<article class="almox-material '+(z?'almox-stock-zero':l?'almox-stock-low':'')+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(categoriaMaterialAlmox(x))+(x.descricao?' • '+htmlAlmox(x.descricao):'')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+m.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+cl+'">'+s+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" onclick="editarMaterialAlmox(\''+x.id+'\')">Editar</button><button type="button" class="almox-delete-btn" onclick="excluirMaterialAlmox(\''+x.id+'\')">Excluir</button></div>':'')+'</div></article>'}).join('');
 }
 </script>
+
+
+<script id="erimax-almox-polimento-filtros-2026">
+(function(){
+ if(window.__erimaxAlmoxPolimento2026)return;window.__erimaxAlmoxPolimento2026=true;
+ function iniciar(){
+  const tab=document.getElementById('tab-almoxarifado'),filtros=document.getElementById('almoxFiltroEstoque'),head=tab?.querySelector('.almox-stock-head'),busca=document.getElementById('almoxBusca');
+  if(!tab||!filtros||!head||!busca||document.getElementById('almoxQuickTools'))return;
+  const tools=document.createElement('div');tools.id='almoxQuickTools';tools.className='almox-quick-tools';
+  tools.innerHTML='<div><span class="almox-quick-caption">ATALHOS DE CONSULTA</span><div class="almox-quick-filters" role="group" aria-label="Filtrar materiais por situação"><button type="button" data-stock-filter="todos" aria-pressed="true">Todos</button><button type="button" data-stock-filter="disponivel" aria-pressed="false">Disponíveis</button><button type="button" data-stock-filter="baixo" aria-pressed="false">Estoque baixo</button><button type="button" data-stock-filter="zerado" aria-pressed="false">Em falta</button></div></div><button type="button" class="almox-show-all-groups" id="almoxShowAllGroups">← Ver todos os grupos</button>';
+  head.insertAdjacentElement('afterend',tools);
+  const btn=tools.querySelector('#almoxShowAllGroups');
+  btn.addEventListener('click',function(){
+   ALMOX_CATEGORIA_ATIVA=null;busca.value='';filtros.value='todos';
+   if(typeof renderCategoriasAlmox==='function')renderCategoriasAlmox();
+   if(typeof renderMateriaisAlmox==='function')renderMateriaisAlmox();
+   tools.querySelectorAll('[data-stock-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.stockFilter==='todos')));
+   document.getElementById('almoxCategoryGrid')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  tools.querySelectorAll('[data-stock-filter]').forEach(b=>b.addEventListener('click',function(){
+   filtros.value=this.dataset.stockFilter;
+   tools.querySelectorAll('[data-stock-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===this)));
+   if(typeof renderMateriaisAlmox==='function')renderMateriaisAlmox();
+  }));
+  filtros.addEventListener('change',function(){
+   tools.querySelectorAll('[data-stock-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.stockFilter===filtros.value)));
+  });
+  const renderOriginal=window.renderMateriaisAlmox;
+  if(typeof renderOriginal==='function'&&!window.__erimaxAlmoxRenderWrapped){
+   window.__erimaxAlmoxRenderWrapped=true;
+   window.renderMateriaisAlmox=function(){const r=renderOriginal.apply(this,arguments);tools.querySelectorAll('[data-stock-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.stockFilter===filtros.value)));return r};
+  }
+  tools.querySelectorAll('[data-stock-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.stockFilter===filtros.value)));
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar,{once:true});else iniciar();
+})();
+</script>
+
