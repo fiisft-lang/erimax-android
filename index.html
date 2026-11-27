@@ -7828,7 +7828,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <section class="almox-panel"><div class="almox-panel-head"><div><span class="almox-kicker">ATENÇÃO DO GESTOR</span><h3>Peças informadas nas O.S.</h3><p>Peças não cadastradas ou sem saldo suficiente, informadas diretamente nas O.S.</p></div><span class="almox-panel-icon">!</span></div><div id="almoxListaSolicitacoes" class="almox-requests"><p class="almox-empty">Nenhuma solicitação aguardando análise.</p></div></section></div>
 <section class="almox-panel" id="almoxCardEstoqueCompleto"><div class="almox-panel-head almox-stock-head"><div><span class="almox-kicker">INVENTÁRIO EM TEMPO REAL</span><h3>Estoque completo</h3><p><span id="almoxContagemLista">Todos os materiais ativos</span> • saldo atualizado automaticamente</p></div><div class="almox-stock-filters"><input id="almoxBusca" type="search" placeholder="Buscar peça ou código..." oninput="renderMateriaisAlmox()"><select id="almoxFiltroEstoque" aria-label="Filtrar situação do estoque" onchange="renderMateriaisAlmox()"><option value="todos">Todas as peças</option><option value="disponivel">Disponíveis</option><option value="baixo">Estoque baixo</option><option value="zerado">Em falta</option></select></div></div><div id="almoxListaMateriais" class="almox-material-list"><p class="almox-empty">Carregando materiais...</p></div></section>
 <section class="almox-panel" id="almoxRetiradaAvulsa">
- <div class="almox-panel-head"><div><span class="almox-kicker">SAÍDA FORA DAS O.S.</span><h3>Retirada avulsa</h3><p>Solicite materiais para fabricação, montagem ou atividades da oficina. A baixa ocorre somente após autorização do gestor.</p></div><span class="almox-panel-icon">↗</span></div>
+ <div class="almox-panel-head"><div><span class="almox-kicker">SAÍDA FORA DAS O.S.</span><h3>Retirada avulsa</h3><p>Confirme a retirada e a baixa do estoque acontece imediatamente, sem aprovação.</p></div><span class="almox-panel-icon">↗</span></div>
  <form id="almoxFormRetiradaAvulsa" class="almox-form-grid" onsubmit="solicitarRetiradaAvulsaAlmox(event)">
   <label class="almox-span-2">Material do estoque *<select id="almoxAvulsaMaterial"><option value="">Selecione um material</option></select></label>
   <label>Quantidade *<input id="almoxAvulsaQtd" type="number" min="0.001" step="0.001" required placeholder="Ex.: 2"></label>
@@ -7836,7 +7836,7 @@ function atualizarNavegacaoMobileEriMax(id){
   <div class="almox-avulsa-cart-wrap almox-span-2"><div class="almox-avulsa-cart-head"><strong>Materiais desta retirada</strong><span id="almoxAvulsaContagem">0 itens</span></div><div id="almoxAvulsaItens" class="almox-avulsa-cart"><p class="almox-empty">Adicione os materiais que serão retirados.</p></div></div>
   <label>Destino / setor *<input id="almoxAvulsaDestino" maxlength="120" required placeholder="Ex.: Oficina — fabricação de máquina"></label>
   <label class="almox-span-2">Motivo da retirada *<textarea id="almoxAvulsaMotivo" rows="2" maxlength="240" required placeholder="Ex.: Montagem de conjunto mecânico, fabricação de máquina..."></textarea></label>
-  <div class="almox-form-actions"><button class="btn-submit" type="submit">Enviar solicitação de retirada</button></div>
+  <div class="almox-form-actions"><button class="btn-submit" type="submit">Confirmar retirada e dar baixa</button></div>
  </form>
  <div class="almox-avulsa-history-head"><div><span class="almox-kicker">CONTROLE E AUTORIZAÇÃO</span><h3>Solicitações de retirada</h3><p>O gestor autoriza ou recusa; toda saída autorizada entra no histórico do estoque.</p></div><button type="button" class="almox-refresh" onclick="carregarRetiradasAvulsasAlmox()">↻ Atualizar</button></div>
  <div id="almoxListaRetiradasAvulsas" class="almox-requests"><p class="almox-empty">Carregando solicitações...</p></div>
@@ -14432,27 +14432,26 @@ function adicionarItemRetiradaAvulsa(){
 }
 function removerItemRetiradaAvulsa(i){ALMOX_AVULSA_ITENS.splice(i,1);renderItensRetiradaAvulsa()}
 async function solicitarRetiradaAvulsaAlmox(e){
- e.preventDefault();if(!MEU_ID||!PERFIL||!["gestor","tecnico","operador"].includes(PERFIL.perfil))return alert("Seu perfil não tem acesso para solicitar materiais.");
+ e.preventDefault();if(!MEU_ID||!PERFIL||!["gestor","tecnico","operador"].includes(PERFIL.perfil))return alert("Seu perfil não tem acesso para registrar retirada.");
  if(!ALMOX_AVULSA_ITENS.length)return alert("Adicione pelo menos um material à retirada.");
  const destino=document.getElementById("almoxAvulsaDestino").value.trim(),motivo=document.getElementById("almoxAvulsaMotivo").value.trim();if(destino.length<2||motivo.length<3)return alert("Informe o destino e o motivo da retirada.");
- const btn=e.submitter;if(btn){btn.disabled=true;btn.textContent="Enviando..."}
- try{const {data,error}=await _supabase.rpc("almox_solicitar_retirada_avulsa",{p_itens:ALMOX_AVULSA_ITENS.map(x=>({material_id:x.material_id,quantidade:x.quantidade})),p_destino:destino,p_motivo:motivo});
- if(error)throw error;document.getElementById("almoxFormRetiradaAvulsa").reset();ALMOX_AVULSA_ITENS=[];renderItensRetiradaAvulsa();alert("Solicitação enviada. A baixa será feita após autorização do gestor.");await carregarRetiradasAvulsasAlmox();
- }catch(err){console.error("Erro ao solicitar retirada avulsa:",err);alert("Não foi possível enviar a solicitação: "+(err?.message||"verifique a conexão."))}finally{if(btn){btn.disabled=false;btn.textContent="Enviar solicitação de retirada"}}
+ if(!await erimaxConfirm("Confirmar a retirada de "+ALMOX_AVULSA_ITENS.length+" material(is)? O estoque será baixado imediatamente."))return;
+ const btn=e.submitter;if(btn){btn.disabled=true;btn.textContent="Registrando baixa..."}
+ try{const {data,error}=await _supabase.rpc("almox_registrar_retirada_avulsa",{p_itens:ALMOX_AVULSA_ITENS.map(x=>({material_id:x.material_id,quantidade:x.quantidade})),p_destino:destino,p_motivo:motivo});
+ if(error)throw error;document.getElementById("almoxFormRetiradaAvulsa").reset();ALMOX_AVULSA_ITENS=[];renderItensRetiradaAvulsa();alert("Retirada registrada e estoque baixado com sucesso.");await carregarAlmoxarifado();await carregarRetiradasAvulsasAlmox();
+ }catch(err){console.error("Erro ao registrar retirada avulsa:",err);alert("Não foi possível registrar a retirada: "+(err?.message||"verifique a conexão."))}finally{if(btn){btn.disabled=false;btn.textContent="Confirmar retirada e dar baixa"}}
 }
 async function carregarRetiradasAvulsasAlmox(){
  const box=document.getElementById("almoxListaRetiradasAvulsas");if(!box||!MEU_ID)return;
  const {data,error}=await _supabase.from("almox_retiradas_avulsas").select("*").order("criado_em",{ascending:false}).limit(100);
- if(error){console.warn("Retirada avulsa ainda não está disponível no banco:",error);box.innerHTML='<p class="almox-empty">A página está pronta; a conexão com o controle de retiradas será ativada na configuração do banco.</p>';return}
- if(!data?.length){box.innerHTML='<p class="almox-empty">Nenhuma solicitação de retirada registrada.</p>';return}
- box.innerHTML=data.map(r=>{const itens=Array.isArray(r.itens)?r.itens:[],st=r.status||"pendente",label=st==="aprovada"?"AUTORIZADA":st==="recusada"?"RECUSADA":"AGUARDANDO AUTORIZAÇÃO";
- const linhas=itens.map(x=>htmlAlmox(x.nome)+" — "+Number(x.quantidade).toLocaleString("pt-BR")+" "+htmlAlmox(x.unidade)).join("<br>");
- const acoes=gestorAlmox()&&st==="pendente"?'<div class="almox-request-controls"><button type="button" class="almox-approve" onclick="aprovarRetiradaAvulsaAlmox(\''+r.id+\'\')">Autorizar e dar baixa</button><button type="button" class="almox-reject" onclick="recusarRetiradaAvulsaAlmox(\''+r.id+\'\')">Recusar</button></div>':"";
- return '<article class="almox-request"><div class="almox-request-top"><div><strong>Retirada • '+htmlAlmox(r.destino)+'</strong><span class="almox-avulsa-status '+st+'">'+label+'</span><small>'+linhas+'</small><small>Motivo: '+htmlAlmox(r.motivo)+'</small><small>Solicitado em '+new Date(r.criado_em).toLocaleString("pt-BR")+(r.justificativa_analise?" • "+htmlAlmox(r.justificativa_analise):"")+'</small></div></div>'+acoes+'</article>';
+ if(error){console.warn("Erro ao carregar histórico de retiradas avulsas:",error);box.innerHTML='<p class="almox-empty">Não foi possível carregar o histórico de retiradas.</p>';return}
+ if(!data?.length){box.innerHTML='<p class="almox-empty">Nenhuma retirada registrada.</p>';return}
+ box.innerHTML=data.map(r=>{const itens=Array.isArray(r.itens)?r.itens:[];const linhas=itens.map(x=>htmlAlmox(x.nome)+" — "+Number(x.quantidade).toLocaleString("pt-BR")+" "+htmlAlmox(x.unidade)).join("<br>");
+ return '<article class="almox-request"><div class="almox-request-top"><div><strong>Retirada • '+htmlAlmox(r.destino)+'</strong><span class="almox-avulsa-status aprovada">BAIXA REGISTRADA</span><small>'+linhas+'</small><small>Motivo: '+htmlAlmox(r.motivo)+'</small><small>Registrado em '+new Date(r.criado_em).toLocaleString("pt-BR")+'</small></div></div></article>';
  }).join("");
 }
-async function aprovarRetiradaAvulsaAlmox(id){if(!gestorAlmox())return alert("Acesso exclusivo do Gestor.");if(!await erimaxConfirm("Autorizar esta retirada? O saldo dos materiais será baixado imediatamente."))return;const {error}=await _supabase.rpc("almox_aprovar_retirada_avulsa",{p_retirada_id:id});if(error){alert("Não foi possível autorizar: "+error.message);return}alert("Retirada autorizada e baixa registrada no estoque.");await carregarAlmoxarifado();await carregarRetiradasAvulsasAlmox()}
-async function recusarRetiradaAvulsaAlmox(id){if(!gestorAlmox())return alert("Acesso exclusivo do Gestor.");const motivo=await erimaxPrompt("Informe o motivo da recusa:");if(motivo===null)return;if(motivo.trim().length<3)return alert("Informe um motivo com pelo menos 3 caracteres.");const {error}=await _supabase.rpc("almox_recusar_retirada_avulsa",{p_retirada_id:id,p_justificativa:motivo.trim()});if(error){alert("Não foi possível recusar: "+error.message);return}await carregarRetiradasAvulsasAlmox()}
+
+
 function gestorAlmox(){return !!(PERFIL&&PERFIL.perfil==='gestor'&&MEU_ID)}
 function atualizarRotuloAjusteAlmox(){const t=document.getElementById('almoxMovTipo')?.value,l=document.getElementById('almoxQtdLabel');if(l)l.textContent=t==='ajuste'?'Novo saldo final *':'Quantidade *'}
 function htmlAlmox(v){return escaparHtml(v==null?'':String(v))}
