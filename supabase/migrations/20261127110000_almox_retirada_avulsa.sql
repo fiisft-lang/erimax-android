@@ -32,7 +32,8 @@ declare
 begin
   if v_uid is null then raise exception 'Sessão não autenticada.'; end if;
   if coalesce(public.meu_perfil(),'') not in ('gestor','tecnico','operador') then raise exception 'Seu perfil não pode solicitar materiais.'; end if;
-  if jsonb_typeof(coalesce(p_itens,'null'::jsonb)) <> 'array' or jsonb_array_length(p_itens) < 1 or jsonb_array_length(p_itens) > 30 then raise exception 'Adicione de 1 a 30 materiais.'; end if;
+  if jsonb_typeof(coalesce(p_itens,'null'::jsonb)) <> 'array' then raise exception 'A lista de materiais é inválida.'; end if;
+  if jsonb_array_length(p_itens) < 1 or jsonb_array_length(p_itens) > 30 then raise exception 'Adicione de 1 a 30 materiais.'; end if;
   if length(trim(coalesce(p_destino,''))) not between 2 and 120 then raise exception 'Informe o destino da retirada.'; end if;
   if length(trim(coalesce(p_motivo,''))) not between 3 and 240 then raise exception 'Informe o motivo da retirada.'; end if;
   for v_item in select value from jsonb_array_elements(p_itens) loop
