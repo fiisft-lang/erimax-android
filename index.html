@@ -9477,11 +9477,11 @@ async function pausarOS(id){
   const tecnicoAtual=PERFIL&&ehTecnicoAtual()&&os.tecnico===PERFIL.nome;
   if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode pausar esta O.S.');
   if(!os.tecnico)return alert('Esta O.S. ainda não tem um técnico responsável.');
-  const escolha=prompt('Por que deseja pausar esta O.S.?\n\n1 - Aguardando peça\n2 - Outra ordem mais urgente\n3 - Falta de material ou ferramenta\n4 - Equipamento indisponível\n5 - Outro motivo\n\nDigite o número da opção:');
+  const escolha=await erimaxPrompt('Por que deseja pausar esta O.S.?\n\n1 - Aguardando peça\n2 - Outra ordem mais urgente\n3 - Falta de material ou ferramenta\n4 - Equipamento indisponível\n5 - Outro motivo\n\nDigite o número da opção:');
   if(escolha===null)return;
   const motivos={'1':'Aguardando peça','2':'Outra ordem mais urgente','3':'Falta de material ou ferramenta','4':'Equipamento indisponível'};
   let motivo=motivos[String(escolha).trim()];
-  if(String(escolha).trim()==='5')motivo=prompt('Descreva o motivo da pausa:');
+  if(String(escolha).trim()==='5')motivo=await erimaxPrompt('Descreva o motivo da pausa:');
   if(!motivo&&String(escolha).trim()!=='5')return alert('Escolha uma das opções de 1 a 5.');
   if(!motivo||!motivo.trim())return alert('Informe o motivo da pausa.');
   motivo=motivo.trim().slice(0,300);
@@ -9531,12 +9531,12 @@ async function transferirOS(id){
   const tecnicoAtual=PERFIL&&ehTecnicoAtual()&&os.tecnico===PERFIL.nome;
   if(!gestor&&!tecnicoAtual)return alert('Somente o técnico responsável ou o gestor pode iniciar uma transferência.');
   if(os.transferencia_para)return alert('Esta O.S. já tem uma transferência aguardando aceite.');
-  const novo=prompt(`${nOS(os)} atualmente com: ${os.tecnico}\n\nDigite o nome do técnico que receberá a O.S.:`);
+  const novo=await erimaxPrompt(`${nOS(os)} atualmente com: ${os.tecnico}\n\nDigite o nome do técnico que receberá a O.S.:`);
   if(!novo||!novo.trim())return;
   const novoTec=TECNICOS.find(x=>x.nome.toLowerCase()===novo.trim().toLowerCase());
   if(!novoTec)return alert('Não encontrei esse técnico cadastrado.');
   if(novoTec.nome===os.tecnico)return alert('Escolha um técnico diferente do responsável atual.');
-  const motivo=prompt('Informe o motivo obrigatório da transferência da '+nOS(os)+':');
+  const motivo=await erimaxPrompt('Informe o motivo obrigatório da transferência da '+nOS(os)+':');
   if(!motivo||!motivo.trim())return alert('A transferência não foi solicitada. Informe o motivo para continuar.');
   const {error}=await _supabase.rpc('erimax_solicitar_transferencia_os',{
     p_os_id:id,
@@ -9787,7 +9787,7 @@ async function confirmarReaberturaOS(){
   const motivo=document.getElementById('motivoReabrirOS').value.trim();
   if(!id)return;
   if(motivo.length<8)return alert('Informe o motivo com pelo menos 8 caracteres.');
-  if(!confirm('Reabrir a O.S. '+String(id).padStart(4,'0')+'? Ela voltará para Em Atendimento.'))return;
+  if(!await erimaxConfirm('Reabrir a O.S. '+String(id).padStart(4,'0')+'? Ela voltará para Em Atendimento.'))return;
   const {error}=await _supabase.rpc('reabrir_os_concluida',{p_os_id:id,p_motivo:motivo});
   if(error)return alert('Não foi possível reabrir a O.S.: '+error.message);
   fecharModalReabrirOS();
@@ -9845,7 +9845,7 @@ async function cancelarOS(id){
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Acesso negado! Apenas o administrador pode cancelar ordens de serviço.');
   const os=chamados.find(c=>Number(c.id)===Number(id));if(!os)return;
   if(!['Aberta','Em Atendimento','Pausada'].includes(os.status))return alert('Esta O.S. não pode mais ser cancelada.');
-  if(!confirm('Cancelar a O.S. #'+String(id).padStart(4,'0')+'? Ela continuará no histórico e não será apagada do banco de dados.'))return;
+  if(!await erimaxConfirm('Cancelar a O.S. #'+String(id).padStart(4,'0')+'? Ela continuará no histórico e não será apagada do banco de dados.'))return;
   const {data:cancelada,error}=await _supabase.from('os').update({status:'Cancelada'}).eq('id',id).in('status',['Aberta','Em Atendimento','Pausada']).select('id').maybeSingle();
   if(error)return alert('Erro ao cancelar O.S.: '+error.message);
   if(!cancelada){await carregarDadosSupabase();return alert('Esta O.S. já foi alterada e não pode mais ser cancelada neste estado. A lista foi atualizada.');}
@@ -9854,7 +9854,7 @@ async function cancelarOS(id){
 
 async function excluirOS(id){
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Acesso negado! Apenas o administrador autorizado pode apagar ordens de serviço.');
-  if(!confirm('ATENÇÃO: excluir definitivamente a O.S. #'+String(id).padStart(4,'0')+'? O registro será removido do banco de dados e não aparecerá mais no histórico. Prefira Cancelar quando quiser apenas encerrar sem apagar.'))return;
+  if(!await erimaxConfirm('ATENÇÃO: excluir definitivamente a O.S. #'+String(id).padStart(4,'0')+'? O registro será removido do banco de dados e não aparecerá mais no histórico. Prefira Cancelar quando quiser apenas encerrar sem apagar.'))return;
   // Guarda o responsável antes da exclusão; após apagar, recalcula ONLINE/OFFLINE conforme O.S. restantes e turno ativo.
   const {data:os,error:buscaError}=await _supabase.from('os').select('id,tecnico').eq('id',id).maybeSingle();
   if(buscaError)return alert('Não foi possível verificar o técnico da O.S.: '+buscaError.message);
@@ -11649,7 +11649,7 @@ async function addMaquina(i){
 }
 async function delMaquina(id){
   if(!erimaxExigirGestorCadastro())return;
-  if(!confirm('Remover esta máquina do cadastro? (as OS antigas continuam no histórico)'))return;
+  if(!await erimaxConfirm('Remover esta máquina do cadastro? (as OS antigas continuam no histórico)'))return;
   const {error}=await _supabase.from('maquinas').delete().eq('id',id);
   if(error)return alert('Erro: '+error.message);
   carregarMaquinas();
@@ -13865,7 +13865,7 @@ async function salvarExcecaoHorario(i){
     if(ini&&fim)horarios.push({numero_turno:n,hora_inicio:ini,hora_fim:fim,intervalo_ativo:pausa,intervalo_inicio:pausa?pIni:null,intervalo_fim:pausa?pFim:null});
   }
   // Exceções também permitem turnos sobrepostos; a disponibilidade une os intervalos sem duplicar tempo.
-  if(!horarios.length&&!confirm('Nenhum horário foi informado. Deseja marcar '+data+' como dia sem produção?'))return;
+  if(!horarios.length&&!await erimaxConfirm('Nenhum horário foi informado. Deseja marcar '+data+' como dia sem produção?'))return;
   const {error}=await _supabase.from('setores_horarios_excecoes').upsert({setor:s,data_excecao:data,observacao:obs,horarios},{onConflict:'setor,data_excecao'});
   if(error)return alert('Erro ao salvar a data especial: '+error.message);
   await carregarCfg();SETOR_EM_EDICAO=s;renderCfg();
@@ -13873,7 +13873,7 @@ async function salvarExcecaoHorario(i){
 }
 async function excluirExcecaoHorario(i,data){
   if(!erimaxExigirGestorCadastro())return;
-  const s=SETORES[i];if(!confirm('Excluir a exceção de '+data+'? O setor voltará a usar o horário semanal nessa data.'))return;
+  const s=SETORES[i];if(!await erimaxConfirm('Excluir a exceção de '+data+'? O setor voltará a usar o horário semanal nessa data.'))return;
   const {error}=await _supabase.from('setores_horarios_excecoes').delete().eq('setor',s).eq('data_excecao',data);
   if(error)return alert('Erro ao excluir: '+error.message);
   await carregarCfg();SETOR_EM_EDICAO=s;renderCfg();
@@ -13894,7 +13894,7 @@ async function apagarSetor(i){
   const nome=SETORES[i];
   const vinculadas=MAQUINAS.filter(m=>m.setor===nome);
   if(vinculadas.length)return alert('Não é possível excluir "'+nome+'" porque existem '+vinculadas.length+' máquina(s) cadastrada(s) nele. Para preservar os cadastros, primeiro remova ou transfira essas máquinas na tela Máquinas por setor.');
-  if(!confirm('Apagar o setor "'+nome+'"? Os horários serão removidos, mas as ordens de serviço antigas continuarão no histórico.'))return;
+  if(!await erimaxConfirm('Apagar o setor "'+nome+'"? Os horários serão removidos, mas as ordens de serviço antigas continuarão no histórico.'))return;
   for(const tabela of ['setores_horarios_excecoes','setores_horarios_semanais','setores_turnos']){
     const {error}=await _supabase.from(tabela).delete().eq('setor',nome);
     if(error)return alert('Erro ao limpar horários do setor: '+error.message);
@@ -13929,7 +13929,7 @@ async function criarUsuario(){
 }
 async function redefinirSenha(id){
   if(!erimaxExigirGestorCadastro())return;
-  const nova=prompt('Digite a nova senha (mínimo 8 caracteres):');
+  const nova=await erimaxPrompt('Digite a nova senha (mínimo 8 caracteres):');
   if(!nova)return;
   if(nova.length<8)return alert('A senha precisa ter no mínimo 8 caracteres.');
   const {data,error}=await _supabase.functions.invoke('criar-usuario',{body:{acao:'senha',id,senha:nova}});
@@ -13940,7 +13940,7 @@ async function redefinirSenha(id){
 }
 async function apagarUsuario(id){
   if(!erimaxExigirGestorCadastro())return;
-  if(!confirm('Apagar este usuário? Ele perde o acesso. As OS que ele atendeu continuam no histórico.'))return;
+  if(!await erimaxConfirm('Apagar este usuário? Ele perde o acesso. As OS que ele atendeu continuam no histórico.'))return;
   const {data,error}=await _supabase.functions.invoke('criar-usuario',{body:{acao:'apagar',id}});
   let msg=data&&data.erro;
   if(error&&!msg){try{msg=(await error.context.json()).erro}catch(e){msg=error.message}}
@@ -14197,7 +14197,7 @@ async function addPrev(){
 }
 async function delPrev(id){
   if(!erimaxExigirGestorCadastro())return;
-  if(!confirm('Remover esta preventiva? O histórico de ordens de serviço já abertas será preservado.'))return;
+  if(!await erimaxConfirm('Remover esta preventiva? O histórico de ordens de serviço já abertas será preservado.'))return;
   const {error}=await _supabase.from('preventivas').delete().eq('id',id);
   if(error)return alert('Não foi possível remover a preventiva: '+error.message);
   await carregarPreventivas();
@@ -14227,7 +14227,7 @@ async function gerarOSPrev(id){
   const p=PREV.find(x=>Number(x.id)===Number(id));if(!p)return;
   window.__erimaxPrevGerando=window.__erimaxPrevGerando||new Set();
   if(window.__erimaxPrevGerando.has(String(id)))return;
-  if(!confirm('Gerar uma nova ordem de serviço para esta preventiva?'))return;
+  if(!await erimaxConfirm('Gerar uma nova ordem de serviço para esta preventiva?'))return;
   window.__erimaxPrevGerando.add(String(id));
   try{
     const h=new Date().getHours(),registros=registrosMaquinasPreventiva(p),maquinas=registros.map(m=>m.nome);
@@ -14348,6 +14348,58 @@ window.onload=async function(){
 })();
 </script>
 <script id="erimax-almoxarifado-logic-2026">
+/* Diálogos próprios para compatibilidade com WebView Android e navegador. */
+function erimaxDialogFrame(message,tipo){
+ const overlay=document.createElement('div');
+ overlay.id='erimaxCompatDialog';
+ overlay.setAttribute('role','presentation');
+ overlay.style.cssText='position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(12,27,39,.62);';
+ const card=document.createElement('section');
+ card.setAttribute('role',tipo==='confirm'?'alertdialog':'dialog');
+ card.setAttribute('aria-modal','true');
+ card.style.cssText='width:min(100%,440px);max-height:min(88vh,640px);overflow:auto;background:#fff;color:#18394d;border:1px solid #d8e2e9;border-radius:16px;padding:20px;box-shadow:0 18px 55px rgba(0,0,0,.28);font-family:inherit;';
+ const title=document.createElement('strong');
+ title.textContent=tipo==='confirm'?'Confirmar ação':'Informação necessária';
+ title.style.cssText='display:block;font-size:1rem;font-weight:800;margin-bottom:12px;';
+ const body=document.createElement('div');
+ body.textContent=String(message??'');
+ body.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;color:#42596a;font-size:.9rem;line-height:1.5;margin-bottom:16px;';
+ card.append(title,body);overlay.appendChild(card);document.body.appendChild(overlay);
+ return {overlay,card};
+}
+function erimaxConfirm(message){
+ return new Promise(resolve=>{
+  const {overlay,card}=erimaxDialogFrame(message,'confirm');
+  const actions=document.createElement('div');actions.style.cssText='display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;';
+  const finish=value=>{document.removeEventListener('keydown',keyHandler);overlay.remove();resolve(value)};
+  const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancelar';
+  cancel.style.cssText='min-height:42px;padding:9px 15px;border:1px solid #cbd8e1;border-radius:9px;background:#f5f8fa;color:#345166;font-weight:750;';
+  const accept=document.createElement('button');accept.type='button';accept.textContent='Confirmar';
+  accept.style.cssText='min-height:42px;padding:9px 16px;border:1px solid #245f78;border-radius:9px;background:#245f78;color:#fff;font-weight:800;';
+  cancel.addEventListener('click',()=>finish(false));accept.addEventListener('click',()=>finish(true));
+  const keyHandler=e=>{if(e.key==='Escape'){e.preventDefault();finish(false)}else if(e.key==='Enter'){e.preventDefault();finish(true)}};
+  document.addEventListener('keydown',keyHandler);actions.append(cancel,accept);card.appendChild(actions);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)finish(false)});accept.focus();
+ });
+}
+function erimaxPrompt(message,defaultValue=''){
+ return new Promise(resolve=>{
+  const {overlay,card}=erimaxDialogFrame(message,'prompt');
+  const input=document.createElement('input');input.type='text';input.value=String(defaultValue??'');input.autocomplete='off';
+  input.style.cssText='box-sizing:border-box;width:100%;min-height:44px;margin:0 0 16px;padding:10px 12px;border:1px solid #bdcbd5;border-radius:9px;background:#fff;color:#18394d;font:inherit;font-size:16px;';
+  const actions=document.createElement('div');actions.style.cssText='display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;';
+  const finish=value=>{document.removeEventListener('keydown',keyHandler);overlay.remove();resolve(value)};
+  const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancelar';
+  cancel.style.cssText='min-height:42px;padding:9px 15px;border:1px solid #cbd8e1;border-radius:9px;background:#f5f8fa;color:#345166;font-weight:750;';
+  const accept=document.createElement('button');accept.type='button';accept.textContent='Salvar';
+  accept.style.cssText='min-height:42px;padding:9px 16px;border:1px solid #245f78;border-radius:9px;background:#245f78;color:#fff;font-weight:800;';
+  cancel.addEventListener('click',()=>finish(null));accept.addEventListener('click',()=>finish(input.value));
+  const keyHandler=e=>{if(e.key==='Escape'){e.preventDefault();finish(null)}else if(e.key==='Enter'){e.preventDefault();finish(input.value)}};
+  document.addEventListener('keydown',keyHandler);actions.append(cancel,accept);card.append(input,actions);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)finish(null)});input.focus();input.select();
+ });
+}
+
 let ALMOX_MATERIAIS=[],ALMOX_MOVIMENTOS=[],ALMOX_SOLICITACOES=[];
 function gestorAlmox(){return !!(PERFIL&&PERFIL.perfil==='gestor'&&MEU_ID)}
 function atualizarRotuloAjusteAlmox(){const t=document.getElementById('almoxMovTipo')?.value,l=document.getElementById('almoxQtdLabel');if(l)l.textContent=t==='ajuste'?'Novo saldo final *':'Quantidade *'}
@@ -14424,9 +14476,9 @@ function renderSolicitacoesAlmox(){
   const status=s.status==='nao_cadastrado'?'NÃO CADASTRADO':s.status==='estoque_insuficiente'?'ESTOQUE INSUFICIENTE':match?'CADASTRADO • AGUARDANDO REGULARIZAÇÃO':'NÃO CADASTRADO • AGUARDANDO VÍNCULO';
   const classe=s.status==='nao_cadastrado'?'almox-request-unregistered':'almox-request-registered';
   const sid=JSON.stringify(s.id);
-  const menu=gestorAlmox()?'<details class="almox-more-menu"><summary aria-label="Mais opções" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarSolicitacaoAlmox('+sid+')">Editar</button><button type="button" class="danger" onclick="excluirSolicitacaoAlmox('+sid+')">Excluir</button></div></details>':'';
+  const menu=gestorAlmox()?'<details class="almox-more-menu"><summary aria-label="Mais opções" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" data-almox-pending-action="edit" data-id="'+htmlAlmox(s.id)+'">Editar</button><button type="button" class="danger" data-almox-pending-action="delete" data-id="'+htmlAlmox(s.id)+'">Excluir</button></div></details>':'';
   const controls=gestorAlmox()
-   ?'<div class="almox-request-controls"><select id="almoxReqMat-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" onclick="prepararCadastroMaterialAlmox('+sid+')">Cadastrar material</button>':'')+'<button class="almox-approve" type="button" onclick="aprovarSolicitacaoAlmox('+sid+')">Registrar baixa</button></div>'
+   ?'<div class="almox-request-controls"><select id="almoxReqMat-list-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" data-almox-pending-action="register" data-id="'+htmlAlmox(s.id)+'">Cadastrar material</button>':'')+'<button class="almox-approve" type="button" data-almox-pending-action="approve" data-id="'+htmlAlmox(s.id)+'">Registrar baixa</button></div>'
    :'<small class="almox-request-readonly">Informação enviada pela manutenção. O gestor fará o cadastro ou a regularização do estoque.</small>';
   return '<article class="almox-request"><div class="almox-request-top"><div><strong>'+htmlAlmox(s.nome_material)+'</strong><span class="'+classe+'">'+status+'</span><small>O.S. #'+s.os_id+' • Quantidade: '+Number(s.quantidade).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade)+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small>'+(s.observacao?'<small>'+htmlAlmox(s.observacao)+'</small>':'')+'</div>'+menu+'</div>'+controls+'</article>';
  }).join('');
@@ -14435,13 +14487,13 @@ async function editarSolicitacaoAlmox(id){
  if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
  const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
  if(!s)return alert('Peça informada não encontrada. Atualize o Almoxarifado e tente novamente.');
- const nome=prompt('Nome da peça:',s.nome_material||'');if(nome===null)return;
+ const nome=await erimaxPrompt('Nome da peça:',s.nome_material||'');if(nome===null)return;
  if(!nome.trim())return alert('Informe o nome da peça.');
- const qtdTxt=prompt('Quantidade:',String(s.quantidade??1));if(qtdTxt===null)return;
+ const qtdTxt=await erimaxPrompt('Quantidade:',String(s.quantidade??1));if(qtdTxt===null)return;
  const qtd=Number(String(qtdTxt).replace(',','.'));if(!Number.isFinite(qtd)||qtd<=0)return alert('Informe uma quantidade válida maior que zero.');
- const unidade=prompt('Unidade (un, kg, m...):',s.unidade||'un');if(unidade===null)return;
+ const unidade=await erimaxPrompt('Unidade (un, kg, m...):',s.unidade||'un');if(unidade===null)return;
  if(!unidade.trim())return alert('Informe a unidade.');
- const observacao=prompt('Observação (opcional):',s.observacao||'');if(observacao===null)return;
+ const observacao=await erimaxPrompt('Observação (opcional):',s.observacao||'');if(observacao===null)return;
  const {data,error}=await _supabase.from('almox_solicitacoes').update({nome_material:nome.trim(),quantidade:qtd,unidade:unidade.trim(),observacao:observacao.trim()||null}).eq('id',id).select('id').maybeSingle();
  if(error){console.error('Falha ao editar peça informada:',error);return alert('Não foi possível salvar a edição: '+error.message)}
  if(!data)return alert('A edição não foi confirmada. Verifique a permissão do perfil Gestor.');
@@ -14449,11 +14501,17 @@ async function editarSolicitacaoAlmox(id){
  await carregarAlmoxarifado();
 }
 function prepararCadastroMaterialAlmox(id){
- const s=ALMOX_SOLICITACOES.find(x=>x.id===id);if(!s||!gestorAlmox())return;
- document.getElementById('almoxNome').value=s.nome_material||'';
- document.getElementById('almoxUnidade').value=s.unidade||'un';
- document.getElementById('almoxFormMaterial').scrollIntoView({behavior:'smooth',block:'center'});
- document.getElementById('almoxNome').focus({preventScroll:true});
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
+ if(!s)return alert('Peça informada não encontrada. Atualize o Almoxarifado e tente novamente.');
+ const painel=document.getElementById('almoxAdminCadastro');
+ if(painel?.classList.contains('erimax-card-collapsed'))painel.querySelector(':scope > .almox-panel-head .erimax-card-toggle')?.click();
+ const nome=document.getElementById('almoxNome'),unidade=document.getElementById('almoxUnidade'),form=document.getElementById('almoxFormMaterial');
+ if(!nome||!unidade||!form)return alert('O formulário de cadastro não foi encontrado nesta tela. Atualize o Almoxarifado e tente novamente.');
+ nome.value=s.nome_material||'';
+ unidade.value=s.unidade||'un';
+ form.scrollIntoView({behavior:'smooth',block:'center'});
+ nome.focus({preventScroll:true});
 }
 function renderHistoricoAlmox(){
  const box=document.getElementById('almoxHistorico');if(!box)return;
@@ -14506,7 +14564,7 @@ async function excluirMaterialAlmox(id){
  if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
  const m=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));
  if(!m)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
- if(!confirm('Deseja remover o material "'+m.nome+'"? Se houver movimentações, solicitações ou O.S. vinculadas, ele será inativado para preservar o histórico.'))return;
+ if(!await erimaxConfirm('Deseja remover o material "'+m.nome+'"? Se houver movimentações, solicitações ou O.S. vinculadas, ele será inativado para preservar o histórico.'))return;
  const nomeErro=e=>{
   if(!e)return 'Erro não identificado pelo servidor.';
   if(typeof e==='string')return e;
@@ -14586,13 +14644,23 @@ async function salvarMaterialAlmox(e){
  await carregarAlmoxarifado();
 }
 async function movimentarEstoqueAlmox(e){e.preventDefault();if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const tipo=document.getElementById('almoxMovTipo').value,material=document.getElementById('almoxMovMaterial').value,qtd=Number(document.getElementById('almoxMovQtd').value),motivo=document.getElementById('almoxMovMotivo').value.trim(),os=document.getElementById('almoxMovOS').value;if(!material||!Number.isFinite(qtd)||qtd<=0||motivo.length<3)return alert('Confira material, quantidade e motivo.');const {error}=await _supabase.from('almox_movimentacoes').insert({material_id:material,tipo,quantidade:qtd,motivo,os_id:os?Number(os):null,criado_por:MEU_ID});if(error){alert('Movimentação não realizada: '+error.message);return}document.getElementById('almoxFormMov').reset();atualizarRotuloAjusteAlmox();alert('Movimentação registrada e saldo atualizado.');await carregarAlmoxarifado()}
-async function aprovarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const material=document.getElementById('almoxReqMat-'+id)?.value;if(!material)return alert('Selecione o material correspondente ou cadastre-o antes de aprovar.');const {error}=await _supabase.rpc('almox_aprovar_solicitacao',{p_solicitacao_id:id,p_material_id:material,p_justificativa:null});if(error){alert('Não foi possível aprovar a saída: '+error.message);return}alert('Solicitação aprovada. A saída foi registrada no histórico da O.S.');await carregarAlmoxarifado()}
-async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const motivo=prompt('Informe o motivo da recusa:');if(motivo===null)return;if(motivo.trim().length<3)return alert('Informe um motivo com pelo menos 3 caracteres.');const {error}=await _supabase.from('almox_solicitacoes').update({status:'recusada',analisado_por:MEU_ID,analisado_em:new Date().toISOString(),justificativa_analise:motivo.trim()}).eq('id',id).eq('status','pendente');if(error){alert('Não foi possível recusar: '+error.message);return}await carregarAlmoxarifado()}
+async function aprovarSolicitacaoAlmox(id,materialSelecionado){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const material=String(materialSelecionado||'').trim();
+ if(!material)return alert('Selecione o material correspondente ou cadastre-o antes de aprovar.');
+ try{
+  const {error}=await _supabase.rpc('almox_aprovar_solicitacao',{p_solicitacao_id:String(id),p_material_id:material,p_justificativa:null});
+  if(error){console.error('Falha ao registrar baixa da peça informada:',error);return alert('Não foi possível aprovar a saída: '+error.message)}
+  alert('Solicitação aprovada. A saída foi registrada no histórico da O.S.');
+  await carregarAlmoxarifado();
+ }catch(error){console.error('Erro inesperado ao registrar baixa:',error);alert('Não foi possível registrar a baixa. '+(error?.message||'Verifique a conexão e tente novamente.'))}
+}
+async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const motivo=await erimaxPrompt('Informe o motivo da recusa:');if(motivo===null)return;if(motivo.trim().length<3)return alert('Informe um motivo com pelo menos 3 caracteres.');const {error}=await _supabase.from('almox_solicitacoes').update({status:'recusada',analisado_por:MEU_ID,analisado_em:new Date().toISOString(),justificativa_analise:motivo.trim()}).eq('id',id).eq('status','pendente');if(error){alert('Não foi possível recusar: '+error.message);return}await carregarAlmoxarifado()}
 async function excluirSolicitacaoAlmox(id){
  if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
  const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
  if(!s)return alert('Solicitação não encontrada. Atualize o Almoxarifado e tente novamente.');
- if(!confirm('Excluir a peça informada "'+(s.nome_material||'Peça')+'" da lista de pendências? O registro original da O.S. não será alterado.'))return;
+ if(!await erimaxConfirm('Excluir a peça informada "'+(s.nome_material||'Peça')+'" da lista de pendências? O registro original da O.S. não será alterado.'))return;
  const {data,error}=await _supabase.from('almox_solicitacoes').delete().eq('id',id).select('id').maybeSingle();
  if(error){console.error('Falha ao excluir solicitação do Almoxarifado:',error);return alert('Não foi possível excluir a peça informada: '+error.message)}
  if(!data)return alert('O banco não confirmou a exclusão. Verifique a permissão do perfil Gestor.');
@@ -14614,7 +14682,7 @@ async function excluirSolicitacaoAlmox(id){
     const escolhido=s.material_id||match?.id||'';
     const opts=ALMOX_MATERIAIS.filter(m=>m.ativo!==false).map(m=>'<option value="'+htmlAlmox(m.id)+'" '+(String(escolhido)===String(m.id)?'selected':'')+'>'+htmlAlmox(m.nome)+' ('+Number(m.quantidade_atual||0).toLocaleString('pt-BR')+' '+htmlAlmox(m.unidade||'un')+')</option>').join('');
     const sid=JSON.stringify(s.id);
-    const menu=gestorAlmox()?'<details class="almox-more-menu almox-pending-menu"><summary aria-label="Ações da pendência" title="Ações da pendência">⋮</summary><div class="almox-more-menu-pop almox-pending-menu-pop"><label class="almox-pending-link-label">Vincular material cadastrado<select id="almoxReqMat-'+htmlAlmox(s.id)+'"><option value="">Selecione um material...</option>'+opts+'</select></label>'+(!match?'<button type="button" class="almox-register" onclick="prepararCadastroMaterialAlmox('+sid+')">Cadastrar material</button>':'')+'<button type="button" class="almox-approve" onclick="aprovarSolicitacaoAlmox('+sid+')">Registrar baixa</button><div class="almox-menu-separator"></div><button type="button" onclick="editarSolicitacaoAlmox('+sid+')">Editar</button><button type="button" class="danger" onclick="excluirSolicitacaoAlmox('+sid+')">Excluir</button></div></details>':'';
+    const menu=gestorAlmox()?'<details class="almox-more-menu almox-pending-menu"><summary aria-label="Ações da pendência" title="Ações da pendência">⋮</summary><div class="almox-more-menu-pop almox-pending-menu-pop"><label class="almox-pending-link-label">Vincular material cadastrado<select id="almoxReqMat-kpi-'+htmlAlmox(s.id)+'"><option value="">Selecione um material...</option>'+opts+'</select></label>'+(!match?'<button type="button" class="almox-register" data-almox-pending-action="register" data-id="'+htmlAlmox(s.id)+'">Cadastrar material</button>':'')+'<button type="button" class="almox-approve" data-almox-pending-action="approve" data-id="'+htmlAlmox(s.id)+'">Registrar baixa</button><div class="almox-menu-separator"></div><button type="button" data-almox-pending-action="edit" data-id="'+htmlAlmox(s.id)+'">Editar</button><button type="button" class="danger" data-almox-pending-action="delete" data-id="'+htmlAlmox(s.id)+'">Excluir</button></div></details>':'';
     return '<article class="almox-kpi-row almox-kpi-pending-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b>'+menu+'</article>';
    }).join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
   }else{
@@ -14634,6 +14702,24 @@ async function excluirSolicitacaoAlmox(id){
   }));
  }
  function ativar(){const root=document.getElementById('tab-almoxarifado');if(!root||root.dataset.kpiReady)return;root.dataset.kpiReady='1';root.addEventListener('click',e=>{const card=e.target.closest('[data-almox-kpi]');if(card)detalhe(card.dataset.almoxKpi)});root.addEventListener('keydown',e=>{const card=e.target.closest('[data-almox-kpi]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();detalhe(card.dataset.almoxKpi)}})}
+ // Delegação em captura: garante que ações dinâmicas das pendências sejam recebidas no WebView Android.
+ document.addEventListener('click',function(e){
+  const btn=e.target&&e.target.closest?e.target.closest('button[data-almox-pending-action]'):null;
+  if(!btn)return;
+  e.preventDefault();e.stopPropagation();
+  const id=btn.dataset.id,action=btn.dataset.almoxPendingAction;
+  btn.closest('details')?.removeAttribute('open');
+  if(action==='edit')editarSolicitacaoAlmox(id);
+  else if(action==='delete')excluirSolicitacaoAlmox(id);
+  else if(action==='register'){
+   prepararCadastroMaterialAlmox(id);
+  }
+  else if(action==='approve'){
+   const select=btn.closest('.almox-request-controls')?.querySelector('select')||btn.closest('.almox-more-menu-pop')?.querySelector('select');
+   if(!select)return alert('Não foi possível localizar o seletor de material desta pendência.');
+   aprovarSolicitacaoAlmox(id,select.value);
+  }
+ },true);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ativar);else ativar();
 })();
 </script>
