@@ -5449,7 +5449,43 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 .almox-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.almox-form-grid label{display:flex;flex-direction:column;gap:6px;color:#53697b;font-size:.73rem;font-weight:800}.almox-form-grid input,.almox-form-grid select,.almox-form-grid textarea,.almox-panel-head input{width:100%;min-width:0;border:1px solid #d7e2ea;border-radius:9px;background:#fbfdff;padding:10px 11px;color:#243b53;font:inherit;font-size:.82rem;outline:none}.almox-form-grid input:focus,.almox-form-grid select:focus,.almox-form-grid textarea:focus,.almox-panel-head input:focus{border-color:#4e8bac;box-shadow:0 0 0 3px rgba(78,139,172,.12)}.almox-span-2{grid-column:span 2}.almox-form-actions{grid-column:1/-1;display:flex;justify-content:flex-end}.almox-form-actions .btn-submit{width:auto;min-width:210px;margin:0;padding:11px 16px}
 .almox-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.almox-columns>.almox-panel{height:100%}.almox-requests{display:grid;gap:9px}.almox-request{padding:12px;border:1px solid #e5ebf0;border-radius:11px;background:#fbfdff}.almox-request-top{display:flex;justify-content:space-between;gap:10px;align-items:start}.almox-request strong{color:#23455e;font-size:.88rem}.almox-request small{display:block;margin-top:4px;color:#718294;font-size:.72rem}.almox-request-controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;margin-top:10px}.almox-request-controls select{min-width:0;border:1px solid #d7e2ea;border-radius:8px;padding:8px;font-size:.75rem;background:#fff}.almox-request-controls button{border:0;border-radius:8px;padding:8px 10px;font-size:.72rem;font-weight:800;cursor:pointer}.almox-approve{background:#e4f4ea;color:#17623b}.almox-reject{background:#fcebea;color:#a43b35}
 .almox-stock-head input{max-width:300px}.almox-material-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.almox-material{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:13px;border:1px solid #e5ebf0;border-radius:11px;background:#fbfdff}.almox-material-info{min-width:0}.almox-material-info strong{display:block;color:#23455e;font-size:.84rem;overflow-wrap:anywhere}.almox-material-info small{display:block;margin-top:4px;color:#718294;font-size:.7rem;overflow-wrap:anywhere}.almox-material-qty{text-align:right;flex:0 0 auto}.almox-material-qty strong{display:block;color:#1e536f;font-size:1.1rem;font-variant-numeric:tabular-nums}.almox-material-qty small{display:block;color:#718294;font-size:.66rem}.almox-stock-low .almox-material-qty strong{color:#b7791f}.almox-stock-zero .almox-material-qty strong{color:#c2413b}
-.almox-history{display:grid;gap:0}.almox-history-row{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 3px;border-bottom:1px solid #edf1f4}.almox-history-row:last-child{border-bottom:0}.almox-history-row time{color:#718294;font-size:.7rem}.almox-history-row strong{display:block;color:#294a61;font-size:.79rem}.almox-history-row small{display:block;color:#718294;font-size:.7rem;margin-top:3px}.almox-history-value{font-weight:850;font-size:.82rem;white-space:nowrap}.almox-history-value.entrada{color:#16804a}.almox-history-value.saida{color:#bd5148}.almox-history-value.ajuste{color:#a16b17}.almox-empty{padding:16px;text-align:center;color:#8091a0;font-size:.78rem}
+.almox-history{display:grid;gap:0}
+.almox-trace-open{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:6px 9px;border:1px solid #cbdde8;border-radius:8px;background:#f0f7fb;color:#245a78;font-size:.7rem;font-weight:850;cursor:pointer}
+.almox-trace-open:active{transform:translateY(1px)}
+.almox-history-row{width:100%;border:0;background:transparent;text-align:left;font:inherit;cursor:pointer}
+.almox-history-row:hover{background:#f6fafc}
+.almox-trace-modal{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(12,29,43,.58);backdrop-filter:blur(3px)}
+.almox-trace-dialog{width:min(760px,100%);max-height:min(88vh,900px);overflow:auto;border:1px solid #dce6ed;border-radius:18px;background:#f7fafc;box-shadow:0 22px 70px rgba(8,28,44,.28)}
+.almox-trace-head{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:17px 19px;border-bottom:1px solid #e4ebf0;background:#fff}
+.almox-trace-head h3{margin:3px 0;color:#173d58;font-size:1.12rem}
+.almox-trace-head p{margin:0;color:#718294;font-size:.75rem}
+.almox-trace-close{width:34px;height:34px;flex:0 0 34px;border:1px solid #dce5eb;border-radius:9px;background:#f7fafc;color:#34566d;font-size:1.25rem;cursor:pointer}
+.almox-trace-body{display:grid;gap:12px;padding:15px}
+.almox-trace-summary{padding:16px;border:1px solid #cbdde8;border-radius:14px;background:linear-gradient(135deg,#edf6fb,#fff)}
+.almox-trace-summary-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.almox-trace-summary h4{margin:0;color:#1c4c68;font-size:.95rem}
+.almox-trace-summary p{margin:5px 0 0;color:#647b8d;font-size:.74rem}
+.almox-trace-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:13px}
+.almox-trace-metric{padding:10px;border:1px solid #dce8ef;border-radius:10px;background:#fff}
+.almox-trace-metric strong{display:block;color:#1e536f;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.almox-trace-metric small{display:block;margin-top:3px;color:#718294;font-size:.67rem}
+.almox-trace-section{padding:14px;border:1px solid #e0e8ef;border-radius:13px;background:#fff}
+.almox-trace-section h4{margin:0 0 10px;color:#23455e;font-size:.87rem}
+.almox-trace-list{display:grid;gap:8px}
+.almox-trace-event{border:1px solid #e4ebf0;border-radius:10px;background:#fbfdff;overflow:hidden}
+.almox-trace-event summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:11px;cursor:pointer;list-style:none}
+.almox-trace-event summary::-webkit-details-marker{display:none}
+.almox-trace-event summary b{display:block;color:#294a61;font-size:.78rem}
+.almox-trace-event summary small{display:block;margin-top:3px;color:#718294;font-size:.68rem}
+.almox-trace-event summary strong{white-space:nowrap;font-size:.78rem}
+.almox-trace-event-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px;border-top:1px solid #e8eef2;background:#fff}
+.almox-trace-field{min-width:0}
+.almox-trace-field small{display:block;color:#7a8c9b;font-size:.64rem}
+.almox-trace-field b{display:block;margin-top:2px;color:#304f64;font-size:.74rem;overflow-wrap:anywhere}
+.almox-trace-empty{padding:18px;text-align:center;color:#718294;font-size:.76rem}
+.almox-trace-source{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:6px;background:#fff4df;color:#926116;font-size:.61rem;font-weight:850}
+@media(max-width:520px){.almox-trace-modal{padding:8px}.almox-trace-dialog{max-height:94vh;border-radius:14px}.almox-trace-body{padding:10px}.almox-trace-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.almox-trace-event-body{grid-template-columns:1fr}.almox-trace-event summary{grid-template-columns:minmax(0,1fr) auto;gap:5px;padding:9px}}
+.almox-history-row{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 3px;border-bottom:1px solid #edf1f4}.almox-history-row:last-child{border-bottom:0}.almox-history-row time{color:#718294;font-size:.7rem}.almox-history-row strong{display:block;color:#294a61;font-size:.79rem}.almox-history-row small{display:block;color:#718294;font-size:.7rem;margin-top:3px}.almox-history-value{font-weight:850;font-size:.82rem;white-space:nowrap}.almox-history-value.entrada{color:#16804a}.almox-history-value.saida{color:#bd5148}.almox-history-value.ajuste{color:#a16b17}.almox-empty{padding:16px;text-align:center;color:#8091a0;font-size:.78rem}
 @media(max-width:760px){.almox-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.almox-stats article{padding:12px}.almox-columns{grid-template-columns:1fr}.almox-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.almox-material-list{grid-template-columns:1fr}.almox-panel{padding:14px}.almox-hero{padding:18px;align-items:flex-start}.almox-history-row{grid-template-columns:82px minmax(0,1fr) auto;gap:7px}.almox-request-controls{grid-template-columns:1fr 1fr}.almox-request-controls select{grid-column:1/-1}}
 @media(max-width:420px){.almox-form-grid{grid-template-columns:1fr}.almox-span-2{grid-column:1}.almox-form-actions .btn-submit{width:100%}.almox-hero{display:block}.almox-refresh{margin-top:12px}.almox-panel-head{align-items:flex-start}.almox-stock-head{display:block}.almox-stock-head input{max-width:none;margin-top:10px}}
 \n.almox-request-registered,.almox-request-unregistered{display:inline-block;margin-top:6px;font-size:.64rem;font-weight:900;letter-spacing:.05em}.almox-request-registered{color:#26724a}.almox-request-unregistered{color:#b7791f}.almox-register{border:1px solid #e7c47d;border-radius:8px;padding:8px 10px;background:#fff8e8;color:#916115;font-size:.72rem;font-weight:800;cursor:pointer}\n
@@ -14516,7 +14552,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<details class="almox-more-menu almox-material-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Editar</button><button type="button" class="danger" onclick="excluirMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Excluir</button></div></details>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span>'+(gestorAlmox()?'<button type="button" class="almox-trace-open" onclick="abrirRastreabilidadeMaterialAlmox(\\''+x.id+'\\')">⌕ Rastreabilidade</button>':'')+'</div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<details class="almox-more-menu almox-material-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Editar</button><button type="button" class="danger" onclick="excluirMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Excluir</button></div></details>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
@@ -14577,7 +14613,106 @@ function prepararCadastroMaterialAlmox(id){
 function renderHistoricoAlmox(){
  const box=document.getElementById('almoxHistorico');if(!box)return;
  if(!ALMOX_MOVIMENTOS.length){box.innerHTML='<p class="almox-empty">Nenhuma movimentação registrada.</p>';return}
- box.innerHTML=ALMOX_MOVIMENTOS.map(m=>'<div class="almox-history-row"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></div>').join('');
+ box.innerHTML=ALMOX_MOVIMENTOS.map(m=>'<button type="button" class="almox-history-row" onclick="abrirRastreabilidadeMaterialAlmox(\\''+m.material_id+'\\',\\''+m.id+'\\')" title="Abrir rastreabilidade do material"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></button>').join('');
+}
+
+let ALMOX_RASTREABILIDADE_TOKEN=0;
+function fecharRastreabilidadeMaterialAlmox(){
+ ALMOX_RASTREABILIDADE_TOKEN++;
+ const modal=document.getElementById('almoxRastreabilidadeModal');
+ if(modal)modal.remove();
+}
+function normalizarChaveRastreabilidade(v){
+ return String(v??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]/g,'');
+}
+function dataRastreabilidade(v){
+ if(!v)return 'Data não informada';
+ const d=new Date(v);
+ return Number.isFinite(d.getTime())?d.toLocaleString('pt-BR'):'Data não informada';
+}
+function campoRastreabilidade(rotulo,valor){
+ return '<div class="almox-trace-field"><small>'+htmlAlmox(rotulo)+'</small><b>'+htmlAlmox(valor||'Não informado')+'</b></div>';
+}
+async function abrirRastreabilidadeMaterialAlmox(materialId,movimentoId){
+ if(!gestorAlmox())return alert('A rastreabilidade detalhada é exclusiva do Gestor.');
+ const material=ALMOX_MATERIAIS.find(x=>String(x.id)===String(materialId));
+ if(!material)return alert('Material não encontrado. Atualize o Almoxarifado e tente novamente.');
+ const token=++ALMOX_RASTREABILIDADE_TOKEN;
+ let modal=document.getElementById('almoxRastreabilidadeModal');
+ if(!modal){
+  modal=document.createElement('div');modal.id='almoxRastreabilidadeModal';modal.className='almox-trace-modal';
+  modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Rastreabilidade do material');
+  modal.addEventListener('click',e=>{if(e.target===modal)fecharRastreabilidadeMaterialAlmox()});
+  document.body.appendChild(modal);
+  if(!window.__erimaxAlmoxTraceEsc){document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('almoxRastreabilidadeModal'))fecharRastreabilidadeMaterialAlmox()});window.__erimaxAlmoxTraceEsc=true}
+ }
+ modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h3>Rastreabilidade</h3><p>'+htmlAlmox(material.nome)+(material.codigo?' • Código '+htmlAlmox(material.codigo):'')+'</p></div><button type="button" class="almox-trace-close" onclick="fecharRastreabilidadeMaterialAlmox()" aria-label="Fechar">×</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Consultando histórico de utilização...</div></div></div>';
+ try{
+  const [movRes,osRes]=await Promise.all([
+   _supabase.from('almox_movimentacoes').select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,os(id,setor,maquina,tecnico,descricao,status,created_at,data_conclusao)').eq('material_id',material.id).order('criado_em',{ascending:false}).limit(1000),
+   _supabase.from('os').select('id,setor,maquina,tecnico,descricao,status,created_at,data_conclusao,peca,peca_quantidade,materiais_utilizados').order('created_at',{ascending:false}).limit(1000)
+  ]);
+  if(token!==ALMOX_RASTREABILIDADE_TOKEN||!document.getElementById('almoxRastreabilidadeModal'))return;
+  if(movRes.error)throw movRes.error;
+  const movimentos=movRes.data||[];
+  const ids=[...new Set(movimentos.map(x=>x.criado_por).filter(Boolean).map(String))];
+  let nomesUsuarios=new Map();
+  if(ids.length){
+   const perfisRes=await _supabase.from('perfis').select('id,nome').in('id',ids);
+   if(!perfisRes.error)nomesUsuarios=new Map((perfisRes.data||[]).map(p=>[String(p.id),p.nome]));
+  }
+  const osList=osRes.error?[]:(osRes.data||[]);
+  const saidasOS=new Set(movimentos.filter(x=>x.tipo==='saida'&&x.os_id!=null).map(x=>String(x.os_id)));
+  const chaveNome=normalizarChaveRastreabilidade(material.nome),chaveCodigo=normalizarChaveRastreabilidade(material.codigo);
+  const registros=movimentos.map(m=>({kind:'movimento',...m,os:Array.isArray(m.os)?m.os[0]:m.os,usuario:nomesUsuarios.get(String(m.criado_por))||'Responsável não identificado'}));
+  osList.forEach(os=>{
+   let itens=Array.isArray(os.materiais_utilizados)?os.materiais_utilizados:[];
+   if(!itens.length&&String(os.peca||'').trim())itens=[{nome:os.peca,quantidade:os.peca_quantidade||1,unidade:material.unidade}];
+   const encontrados=itens.filter(item=>{
+    const chave=normalizarChaveRastreabilidade(item?.nome||item?.material||item?.codigo);
+    return chave&&(chave===chaveNome||(chaveCodigo&&chave===chaveCodigo));
+   });
+   if(encontrados.length&&!saidasOS.has(String(os.id))){
+    encontrados.forEach(item=>registros.push({kind:'os_informada',id:'os-'+os.id+'-'+normalizarChaveRastreabilidade(item?.nome||item?.material),tipo:'informado',quantidade:Number(item?.quantidade||item?.qtd||1),criado_em:os.data_conclusao||os.created_at,os,motivo:'Material informado nos materiais utilizados da O.S.; não foi encontrada baixa de estoque vinculada.'}));
+   }
+  });
+  registros.sort((a,b)=>new Date(b.criado_em||0)-new Date(a.criado_em||0));
+  const usos=registros.filter(r=>(r.kind==='movimento'&&r.tipo==='saida'&&r.os_id!=null)||r.kind==='os_informada');
+  const ultimoUso=usos[0];
+  const body=modal.querySelector('.almox-trace-body');
+  if(!body)return;
+  const metricas='<div class="almox-trace-metrics"><div class="almox-trace-metric"><strong>'+usos.length+'</strong><small>Utilizações em O.S.</small></div><div class="almox-trace-metric"><strong>'+movimentos.length+'</strong><small>Movimentações no estoque</small></div><div class="almox-trace-metric"><strong>'+Number(material.quantidade_atual||0).toLocaleString('pt-BR')+'</strong><small>Saldo atual • '+htmlAlmox(material.unidade)+'</small></div></div>';
+  const resumo='<section class="almox-trace-summary"><div class="almox-trace-summary-top"><h4>'+htmlAlmox(material.nome)+'</h4><span class="almox-stock-status '+(Number(material.quantidade_atual)<=0?'zero':'ok')+'">'+(Number(material.quantidade_atual)<=0?'EM FALTA':'RASTREÁVEL')+'</span></div><p>'+(ultimoUso?'Última utilização: '+htmlAlmox(dataRastreabilidade(ultimoUso.criado_em)):'Nenhuma utilização em O.S. encontrada.')+'</p>'+metricas+'</section>';
+  let lista='';
+  if(registros.length){
+   lista='<div class="almox-trace-list">'+registros.map(r=>{
+    const os=r.os||null,ehUso=(r.kind==='os_informada'||(r.tipo==='saida'&&r.os_id!=null));
+    const tipoLabel=r.kind==='os_informada'?'Uso informado na O.S.':r.tipo==='saida'?'Saída de estoque':r.tipo==='entrada'?'Entrada de estoque':'Ajuste de estoque';
+    const sinal=r.tipo==='saida'?'−':r.tipo==='entrada'?'+':'';
+    const numeroOS=os?.id||r.os_id;
+    const destaque=movimentoId&&String(r.id)===String(movimentoId)?' open':'';
+    const fonte=r.kind==='os_informada'?'<span class="almox-trace-source">SEM BAIXA DE ESTOQUE VINCULADA</span>':'';
+    return '<details class="almox-trace-event"'+destaque+'><summary><span><b>'+(numeroOS?'O.S. #'+htmlAlmox(numeroOS)+' • ':'')+htmlAlmox(tipoLabel)+'</b><small>'+htmlAlmox(dataRastreabilidade(r.criado_em))+(ehUso?' • Utilização':'')+'</small>'+fonte+'</span><strong>'+sinal+Number(r.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(material.unidade)+'</strong></summary><div class="almox-trace-event-body">'+
+     campoRastreabilidade('Data e horário',dataRastreabilidade(r.criado_em))+
+     campoRastreabilidade('Ordem de serviço',numeroOS?'O.S. #'+numeroOS:'Sem vínculo com O.S.')+
+     campoRastreabilidade('Setor',os?.setor)+
+     campoRastreabilidade('Máquina',os?.maquina)+
+     campoRastreabilidade('Técnico responsável',os?.tecnico)+
+     campoRastreabilidade('Registrado por',r.kind==='os_informada'?(os?.tecnico||'Responsável da O.S. não informado'):r.usuario)+
+     campoRastreabilidade('Serviço / descrição',os?.servico_executado||os?.descricao)+
+     campoRastreabilidade('Motivo do movimento',r.motivo)+
+     campoRastreabilidade('Saldo anterior',r.saldo_anterior==null?'Não se aplica':Number(r.saldo_anterior).toLocaleString('pt-BR')+' '+material.unidade)+
+     campoRastreabilidade('Saldo posterior',r.saldo_posterior==null?'Não se aplica':Number(r.saldo_posterior).toLocaleString('pt-BR')+' '+material.unidade)+
+    '</div></details>';
+   }).join('')+'</div>';
+  }else lista='<div class="almox-trace-empty">Ainda não existem utilizações ou movimentações registradas para este material.</div>';
+  body.innerHTML=resumo+'<section class="almox-trace-section"><h4>Histórico completo</h4>'+lista+'</section>';
+ }catch(error){
+  if(token!==ALMOX_RASTREABILIDADE_TOKEN)return;
+  console.error('Falha ao consultar rastreabilidade do material:',error);
+  const body=modal.querySelector('.almox-trace-body');
+  if(body)body.innerHTML='<div class="almox-trace-empty">Não foi possível carregar a rastreabilidade. '+htmlAlmox(error?.message||'Verifique a conexão e tente novamente.')+'</div>';
+ }
 }
 let MATERIAL_ALMOX_EM_EDICAO=null;
 function prepararMovimentacaoAlmox(id,tipo){
