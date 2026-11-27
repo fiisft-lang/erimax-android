@@ -7814,11 +7814,11 @@ function atualizarNavegacaoMobileEriMax(id){
 <div id="tab-almoxarifado" class="tab-content">
 <section class="almox-hero"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h2>Almoxarifado</h2><p>Consulta de materiais para a equipe e controle de estoque exclusivo do gestor.</p></div><div class="almox-hero-actions"><button type="button" class="almox-refresh" onclick="document.getElementById('almoxRetiradaAvulsa')?.scrollIntoView({behavior:'smooth',block:'start'})">＋ Retirada avulsa</button><button type="button" class="almox-refresh" onclick="carregarAlmoxarifado()">↻ Atualizar</button></div></section>
 <div id="almoxReadOnlyNotice" class="almox-readonly-note" style="display:none">Consulta liberada: você pode conferir o saldo das peças e avisar o gestor quando encontrar material faltando ou ainda não cadastrado. Cadastro e movimentações são exclusivos do gestor.</div><section class="almox-panel almox-summary-panel"><div class="almox-panel-head"><div><span class="almox-kicker">VISÃO GERAL</span><h3>Resumo do estoque</h3><p>Indicadores atualizados conforme entradas, saídas e consumo nas O.S.</p></div><span class="almox-panel-icon">▦</span></div><div class="almox-stats"><article data-almox-kpi="total" role="button" tabindex="0" aria-expanded="false" aria-label="Ver todos os materiais ativos"><span>Materiais ativos</span><strong id="almoxTotal">0</strong><small>Itens cadastrados</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="disponivel" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais disponíveis"><span>Disponíveis</span><strong id="almoxDisponiveis">0</strong><small>Acima do mínimo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="baixo" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais com estoque baixo"><span>Estoque baixo</span><strong id="almoxBaixo">0</strong><small>No limite ou abaixo</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="zerado" role="button" tabindex="0" aria-expanded="false" aria-label="Ver materiais em falta"><span>Em falta</span><strong id="almoxZerado">0</strong><small>Saldo zerado</small><span class="almox-kpi-hint">Clique para ver os materiais</span></article><article data-almox-kpi="pendentes" role="button" tabindex="0" aria-expanded="false" aria-label="Ver pendências de cadastro ou estoque"><span>Pendências</span><strong id="almoxPendentes">0</strong><small>Cadastro ou estoque pendente</small><span class="almox-kpi-hint">Clique para ver as pendências</span></article></div><div id="almoxIndicadorDetalhe" class="almox-kpi-detail" hidden aria-live="polite"></div></section><div id="almoxAlertasReposicao" class="almox-replenish-alert" style="display:none"></div>
-<section class="almox-panel" id="almoxAdminCadastro"><div class="almox-panel-head"><div><span class="almox-kicker">CATÁLOGO</span><h3 id="almoxTituloForm">Cadastrar material</h3><p id="almoxAjudaForm">O cadastro começa com saldo zero. Registre a entrada inicial em Movimentar estoque. Ao editar, o saldo e as movimentações são preservados.</p></div><span class="almox-panel-icon">＋</span></div>
+<section class="almox-panel" id="almoxAdminCadastro"><div class="almox-panel-head"><div><span class="almox-kicker">CATÁLOGO</span><h3 id="almoxTituloForm">Cadastrar material</h3><p id="almoxAjudaForm">Informe a quantidade que já está entrando no estoque. O sistema registra a entrada no histórico. Ao editar, o saldo e as movimentações são preservados.</p></div><span class="almox-panel-icon">＋</span></div>
 <form id="almoxFormMaterial" class="almox-form-grid" onsubmit="salvarMaterialAlmox(event)">
 <label>Nome do material *<input id="almoxNome" maxlength="160" required placeholder="Ex.: Rolamento 6204"></label><label>Código interno<input id="almoxCodigo" maxlength="60" placeholder="Opcional"></label><label>Categoria<input id="almoxCategoria" maxlength="80" placeholder="Ex.: Rolamentos"></label>
 <label>Unidade *<select id="almoxUnidade" required><option value="un">Unidade (un)</option><option value="pc">Peça (pc)</option><option value="par">Par</option><option value="jogo">Jogo</option><option value="m">Metro (m)</option><option value="kg">Quilograma (kg)</option><option value="l">Litro (L)</option><option value="cx">Caixa (cx)</option><option value="pct">Pacote (pct)</option></select></label>
-<label>Estoque mínimo<input id="almoxMinimo" type="number" min="0" step="0.001" value="0"></label><label>Localização<input id="almoxLocal" maxlength="100" placeholder="Ex.: Armário A, prateleira 2"></label>
+<label>Estoque mínimo<input id="almoxMinimo" type="number" min="0" step="0.001" value="0"></label><label id="almoxQuantidadeInicialWrap">Quantidade inicial no estoque<input id="almoxQuantidadeInicial" type="number" min="0" step="0.001" value="0" placeholder="Ex.: 10"><small>Será registrada como entrada no histórico.</small></label><label>Localização<input id="almoxLocal" maxlength="100" placeholder="Ex.: Armário A, prateleira 2"></label>
 <label class="almox-span-2">Descrição / especificação<textarea id="almoxDescricao" rows="2" maxlength="500" placeholder="Medida, modelo, aplicação ou observações"></textarea></label><div class="almox-form-actions"><button id="almoxBtnSalvarMaterial" class="btn-submit" type="submit">＋ Cadastrar material</button><button id="almoxBtnCancelarEdicao" class="almox-edit-cancel" type="button" onclick="cancelarEdicaoMaterialAlmox()" hidden>Cancelar edição</button></div></form></section>
 <div class="almox-columns">
 <section class="almox-panel" id="almoxAdminMov"><div class="almox-panel-head"><div><span class="almox-kicker">SALDO E MOVIMENTAÇÃO</span><h3>Movimentar estoque</h3><p>Entradas, saídas e ajustes ficam registrados no histórico.</p></div><span class="almox-panel-icon">↕</span></div>
@@ -14606,7 +14606,8 @@ function editarMaterialAlmox(id){
  document.getElementById('almoxLocal').value=m.localizacao||'';
  document.getElementById('almoxDescricao').value=m.descricao||'';
  document.getElementById('almoxTituloForm').textContent='Editar material';
- document.getElementById('almoxAjudaForm').textContent='Altere os dados cadastrais e a localização. O saldo atual e todo o histórico de movimentações serão mantidos.';
+ document.getElementById('almoxAjudaForm').textContent='Altere os dados cadastrais e a localização. A quantidade inicial não aparece na edição para preservar o saldo e o histórico de movimentações.';
+ document.getElementById('almoxQuantidadeInicialWrap').hidden=true;
  document.getElementById('almoxBtnSalvarMaterial').textContent='Salvar alterações';
  document.getElementById('almoxBtnCancelarEdicao').hidden=false;
  document.getElementById('almoxFormMaterial').scrollIntoView({behavior:'smooth',block:'center'});
@@ -14617,7 +14618,9 @@ function cancelarEdicaoMaterialAlmox(){
  const f=document.getElementById('almoxFormMaterial');if(f)f.reset();
  document.getElementById('almoxMinimo').value='0';
  document.getElementById('almoxTituloForm').textContent='Cadastrar material';
- document.getElementById('almoxAjudaForm').textContent='O cadastro começa com saldo zero. Registre a entrada inicial em Movimentar estoque. Ao editar, o saldo e as movimentações são preservados.';
+ document.getElementById('almoxAjudaForm').textContent='Informe a quantidade que já está entrando no estoque. O sistema registra a entrada no histórico. Ao editar, o saldo e as movimentações são preservados.';
+ document.getElementById('almoxQuantidadeInicialWrap').hidden=false;
+ document.getElementById('almoxQuantidadeInicial').value='0';
  document.getElementById('almoxBtnSalvarMaterial').textContent='＋ Cadastrar material';
  document.getElementById('almoxBtnCancelarEdicao').hidden=true;
 }
@@ -14697,10 +14700,17 @@ async function salvarMaterialAlmox(e){
   cancelarEdicaoMaterialAlmox();
   alert('Cadastro atualizado. O saldo e o histórico de movimentações foram preservados.');
  }else{
-  const {error}=await _supabase.from('almox_materiais').insert({...p,criado_por:MEU_ID});
-  if(error){alert('Não foi possível cadastrar: '+error.message);return}
-  document.getElementById('almoxFormMaterial').reset();document.getElementById('almoxMinimo').value='0';
-  alert('Material cadastrado com saldo zero. Registre uma entrada para adicionar quantidade.');
+  const quantidadeInicial=Number(document.getElementById('almoxQuantidadeInicial').value);
+  if(!Number.isFinite(quantidadeInicial)||quantidadeInicial<0){alert('Informe uma quantidade inicial válida, igual ou maior que zero.');return}
+  const {data,error}=await _supabase.rpc('almox_cadastrar_material',{
+   p_nome:p.nome,p_codigo:p.codigo,p_categoria:p.categoria,p_unidade:p.unidade,
+   p_estoque_minimo:p.estoque_minimo,p_localizacao:p.localizacao,p_descricao:p.descricao,
+   p_quantidade_inicial:quantidadeInicial
+  });
+  if(error){alert('Não foi possível cadastrar o material e registrar o estoque inicial: '+error.message);return}
+  if(!data){alert('O banco não confirmou o cadastro do material.');return}
+  document.getElementById('almoxFormMaterial').reset();document.getElementById('almoxMinimo').value='0';document.getElementById('almoxQuantidadeInicial').value='0';
+  alert(quantidadeInicial>0?'Material cadastrado e entrada inicial registrada no histórico.':'Material cadastrado com saldo zero.');
  }
  await carregarAlmoxarifado();
 }
