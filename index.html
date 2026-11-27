@@ -13665,100 +13665,7 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 </style>
 
 
-</body><script id="erimax-almoxarifado-categorias-hierarquia-2026">
-let ALMOX_CATEGORIA_ATIVA=null;
-let ALMOX_GRUPO_EM_CRIACAO='';
-function normalizarGrupoAlmox(v){return String(v||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ')}
-function nomeGrupoAlmox(v){
- const n=normalizarGrupoAlmox(v);
- const aliases={'correia':'Correias','correias':'Correias','rolamento':'Rolamentos','rolamentos':'Rolamentos','parafuso':'Parafusos','parafusos':'Parafusos','porca':'Porcas','porcas':'Porcas','arruela':'Arruelas','arruelas':'Arruelas','retentor':'Retentores','retentores':'Retentores','mancal':'Mancais','mancais':'Mancais','outro':'Outros','outros':'Outros'};
- if(aliases[n])return aliases[n];
- return String(v||'').trim().replace(/\\s+/g,' ').replace(/(^|\\s)\\S/g,m=>m.toLocaleUpperCase('pt-BR'));
-}
-function detectarCategoriaAlmox(m){
- const explicita=String(m.categoria||'').trim();if(explicita)return nomeGrupoAlmox(explicita);
- const texto=normalizarGrupoAlmox([m.nome,m.descricao,m.codigo].filter(Boolean).join(' '));
- const regras=[
-  [/\\b(correia|correias|belt|poly.?v|sincronizad[ao])\\b/,'Correias'],
-  [/\\b(rolamento|rolamentos|bearing)\\b/,'Rolamentos'],
-  [/\\b(parafuso|parafusos|allen|sextavado|philips)\\b/,'Parafusos'],
-  [/\\b(porca|porcas)\\b/,'Porcas'],
-  [/\\b(arruela|arruelas)\\b/,'Arruelas'],
-  [/\\b(retentor|retentores|vedacao|oring)\\b/,'Retentores'],
-  [/\\b(mancal|mancais|chumaceira)\\b/,'Mancais'],
-  [/\\b(graxa|oleo|lubrificante|lubrificantes)\\b/,'Lubrificantes'],
-  [/\\b(motor|sensor|contator|rele|fusivel|cabo|fio|eletrico|eletrica|eletrica)\\b/,'Elétrica'],
-  [/\\b(mangueira|pneumatic[ao]|conexao|engate|valvula)\\b/,'Pneumática'],
-  [/\\b(ferramenta|chave|alicate|broca|disco de corte)\\b/,'Ferramentas'],
-  [/\\b(filtro|filtrante)\\b/,'Filtros'],
-  [/\\b(polia|polias)\\b/,'Polias'],
-  [/\\b(corrente|correntes)\\b/,'Correntes'],
-  [/\\b(engrenagem|engrenagens)\\b/,'Engrenagens']
- ];
- for(const [re,nome] of regras)if(re.test(texto))return nome;
- return 'Outros';
-}
-function categoriaMaterialAlmox(m){return detectarCategoriaAlmox(m)}
-function iconeGrupoAlmox(nome){const n=normalizarGrupoAlmox(nome);if(n.includes('correia'))return '⚙';if(n.includes('rolamento'))return '◉';if(n.includes('parafuso')||n.includes('porca')||n.includes('arruela'))return '🔩';if(n.includes('lubrificante'))return '◈';if(n.includes('eletrica'))return 'ϟ';if(n.includes('pneumatica'))return '⇄';if(n.includes('ferramenta'))return '🛠';return '▦'}
-function renderCategoriasAlmox(){
- const grid=document.getElementById('almoxCategoryGrid');if(!grid)return;
- const ativos=ALMOX_MATERIAIS.filter(m=>m.ativo),map=new Map();
- ativos.forEach(m=>{const nome=categoriaMaterialAlmox(m);if(!map.has(nome))map.set(nome,[]);map.get(nome).push(m)});
- if(ALMOX_GRUPO_EM_CRIACAO&&!map.has(ALMOX_GRUPO_EM_CRIACAO))map.set(ALMOX_GRUPO_EM_CRIACAO,[]);
- const grupos=[...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'pt-BR'));
- const botao=document.getElementById('almoxCriarGrupoBtn');if(botao)botao.style.display=gestorAlmox()?'':'none';
- if(!grupos.length){grid.innerHTML='<div class="almox-empty">Ainda não há materiais cadastrados. O gestor pode criar o primeiro grupo e cadastrar o material.</div>';return}
- grid.innerHTML=grupos.map(([nome,itens])=>{
-  const baixo=itens.filter(x=>Number(x.quantidade_atual)>0&&Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)).length;
-  const falta=itens.filter(x=>Number(x.quantidade_atual)<=0).length;
-  return '<button type="button" class="almox-category-card '+(ALMOX_CATEGORIA_ATIVA===nome?'active':'')+'" data-group="'+htmlAlmox(nome)+'" onclick="abrirCategoriaAlmox(this.dataset.group)"><span class="almox-category-top"><span class="almox-category-icon">'+iconeGrupoAlmox(nome)+'</span><span class="almox-category-count">'+itens.length+' '+(itens.length===1?'produto':'produtos')+'</span></span><strong>'+htmlAlmox(nome)+'</strong><span class="almox-category-meta">'+(falta?'<span class="almox-category-alert">'+falta+' em falta</span>':'')+(baixo?'<span>'+baixo+' com estoque baixo</span>':'')+(!falta&&!baixo?'<span>Estoque regular</span>':'')+'</span><span class="almox-category-open">Abrir grupo →</span></button>';
- }).join('');
-}
-function abrirCategoriaAlmox(nome){ALMOX_CATEGORIA_ATIVA=nome;const b=document.getElementById('almoxBusca');if(b)b.value='';const f=document.getElementById('almoxFiltroEstoque');if(f)f.value='todos';renderCategoriasAlmox();renderMateriaisAlmox();document.getElementById('almoxCardEstoqueCompleto')?.scrollIntoView({behavior:'smooth',block:'start'})}
-function criarGrupoAlmox(){
- if(!gestorAlmox())return alert('A criação de grupos é exclusiva do Gestor.');
- const nome=prompt('Qual será o nome do novo grupo? Ex.: Retentores, Motores, Filtros...');
- if(nome===null)return;
- const limpo=String(nome).trim();if(!limpo)return alert('Informe um nome para o grupo.');
- if(limpo.length>80)return alert('O nome do grupo deve ter até 80 caracteres.');
- const grupo=nomeGrupoAlmox(limpo);
- const existe=ALMOX_MATERIAIS.some(m=>m.ativo&&normalizarGrupoAlmox(categoriaMaterialAlmox(m))===normalizarGrupoAlmox(grupo));
- if(existe){abrirCategoriaAlmox(grupo);return alert('Esse grupo já existe. Abri a categoria para você.');}
- ALMOX_GRUPO_EM_CRIACAO=grupo;ALMOX_CATEGORIA_ATIVA=grupo;
- const cat=document.getElementById('almoxCategoria');if(cat)cat.value=grupo;
- const ajuda=document.getElementById('almoxAjudaForm');if(ajuda)ajuda.textContent='Grupo “'+grupo+'” selecionado. Cadastre o primeiro material para que ele passe a aparecer no catálogo.';
- const d=document.getElementById('almoxCadastroDisclosure');if(d)d.open=true;
- document.getElementById('almoxAdminCadastro')?.scrollIntoView({behavior:'smooth',block:'center'});
- document.getElementById('almoxNome')?.focus({preventScroll:true});
- renderCategoriasAlmox();renderMateriaisAlmox();
-}
-function renderMateriaisAlmox(){
- const box=document.getElementById('almoxListaMateriais');if(!box)return;
- const q=(document.getElementById('almoxBusca')?.value||'').trim().toLocaleLowerCase('pt-BR');
- const filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
- const todos=ALMOX_MATERIAIS.filter(x=>x.ativo);
- const list=todos.filter(x=>{
-  const grupo=categoriaMaterialAlmox(x);
-  if(ALMOX_CATEGORIA_ATIVA&&grupo!==ALMOX_CATEGORIA_ATIVA)return false;
-  const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min;
-  if(filtro==='zerado'&&!zero)return false;if(filtro==='baixo'&&!baixo)return false;if(filtro==='disponivel'&&(zero||baixo))return false;
-  return !q||[x.nome,x.codigo,x.categoria,x.descricao,x.localizacao].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));
- }).sort((a,b)=>String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR',{sensitivity:'base',numeric:true}));
- const titulo=document.getElementById('almoxTituloGrupoAtivo');if(titulo)titulo.textContent=ALMOX_CATEGORIA_ATIVA||'Todos os materiais';
- const contagem=document.getElementById('almoxContagemLista');if(contagem)contagem.textContent=list.length+' de '+todos.filter(x=>!ALMOX_CATEGORIA_ATIVA||categoriaMaterialAlmox(x)===ALMOX_CATEGORIA_ATIVA).length+' produtos';
- if(!ALMOX_CATEGORIA_ATIVA&&!q){box.innerHTML='<div class="almox-empty">Toque em um card de categoria acima para abrir os produtos desse grupo.</div>';return}
- if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado nesta categoria ou situação.</p>';return}
- box.innerHTML=list.map(x=>{
-  const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(categoriaMaterialAlmox(x))+(x.descricao?' • '+htmlAlmox(x.descricao):'')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\\''+x.id+'\\')">Editar</button><button type="button" class="almox-delete-btn" title="Excluir ou inativar material" aria-label="Excluir material" onclick="excluirMaterialAlmox(\\''+x.id+'\\')">Excluir</button></div>':'')+'</div></article>';
- }).join('');
-}
-(()=>{
- const nome=document.getElementById('almoxNome'),desc=document.getElementById('almoxDescricao'),cat=document.getElementById('almoxCategoria');
- const sugerir=()=>{if(cat&&!cat.value.trim()&&nome&&nome.value.trim())cat.value=detectarCategoriaAlmox({nome:nome.value,descricao:desc?.value||''})};
- nome?.addEventListener('blur',sugerir);desc?.addEventListener('blur',sugerir);
-})();
-</script>
+</body>
 </html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -18511,3 +18418,97 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   #tab-metricas #metricsComparacaoMaquinas .metrics-compare-icon{display:none!important}
 }
 </style>
+<script id="erimax-almoxarifado-categorias-hierarquia-2026">
+let ALMOX_CATEGORIA_ATIVA=null;
+let ALMOX_GRUPO_EM_CRIACAO='';
+function normalizarGrupoAlmox(v){return String(v||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ')}
+function nomeGrupoAlmox(v){
+ const n=normalizarGrupoAlmox(v);
+ const aliases={'correia':'Correias','correias':'Correias','rolamento':'Rolamentos','rolamentos':'Rolamentos','parafuso':'Parafusos','parafusos':'Parafusos','porca':'Porcas','porcas':'Porcas','arruela':'Arruelas','arruelas':'Arruelas','retentor':'Retentores','retentores':'Retentores','mancal':'Mancais','mancais':'Mancais','outro':'Outros','outros':'Outros'};
+ if(aliases[n])return aliases[n];
+ return String(v||'').trim().replace(/\\s+/g,' ').replace(/(^|\\s)\\S/g,m=>m.toLocaleUpperCase('pt-BR'));
+}
+function detectarCategoriaAlmox(m){
+ const explicita=String(m.categoria||'').trim();if(explicita)return nomeGrupoAlmox(explicita);
+ const texto=normalizarGrupoAlmox([m.nome,m.descricao,m.codigo].filter(Boolean).join(' '));
+ const regras=[
+  [/\\b(correia|correias|belt|poly.?v|sincronizad[ao])\\b/,'Correias'],
+  [/\\b(rolamento|rolamentos|bearing)\\b/,'Rolamentos'],
+  [/\\b(parafuso|parafusos|allen|sextavado|philips)\\b/,'Parafusos'],
+  [/\\b(porca|porcas)\\b/,'Porcas'],
+  [/\\b(arruela|arruelas)\\b/,'Arruelas'],
+  [/\\b(retentor|retentores|vedacao|oring)\\b/,'Retentores'],
+  [/\\b(mancal|mancais|chumaceira)\\b/,'Mancais'],
+  [/\\b(graxa|oleo|lubrificante|lubrificantes)\\b/,'Lubrificantes'],
+  [/\\b(motor|sensor|contator|rele|fusivel|cabo|fio|eletrico|eletrica|eletrica)\\b/,'Elétrica'],
+  [/\\b(mangueira|pneumatic[ao]|conexao|engate|valvula)\\b/,'Pneumática'],
+  [/\\b(ferramenta|chave|alicate|broca|disco de corte)\\b/,'Ferramentas'],
+  [/\\b(filtro|filtrante)\\b/,'Filtros'],
+  [/\\b(polia|polias)\\b/,'Polias'],
+  [/\\b(corrente|correntes)\\b/,'Correntes'],
+  [/\\b(engrenagem|engrenagens)\\b/,'Engrenagens']
+ ];
+ for(const [re,nome] of regras)if(re.test(texto))return nome;
+ return 'Outros';
+}
+function categoriaMaterialAlmox(m){return detectarCategoriaAlmox(m)}
+function iconeGrupoAlmox(nome){const n=normalizarGrupoAlmox(nome);if(n.includes('correia'))return '⚙';if(n.includes('rolamento'))return '◉';if(n.includes('parafuso')||n.includes('porca')||n.includes('arruela'))return '🔩';if(n.includes('lubrificante'))return '◈';if(n.includes('eletrica'))return 'ϟ';if(n.includes('pneumatica'))return '⇄';if(n.includes('ferramenta'))return '🛠';return '▦'}
+function renderCategoriasAlmox(){
+ const grid=document.getElementById('almoxCategoryGrid');if(!grid)return;
+ const ativos=ALMOX_MATERIAIS.filter(m=>m.ativo),map=new Map();
+ ativos.forEach(m=>{const nome=categoriaMaterialAlmox(m);if(!map.has(nome))map.set(nome,[]);map.get(nome).push(m)});
+ if(ALMOX_GRUPO_EM_CRIACAO&&!map.has(ALMOX_GRUPO_EM_CRIACAO))map.set(ALMOX_GRUPO_EM_CRIACAO,[]);
+ const grupos=[...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'pt-BR'));
+ const botao=document.getElementById('almoxCriarGrupoBtn');if(botao)botao.style.display=gestorAlmox()?'':'none';
+ if(!grupos.length){grid.innerHTML='<div class="almox-empty">Ainda não há materiais cadastrados. O gestor pode criar o primeiro grupo e cadastrar o material.</div>';return}
+ grid.innerHTML=grupos.map(([nome,itens])=>{
+  const baixo=itens.filter(x=>Number(x.quantidade_atual)>0&&Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)).length;
+  const falta=itens.filter(x=>Number(x.quantidade_atual)<=0).length;
+  return '<button type="button" class="almox-category-card '+(ALMOX_CATEGORIA_ATIVA===nome?'active':'')+'" data-group="'+htmlAlmox(nome)+'" onclick="abrirCategoriaAlmox(this.dataset.group)"><span class="almox-category-top"><span class="almox-category-icon">'+iconeGrupoAlmox(nome)+'</span><span class="almox-category-count">'+itens.length+' '+(itens.length===1?'produto':'produtos')+'</span></span><strong>'+htmlAlmox(nome)+'</strong><span class="almox-category-meta">'+(falta?'<span class="almox-category-alert">'+falta+' em falta</span>':'')+(baixo?'<span>'+baixo+' com estoque baixo</span>':'')+(!falta&&!baixo?'<span>Estoque regular</span>':'')+'</span><span class="almox-category-open">Abrir grupo →</span></button>';
+ }).join('');
+}
+function abrirCategoriaAlmox(nome){ALMOX_CATEGORIA_ATIVA=nome;const b=document.getElementById('almoxBusca');if(b)b.value='';const f=document.getElementById('almoxFiltroEstoque');if(f)f.value='todos';renderCategoriasAlmox();renderMateriaisAlmox();document.getElementById('almoxCardEstoqueCompleto')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function criarGrupoAlmox(){
+ if(!gestorAlmox())return alert('A criação de grupos é exclusiva do Gestor.');
+ const nome=prompt('Qual será o nome do novo grupo? Ex.: Retentores, Motores, Filtros...');
+ if(nome===null)return;
+ const limpo=String(nome).trim();if(!limpo)return alert('Informe um nome para o grupo.');
+ if(limpo.length>80)return alert('O nome do grupo deve ter até 80 caracteres.');
+ const grupo=nomeGrupoAlmox(limpo);
+ const existe=ALMOX_MATERIAIS.some(m=>m.ativo&&normalizarGrupoAlmox(categoriaMaterialAlmox(m))===normalizarGrupoAlmox(grupo));
+ if(existe){abrirCategoriaAlmox(grupo);return alert('Esse grupo já existe. Abri a categoria para você.');}
+ ALMOX_GRUPO_EM_CRIACAO=grupo;ALMOX_CATEGORIA_ATIVA=grupo;
+ const cat=document.getElementById('almoxCategoria');if(cat)cat.value=grupo;
+ const ajuda=document.getElementById('almoxAjudaForm');if(ajuda)ajuda.textContent='Grupo “'+grupo+'” selecionado. Cadastre o primeiro material para que ele passe a aparecer no catálogo.';
+ const d=document.getElementById('almoxCadastroDisclosure');if(d)d.open=true;
+ document.getElementById('almoxAdminCadastro')?.scrollIntoView({behavior:'smooth',block:'center'});
+ document.getElementById('almoxNome')?.focus({preventScroll:true});
+ renderCategoriasAlmox();renderMateriaisAlmox();
+}
+function renderMateriaisAlmox(){
+ const box=document.getElementById('almoxListaMateriais');if(!box)return;
+ const q=(document.getElementById('almoxBusca')?.value||'').trim().toLocaleLowerCase('pt-BR');
+ const filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
+ const todos=ALMOX_MATERIAIS.filter(x=>x.ativo);
+ const list=todos.filter(x=>{
+  const grupo=categoriaMaterialAlmox(x);
+  if(ALMOX_CATEGORIA_ATIVA&&grupo!==ALMOX_CATEGORIA_ATIVA)return false;
+  const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min;
+  if(filtro==='zerado'&&!zero)return false;if(filtro==='baixo'&&!baixo)return false;if(filtro==='disponivel'&&(zero||baixo))return false;
+  return !q||[x.nome,x.codigo,x.categoria,x.descricao,x.localizacao].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));
+ }).sort((a,b)=>String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR',{sensitivity:'base',numeric:true}));
+ const titulo=document.getElementById('almoxTituloGrupoAtivo');if(titulo)titulo.textContent=ALMOX_CATEGORIA_ATIVA||'Todos os materiais';
+ const contagem=document.getElementById('almoxContagemLista');if(contagem)contagem.textContent=list.length+' de '+todos.filter(x=>!ALMOX_CATEGORIA_ATIVA||categoriaMaterialAlmox(x)===ALMOX_CATEGORIA_ATIVA).length+' produtos';
+ if(!ALMOX_CATEGORIA_ATIVA&&!q){box.innerHTML='<div class="almox-empty">Toque em um card de categoria acima para abrir os produtos desse grupo.</div>';return}
+ if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado nesta categoria ou situação.</p>';return}
+ box.innerHTML=list.map(x=>{
+  const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(categoriaMaterialAlmox(x))+(x.descricao?' • '+htmlAlmox(x.descricao):'')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span></div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<div class="almox-material-actions"><button type="button" class="almox-edit-btn" title="Editar material" aria-label="Editar material" onclick="editarMaterialAlmox(\\''+x.id+'\\')">Editar</button><button type="button" class="almox-delete-btn" title="Excluir ou inativar material" aria-label="Excluir material" onclick="excluirMaterialAlmox(\\''+x.id+'\\')">Excluir</button></div>':'')+'</div></article>';
+ }).join('');
+}
+(()=>{
+ const nome=document.getElementById('almoxNome'),desc=document.getElementById('almoxDescricao'),cat=document.getElementById('almoxCategoria');
+ const sugerir=()=>{if(cat&&!cat.value.trim()&&nome&&nome.value.trim())cat.value=detectarCategoriaAlmox({nome:nome.value,descricao:desc?.value||''})};
+ nome?.addEventListener('blur',sugerir);desc?.addEventListener('blur',sugerir);
+})();
+</script>
