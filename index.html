@@ -14501,7 +14501,9 @@ async function editarSolicitacaoAlmox(id){
  await carregarAlmoxarifado();
 }
 function prepararCadastroMaterialAlmox(id){
- const s=ALMOX_SOLICITACOES.find(x=>x.id===id);if(!s||!gestorAlmox())return;
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
+ if(!s)return alert('Peça informada não encontrada. Atualize o Almoxarifado e tente novamente.');
  document.getElementById('almoxNome').value=s.nome_material||'';
  document.getElementById('almoxUnidade').value=s.unidade||'un';
  document.getElementById('almoxFormMaterial').scrollIntoView({behavior:'smooth',block:'center'});
@@ -14638,7 +14640,17 @@ async function salvarMaterialAlmox(e){
  await carregarAlmoxarifado();
 }
 async function movimentarEstoqueAlmox(e){e.preventDefault();if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const tipo=document.getElementById('almoxMovTipo').value,material=document.getElementById('almoxMovMaterial').value,qtd=Number(document.getElementById('almoxMovQtd').value),motivo=document.getElementById('almoxMovMotivo').value.trim(),os=document.getElementById('almoxMovOS').value;if(!material||!Number.isFinite(qtd)||qtd<=0||motivo.length<3)return alert('Confira material, quantidade e motivo.');const {error}=await _supabase.from('almox_movimentacoes').insert({material_id:material,tipo,quantidade:qtd,motivo,os_id:os?Number(os):null,criado_por:MEU_ID});if(error){alert('Movimentação não realizada: '+error.message);return}document.getElementById('almoxFormMov').reset();atualizarRotuloAjusteAlmox();alert('Movimentação registrada e saldo atualizado.');await carregarAlmoxarifado()}
-async function aprovarSolicitacaoAlmox(id,materialSelecionado){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const material=String(materialSelecionado||'').trim();if(!material)return alert('Selecione o material correspondente ou cadastre-o antes de aprovar.');const {error}=await _supabase.rpc('almox_aprovar_solicitacao',{p_solicitacao_id:id,p_material_id:material,p_justificativa:null});if(error){alert('Não foi possível aprovar a saída: '+error.message);return}alert('Solicitação aprovada. A saída foi registrada no histórico da O.S.');await carregarAlmoxarifado()}
+async function aprovarSolicitacaoAlmox(id,materialSelecionado){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const material=String(materialSelecionado||'').trim();
+ if(!material)return alert('Selecione o material correspondente ou cadastre-o antes de aprovar.');
+ try{
+  const {error}=await _supabase.rpc('almox_aprovar_solicitacao',{p_solicitacao_id:String(id),p_material_id:material,p_justificativa:null});
+  if(error){console.error('Falha ao registrar baixa da peça informada:',error);return alert('Não foi possível aprovar a saída: '+error.message)}
+  alert('Solicitação aprovada. A saída foi registrada no histórico da O.S.');
+  await carregarAlmoxarifado();
+ }catch(error){console.error('Erro inesperado ao registrar baixa:',error);alert('Não foi possível registrar a baixa. '+(error?.message||'Verifique a conexão e tente novamente.'))}
+}
 async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const motivo=await erimaxPrompt('Informe o motivo da recusa:');if(motivo===null)return;if(motivo.trim().length<3)return alert('Informe um motivo com pelo menos 3 caracteres.');const {error}=await _supabase.from('almox_solicitacoes').update({status:'recusada',analisado_por:MEU_ID,analisado_em:new Date().toISOString(),justificativa_analise:motivo.trim()}).eq('id',id).eq('status','pendente');if(error){alert('Não foi possível recusar: '+error.message);return}await carregarAlmoxarifado()}
 async function excluirSolicitacaoAlmox(id){
  if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
@@ -14697,8 +14709,9 @@ async function excluirSolicitacaoAlmox(id){
   else if(action==='delete')excluirSolicitacaoAlmox(id);
   else if(action==='register')prepararCadastroMaterialAlmox(id);
   else if(action==='approve'){
-   const select=btn.parentElement?.querySelector('select');
-   aprovarSolicitacaoAlmox(id,select?.value);
+   const select=btn.closest('.almox-request-controls')?.querySelector('select');
+   if(!select)return alert('Não foi possível localizar o seletor de material desta pendência.');
+   aprovarSolicitacaoAlmox(id,select.value);
   }
  },true);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ativar);else ativar();
