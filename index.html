@@ -14682,7 +14682,7 @@ async function excluirSolicitacaoAlmox(id){
     const escolhido=s.material_id||match?.id||'';
     const opts=ALMOX_MATERIAIS.filter(m=>m.ativo!==false).map(m=>'<option value="'+htmlAlmox(m.id)+'" '+(String(escolhido)===String(m.id)?'selected':'')+'>'+htmlAlmox(m.nome)+' ('+Number(m.quantidade_atual||0).toLocaleString('pt-BR')+' '+htmlAlmox(m.unidade||'un')+')</option>').join('');
     const sid=JSON.stringify(s.id);
-    const menu=gestorAlmox()?'<details class="almox-more-menu almox-pending-menu"><summary aria-label="Ações da pendência" title="Ações da pendência">⋮</summary><div class="almox-more-menu-pop almox-pending-menu-pop"><label class="almox-pending-link-label">Vincular material cadastrado<select id="almoxReqMat-kpi-'+htmlAlmox(s.id)+'"><option value="">Selecione um material...</option>'+opts+'</select></label>'+(!match?'<button type="button" class="almox-register" onclick="prepararCadastroMaterialAlmox('+sid+')">Cadastrar material</button>':'')+'<button type="button" class="almox-approve" onclick="aprovarSolicitacaoAlmox('+sid+',this.parentElement.querySelector(\'select\')?.value)">Registrar baixa</button><div class="almox-menu-separator"></div><button type="button" data-almox-pending-action="edit" data-id="'+htmlAlmox(s.id)+'">Editar</button><button type="button" class="danger" data-almox-pending-action="delete" data-id="'+htmlAlmox(s.id)+'">Excluir</button></div></details>':'';
+    const menu=gestorAlmox()?'<details class="almox-more-menu almox-pending-menu"><summary aria-label="Ações da pendência" title="Ações da pendência">⋮</summary><div class="almox-more-menu-pop almox-pending-menu-pop"><label class="almox-pending-link-label">Vincular material cadastrado<select id="almoxReqMat-kpi-'+htmlAlmox(s.id)+'"><option value="">Selecione um material...</option>'+opts+'</select></label>'+(!match?'<button type="button" class="almox-register" data-almox-pending-action="register" data-id="'+htmlAlmox(s.id)+'">Cadastrar material</button>':'')+'<button type="button" class="almox-approve" data-almox-pending-action="approve" data-id="'+htmlAlmox(s.id)+'">Registrar baixa</button><div class="almox-menu-separator"></div><button type="button" data-almox-pending-action="edit" data-id="'+htmlAlmox(s.id)+'">Editar</button><button type="button" class="danger" data-almox-pending-action="delete" data-id="'+htmlAlmox(s.id)+'">Excluir</button></div></details>':'';
     return '<article class="almox-kpi-row almox-kpi-pending-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b>'+menu+'</article>';
    }).join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
   }else{
@@ -14716,7 +14716,7 @@ async function excluirSolicitacaoAlmox(id){
    prepararCadastroMaterialAlmox(id);
   }
   else if(action==='approve'){
-   const select=btn.closest('.almox-request-controls')?.querySelector('select');
+   const select=btn.closest('.almox-request-controls')?.querySelector('select')||btn.closest('.almox-more-menu-pop')?.querySelector('select');
    alert('TESTE: o clique em Registrar baixa foi recebido. Material selecionado: '+(select?.value||'(vazio)')+'. ID: '+id);
    if(!select)return alert('Não foi possível localizar o seletor de material desta pendência.');
    aprovarSolicitacaoAlmox(id,select.value);
