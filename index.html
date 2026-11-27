@@ -5456,6 +5456,13 @@ html.erimax-app-android .nav-tabs{padding-top:88px!important}
 .almox-replenish-alert{margin:0 0 14px;padding:15px 17px;border:1px solid #f1c98b;border-left:4px solid #d97706;border-radius:13px;background:#fff8eb;color:#854d0e;font-size:.8rem;line-height:1.5}
 .almox-replenish-alert>strong,.almox-replenish-alert>span{display:block}.almox-replenish-alert>strong{font-size:.92rem;margin-bottom:3px}.almox-replenish-alert>div{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
 .almox-replenish-item{display:inline-flex;gap:5px;align-items:center;padding:6px 9px;border:1px solid #f2d7ac;border-radius:8px;background:#fff;font-size:.73rem}
+.almox-replenish-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;margin-top:12px!important}
+.almox-replenish-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;min-width:0;padding:10px 12px;border:1px solid #f2d7ac;border-radius:10px;background:#fff}
+.almox-replenish-name{min-width:0;font-weight:800;overflow-wrap:anywhere}
+.almox-replenish-name small,.almox-replenish-qty small{display:block;margin-top:3px;font-size:.68rem;font-weight:500;color:#8a6a3c}
+.almox-replenish-qty{text-align:right;white-space:nowrap}
+.almox-replenish-qty b{font-size:.76rem}
+@media(max-width:600px){.almox-replenish-list{grid-template-columns:1fr}.almox-replenish-row{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:9px 10px}}
 .almox-request-readonly{display:block;margin-top:8px;color:#64748b;font-size:.72rem}
 </style>
 
@@ -14180,9 +14187,11 @@ async function carregarAlmoxarifado(){
   consultaMov,
   _supabase.from('almox_solicitacoes').select('*').in('status',['pendente','estoque_insuficiente','nao_cadastrado']).order('criado_em',{ascending:false}).limit(100)
  ]);
- if(m.error||mv.error||s.error){console.error('Erro ao carregar Almoxarifado:',m.error||mv.error||s.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar os dados. Verifique as permissões.</p>';return}
- ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.data||[];ALMOX_SOLICITACOES=s.data||[];
- const a=ALMOX_MATERIAIS.filter(x=>x.ativo),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
+ if(m.error){console.error('Erro ao carregar materiais do Almoxarifado:',m.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar as peças cadastradas. Verifique as permissões de leitura do estoque.</p>';return}
+ if(mv.error)console.warn('Não foi possível carregar o histórico de movimentações:',mv.error);
+ if(s.error)console.warn('Não foi possível carregar as solicitações de materiais:',s.error);
+ ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.error?[]:(mv.data||[]);ALMOX_SOLICITACOES=s.error?[]:(s.data||[]);
+ const a=ALMOX_MATERIAIS.filter(x=>x.ativo!==false),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
  const put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
  put('almoxTotal',a.length);put('almoxDisponiveis',available);put('almoxBaixo',low);put('almoxZerado',zero);put('almoxPendentes',ALMOX_SOLICITACOES.length);
  const sel=document.getElementById('almoxMovMaterial');if(sel){const old=sel.value;sel.innerHTML='<option value="">Selecione um material</option>'+a.map(x=>'<option value="'+x.id+'">'+htmlAlmox(x.nome)+' — '+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</option>').join('');if(a.some(x=>x.id===old))sel.value=old}
@@ -14193,16 +14202,17 @@ async function carregarAlmoxarifado(){
 }
 function renderMateriaisAlmox(){
  const box=document.getElementById('almoxListaMateriais');if(!box)return;
- const q=(document.getElementById('almoxBusca')?.value||'').trim().toLowerCase(),filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
+ const normalizarBusca=s=>String(s??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\\s+/g,' ');
+ const q=normalizarBusca(document.getElementById('almoxBusca')?.value||''),filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
  const list=ALMOX_MATERIAIS.filter(x=>{
-  if(!x.ativo)return false;
+  if(x.ativo===false)return false;
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min;
   if(filtro==='zerado'&&!zero)return false;
   if(filtro==='baixo'&&!baixo)return false;
   if(filtro==='disponivel'&&(zero||baixo))return false;
-  return !q||[x.nome,x.codigo,x.categoria,x.localizacao].some(v=>String(v||'').toLowerCase().includes(q));
+  return !q||[x.nome,x.codigo,x.categoria,x.localizacao].some(v=>normalizarBusca(v).includes(q));
  }).sort((a,b)=>{const rank=x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return n<=0?0:(min>0&&n<=min?1:2)};return rank(a)-rank(b)||String(a.nome).localeCompare(String(b.nome),'pt-BR')});
- const contagem=document.getElementById('almoxContagemLista');if(contagem)contagem.textContent=list.length+' de '+ALMOX_MATERIAIS.filter(x=>x.ativo).length+' materiais';
+ const contagem=document.getElementById('almoxContagemLista');if(contagem)contagem.textContent=list.length+' de '+ALMOX_MATERIAIS.filter(x=>x.ativo!==false).length+' materiais';
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
@@ -14211,10 +14221,10 @@ function renderMateriaisAlmox(){
 }
 function renderAlertasReposicaoAlmox(){
  const box=document.getElementById('almoxAlertasReposicao');if(!box)return;
- const low=ALMOX_MATERIAIS.filter(x=>x.ativo&&Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)).sort((a,b)=>(Number(a.quantidade_atual)-Number(a.estoque_minimo))-(Number(b.quantidade_atual)-Number(b.estoque_minimo)));
+ const low=ALMOX_MATERIAIS.filter(x=>x.ativo!==false&&Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)).sort((a,b)=>(Number(a.quantidade_atual)-Number(a.estoque_minimo))-(Number(b.quantidade_atual)-Number(b.estoque_minimo)));
  if(!low.length){box.style.display='none';box.innerHTML='';return}
  box.style.display='';
- box.innerHTML='<strong>⚠ Reposição necessária</strong><span>Os materiais abaixo atingiram ou ficaram abaixo do estoque mínimo:</span><div>'+low.map(x=>'<span class="almox-replenish-item">'+htmlAlmox(x.nome)+': <b>'+Number(x.quantidade_atual).toLocaleString('pt-BR')+' / mínimo '+Number(x.estoque_minimo).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</b></span>').join('')+'</div>';
+ box.innerHTML='<strong>⚠ Reposição necessária</strong><span>Os materiais abaixo atingiram ou ficaram abaixo do estoque mínimo:</span><div class="almox-replenish-list">'+low.map(x=>'<article class="almox-replenish-row"><span class="almox-replenish-name">'+htmlAlmox(x.nome)+(x.codigo?'<small>Código: '+htmlAlmox(x.codigo)+'</small>':'')+'</span><span class="almox-replenish-qty"><b>'+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</b><small>Mínimo: '+Number(x.estoque_minimo).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small></span></article>').join('')+'</div>';
 }
 function renderSolicitacoesAlmox(){
  const box=document.getElementById('almoxListaSolicitacoes');if(!box)return;
