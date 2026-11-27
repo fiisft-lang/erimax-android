@@ -7830,12 +7830,12 @@ function atualizarNavegacaoMobileEriMax(id){
 <section class="almox-panel" id="almoxRetiradaAvulsa">
  <div class="almox-panel-head"><div><span class="almox-kicker">SAÍDA FORA DAS O.S.</span><h3>Retirada avulsa</h3><p>Confirme a retirada e a baixa do estoque acontece imediatamente, sem aprovação.</p></div><span class="almox-panel-icon">↗</span></div>
  <form id="almoxFormRetiradaAvulsa" class="almox-form-grid" onsubmit="solicitarRetiradaAvulsaAlmox(event)">
-  <label class="almox-span-2">Material do estoque *<select id="almoxAvulsaMaterial"><option value="">Selecione um material</option></select></label>
-  <label>Quantidade *<input id="almoxAvulsaQtd" type="number" min="0.001" step="0.001" required placeholder="Ex.: 2"></label>
+  <label class="almox-span-2">Material do estoque *<select id="almoxAvulsaMaterial" onchange="atualizarSaldoRetiradaAvulsa()"><option value="">Selecione um material</option></select><small id="almoxAvulsaSaldo" class="almox-avulsa-saldo">O saldo disponível será preenchido automaticamente.</small></label>
+  <label>Quantidade que vou usar *<input id="almoxAvulsaQtd" type="number" min="0.001" step="0.001" required placeholder="Ex.: 2"></label>
   <div class="almox-form-actions"><button type="button" class="almox-avulsa-add" onclick="adicionarItemRetiradaAvulsa()">＋ Adicionar material</button></div>
   <div class="almox-avulsa-cart-wrap almox-span-2"><div class="almox-avulsa-cart-head"><strong>Materiais desta retirada</strong><span id="almoxAvulsaContagem">0 itens</span></div><div id="almoxAvulsaItens" class="almox-avulsa-cart"><p class="almox-empty">Adicione os materiais que serão retirados.</p></div></div>
-  <label>Destino / setor *<input id="almoxAvulsaDestino" maxlength="120" required placeholder="Ex.: Oficina — fabricação de máquina"></label>
-  <label class="almox-span-2">Motivo da retirada *<textarea id="almoxAvulsaMotivo" rows="2" maxlength="240" required placeholder="Ex.: Montagem de conjunto mecânico, fabricação de máquina..."></textarea></label>
+  <label>Onde será utilizado? *<input id="almoxAvulsaDestino" maxlength="120" required placeholder="Ex.: Oficina — fabricação de máquina"></label>
+  <label class="almox-span-2">Descrição do uso *<textarea id="almoxAvulsaMotivo" rows="2" maxlength="240" required placeholder="Ex.: Montagem de conjunto mecânico, fabricação de máquina..."></textarea></label>
   <div class="almox-form-actions"><button class="btn-submit" type="submit">Confirmar retirada e dar baixa</button></div>
  </form>
  <div class="almox-avulsa-history-head"><div><span class="almox-kicker">REGISTRO DE SAÍDAS</span><h3>Histórico de retiradas</h3><p>Consulte as retiradas avulsas e as baixas realizadas automaticamente no estoque.</p></div><button type="button" class="almox-refresh" onclick="carregarRetiradasAvulsasAlmox()">↻ Atualizar</button></div>
@@ -14424,6 +14424,12 @@ function renderItensRetiradaAvulsa(){
  if(!ALMOX_AVULSA_ITENS.length){box.innerHTML='<p class="almox-empty">Adicione os materiais que serão retirados.</p>';return}
  box.innerHTML=ALMOX_AVULSA_ITENS.map((x,i)=>'<article class="almox-avulsa-item"><div><strong>'+htmlAlmox(x.nome)+'</strong><small>'+Number(x.quantidade).toLocaleString("pt-BR")+' '+htmlAlmox(x.unidade)+'</small></div><button type="button" onclick="removerItemRetiradaAvulsa('+i+')">Remover</button></article>').join("");
 }
+function atualizarSaldoRetiradaAvulsa(){
+ const sel=document.getElementById("almoxAvulsaMaterial"),info=document.getElementById("almoxAvulsaSaldo");
+ if(!sel||!info)return;
+ const m=ALMOX_MATERIAIS.find(x=>String(x.id)===String(sel.value)&&x.ativo!==false);
+ info.textContent=m?"Saldo disponível no estoque: "+Number(m.quantidade_atual||0).toLocaleString("pt-BR")+" "+(m.unidade||""):"O saldo disponível será preenchido automaticamente.";
+}
 function adicionarItemRetiradaAvulsa(){
  const id=document.getElementById("almoxAvulsaMaterial")?.value,qtd=Number(document.getElementById("almoxAvulsaQtd")?.value),m=ALMOX_MATERIAIS.find(x=>x.id===id&&x.ativo!==false);
  if(!m)return alert("Selecione um material cadastrado.");if(!Number.isFinite(qtd)||qtd<=0)return alert("Informe uma quantidade maior que zero.");
@@ -14489,7 +14495,7 @@ async function carregarAlmoxarifado(){
  ['almoxAdminCadastro','almoxAdminMov','almoxAdminHistory'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isGestor?'':'none'});
  const aviso=document.getElementById('almoxReadOnlyNotice');if(aviso)aviso.style.display=isGestor?'none':'';
  renderMateriaisAlmox();renderAlertasReposicaoAlmox();renderSolicitacoesAlmox();renderHistoricoAlmox();carregarRetiradasAvulsasAlmox();
- const av=document.getElementById('almoxAvulsaMaterial');if(av){const old=av.value;av.innerHTML='<option value="">Selecione um material</option>'+a.map(x=>'<option value="'+x.id+'">'+htmlAlmox(x.nome)+' — saldo: '+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</option>').join('');if(a.some(x=>x.id===old))av.value=old}
+ const av=document.getElementById('almoxAvulsaMaterial');if(av){const old=av.value;av.innerHTML='<option value="">Selecione um material</option>'+a.map(x=>'<option value="'+x.id+'">'+htmlAlmox(x.nome)+' — saldo: '+Number(x.quantidade_atual).toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</option>').join('');if(a.some(x=>x.id===old))av.value=old;atualizarSaldoRetiradaAvulsa()}
 }
 function renderMateriaisAlmox(){
  const box=document.getElementById('almoxListaMateriais');if(!box)return;
