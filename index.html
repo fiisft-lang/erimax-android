@@ -9482,19 +9482,6 @@ async function assumirOS(id,tecnicoPreferido=null){
     if(osAtendimentoError)return alert('Não foi possível verificar suas O.S. em atendimento: '+osAtendimentoError.message);
     if(osEmAtendimento&&osEmAtendimento.length)return alert('Você já tem uma O.S. em atendimento. Conclua ou pause a ordem atual antes de assumir outra.');
   }
-  // No preview, simula a ação apenas na memória do navegador. Nunca grava no banco de produção.
-  if(ERIMAX_PREVIEW_READ_ONLY){
-    const osLocal=chamados.find(x=>Number(x.id)===Number(id));
-    if(!osLocal||osLocal.status!=='Aberta')return alert('Esta O.S. não está mais aberta na lista carregada. Atualize a página.');
-    osLocal.status='Em Atendimento';
-    osLocal.tecnico=t;
-    osLocal.data_atendimento=new Date().toISOString();
-    renderizarChamados('listaOS');
-    renderizarChamados('listaOSAbertas',true);
-    if(typeof mostrarToastOS==='function')mostrarToastOS('SIMULAÇÃO DO PREVIEW: O.S. assumida na tela. Nenhuma alteração foi gravada no banco.');
-    else alert('SIMULAÇÃO DO PREVIEW: O.S. assumida na tela. Nenhuma alteração foi gravada no banco.');
-    return;
-  }
   // Atualização condicional: impede dois usuários de assumirem a mesma O.S. simultaneamente.
   const {data:assumida,error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id).eq('status','Aberta').select('id').maybeSingle();
   if(error)return alert('Erro ao assumir OS: '+error.message);
