@@ -14202,7 +14202,7 @@ async function carregarAlmoxarifado(){
 }
 function renderMateriaisAlmox(){
  const box=document.getElementById('almoxListaMateriais');if(!box)return;
- const normalizarBusca=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\\s+/g,' ');
+ const normalizarBusca=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\s+/g,' ');
  const q=normalizarBusca(document.getElementById('almoxBusca')?.value||''),filtro=document.getElementById('almoxFiltroEstoque')?.value||'todos';
  const list=ALMOX_MATERIAIS.filter(x=>{
   if(x.ativo===false)return false;
