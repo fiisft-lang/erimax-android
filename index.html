@@ -7577,6 +7577,21 @@ body .tbl-wrap td{color:#344d5e}
 #tab-almoxarifado .almox-material-more .almox-more-menu-pop,#tab-almoxarifado .almox-kpi-more .almox-more-menu-pop{right:0!important;top:calc(100% + 5px)!important}
 #tab-almoxarifado .almox-material-actions,#tab-almoxarifado .almox-kpi-actions{display:none!important}
 </style>
+<style id="erimax-almox-stock-menu-stacking-fix-20261127">
+/* Mantém o card ativo acima dos itens seguintes quando o menu de ações é aberto. */
+#tab-almoxarifado .almox-material:has(.almox-material-more[open]){
+ position:relative!important;
+ z-index:40!important;
+}
+#tab-almoxarifado .almox-material-more[open]{
+ position:relative!important;
+ z-index:41!important;
+}
+#tab-almoxarifado .almox-material-more[open] .almox-more-menu-pop{
+ position:absolute!important;
+ z-index:42!important;
+}
+</style>
 </head>
 <body>
 <header><button id="btnVoltarSistema" type="button" onclick="voltarSistema()" aria-label="Voltar para a tela anterior" style="display:none;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #d6e0e8;border-radius:9px;background:#fff;color:#244e68;font-size:.82rem;font-weight:750;white-space:nowrap">← <span>Voltar</span></button><div class="menu-control"><button id="btnMenuLateral" class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" onclick="alternarMenuLateral()"><span></span><span></span><span></span></button><span class="menu-caption" aria-hidden="true">Menu</span></div><img class="logo" alt="ERIMAX"></header><div id="menuBackdrop" onclick="fecharMenuLateral()" aria-hidden="true"></div>
