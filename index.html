@@ -14711,9 +14711,13 @@ async function excluirSolicitacaoAlmox(id){
   btn.closest('details')?.removeAttribute('open');
   if(action==='edit')editarSolicitacaoAlmox(id);
   else if(action==='delete')excluirSolicitacaoAlmox(id);
-  else if(action==='register')prepararCadastroMaterialAlmox(id);
+  else if(action==='register'){
+   alert('TESTE: o clique em Cadastrar material foi recebido. ID: '+id);
+   prepararCadastroMaterialAlmox(id);
+  }
   else if(action==='approve'){
    const select=btn.closest('.almox-request-controls')?.querySelector('select');
+   alert('TESTE: o clique em Registrar baixa foi recebido. Material selecionado: '+(select?.value||'(vazio)')+'. ID: '+id);
    if(!select)return alert('Não foi possível localizar o seletor de material desta pendência.');
    aprovarSolicitacaoAlmox(id,select.value);
   }
