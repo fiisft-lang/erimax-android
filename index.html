@@ -13556,6 +13556,19 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
   }
 }
 </style>
+<style id="erimax-almox-kpi-actions-20261127">
+ #tab-almoxarifado .almox-kpi-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+ #tab-almoxarifado .almox-kpi-btn{min-height:29px;padding:5px 9px;border:1px solid #d4e0e8;border-radius:7px;background:#f7fafc;color:#31566f;font-size:.68rem;font-weight:800;cursor:pointer}
+ #tab-almoxarifado .almox-kpi-btn:hover{background:#eaf2f7}
+ #tab-almoxarifado .almox-kpi-btn.danger,#tab-almoxarifado .almox-delete-request{border:1px solid #f0d0ce;background:#fff7f6;color:#a33e38}
+ #tab-almoxarifado .almox-delete-request{border-radius:8px;padding:8px 10px;font-size:.72rem;font-weight:800;cursor:pointer}
+ #tab-almoxarifado .almox-kpi-row{flex-wrap:wrap}
+ #tab-almoxarifado .almox-replenish-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #tab-almoxarifado .almox-replenish-row{grid-template-columns:minmax(0,1fr)!important;align-items:start!important;gap:6px!important;min-height:100%;padding:10px!important}
+ #tab-almoxarifado .almox-replenish-qty{text-align:left!important;white-space:normal!important}
+ #tab-almoxarifado .almox-replenish-qty b{font-size:.76rem}
+ @media(max-width:600px){#tab-almoxarifado .almox-replenish-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}#tab-almoxarifado .almox-replenish-row{padding:8px!important;overflow-wrap:anywhere}}
+</style>
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
@@ -14238,7 +14251,7 @@ function renderSolicitacoesAlmox(){
   const classe=s.status==='nao_cadastrado'?'almox-request-unregistered':'almox-request-registered';
   const sid=JSON.stringify(s.id);
   const controls=gestorAlmox()
-   ?'<div class="almox-request-controls"><select id="almoxReqMat-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" onclick=\'prepararCadastroMaterialAlmox('+sid+')\'>Cadastrar material</button>':'')+'<button class="almox-approve" type="button" onclick=\'aprovarSolicitacaoAlmox('+sid+')\'>Registrar baixa</button><button class="almox-reject" type="button" onclick=\'recusarSolicitacaoAlmox('+sid+')\'>Recusar</button></div>'
+   ?'<div class="almox-request-controls"><select id="almoxReqMat-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" onclick=\'prepararCadastroMaterialAlmox('+sid+')\'>Cadastrar material</button>':'')+'<button class="almox-approve" type="button" onclick=\'aprovarSolicitacaoAlmox('+sid+')\'>Registrar baixa</button><button class="almox-reject" type="button" onclick=\'recusarSolicitacaoAlmox('+sid+')\'>Recusar</button><button class="almox-delete-request" type="button" onclick=\'excluirSolicitacaoAlmox('+sid+')\'>Excluir</button></div>'
    :'<small class="almox-request-readonly">Informação enviada pela manutenção. O gestor fará o cadastro ou a regularização do estoque.</small>';
   return '<article class="almox-request"><div class="almox-request-top"><div><strong>'+htmlAlmox(s.nome_material)+'</strong><span class="'+classe+'">'+status+'</span><small>O.S. #'+s.os_id+' • Quantidade: '+Number(s.quantidade).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade)+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small>'+(s.observacao?'<small>'+htmlAlmox(s.observacao)+'</small>':'')+'</div></div>'+controls+'</article>';
  }).join('');
@@ -14256,6 +14269,20 @@ function renderHistoricoAlmox(){
  box.innerHTML=ALMOX_MOVIMENTOS.map(m=>'<div class="almox-history-row"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></div>').join('');
 }
 let MATERIAL_ALMOX_EM_EDICAO=null;
+function prepararMovimentacaoAlmox(id,tipo){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const material=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));
+ if(!material)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
+ const sel=document.getElementById('almoxMovMaterial'),campoTipo=document.getElementById('almoxMovTipo');
+ if(sel)sel.value=String(material.id);
+ if(campoTipo)campoTipo.value=tipo==='saida'?'saida':'entrada';
+ atualizarRotuloAjusteAlmox();
+ const qtd=document.getElementById('almoxMovQtd'),motivo=document.getElementById('almoxMovMotivo');
+ if(qtd)qtd.value='';
+ if(motivo)motivo.value=tipo==='saida'?'Saída de estoque':'Reposição de estoque';
+ document.getElementById('almoxAdminMov')?.scrollIntoView({behavior:'smooth',block:'center'});
+ qtd?.focus({preventScroll:true});
+}
 function editarMaterialAlmox(id){
  if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
  const m=ALMOX_MATERIAIS.find(x=>String(x.id)===String(id));if(!m)return alert('Material não encontrado. Atualize o estoque e tente novamente.');
@@ -14369,6 +14396,16 @@ async function salvarMaterialAlmox(e){
 async function movimentarEstoqueAlmox(e){e.preventDefault();if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const tipo=document.getElementById('almoxMovTipo').value,material=document.getElementById('almoxMovMaterial').value,qtd=Number(document.getElementById('almoxMovQtd').value),motivo=document.getElementById('almoxMovMotivo').value.trim(),os=document.getElementById('almoxMovOS').value;if(!material||!Number.isFinite(qtd)||qtd<=0||motivo.length<3)return alert('Confira material, quantidade e motivo.');const {error}=await _supabase.from('almox_movimentacoes').insert({material_id:material,tipo,quantidade:qtd,motivo,os_id:os?Number(os):null,criado_por:MEU_ID});if(error){alert('Movimentação não realizada: '+error.message);return}document.getElementById('almoxFormMov').reset();atualizarRotuloAjusteAlmox();alert('Movimentação registrada e saldo atualizado.');await carregarAlmoxarifado()}
 async function aprovarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const material=document.getElementById('almoxReqMat-'+id)?.value;if(!material)return alert('Selecione o material correspondente ou cadastre-o antes de aprovar.');const {error}=await _supabase.rpc('almox_aprovar_solicitacao',{p_solicitacao_id:id,p_material_id:material,p_justificativa:null});if(error){alert('Não foi possível aprovar a saída: '+error.message);return}alert('Solicitação aprovada. A saída foi registrada no histórico da O.S.');await carregarAlmoxarifado()}
 async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');const motivo=prompt('Informe o motivo da recusa:');if(motivo===null)return;if(motivo.trim().length<3)return alert('Informe um motivo com pelo menos 3 caracteres.');const {error}=await _supabase.from('almox_solicitacoes').update({status:'recusada',analisado_por:MEU_ID,analisado_em:new Date().toISOString(),justificativa_analise:motivo.trim()}).eq('id',id).eq('status','pendente');if(error){alert('Não foi possível recusar: '+error.message);return}await carregarAlmoxarifado()}
+async function excluirSolicitacaoAlmox(id){
+ if(!gestorAlmox())return alert('Acesso exclusivo do Gestor.');
+ const s=ALMOX_SOLICITACOES.find(x=>String(x.id)===String(id));
+ if(!s)return alert('Solicitação não encontrada. Atualize o Almoxarifado e tente novamente.');
+ if(!confirm('Excluir a peça informada "'+(s.nome_material||'Peça')+'" da lista de pendências? O registro original da O.S. não será alterado.'))return;
+ const {data,error}=await _supabase.from('almox_solicitacoes').delete().eq('id',id).select('id').maybeSingle();
+ if(error){console.error('Falha ao excluir solicitação do Almoxarifado:',error);return alert('Não foi possível excluir a peça informada: '+error.message)}
+ if(!data)return alert('O banco não confirmou a exclusão. Verifique a permissão do perfil Gestor.');
+ await carregarAlmoxarifado();
+}
 
 (function(){
  if(window.__erimaxAlmoxKpiDetails)return;window.__erimaxAlmoxKpiDetails=true;
@@ -14379,15 +14416,22 @@ async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acess
   let html='';
   if(tipo==='pendentes'){
    const pendencias=ALMOX_SOLICITACOES||[];
-   html=pendencias.length?pendencias.map(s=>'<article class="almox-kpi-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b></article>').join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
+   html=pendencias.length?pendencias.map(s=>'<article class="almox-kpi-row"><div><strong>'+htmlAlmox(s.nome_material||'Peça não identificada')+'</strong><small>O.S. #'+htmlAlmox(s.os_id)+' • '+htmlAlmox(s.status==='nao_cadastrado'?'Não cadastrada':'Estoque insuficiente')+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small></div><b>'+Number(s.quantidade||0).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade||'un')+'</b>'+(gestorAlmox()?'<div class="almox-kpi-actions"><button type="button" class="almox-kpi-btn danger" data-almox-action="delete-request" data-id="'+htmlAlmox(s.id)+'">Excluir</button></div>':'')+'</article>').join(''):'<p class="almox-empty">Nenhuma pendência no momento.</p>';
   }else{
-   const materiais=ALMOX_MATERIAIS.filter(x=>x.ativo);
+   const materiais=ALMOX_MATERIAIS.filter(x=>x.ativo!==false);
    const lista=materiais.filter(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return tipo==='total'||(tipo==='disponivel'&&n>0&&(min<=0||n>min))||(tipo==='baixo'&&n>0&&min>0&&n<=min)||(tipo==='zerado'&&n<=0)}).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),'pt-BR'));
-   html=lista.length?lista.map(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0;return '<article class="almox-kpi-row"><div><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+' • Mínimo: '+min.toLocaleString('pt-BR')+'</small></div><b>'+n.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade||'un')+'</b></article>'}).join(''):'<p class="almox-empty">Nenhum material nesta situação.</p>';
+   html=lista.length?lista.map(x=>{const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,sid=htmlAlmox(x.id);return '<article class="almox-kpi-row"><div><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+' • Mínimo: '+min.toLocaleString('pt-BR')+'</small></div><b>'+n.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade||'un')+'</b>'+(gestorAlmox()?'<div class="almox-kpi-actions"><button type="button" class="almox-kpi-btn" data-almox-action="edit" data-id="'+sid+'">Editar</button><button type="button" class="almox-kpi-btn" data-almox-action="entrada" data-id="'+sid+'">Alimentar</button><button type="button" class="almox-kpi-btn" data-almox-action="saida" data-id="'+sid+'">Saída</button><button type="button" class="almox-kpi-btn danger" data-almox-action="delete" data-id="'+sid+'">Excluir</button></div>':'')+'</article>'}).join(''):'<p class="almox-empty">Nenhum material nesta situação.</p>';
   }
   box.dataset.tipo=tipo;box.innerHTML='<div class="almox-kpi-detail-head"><strong>'+labels[tipo]+'</strong><button type="button" aria-label="Fechar detalhes" class="almox-kpi-close">Fechar ×</button></div><div class="almox-kpi-detail-list">'+html+'</div>';box.hidden=false;
   document.querySelectorAll('[data-almox-kpi]').forEach(x=>{const active=x.dataset.almoxKpi===tipo;x.classList.toggle('is-selected',active);x.setAttribute('aria-expanded',String(active))});
   box.querySelector('.almox-kpi-close').addEventListener('click',()=>detalhe(tipo));
+  box.querySelectorAll('[data-almox-action]').forEach(btn=>btn.addEventListener('click',e=>{
+   e.stopPropagation();const id=btn.dataset.id,action=btn.dataset.almoxAction;
+   if(action==='edit')editarMaterialAlmox(id);
+   else if(action==='entrada'||action==='saida')prepararMovimentacaoAlmox(id,action);
+   else if(action==='delete')excluirMaterialAlmox(id);
+   else if(action==='delete-request')excluirSolicitacaoAlmox(id);
+  }));
  }
  function ativar(){const root=document.getElementById('tab-almoxarifado');if(!root||root.dataset.kpiReady)return;root.dataset.kpiReady='1';root.addEventListener('click',e=>{const card=e.target.closest('[data-almox-kpi]');if(card)detalhe(card.dataset.almoxKpi)});root.addEventListener('keydown',e=>{const card=e.target.closest('[data-almox-kpi]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();detalhe(card.dataset.almoxKpi)}})}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ativar);else ativar();
