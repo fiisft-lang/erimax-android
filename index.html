@@ -9475,9 +9475,12 @@ async function assumirOS(id,tecnicoPreferido=null){
   if(!t)return alert('Selecione o técnico responsável antes de assumir a O.S.');
   const atuaComoTecnico=ehTecnicoAtual()&&t===PERFIL.nome;
   if(atuaComoTecnico){
-    const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('status,turno_ativo').eq('user_id',MEU_ID).maybeSingle();
+    const {data:st,error:stError}=await _supabase.from('status_tecnicos').select('turno_ativo').eq('user_id',MEU_ID).maybeSingle();
     if(stError)return alert('Não foi possível verificar seu expediente: '+stError.message);
-    if(!st||!st.turno_ativo||st.status!=='ONLINE')return alert('Você precisa estar ONLINE e sem outra O.S. em serviço para assumir uma nova ordem.');
+    if(!st||!st.turno_ativo)return alert('Você precisa iniciar seu expediente para assumir uma nova ordem.');
+    const {data:osEmAtendimento,error:osAtendimentoError}=await _supabase.from('os').select('id').eq('tecnico',t).eq('status','Em Atendimento').limit(1);
+    if(osAtendimentoError)return alert('Não foi possível verificar suas O.S. em atendimento: '+osAtendimentoError.message);
+    if(osEmAtendimento&&osEmAtendimento.length)return alert('Você já tem uma O.S. em atendimento. Conclua ou pause a ordem atual antes de assumir outra.');
   }
   // Atualização condicional: impede dois usuários de assumirem a mesma O.S. simultaneamente.
   const {data:assumida,error}=await _supabase.from('os').update({status:'Em Atendimento',tecnico:t,data_atendimento:new Date().toISOString()}).eq('id',id).eq('status','Aberta').select('id').maybeSingle();
