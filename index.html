@@ -14478,7 +14478,7 @@ function renderSolicitacoesAlmox(){
   const sid=JSON.stringify(s.id);
   const menu=gestorAlmox()?'<details class="almox-more-menu"><summary aria-label="Mais opções" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" data-almox-pending-action="edit" data-id="'+htmlAlmox(s.id)+'">Editar</button><button type="button" class="danger" data-almox-pending-action="delete" data-id="'+htmlAlmox(s.id)+'">Excluir</button></div></details>':'';
   const controls=gestorAlmox()
-   ?'<div class="almox-request-controls"><select id="almoxReqMat-list-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" onclick="prepararCadastroMaterialAlmox('+sid+')">Cadastrar material</button>':'')+'<button class="almox-approve" type="button" onclick="aprovarSolicitacaoAlmox('+sid+',this.parentElement.querySelector(\'select\')?.value)">Registrar baixa</button></div>'
+   ?'<div class="almox-request-controls"><select id="almoxReqMat-list-'+s.id+'"><option value="">Vincular ao material cadastrado...</option>'+opts+'</select>'+(!match?'<button class="almox-register" type="button" data-almox-pending-action="register" data-id="'+htmlAlmox(s.id)+'">Cadastrar material</button>':'')+'<button class="almox-approve" type="button" data-almox-pending-action="approve" data-id="'+htmlAlmox(s.id)+'">Registrar baixa</button></div>'
    :'<small class="almox-request-readonly">Informação enviada pela manutenção. O gestor fará o cadastro ou a regularização do estoque.</small>';
   return '<article class="almox-request"><div class="almox-request-top"><div><strong>'+htmlAlmox(s.nome_material)+'</strong><span class="'+classe+'">'+status+'</span><small>O.S. #'+s.os_id+' • Quantidade: '+Number(s.quantidade).toLocaleString('pt-BR')+' '+htmlAlmox(s.unidade)+' • '+new Date(s.criado_em).toLocaleString('pt-BR')+'</small>'+(s.observacao?'<small>'+htmlAlmox(s.observacao)+'</small>':'')+'</div>'+menu+'</div>'+controls+'</article>';
  }).join('');
@@ -14695,6 +14695,11 @@ async function excluirSolicitacaoAlmox(id){
   btn.closest('details')?.removeAttribute('open');
   if(action==='edit')editarSolicitacaoAlmox(id);
   else if(action==='delete')excluirSolicitacaoAlmox(id);
+  else if(action==='register')prepararCadastroMaterialAlmox(id);
+  else if(action==='approve'){
+   const select=btn.parentElement?.querySelector('select');
+   aprovarSolicitacaoAlmox(id,select?.value);
+  }
  },true);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ativar);else ativar();
 })();
