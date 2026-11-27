@@ -13709,7 +13709,7 @@ function renderCategoriasAlmox(){
  grid.innerHTML=grupos.map(([nome,itens])=>{
   const baixo=itens.filter(x=>Number(x.quantidade_atual)>0&&Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)).length;
   const falta=itens.filter(x=>Number(x.quantidade_atual)<=0).length;
-  return '<button type="button" class="almox-category-card '+(ALMOX_CATEGORIA_ATIVA===nome?'active':'')+'" onclick="abrirCategoriaAlmox('+JSON.stringify(nome).replace(/'/g,'&#39;')+')"><span class="almox-category-top"><span class="almox-category-icon">'+iconeGrupoAlmox(nome)+'</span><span class="almox-category-count">'+itens.length+' '+(itens.length===1?'produto':'produtos')+'</span></span><strong>'+htmlAlmox(nome)+'</strong><span class="almox-category-meta">'+(falta?'<span class="almox-category-alert">'+falta+' em falta</span>':'')+(baixo?'<span>'+baixo+' com estoque baixo</span>':'')+(!falta&&!baixo?'<span>Estoque regular</span>':'')+'</span><span class="almox-category-open">Abrir grupo →</span></button>';
+  return '<button type="button" class="almox-category-card '+(ALMOX_CATEGORIA_ATIVA===nome?'active':'')+'" data-group="'+htmlAlmox(nome)+'" onclick="abrirCategoriaAlmox(this.dataset.group)"><span class="almox-category-top"><span class="almox-category-icon">'+iconeGrupoAlmox(nome)+'</span><span class="almox-category-count">'+itens.length+' '+(itens.length===1?'produto':'produtos')+'</span></span><strong>'+htmlAlmox(nome)+'</strong><span class="almox-category-meta">'+(falta?'<span class="almox-category-alert">'+falta+' em falta</span>':'')+(baixo?'<span>'+baixo+' com estoque baixo</span>':'')+(!falta&&!baixo?'<span>Estoque regular</span>':'')+'</span><span class="almox-category-open">Abrir grupo →</span></button>';
  }).join('');
 }
 function abrirCategoriaAlmox(nome){ALMOX_CATEGORIA_ATIVA=nome;const b=document.getElementById('almoxBusca');if(b)b.value='';const f=document.getElementById('almoxFiltroEstoque');if(f)f.value='todos';renderCategoriasAlmox();renderMateriaisAlmox();document.getElementById('almoxCardEstoqueCompleto')?.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -14466,6 +14466,7 @@ async function carregarAlmoxarifado(){
  ]);
  if(m.error||mv.error||s.error){console.error('Erro ao carregar Almoxarifado:',m.error||mv.error||s.error);if(box)box.innerHTML='<p class="almox-empty">Não foi possível carregar os dados. Verifique as permissões.</p>';return}
  ALMOX_MATERIAIS=m.data||[];ALMOX_MOVIMENTOS=mv.data||[];ALMOX_SOLICITACOES=s.data||[];
+ renderCategoriasAlmox();
  const a=ALMOX_MATERIAIS.filter(x=>x.ativo),low=a.filter(x=>Number(x.estoque_minimo)>0&&Number(x.quantidade_atual)<=Number(x.estoque_minimo)&&Number(x.quantidade_atual)>0).length,zero=a.filter(x=>Number(x.quantidade_atual)<=0).length,available=a.length-low-zero;
  const put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
  put('almoxTotal',a.length);put('almoxDisponiveis',available);put('almoxBaixo',low);put('almoxZerado',zero);put('almoxPendentes',ALMOX_SOLICITACOES.length);
