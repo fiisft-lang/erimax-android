@@ -14552,7 +14552,7 @@ function renderMateriaisAlmox(){
  if(!list.length){box.innerHTML='<p class="almox-empty">Nenhum material encontrado para este filtro.</p>';return}
  box.innerHTML=list.map(x=>{
   const n=Number(x.quantidade_atual)||0,min=Number(x.estoque_minimo)||0,zero=n<=0,baixo=!zero&&min>0&&n<=min,cl=zero?'almox-stock-zero':baixo?'almox-stock-low':'',status=zero?'EM FALTA':baixo?'ESTOQUE BAIXO':'DISPONÍVEL',statusClass=zero?'zero':baixo?'low':'ok';
-  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span>'+(gestorAlmox()?'<button type="button" class="almox-trace-open" onclick="abrirRastreabilidadeMaterialAlmox(\\''+x.id+'\\')">⌕ Rastreabilidade</button>':'')+'</div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<details class="almox-more-menu almox-material-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Editar</button><button type="button" class="danger" onclick="excluirMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Excluir</button></div></details>':'')+'</div></article>';
+  return '<article class="almox-material '+cl+'"><div class="almox-material-info"><strong>'+htmlAlmox(x.nome)+'</strong><small>'+(x.codigo?'Código: '+htmlAlmox(x.codigo)+' • ':'')+htmlAlmox(x.categoria||'Sem categoria')+(x.localizacao?' • '+htmlAlmox(x.localizacao):'')+'</small><small>Estoque mínimo: '+min.toLocaleString('pt-BR')+' '+htmlAlmox(x.unidade)+'</small><span class="almox-stock-status '+statusClass+'">'+status+'</span>'+(gestorAlmox()?'<button type="button" class="almox-trace-open" onclick="abrirRastreabilidadeMaterialAlmox(\''+x.id+'\')">⌕ Rastreabilidade</button>':'')+'</div><div class="almox-material-qty"><strong>'+n.toLocaleString('pt-BR')+'</strong><small>'+htmlAlmox(x.unidade)+'</small>'+(gestorAlmox()?'<details class="almox-more-menu almox-material-more"><summary aria-label="Mais opções do material" title="Mais opções">⋮</summary><div class="almox-more-menu-pop"><button type="button" onclick="editarMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Editar</button><button type="button" class="danger" onclick="excluirMaterialAlmox(\''+x.id+'\');this.closest(\'details\').open=false">Excluir</button></div></details>':'')+'</div></article>';
  }).join('');
 }
 function renderAlertasReposicaoAlmox(){
@@ -14613,7 +14613,7 @@ function prepararCadastroMaterialAlmox(id){
 function renderHistoricoAlmox(){
  const box=document.getElementById('almoxHistorico');if(!box)return;
  if(!ALMOX_MOVIMENTOS.length){box.innerHTML='<p class="almox-empty">Nenhuma movimentação registrada.</p>';return}
- box.innerHTML=ALMOX_MOVIMENTOS.map(m=>'<button type="button" class="almox-history-row" onclick="abrirRastreabilidadeMaterialAlmox(\\''+m.material_id+'\\',\\''+m.id+'\\')" title="Abrir rastreabilidade do material"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></button>').join('');
+ box.innerHTML=ALMOX_MOVIMENTOS.map(m=>'<button type="button" class="almox-history-row" onclick="abrirRastreabilidadeMaterialAlmox(\''+m.material_id+'\',\''+m.id+'\')" title="Abrir rastreabilidade do material"><time>'+new Date(m.criado_em).toLocaleString('pt-BR')+'</time><div><strong>'+htmlAlmox(m.almox_materiais?.nome||'Material')+' • '+htmlAlmox(m.tipo.toUpperCase())+'</strong><small>'+htmlAlmox(m.motivo)+(m.os_id?' • O.S. #'+m.os_id:'')+'</small></div><span class="almox-history-value '+m.tipo+'">'+(m.tipo==='saida'?'−':m.tipo==='entrada'?'+':'=')+Number(m.quantidade).toLocaleString('pt-BR')+'</span></button>').join('');
 }
 
 let ALMOX_RASTREABILIDADE_TOKEN=0;
@@ -14623,7 +14623,7 @@ function fecharRastreabilidadeMaterialAlmox(){
  if(modal)modal.remove();
 }
 function normalizarChaveRastreabilidade(v){
- return String(v??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]/g,'');
+ return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]/g,'');
 }
 function dataRastreabilidade(v){
  if(!v)return 'Data não informada';
@@ -14649,8 +14649,8 @@ async function abrirRastreabilidadeMaterialAlmox(materialId,movimentoId){
  modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h3>Rastreabilidade</h3><p>'+htmlAlmox(material.nome)+(material.codigo?' • Código '+htmlAlmox(material.codigo):'')+'</p></div><button type="button" class="almox-trace-close" onclick="fecharRastreabilidadeMaterialAlmox()" aria-label="Fechar">×</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Consultando histórico de utilização...</div></div></div>';
  try{
   const [movRes,osRes]=await Promise.all([
-   _supabase.from('almox_movimentacoes').select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,os(id,setor,maquina,tecnico,descricao,status,created_at,data_conclusao)').eq('material_id',material.id).order('criado_em',{ascending:false}).limit(1000),
-   _supabase.from('os').select('id,setor,maquina,tecnico,descricao,status,created_at,data_conclusao,peca,peca_quantidade,materiais_utilizados').order('created_at',{ascending:false}).limit(1000)
+   _supabase.from('almox_movimentacoes').select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,os(id,setor,maquina,tecnico,descricao,servico_executado,status,created_at,data_conclusao)').eq('material_id',material.id).order('criado_em',{ascending:false}).limit(1000),
+   _supabase.from('os').select('id,setor,maquina,tecnico,descricao,servico_executado,status,created_at,data_conclusao,peca,peca_quantidade,materiais_utilizados').order('created_at',{ascending:false}).limit(1000)
   ]);
   if(token!==ALMOX_RASTREABILIDADE_TOKEN||!document.getElementById('almoxRastreabilidadeModal'))return;
   if(movRes.error)throw movRes.error;
@@ -14882,7 +14882,7 @@ async function excluirSolicitacaoAlmox(id){
   let html='';
   if(tipo==='pendentes'){
    const pendencias=ALMOX_SOLICITACOES||[];
-   const normalizarPendencia=v=>String(v||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ');
+   const normalizarPendencia=v=>String(v||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ');
    html=pendencias.length?pendencias.map(s=>{
     const match=ALMOX_MATERIAIS.find(m=>m.ativo!==false&&(m.id===s.material_id||normalizarPendencia(m.nome)===normalizarPendencia(s.nome_material)||normalizarPendencia(m.codigo)===normalizarPendencia(s.nome_material)));
     const escolhido=s.material_id||match?.id||'';
