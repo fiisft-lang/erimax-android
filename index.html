@@ -18883,3 +18883,116 @@ body{font-family:var(--erimax-ui-font);font-kerning:normal}
   #tab-metricas #metricsComparacaoMaquinas .metrics-compare-icon{display:none!important}
 }
 </style>
+
+
+<style id="erimax-metricas-auditoria-desktop-corrigida">
+@media (min-width:1024px){
+ #tab-metricas #metricsDataContent{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:20px!important;row-gap:20px!important;align-items:stretch!important}
+ #tab-metricas #metricsDataContent>.metrics-grid,
+ #tab-metricas #metricsDataContent>.metrics-section-heading,
+ #tab-metricas #metricsDataContent>.metrics-ranking-card,
+ #tab-metricas #metricsDataContent>#cardHorarioEfGeral,
+ #tab-metricas #metricsDataContent>#cardHeatmapMaquinas,
+ #tab-metricas #metricsDataContent>#cardHorarioPareto,
+ #tab-metricas #metricsDataContent>#cardRankingReincidencia,
+ #tab-metricas #metricsDataContent>#printReportHeader,
+ #tab-metricas #metricsDataContent>.metrics-report-toolbar{grid-column:1/-1!important}
+ #tab-metricas #metricsDataContent>.metrics-section-heading{
+  display:flex!important;align-items:center!important;gap:18px!important;
+  min-height:82px!important;margin:10px 0 0!important;padding:17px 23px!important;
+  border:1px solid #173f5b!important;border-left:7px solid #28a477!important;
+  border-radius:13px!important;background:linear-gradient(105deg,#10344f 0%,#174d69 68%,#176b68 100%)!important;
+  box-shadow:0 6px 18px rgba(16,52,79,.14)!important
+ }
+ #tab-metricas #metricsDataContent>.metrics-section-heading>span{
+  display:grid!important;place-items:center!important;flex:0 0 43px!important;
+  width:43px!important;height:43px!important;border:1px solid rgba(255,255,255,.28)!important;
+  border-radius:11px!important;background:#198765!important;color:#fff!important;
+  font-size:.86rem!important;font-weight:950!important
+ }
+ #tab-metricas #metricsDataContent>.metrics-section-heading h3{margin:0!important;color:#fff!important;font-size:1.17rem!important;font-weight:900!important;letter-spacing:-.02em!important}
+ #tab-metricas #metricsDataContent>.metrics-section-heading p{margin:5px 0 0!important;color:#d8e9ed!important;font-size:.8rem!important;line-height:1.5!important}
+ #tab-metricas #metricsDataContent>.card:has(>.chart-wrapper){
+  min-width:0!important;min-height:360px!important;padding:0 0 18px!important;overflow:hidden!important;
+  border:1px solid #d2e0e7!important;border-top:0!important;border-radius:14px!important;
+  background:#fff!important;box-shadow:0 5px 16px rgba(18,55,78,.065)!important
+ }
+ #tab-metricas #metricsDataContent>.card:has(>.chart-wrapper)>h4{
+  display:flex!important;align-items:center!important;min-height:58px!important;
+  margin:0 0 16px!important;padding:13px 19px!important;
+  border:0!important;border-bottom:3px solid #279b73!important;border-radius:0!important;
+  background:linear-gradient(100deg,#123b58 0%,#18516b 78%,#176d68 100%)!important;
+  color:#fff!important;font-size:.94rem!important;font-weight:900!important;line-height:1.35!important;text-align:left!important
+ }
+ #tab-metricas #metricsDataContent>.card:has(>.chart-wrapper)>.chart-wrapper{padding:0 17px!important}
+ #tab-metricas #metricsDataContent>.metrics-ranking-card{
+  min-width:0!important;padding:0!important;overflow:hidden!important;
+  border:1px solid #ccdde5!important;border-radius:15px!important;background:#fff!important;
+  box-shadow:0 6px 18px rgba(16,55,78,.07)!important
+ }
+ #tab-metricas #metricsDataContent>.metrics-ranking-card>.ranking-os-card-head{
+  display:flex!important;align-items:center!important;gap:15px!important;
+  min-height:82px!important;margin:0!important;padding:17px 22px!important;
+  border:0!important;border-bottom:3px solid #279b73!important;border-radius:0!important;
+  background:linear-gradient(105deg,#10344f 0%,#174d69 72%,#176b68 100%)!important
+ }
+ #tab-metricas #metricsDataContent>.metrics-ranking-card>.ranking-os-card-head>span{
+  display:grid!important;place-items:center!important;flex:0 0 43px!important;
+  width:43px!important;height:43px!important;border:1px solid rgba(255,255,255,.25)!important;
+  border-radius:11px!important;background:#198765!important;color:#fff!important
+ }
+ #tab-metricas #metricsDataContent>.metrics-ranking-card>.ranking-os-card-head h3{margin:0!important;color:#fff!important;font-size:1.04rem!important;font-weight:900!important}
+ #tab-metricas #metricsDataContent>.metrics-ranking-card>.ranking-os-card-head p{margin:5px 0 0!important;color:#d8e9ed!important;font-size:.77rem!important;line-height:1.5!important}
+ #tab-metricas #metricsDataContent>.metrics-ranking-card>#listaRankingReincidencia,
+ #tab-metricas #metricsDataContent>.metrics-ranking-card>#listaRelatorioProblemas{padding:20px 22px!important;background:#f8fbfc!important}
+ #tab-metricas #metricsDataContent>.metrics-executive-panel,
+ #tab-metricas #metricsDataContent>.metrics-action-center,
+ #tab-metricas #metricsDataContent>.metrics-preventive-panel,
+ #tab-metricas #metricsDataContent>.metrics-schedule-panel{
+  grid-column:1/-1!important;min-width:0!important;margin:0!important;padding:0!important;overflow:hidden!important;
+  border:1px solid #ccdde5!important;border-radius:15px!important;background:#fff!important;
+  box-shadow:0 6px 18px rgba(16,55,78,.07)!important
+ }
+ #tab-metricas #metricsDataContent .metrics-executive-head,
+ #tab-metricas #metricsDataContent .metrics-action-head,
+ #tab-metricas #metricsDataContent .metrics-preventive-head,
+ #tab-metricas #metricsDataContent .metrics-schedule-head{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:20px!important;
+  min-height:84px!important;margin:0!important;padding:17px 23px!important;
+  border:0!important;border-bottom:3px solid #279b73!important;border-radius:0!important;
+  background:linear-gradient(105deg,#10344f 0%,#174d69 72%,#176b68 100%)!important
+ }
+ #tab-metricas #metricsDataContent .metrics-executive-head h3,
+ #tab-metricas #metricsDataContent .metrics-action-head h3,
+ #tab-metricas #metricsDataContent .metrics-preventive-head h3,
+ #tab-metricas #metricsDataContent .metrics-schedule-head h3{margin:0!important;color:#fff!important;font-size:1.15rem!important;font-weight:900!important}
+ #tab-metricas #metricsDataContent .metrics-executive-head p,
+ #tab-metricas #metricsDataContent .metrics-action-head p,
+ #tab-metricas #metricsDataContent .metrics-preventive-head p,
+ #tab-metricas #metricsDataContent .metrics-schedule-head p{margin:5px 0 0!important;color:#d8e9ed!important;font-size:.79rem!important;line-height:1.5!important}
+ #tab-metricas #metricsDataContent .metrics-executive-kicker{color:#8fe0bd!important;font-size:.66rem!important;font-weight:900!important;letter-spacing:.14em!important}
+ #tab-metricas #metricsDataContent .metrics-executive-period,
+ #tab-metricas #metricsDataContent .metrics-action-readonly,
+ #tab-metricas #metricsDataContent .metrics-preventive-period,
+ #tab-metricas #metricsDataContent .metrics-schedule-live{border:1px solid rgba(255,255,255,.28)!important;background:rgba(17,128,91,.4)!important;color:#fff!important}
+ #tab-metricas #metricsDataContent .metrics-insight-grid,
+ #tab-metricas #metricsDataContent .metrics-action-grid,
+ #tab-metricas #metricsDataContent .metrics-preventive-grid,
+ #tab-metricas #metricsDataContent .metrics-schedule-kpis,
+ #tab-metricas #metricsDataContent .metrics-schedule-list,
+ #tab-metricas #metricsDataContent .metrics-technician-wrap{margin:22px 23px!important}
+ #tab-metricas #metricsDataContent .metrics-executive-subhead,
+ #tab-metricas #metricsDataContent .metrics-schedule-list-head{
+  margin:20px 23px 0!important;padding:12px 15px!important;border:1px solid #d5e3e9!important;
+  border-left:5px solid #279b73!important;border-radius:9px!important;background:#eaf2f6!important;color:#173f5b!important
+ }
+ #tab-metricas #metricsDataContent .metrics-executive-subhead h4{color:#173f5b!important;font-weight:900!important}
+ #tab-metricas #metricsDataContent .metrics-executive-footnote,
+ #tab-metricas #metricsDataContent .metrics-action-note,
+ #tab-metricas #metricsDataContent .metrics-preventive-note,
+ #tab-metricas #metricsDataContent .metrics-schedule-note{
+  margin:0 23px 22px!important;padding:12px 15px!important;border-left:4px solid #279b73!important;
+  border-radius:0 9px 9px 0!important;background:#f0f7f5!important;color:#4d6878!important
+ }
+}
+</style>
