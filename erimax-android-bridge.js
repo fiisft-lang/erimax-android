@@ -1,42 +1,41 @@
 (function () {
   'use strict';
 
-  const logoSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 145" role="img" aria-label="ERIMAX Produtos para Saúde"><rect width="430" height="145" fill="none"/><text x="4" y="99" fill="#F28B00" font-family="Arial,Helvetica,sans-serif" font-size="100" font-weight="900" letter-spacing="-6">ERIMA<tspan dx="14" fill="#1677C8">X</tspan></text><text x="8" y="137" fill="#858585" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800" letter-spacing=".25">PRODUTOS PARA SAÚDE</text></svg>';
-  const logoUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(logoSvg);
+  // Mantém a identidade visual original do EriMax mesmo se o WebView
+  // aplicar o estilo azul de fallback da tela de login.
+  function preservarVisualLogin() {
+    if (document.getElementById('erimax-login-visual-fix')) return;
 
-  function mostrarErroLogin(mensagem) {
-    const area = document.getElementById('lgErro');
-    if (area) area.textContent = mensagem;
-  }
-
-  function iniciarCorrecoesLogin() {
-    document.querySelectorAll('#login img.logo, header img.logo').forEach(function (img) {
-      img.src = logoUrl;
-      img.alt = 'EriMax — Produtos para Saúde';
-      img.style.display = 'block';
-    });
-
-    const botao = document.querySelector('#login .btn-submit');
-    if (botao) {
-      botao.type = 'button';
-      botao.onclick = function (event) {
-        event.preventDefault();
-        if (typeof window.entrar !== 'function') {
-          mostrarErroLogin('O módulo de login não carregou corretamente. Atualize a página e tente novamente.');
-          console.error('[EriMax] A função entrar() não foi carregada.');
-          return;
-        }
-        Promise.resolve(window.entrar()).catch(function (error) {
-          console.error('[EriMax] Falha ao executar o login:', error);
-          mostrarErroLogin('Não foi possível iniciar o login. Verifique a conexão e tente novamente.');
-        });
-      };
-    }
-
-    const email = document.getElementById('lgEmail');
-    if (email) email.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter' && botao) botao.click();
-    });
+    const style = document.createElement('style');
+    style.id = 'erimax-login-visual-fix';
+    style.textContent = `
+      #login {
+        background:
+          radial-gradient(ellipse at 12% 18%,rgba(71,143,196,.17),transparent 38%),
+          radial-gradient(ellipse at 88% 82%,rgba(242,139,56,.13),transparent 34%),
+          linear-gradient(135deg,#eaf2f9 0%,#f5f8fc 52%,#fff5eb 100%) !important;
+        isolation:isolate !important;
+      }
+      #login .box {
+        background:rgba(255,255,255,.94) !important;
+        border:1px solid rgba(255,255,255,.9) !important;
+        border-top:4px solid var(--secondary,#f28b38) !important;
+        border-radius:22px !important;
+        box-shadow:0 24px 70px rgba(38,75,110,.16),0 3px 12px rgba(38,75,110,.055) !important;
+        backdrop-filter:blur(16px);
+      }
+      #login .box img.logo {
+        display:block !important;
+        visibility:visible !important;
+        opacity:1 !important;
+        max-width:240px !important;
+        width:78% !important;
+        max-height:90px !important;
+        height:auto !important;
+        object-fit:contain !important;
+      }
+    `;
+    (document.head || document.documentElement).appendChild(style);
   }
 
   function tratarVoltarAndroid() {
@@ -55,8 +54,8 @@
   window.addEventListener('erimaxandroidback', tratarVoltarAndroid);
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', iniciarCorrecoesLogin, { once: true });
+    document.addEventListener('DOMContentLoaded', preservarVisualLogin, { once: true });
   } else {
-    iniciarCorrecoesLogin();
+    preservarVisualLogin();
   }
 })();
