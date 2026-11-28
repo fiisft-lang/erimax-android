@@ -15139,6 +15139,20 @@ async function recusarSolicitacaoAlmox(id){if(!gestorAlmox())return alert('Acess
 <style id="erimax-comparacao-maquinas-2026">
 .metrics-compare-panel{margin:14px 0 18px;border:1px solid #cbdced!important;background:linear-gradient(145deg,#f8fbff,#fff)!important}
 .metrics-compare-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+/* Cabeçalho da comparação seguindo a hierarquia azul e verde do EriMax */
+.metrics-compare-panel{overflow:hidden}
+.metrics-compare-head{
+ padding:16px 17px;margin:-1px -1px 0;
+ border-bottom:1px solid #d6e8e7;border-radius:15px 15px 0 0;
+ background:linear-gradient(112deg,#eaf3fb 0%,#f1f7f8 55%,#e8f5f0 100%);
+}
+.metrics-compare-head>div:first-child>span{color:#2878b8}
+.metrics-compare-head h3{color:#17445e}
+.metrics-compare-head p{color:#536f78}
+.metrics-compare-icon{
+ background:linear-gradient(145deg,#e3effa,#e1f2eb);
+ border:1px solid #d1e5df;color:#247b70
+}
 .metrics-compare-head>div>span{font-size:.65rem;font-weight:850;letter-spacing:.08em;color:#2563eb}
 .metrics-compare-head h3{margin:4px 0;color:#173b5c;font-size:1.05rem}
 .metrics-compare-head p{margin:0;color:#64748b;font-size:.78rem;line-height:1.5}
