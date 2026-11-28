@@ -8136,7 +8136,7 @@ function atualizarNavegacaoMobileEriMax(id){
 <div class="form-group" id="mdHoraWrap"><label for="mdHora">Horário de conclusão</label><input id="mdHora" type="datetime-local"><p style="font-size:.7rem;color:#64748b;margin-top:4px">Esqueceu de fechar? Informe a hora real em que terminou.</p></div>
 <div style="display:flex;gap:8px"><button class="btn-submit" style="background:#94a3b8" onclick="fecharModal()">Cancelar</button><button id="mdConcluirBtn" class="btn-submit" onclick="confirmarConclusao()">✅ Concluir</button></div></div></div>
 
-<div id="modalReabrirOS" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1250;align-items:center;justify-content:center;padding:16px">
+<div id="modalReabrirOS" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1250;align-items:center;justify-content:center;padding:16px">
   <div class="box" style="max-width:420px">
     <h2>↩️ Reabrir ordem de serviço</h2>
     <p id="reabrirOSInfo" style="font-size:.85rem;color:#475569;margin-bottom:12px"></p>
@@ -8574,7 +8574,36 @@ function selecionarCadastroArea(area){
   atualizarVisualCadastroArea(area);
   if(estavaFechada)history.pushState({...history.state,erimaxCadastroArea:true},'',location.href);
 }
+function erimaxCamadaInformacaoVisivel(){
+  const seletores='[aria-modal="true"],.erimax-os-history-modal,.almox-trace-modal,#modal,#modalHor,#modalEfOS,#modalDetalheMetrica,#modalEditarEquipamentoOS,#modalEditarOSCompleta,#modalReabrirOS';
+  const visiveis=[...document.querySelectorAll(seletores)].filter(el=>{
+    const cs=window.getComputedStyle(el);
+    return cs.display!=='none'&&cs.visibility!=='hidden'&&cs.opacity!=='0'&&el.getClientRects().length>0;
+  });
+  visiveis.sort((a,b)=>Number(window.getComputedStyle(a).zIndex||0)-Number(window.getComputedStyle(b).zIndex||0));
+  return visiveis[visiveis.length-1]||null;
+}
+function erimaxSincronizarHistoricoSubpagina(){
+  const camada=erimaxCamadaInformacaoVisivel();
+  const atual=history.state&&history.state.erimaxOverlay;
+  if(camada&&!atual){
+    const chave=camada.id||camada.getAttribute('aria-label')||camada.className||'detalhe';
+    try{history.pushState({...history.state,erimaxOverlay:String(chave)},'',location.href);}catch(e){console.warn('[EriMax] Histórico da subpágina:',e);}
+  }else if(!camada&&atual){
+    const estado={...history.state};delete estado.erimaxOverlay;
+    try{history.replaceState(estado,'',location.href);}catch(e){}
+  }
+}
+function instalarHistoricoSubpaginas(){
+  if(!document.body||window.__erimaxHistoricoSubpaginasInstalado)return;
+  window.__erimaxHistoricoSubpaginasInstalado=true;
+  const observer=new MutationObserver(()=>erimaxSincronizarHistoricoSubpagina());
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['style','class','aria-hidden','aria-modal']});
+  erimaxSincronizarHistoricoSubpagina();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalarHistoricoSubpaginas,{once:true});else instalarHistoricoSubpaginas();
 window.addEventListener('popstate',event=>{
+  if(fecharCamadaAtivaAntesDeVoltar()){atualizarBotaoVoltarSistema();return;}
   if(CADASTRO_AREA_ATIVA){fecharCadastroArea(false);return;}
   const destino=event.state&&event.state.erimaxTab;
   if(destino&&document.getElementById('tab-'+destino)){
@@ -8584,12 +8613,17 @@ window.addEventListener('popstate',event=>{
   }
 });
 (function instalarVoltarNativoCadastro(){
-  const app=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
-  if(app&&typeof app.addListener==='function'){
-    app.addListener('backButton',()=>{
-      if(document.body.classList.contains('menu-lateral-aberto')){fecharMenuLateral();return;}
-      voltarSistema();
-    }).catch?.(e=>console.warn('[EriMax] Botão voltar do Android:',e));
+  const cap=window.Capacitor;
+  const app=(cap&&cap.Plugins&&cap.Plugins.App)||(cap&&typeof cap.registerPlugin==='function'?cap.registerPlugin('App'):null);
+  const tratarVoltar=()=>{if(document.body.classList.contains('menu-lateral-aberto')){fecharMenuLateral();return;}voltarSistema();};
+  if(app&&typeof app.addListener==='function'&&!window.__erimaxAppBackListener){
+    window.__erimaxAppBackListener=true;
+    const registro=app.addListener('backButton',tratarVoltar);
+    if(registro&&typeof registro.catch==='function')registro.catch(e=>{window.__erimaxAppBackListener=false;console.warn('[EriMax] Botão voltar do Android:',e)});
+  }
+  if(!window.__erimaxDomBackListener){
+    window.__erimaxDomBackListener=true;
+    document.addEventListener('backbutton',e=>{e.preventDefault?.();tratarVoltar();},false);
   }
 })();
 function atualizarBotaoVoltarSistema(){
@@ -8600,8 +8634,26 @@ function atualizarBotaoVoltarSistema(){
   const podeVoltar=!!CADASTRO_AREA_ATIVA||id!=='abrir';
   botao.style.display=podeVoltar?'inline-flex':'none';
 }
+function fecharCamadaAtivaAntesDeVoltar(){
+  const modalMetrica=document.getElementById('modalDetalheMetrica');
+  if(modalMetrica&&window.getComputedStyle(modalMetrica).display!=='none'&&(METRICA_MAQUINA_ABERTA||REINCIDENCIA_MAQUINA_ABERTA||REINCIDENCIA_SELECAO?.problema)){
+    voltarGraficoDetalheIndicador();
+    return true;
+  }
+  const camadas=[...document.querySelectorAll('[aria-modal="true"],.erimax-os-history-modal,.almox-trace-modal,#modal,#modalHor,#modalEfOS,#modalDetalheMetrica,#modalEditarEquipamentoOS,#modalEditarOSCompleta,#modalReabrirOS')]
+    .filter(el=>{const cs=window.getComputedStyle(el);return cs.display!=='none'&&cs.visibility!=='hidden'&&(el.getClientRects().length>0);});
+  if(!camadas.length)return false;
+  camadas.sort((a,b)=>Number(window.getComputedStyle(a).zIndex||0)-Number(window.getComputedStyle(b).zIndex||0));
+  const topo=camadas[camadas.length-1];
+  const botoes=[...topo.querySelectorAll('button,[role="button"]')].reverse();
+  const fechar=botoes.find(btn=>{const acao=String(btn.getAttribute('onclick')||'').toLowerCase();const rotulo=String(btn.getAttribute('aria-label')||btn.getAttribute('title')||btn.textContent||'').toLowerCase();return /fechar|voltar|cancelar|close|back/.test(acao+' '+rotulo);});
+  if(fechar){fechar.click();return true;}
+  topo.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+  return true;
+}
 function voltarSistema(){
   if(document.body.classList.contains('menu-lateral-aberto')){fecharMenuLateral();return;}
+  if(fecharCamadaAtivaAntesDeVoltar())return;
   if(CADASTRO_AREA_ATIVA){fecharCadastroArea();return;}
   if(history.state&&history.state.erimaxTab&&history.length>1){history.back();return;}
   if(document.getElementById('tab-abrir')&&!document.getElementById('tab-abrir').classList.contains('active')){mudarAba('abrir');return;}
@@ -9376,6 +9428,7 @@ function renderizarChamados(destino='listaOS',apenasAbertas=false,apenasPausadas
       b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
     }
     if(status==='Em Atendimento'){
+      if(gestor)b+='<button type="button" class="btn-action btn-transferir os-action-primary" onclick="abrirModalReabrirOS('+id+')">Reabrir O.S.</button>';
       if(podeConcluir)b+='<button type="button" class="btn-action btn-concluir os-action-primary" onclick="concluirOS('+id+')">'+(os.tipo==='Preventiva'&&!tecnicoAtual?'Registrar máquinas':'Concluir')+'</button>';
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="pausarOS('+id+')">⏸️ Pausar</button>');
       if(gestor||tecnicoAtual)adicionarOpcao('<button type="button" class="btn-action btn-transferir" role="menuitem" onclick="transferirOS('+id+')">🔄 Transferir</button>');
@@ -9850,7 +9903,7 @@ function fecharModalReabrirOS(){
 function abrirModalReabrirOS(id){
   if(!PERFIL||PERFIL.perfil!=='gestor')return alert('Somente o gestor pode reabrir uma O.S.');
   const os=chamados.find(c=>Number(c.id)===Number(id));
-  if(!os||os.status!=='Concluída')return alert('Esta O.S. não está mais concluída. Atualize a lista e tente novamente.');
+  if(!os||!['Concluída','Em Atendimento'].includes(os.status))return alert('Esta O.S. não está em um status que permita reabertura. Atualize a lista e tente novamente.');
   osReabrir=Number(id);
   document.getElementById('reabrirOSInfo').textContent=nOS(os)+' — '+os.maquina+' | '+os.setor;
   document.getElementById('motivoReabrirOS').value='';
@@ -9861,15 +9914,17 @@ async function confirmarReaberturaOS(){
   const motivo=document.getElementById('motivoReabrirOS').value.trim();
   if(!id)return;
   if(motivo.length<8)return alert('Informe o motivo com pelo menos 8 caracteres.');
-  if(!await erimaxConfirm('Reabrir a O.S. '+String(id).padStart(4,'0')+'? Ela voltará para Em Atendimento.'))return;
+  const statusAntes=chamados.find(c=>Number(c.id)===Number(id))?.status;
+  const orientacao=statusAntes==='Concluída'?'Ela voltará para Em Atendimento.':'O atendimento continuará em andamento e os dados já registrados serão preservados.';
+  if(!await erimaxConfirm('Reabrir a O.S. '+String(id).padStart(4,'0')+'? '+orientacao))return;
   const {error}=await _supabase.rpc('reabrir_os_concluida',{p_os_id:id,p_motivo:motivo});
   if(error)return alert('Não foi possível reabrir a O.S.: '+error.message);
   fecharModalReabrirOS();
   const osReaberta=chamados.find(c=>Number(c.id)===Number(id));
   const tecnicoResponsavel=TECNICOS.find(t=>t.nome===osReaberta?.tecnico);
-  if(tecnicoResponsavel)await recalcularStatusTecnico(tecnicoResponsavel.id);
+  if(statusAntes==='Concluída'&&tecnicoResponsavel)await recalcularStatusTecnico(tecnicoResponsavel.id);
   await carregarDadosSupabase();
-  alert('O.S. reaberta! Ela voltou para Em Atendimento.');
+  alert(statusAntes==='Concluída'?'O.S. reaberta! Ela voltou para Em Atendimento.':'Reabertura registrada. O atendimento e os dados existentes foram preservados.');
 }
 
 // Status dos técnicos sincronizados automaticamente a cada 8 segundos como proteção ao Realtime.
@@ -14759,7 +14814,8 @@ async function abrirRastreabilidadeMaterialAlmox(materialId,movimentoId){
   document.body.appendChild(modal);
   if(!window.__erimaxAlmoxTraceEsc){document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('almoxRastreabilidadeModal'))fecharRastreabilidadeMaterialAlmox()});window.__erimaxAlmoxTraceEsc=true}
  }
- modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h3>Rastreabilidade</h3><p>'+htmlAlmox(material.nome)+(material.codigo?' • Código '+htmlAlmox(material.codigo):'')+'</p></div><button type="button" class="almox-trace-close" onclick="fecharHistoricoSaidaAlmox()" aria-label="Fechar">×</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Consultando histórico de utilização...</div></div></div>';
+ modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
+  modal.innerHTML='<div class="almox-trace-dialog"><header class="almox-trace-head"><div><span class="almox-kicker">CONTROLE DE MATERIAIS</span><h3>Rastreabilidade</h3><p>'+htmlAlmox(material.nome)+(material.codigo?' • Código '+htmlAlmox(material.codigo):'')+'</p></div><button type="button" class="almox-trace-close" onclick="fecharRastreabilidadeMaterialAlmox()" aria-label="Fechar">×</button></header><div class="almox-trace-body"><div class="almox-trace-empty">Consultando histórico de utilização...</div></div></div>';
  try{
   const [movRes,osRes]=await Promise.all([
    _supabase.from('almox_movimentacoes').select('id,material_id,tipo,quantidade,saldo_anterior,saldo_posterior,motivo,os_id,criado_por,criado_em,os(id,setor,maquina,tecnico,descricao,servico_executado,status,created_at,data_conclusao)').eq('material_id',material.id).order('criado_em',{ascending:false}).limit(1000),

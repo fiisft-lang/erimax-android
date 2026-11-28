@@ -12,6 +12,7 @@ on:
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
       - ota-atualizacao-android-staging-20261109
+      - feat/reabrir-os-em-atendimento-e-voltar-android-20261128
     paths-ignore:
       - "ota/**"
 
@@ -36,6 +37,35 @@ jobs:
 
       - name: Instalar dependências
         run: npm install
+
+      - name: Validar sintaxe JavaScript do EriMax
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const scripts = [];
+          let cursor = 0;
+          while (true) {
+            const open = html.indexOf('<script', cursor);
+            if (open < 0) break;
+            const openEnd = html.indexOf('>', open);
+            const close = html.indexOf('</script>', openEnd);
+            if (openEnd < 0 || close < 0) throw new Error('Tag script HTML incompleta.');
+            const attrs = html.slice(open, openEnd);
+            const body = html.slice(openEnd + 1, close);
+            if (!attrs.includes('src=') && body.trim()) scripts.push(body);
+            cursor = close + 9;
+          }
+          for (let i = 0; i < scripts.length; i++) {
+            try {
+              new Function(scripts[i]);
+            } catch (error) {
+              console.error('Erro de sintaxe no script inline #' + (i + 1) + ':', error.message);
+              process.exit(1);
+            }
+          }
+          console.log('Sintaxe validada em ' + scripts.length + ' scripts inline.');
+          NODE
 
       - name: Preparar aplicativo com Firebase
         env:
@@ -130,7 +160,7 @@ jobs:
           if "import com.webapp.erimaxmanuteno.EriMaxExportPlugin;" not in source:
               source = source.replace(
                   "import com.getcapacitor.BridgeActivity;",
-                  "import com.getcapacitor.BridgeActivity;\nimport android.os.Bundle;\nimport com.webapp.erimaxmanuteno.EriMaxExportPlugin;"
+                  "import com.getcapacitor.BridgeActivity;\nimport android.os.Bundle;\nimport androidx.activity.OnBackPressedCallback;\nimport com.webapp.erimaxmanuteno.EriMaxExportPlugin;"
               )
           if "registerPlugin(EriMaxExportPlugin.class)" not in source:
               pattern = r"(public\s+class\s+MainActivity\s+extends\s+BridgeActivity\s*\{)"
@@ -139,6 +169,21 @@ jobs:
               public void onCreate(Bundle savedInstanceState) {
                   registerPlugin(EriMaxExportPlugin.class);
                   super.onCreate(savedInstanceState);
+                  getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+                      @Override
+                      public void handleOnBackPressed() {
+                          if (getBridge() != null && getBridge().getWebView() != null) {
+                              getBridge().getWebView().evaluateJavascript(
+                                  "window.dispatchEvent(new Event('erimaxandroidback'));",
+                                  null
+                              );
+                          } else {
+                              setEnabled(false);
+                              getOnBackPressedDispatcher().onBackPressed();
+                              setEnabled(true);
+                          }
+                      }
+                  });
               }
               """
               source, count = re.subn(pattern, method, source, count=1)
