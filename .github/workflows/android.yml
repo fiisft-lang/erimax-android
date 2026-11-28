@@ -12,6 +12,7 @@ on:
       - incoming-call-alert-staging
       - melhorias-integradas-final-staging
       - ota-atualizacao-android-staging-20261109
+      - feat/reabrir-os-em-atendimento-e-voltar-android-20261128
     paths-ignore:
       - "ota/**"
 
