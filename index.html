@@ -13742,6 +13742,182 @@ html body,html.erimax-app-android body{background:#fafbfc!important}
 }
 </style>
 
+
+<style id="erimax-metricas-hierarquia-desktop-20261127">
+/* Ajuste exclusivo para desktop: recupera a hierarquia visual da área de Métricas.
+   Não altera conteúdo, cálculos, eventos ou regras de negócio. */
+@media (min-width: 1024px) {
+  #tab-metricas {
+    --mx-navy:#123f5b;
+    --mx-blue:#176b78;
+    --mx-teal:#218c78;
+    --mx-ink:#183b50;
+    --mx-muted:#5d7484;
+    --mx-line:#d5e2e9;
+    color:var(--mx-ink)!important;
+  }
+  #tab-metricas .metrics-hero {
+    min-height:164px!important;
+    padding:30px 34px!important;
+    border:1px solid #174e68!important;
+    border-bottom:5px solid var(--mx-teal)!important;
+    border-radius:17px!important;
+    background:linear-gradient(112deg,#102f49 0%,#174866 58%,#226b70 100%)!important;
+    box-shadow:0 10px 26px rgba(16,47,73,.14)!important;
+    color:#fff!important;
+  }
+  #tab-metricas .metrics-hero h2 {color:#fff!important;font-size:1.85rem!important;line-height:1.2!important}
+  #tab-metricas .metrics-hero p {max-width:820px!important;color:#d9e8ee!important;font-size:.91rem!important}
+  #tab-metricas .metrics-hero-kicker {color:#a9d8e8!important;font-size:.7rem!important;letter-spacing:.16em!important}
+  #tab-metricas .metrics-hero-side {
+    flex-basis:280px!important;min-width:260px!important;padding:16px 18px!important;
+    border:1px solid rgba(255,255,255,.22)!important;border-radius:13px!important;
+    background:rgba(255,255,255,.09)!important;
+  }
+  #tab-metricas .metrics-filter-card {
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:16px!important;margin:0 0 22px!important;padding:24px!important;
+    border:1px solid var(--mx-line)!important;border-top:4px solid var(--mx-blue)!important;
+    border-radius:15px!important;background:linear-gradient(145deg,#fff,#f5f9fb)!important;
+    box-shadow:0 5px 17px rgba(20,48,70,.055)!important;
+  }
+  #tab-metricas .metrics-filter-card h3,#tab-metricas .metrics-filter-card>p,
+  #tab-metricas .metrics-filter-card>.metrics-custom-period,
+  #tab-metricas .metrics-filter-card>.metrics-report-toolbar {grid-column:1/-1!important}
+  #tab-metricas .metrics-filter-card h3 {color:var(--mx-navy)!important;font-size:1.12rem!important}
+  #tab-metricas .metrics-filter-card label {color:#31566b!important;font-size:.72rem!important;font-weight:850!important}
+  #tab-metricas .metrics-filter-card input,#tab-metricas .metrics-filter-card select {
+    min-height:44px!important;border:1px solid #cbdbe4!important;border-radius:9px!important;
+    background:#fff!important;color:#24465a!important;
+  }
+  #tab-metricas .metrics-section-heading {
+    display:flex!important;align-items:center!important;gap:14px!important;
+    margin:22px 0 2px!important;padding:14px 18px!important;
+    border:1px solid #d5e3e9!important;border-left:5px solid var(--mx-teal)!important;
+    border-radius:12px!important;background:linear-gradient(100deg,#eaf2f7 0%,#f5faf8 100%)!important;
+    box-shadow:0 3px 10px rgba(18,63,91,.045)!important;
+  }
+  #tab-metricas .metrics-section-heading>span {
+    width:38px!important;height:38px!important;flex-basis:38px!important;
+    border:1px solid #c5dce3!important;border-radius:10px!important;
+    background:#dcebf0!important;color:var(--mx-navy)!important;font-size:.78rem!important;
+  }
+  #tab-metricas .metrics-section-heading h3 {margin:0!important;color:var(--mx-navy)!important;font-size:1.08rem!important;font-weight:900!important}
+  #tab-metricas .metrics-section-heading p {margin:4px 0 0!important;color:var(--mx-muted)!important;font-size:.79rem!important}
+  #metricsDataContent {gap:18px!important;align-items:stretch!important}
+  #metricsDataContent>.card,#metricsDataContent>.metrics-ranking-card {
+    min-width:0!important;padding:22px!important;border:1px solid var(--mx-line)!important;
+    border-top:3px solid #b7ccd8!important;border-radius:15px!important;
+    background:#fff!important;box-shadow:0 5px 17px rgba(20,48,70,.055)!important;
+  }
+  #metricsDataContent>.card h4 {
+    margin:0 0 12px!important;padding:0 0 11px!important;
+    border-bottom:1px solid #e3ebef!important;color:var(--mx-navy)!important;
+    font-size:1rem!important;font-weight:900!important;line-height:1.35!important;
+  }
+  #metricsDataContent>.card h4:before {
+    content:""!important;display:inline-block!important;width:5px!important;height:19px!important;
+    margin:0 10px -4px 0!important;border-radius:5px!important;background:var(--mx-teal)!important;
+  }
+  #metricsDataContent .metric-card {
+    min-height:116px!important;padding:17px!important;border:1px solid #d6e3e9!important;
+    border-top:3px solid #4d8798!important;border-radius:12px!important;
+    background:linear-gradient(155deg,#fff 0%,#f5f9fb 100%)!important;
+    box-shadow:0 3px 11px rgba(19,49,71,.05)!important;
+  }
+  #metricsDataContent .metric-card .title {color:#587184!important;font-size:.68rem!important;font-weight:850!important}
+  #metricsDataContent .metric-card .value {color:var(--mx-navy)!important;font-size:1.65rem!important}
+  #metricsDataContent .metric-card .sub {color:#718695!important;font-size:.7rem!important}
+  #tab-metricas .metrics-executive-panel,
+  #tab-metricas .metrics-action-center,
+  #tab-metricas .metrics-preventive-panel,
+  #tab-metricas .metrics-schedule-panel {
+    display:block!important;min-width:0!important;margin:22px 0!important;padding:0!important;
+    overflow:hidden!important;border:1px solid #cbdde4!important;border-radius:16px!important;
+    background:#fff!important;box-shadow:0 7px 22px rgba(16,59,83,.075)!important;
+  }
+  #tab-metricas .metrics-executive-head,
+  #tab-metricas .metrics-action-head,
+  #tab-metricas .metrics-preventive-head,
+  #tab-metricas .metrics-schedule-head,
+  #tab-metricas .ranking-os-card-head {
+    display:flex!important;align-items:center!important;justify-content:space-between!important;
+    gap:22px!important;margin:0 0 18px!important;padding:20px 24px!important;
+    border:0!important;border-bottom:1px solid #d6e4e9!important;border-left:6px solid var(--mx-teal)!important;
+    border-radius:0!important;background:linear-gradient(105deg,#e7f0f6 0%,#eff7f4 100%)!important;
+  }
+  #tab-metricas .metrics-executive-head h3,
+  #tab-metricas .metrics-action-head h3,
+  #tab-metricas .metrics-preventive-head h3,
+  #tab-metricas .metrics-schedule-head h3,
+  #tab-metricas .ranking-os-card-head h3 {
+    margin:5px 0 5px!important;color:var(--mx-navy)!important;
+    font-size:1.2rem!important;font-weight:900!important;letter-spacing:-.02em!important;
+  }
+  #tab-metricas .metrics-executive-head p,
+  #tab-metricas .metrics-action-head p,
+  #tab-metricas .metrics-preventive-head p,
+  #tab-metricas .metrics-schedule-head p,
+  #tab-metricas .ranking-os-card-head p {
+    max-width:900px!important;margin:0!important;color:#587181!important;
+    font-size:.82rem!important;line-height:1.55!important;
+  }
+  #tab-metricas .metrics-executive-panel>.metrics-insight-grid,
+  #tab-metricas .metrics-executive-panel>.metrics-technician-wrap,
+  #tab-metricas .metrics-action-center>.metrics-action-grid,
+  #tab-metricas .metrics-preventive-panel>.metrics-preventive-grid,
+  #tab-metricas .metrics-schedule-panel>.metrics-schedule-kpis,
+  #tab-metricas .metrics-schedule-panel>.metrics-schedule-list,
+  #tab-metricas .metrics-schedule-panel>.metrics-schedule-list-head {
+    margin-left:24px!important;margin-right:24px!important;
+  }
+  #tab-metricas .metrics-action-grid,
+  #tab-metricas .metrics-insight-grid,
+  #tab-metricas .metrics-preventive-grid {gap:16px!important}
+  #tab-metricas .metrics-action-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tab-metricas .metrics-action-grid>*,
+  #tab-metricas .metrics-insight-grid>*,
+  #tab-metricas .metrics-preventive-grid>* {
+    min-width:0!important;border:1px solid #d6e3e9!important;border-radius:12px!important;
+    background:linear-gradient(150deg,#fff,#f6fafb)!important;
+    box-shadow:0 3px 11px rgba(18,63,91,.05)!important;
+  }
+  #tab-metricas .metrics-action-note,
+  #tab-metricas .metrics-preventive-note,
+  #tab-metricas .metrics-executive-footnote,
+  #tab-metricas .metrics-schedule-note {
+    margin:18px 24px 22px!important;padding:12px 15px!important;
+    border-left:4px solid #7daeb0!important;border-radius:0 9px 9px 0!important;
+    background:#f2f7f8!important;color:#587181!important;font-size:.77rem!important;line-height:1.55!important;
+  }
+  #tab-metricas .metrics-action-readonly,
+  #tab-metricas .metrics-executive-period,
+  #tab-metricas .metrics-preventive-period,
+  #tab-metricas .metrics-schedule-live {
+    flex:0 0 auto!important;padding:8px 12px!important;border:1px solid #bfd5dc!important;
+    border-radius:8px!important;background:#dcebf0!important;color:#174d69!important;
+    font-size:.7rem!important;font-weight:850!important;letter-spacing:.035em!important;
+  }
+  #tab-metricas .metrics-executive-subhead,
+  #tab-metricas .metrics-schedule-list-head {
+    display:flex!important;align-items:center!important;justify-content:space-between!important;
+    gap:12px!important;margin-top:20px!important;padding:13px 24px!important;
+    border-top:1px solid #e0e9ed!important;border-bottom:1px solid #e0e9ed!important;
+    background:#f7fafb!important;color:var(--mx-navy)!important;
+  }
+  #tab-metricas .metrics-executive-subhead h4 {margin:0!important;color:var(--mx-navy)!important;font-size:.98rem!important}
+  #tab-metricas .metrics-technician-wrap {overflow:auto!important;border:1px solid #dce6eb!important;border-radius:10px!important}
+  #tab-metricas .metrics-technician-table th {background:#e8f0f5!important;color:#31566b!important}
+  #tab-metricas .metrics-technician-table td {padding:12px 14px!important}
+  #tab-metricas .metrics-action-card,
+  #tab-metricas .metrics-machine-priority,
+  #tab-metricas .metrics-preventive-card {border-left:4px solid var(--mx-teal)!important}
+  #tab-metricas .metrics-schedule-kpis {display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+  #tab-metricas .metrics-schedule-kpis>* {min-width:0!important;border:1px solid #d6e3e9!important;border-radius:11px!important;background:#f6fafb!important}
+  #tab-metricas #metricsComparacaoMaquinas {margin-top:22px!important}
+}
+</style>
+
 </body></html>`;
       await window.erimaxNativeExports.printHtml({html,name:'EriMax Relatorio de Manutencao'});
     }catch(error){console.error('Erro ao abrir impressão:',error);alert('Não foi possível abrir a impressão do Android: '+(error?.message||error));}
