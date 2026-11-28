@@ -8574,7 +8574,36 @@ function selecionarCadastroArea(area){
   atualizarVisualCadastroArea(area);
   if(estavaFechada)history.pushState({...history.state,erimaxCadastroArea:true},'',location.href);
 }
+function erimaxCamadaInformacaoVisivel(){
+  const seletores='[aria-modal="true"],.erimax-os-history-modal,.almox-trace-modal,#modal,#modalHor,#modalEfOS,#modalDetalheMetrica,#modalEditarEquipamentoOS,#modalEditarOSCompleta,#modalReabrirOS';
+  const visiveis=[...document.querySelectorAll(seletores)].filter(el=>{
+    const cs=window.getComputedStyle(el);
+    return cs.display!=='none'&&cs.visibility!=='hidden'&&cs.opacity!=='0'&&el.getClientRects().length>0;
+  });
+  visiveis.sort((a,b)=>Number(window.getComputedStyle(a).zIndex||0)-Number(window.getComputedStyle(b).zIndex||0));
+  return visiveis[visiveis.length-1]||null;
+}
+function erimaxSincronizarHistoricoSubpagina(){
+  const camada=erimaxCamadaInformacaoVisivel();
+  const atual=history.state&&history.state.erimaxOverlay;
+  if(camada&&!atual){
+    const chave=camada.id||camada.getAttribute('aria-label')||camada.className||'detalhe';
+    try{history.pushState({...history.state,erimaxOverlay:String(chave)},'',location.href);}catch(e){console.warn('[EriMax] Histórico da subpágina:',e);}
+  }else if(!camada&&atual){
+    const estado={...history.state};delete estado.erimaxOverlay;
+    try{history.replaceState(estado,'',location.href);}catch(e){}
+  }
+}
+function instalarHistoricoSubpaginas(){
+  if(!document.body||window.__erimaxHistoricoSubpaginasInstalado)return;
+  window.__erimaxHistoricoSubpaginasInstalado=true;
+  const observer=new MutationObserver(()=>erimaxSincronizarHistoricoSubpagina());
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['style','class','aria-hidden','aria-modal']});
+  erimaxSincronizarHistoricoSubpagina();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalarHistoricoSubpaginas,{once:true});else instalarHistoricoSubpaginas();
 window.addEventListener('popstate',event=>{
+  if(fecharCamadaAtivaAntesDeVoltar()){atualizarBotaoVoltarSistema();return;}
   if(CADASTRO_AREA_ATIVA){fecharCadastroArea(false);return;}
   const destino=event.state&&event.state.erimaxTab;
   if(destino&&document.getElementById('tab-'+destino)){
@@ -8584,12 +8613,17 @@ window.addEventListener('popstate',event=>{
   }
 });
 (function instalarVoltarNativoCadastro(){
-  const app=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
-  if(app&&typeof app.addListener==='function'){
-    app.addListener('backButton',()=>{
-      if(document.body.classList.contains('menu-lateral-aberto')){fecharMenuLateral();return;}
-      voltarSistema();
-    }).catch?.(e=>console.warn('[EriMax] Botão voltar do Android:',e));
+  const cap=window.Capacitor;
+  const app=(cap&&cap.Plugins&&cap.Plugins.App)||(cap&&typeof cap.registerPlugin==='function'?cap.registerPlugin('App'):null);
+  const tratarVoltar=()=>{if(document.body.classList.contains('menu-lateral-aberto')){fecharMenuLateral();return;}voltarSistema();};
+  if(app&&typeof app.addListener==='function'&&!window.__erimaxAppBackListener){
+    window.__erimaxAppBackListener=true;
+    const registro=app.addListener('backButton',tratarVoltar);
+    if(registro&&typeof registro.catch==='function')registro.catch(e=>{window.__erimaxAppBackListener=false;console.warn('[EriMax] Botão voltar do Android:',e)});
+  }
+  if(!window.__erimaxDomBackListener){
+    window.__erimaxDomBackListener=true;
+    document.addEventListener('backbutton',e=>{e.preventDefault?.();tratarVoltar();},false);
   }
 })();
 function atualizarBotaoVoltarSistema(){
@@ -8606,7 +8640,7 @@ function fecharCamadaAtivaAntesDeVoltar(){
     voltarGraficoDetalheIndicador();
     return true;
   }
-  const camadas=[...document.querySelectorAll('[aria-modal="true"],.erimax-os-history-modal,.almox-trace-modal,#modalReabrirOS')]
+  const camadas=[...document.querySelectorAll('[aria-modal="true"],.erimax-os-history-modal,.almox-trace-modal,#modal,#modalHor,#modalEfOS,#modalDetalheMetrica,#modalEditarEquipamentoOS,#modalEditarOSCompleta,#modalReabrirOS')]
     .filter(el=>{const cs=window.getComputedStyle(el);return cs.display!=='none'&&cs.visibility!=='hidden'&&(el.getClientRects().length>0);});
   if(!camadas.length)return false;
   camadas.sort((a,b)=>Number(window.getComputedStyle(a).zIndex||0)-Number(window.getComputedStyle(b).zIndex||0));
