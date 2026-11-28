@@ -43,11 +43,22 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script\\s*>/gi)]
-            .filter(match => !/\\bsrc\\s*=/.test(match[1]) && match[2].trim());
+          const scripts = [];
+          let cursor = 0;
+          while (true) {
+            const open = html.indexOf('<script', cursor);
+            if (open < 0) break;
+            const openEnd = html.indexOf('>', open);
+            const close = html.indexOf('</script>', openEnd);
+            if (openEnd < 0 || close < 0) throw new Error('Tag script HTML incompleta.');
+            const attrs = html.slice(open, openEnd);
+            const body = html.slice(openEnd + 1, close);
+            if (!attrs.includes('src=') && body.trim()) scripts.push(body);
+            cursor = close + 9;
+          }
           for (let i = 0; i < scripts.length; i++) {
             try {
-              new Function(scripts[i][2]);
+              new Function(scripts[i]);
             } catch (error) {
               console.error('Erro de sintaxe no script inline #' + (i + 1) + ':', error.message);
               process.exit(1);
